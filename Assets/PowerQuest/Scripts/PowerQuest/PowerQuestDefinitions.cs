@@ -1,0 +1,195 @@
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.EventSystems;
+using System.Reflection;
+using PowerTools;
+
+
+//
+// PowerQuest Partial Class: Public facing functions, etc go here.
+//
+
+namespace PowerTools.Quest
+{
+
+#region Global Enums
+
+// Face Directions
+[QuestAutoCompletable]
+public enum eFace
+{	
+	None = -1,Left, Right, Down, Up, DownLeft, DownRight, UpLeft, UpRight
+};
+
+// Type of QuestObject - Used as prefix to classname
+[QuestAutoCompletable]
+public enum eQuestObjectType
+{
+	Room,
+	Character,
+	Inventory,
+	Dialog,
+	Gui,
+	Prop,
+	Hotspot,
+	Region
+};
+
+// Type of clickable
+[QuestAutoCompletable]
+public enum eQuestClickableType
+{
+	None = -1,
+	Character,
+	Prop,
+	Hotspot,
+	Gui,
+	Inventory
+};
+
+[QuestAutoCompletable]
+public enum eQuestVerb
+{
+	None,
+	Walk,
+	Use,
+	Look,
+	Inventory
+}
+
+[QuestAutoCompletable]
+public enum eSpeechStyle
+{	
+	AboveCharacter,
+	Portrait,
+	Caption,
+};
+
+// TODO: other location styles
+public enum eSpeechPortraitLocation
+{
+	Left,
+	TODORight,
+	TODOAlternating,
+	TODOCharacterPosition,
+	TODOCharacterFacing,
+};
+
+#endregion
+#region Interfaces
+
+//
+// Interface to Interactive objects (players, hotpots, props)
+//
+public partial interface IQuestClickable
+{
+	eQuestClickableType ClickableType { get; }
+	MonoBehaviour Instance { get; }
+	string Description { get; set; }
+	string ScriptName { get; }
+	Vector2 WalkToPoint { get; set; }
+	Vector2 LookAtPoint { get; set; }
+	float Baseline { get; set; }
+	bool Clickable { get; set; }
+	string Cursor { get; set; }
+	Vector2 Position {get;}
+	// Called when player interacts with object
+	void OnInteraction( eQuestVerb verb );
+	// Called when current player interaction with object is canced (eg: during walk-to)
+	void OnCancelInteraction( eQuestVerb verb );
+	QuestScript GetScript();
+	IQuestScriptable GetScriptable();
+
+}
+
+//
+// Interface to Scriptable objects (players, rooms)
+//
+public interface IQuestScriptable
+{
+	string GetScriptName();
+	string GetScriptClassName();
+	QuestScript GetScript();
+	void HotLoadScript(Assembly assembly);
+	void EditorRename(string name);
+}
+
+public interface IQuestClickableInterface
+{
+	IQuestClickable IClickable {get;}
+}
+
+// TODO: flexible interaction system using this editable data structure
+[System.Serializable]
+public class QuestAction
+{
+	public string m_editorName = "On Interact";
+	public string m_editorNameLong = "Use";
+	public string m_scriptName = "Interact";
+	public eQuestVerb m_verb = eQuestVerb.None;
+}
+
+public static partial class Systems
+{
+	public static PowerQuest Quest { get{return PowerQuest.Get; } }
+	public static SystemAudio Audio { get{return SystemAudio.Get; } }
+	public static SystemTime Time { get{return SystemTime.Get; } }
+
+	/// Returns true when systems have been initialised
+	public static bool Valid { get { return PowerQuest.GetValid() && SystemAudio.GetValid() && SystemTime.GetValid(); } }
+}
+
+#endregion
+#region PowerQuest Typedefs
+/// PowerQuestDefinitions- Extra interfaces, static definitions, etc
+public partial class PowerQuest
+{	
+	public static readonly string GLOBAL_SCRIPT_NAME = "GlobalScript";
+	public static readonly string SCRIPT_FUNCTION_INTERACT = "OnInteract";
+	public static readonly string SCRIPT_FUNCTION_LOOKAT = "OnLookAt";
+	public static readonly string SCRIPT_FUNCTION_USEINV = "OnUseInv";
+	public static readonly string SCRIPT_FUNCTION_DIALOG_START_OLD = "Start";
+	public static readonly string SCRIPT_FUNCTION_DIALOG_START = "OnStart";
+	public static readonly string SCRIPT_FUNCTION_DIALOG_STOP = "OnStop";
+	public static readonly string SCRIPT_FUNCTION_DIALOG_OPTION = "Option";
+	public static readonly string SCRIPT_FUNCTION_INTERACT_PROP = SCRIPT_FUNCTION_INTERACT+"Prop";
+	public static readonly string SCRIPT_FUNCTION_INTERACT_HOTSPOT = SCRIPT_FUNCTION_INTERACT+"Hotspot";
+	public static readonly string SCRIPT_FUNCTION_INTERACT_INVENTORY = SCRIPT_FUNCTION_INTERACT+"Inventory";
+	public static readonly string SCRIPT_FUNCTION_INTERACT_CHARACTER = SCRIPT_FUNCTION_INTERACT+"Character";
+	public static readonly string SCRIPT_FUNCTION_LOOKAT_PROP = SCRIPT_FUNCTION_LOOKAT+"Prop";
+	public static readonly string SCRIPT_FUNCTION_LOOKAT_HOTSPOT = SCRIPT_FUNCTION_LOOKAT+"Hotspot";
+	public static readonly string SCRIPT_FUNCTION_LOOKAT_INVENTORY = SCRIPT_FUNCTION_LOOKAT+"Inventory";
+	public static readonly string SCRIPT_FUNCTION_LOOKAT_CHARACTER = SCRIPT_FUNCTION_LOOKAT+"Character";
+	public static readonly string SCRIPT_FUNCTION_USEINV_PROP = SCRIPT_FUNCTION_USEINV+"Prop";
+	public static readonly string SCRIPT_FUNCTION_USEINV_HOTSPOT = SCRIPT_FUNCTION_USEINV+"Hotspot";
+	public static readonly string SCRIPT_FUNCTION_USEINV_INVENTORY = SCRIPT_FUNCTION_USEINV+"Inventory";
+	public static readonly string SCRIPT_FUNCTION_USEINV_CHARACTER = SCRIPT_FUNCTION_USEINV+"Character";
+	public static readonly string SCRIPT_FUNCTION_ENTER_REGION = "OnEnterRegion";
+	public static readonly string SCRIPT_FUNCTION_EXIT_REGION = "OnExitRegion";
+	public static readonly string SCRIPT_FUNCTION_GETCURSOR = "GetCursor";
+
+	static readonly YieldInstruction EMPTY_YIELD_INSTRUCTION = new YieldInstruction(); // Used to prevent having to wait a frame in UpdateBlocking which happens when a routine returns yield break
+	static readonly YieldInstruction CONSUME_YIELD_INSTRUCTION = new YieldInstruction(); // Used to prevent falling through to default interaction in an empty function
+	static readonly float TEXT_DISPLAY_TIME_MIN = 1.0f;
+	static readonly float TEXT_DISPLAY_TIME_CHARACTER = 0.1f;
+	static readonly string DEFAULT_FADE_SOURCE = "";
+
+	static int LAYER_UI = -1; 
+
+	class ExtraSaveData
+	{
+		//public bool m_paused = false;
+		public string m_player = string.Empty;
+		public string m_currentDialog = string.Empty;
+	}
+
+	public delegate IEnumerator DelegateWaitForFunction();
+	public delegate void DelegateDelayedFunction();
+}
+
+#endregion
+
+
+}

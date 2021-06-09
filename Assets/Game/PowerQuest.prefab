@@ -1,0 +1,120 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &100838
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 424094}
+  - component: {fileID: 11480482}
+  m_Layer: 8
+  m_Name: PowerQuest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &424094
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100838}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &11480482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d39f5b0a7c380114782d4a5dc252d85a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_settings:
+    m_masterVolume: 1
+    m_musicVolume: 1
+    m_sfxVolume: 1
+    m_dialogVolume: 1
+    m_displayBoxGui: DisplayBox
+    m_dialogTreeGui: DialogTree
+    m_dialogDisplay: 0
+    m_speechStyle: 0
+    m_speechPortraitLocation: 0
+    m_transitionFadeTime: 0.3
+    m_alwaysShowDisplayText: 1
+    m_languageCode: EN
+  m_verticalResolution: 180
+  m_snapToPixel: 1
+  m_pixelCamEnabled: 1
+  m_defaultPixelsPerUnit: 1
+  m_sayTextAutoAdvance: 1
+  m_displayTextAutoAdvance: 0
+  m_textNoSkipTime: 0.25
+  m_enableUse: 1
+  m_enableLook: 1
+  m_enableInventory: 1
+  m_inventoryClickStyle: 0
+  m_saveVersion: 0
+  m_saveVersionRequired: 0
+  m_menuManager:
+    m_prefabEffectMenuFadeOut: {fileID: 212000010572677458, guid: 8586ef0cf80cdcb429678b9dd0b8180f, type: 3}
+    m_fadeColour: {r: 0, g: 0, b: 0, a: 1}
+    m_customFade: 0
+  m_cursorPrefab: {fileID: 11435822, guid: 3799efca464e21f4b9247c6beea65b92, type: 3}
+  m_cameraPrefab: {fileID: 11462848, guid: b254fcd8f583c324ba3da9904a492986, type: 3}
+  m_dialogTextPrefab: {fileID: 11401660, guid: e602015b16ad0c041abca0abc9116b9d, type: 3}
+  m_dialogTextOffset: {x: 0, y: 1}
+  m_spawnablePrefabs:
+  - {fileID: 198790, guid: e3cad009f08664a4098fd91ac4e9f76b, type: 3}
+  m_textSpriteMaterial: {fileID: 0}
+  m_textSprites: []
+  m_systems:
+  - {fileID: 477118, guid: f0b6ac7e109cb2543a538fce1bf8a997, type: 3}
+  - {fileID: 492308, guid: b59d39960f6839f428bcacef5efccdbd, type: 3}
+  - {fileID: 419728, guid: a2eee87df0924c54fb98d7980b9e78ad, type: 3}
+  m_roomPrefabs:
+  - {fileID: 114107578643181592, guid: 815776d2d5a9623498c61578ffc4c1cc, type: 3}
+  - {fileID: 6691753714027150367, guid: 7c0ae79c116ab474698aa2d37b3a1399, type: 3}
+  - {fileID: 3733532514121063368, guid: 23fdac69010168444a76818029d7630a, type: 3}
+  m_characterPrefabs:
+  - {fileID: 114953134120639602, guid: b4910caf4195aeb45895069ad277b9fd, type: 3}
+  - {fileID: 114894982771319608, guid: 65de018bf92bf6a4088d8c3f977119e7, type: 3}
+  - {fileID: 6035720155002498351, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
+  - {fileID: 4870277455036649029, guid: ef96f9240e30bc64a8ab75184977f7b2, type: 3}
+  m_guiPrefabs:
+  - {fileID: 114997530584156344, guid: 411a5d13109ce024888cfebc375721e4, type: 3}
+  - {fileID: 11415644, guid: d8cae87a9052f7b4eaaa6894c6d8a869, type: 3}
+  - {fileID: 11402302, guid: d4cb4513b770e8043a8c9d7b13ecb928, type: 3}
+  - {fileID: 11409846, guid: 91c75eda8b79c5e4d8831c7d8f32fa41, type: 3}
+  - {fileID: 11470062, guid: e86f1d97230418f4fb0a3da974facc78, type: 3}
+  - {fileID: 114536762978702078, guid: f8cb0265062cc8449b37f62e4d70646e, type: 3}
+  - {fileID: 11497058, guid: bfa352f4be1700a43943c6d5f5820e2b, type: 3}
+  m_dialogTreePrefabs:
+  - {fileID: 8169405738950080917, guid: 0c22e26d32d8a144fb72da7f289fa776, type: 3}
+  - {fileID: 8703979210912243557, guid: 2be5147766714424789af4b254279591, type: 3}
+  - {fileID: 8161061200134323888, guid: 3bf6c3abc20ac8e42b8558971a5eec5d, type: 3}
+  m_inventoryPrefabs:
+  - {fileID: 8997837797640581250, guid: 64ba661e400d04b4691995f67d00b33a, type: 3}
+  m_inventoryAnimations:
+  - {fileID: 7400000, guid: 10856a3a6e09a994f876dd16f8272cce, type: 2}
+  m_preloadedShaders:
+  - {fileID: 4800000, guid: be43750faab6d0b40baba2acf00099df, type: 3}
+  - {fileID: 4800000, guid: 67fc4aa44467421478679021cc374fc4, type: 3}
+  - {fileID: 4800000, guid: d98a9fb29ffd9b047b8b28042595d236, type: 3}
+  - {fileID: 4800000, guid: a2c3f6022054c654ea6aeb84a997cda4, type: 3}
+  - {fileID: 4800000, guid: 553637da87459c4428e8af106c8e49fd, type: 3}
+  m_version: 13004
+  m_newVersion: 12004
