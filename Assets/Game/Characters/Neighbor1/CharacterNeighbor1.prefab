@@ -51,7 +51,7 @@ MonoBehaviour:
   m_data:
     m_description: Neighbor1
     m_cursor: 
-    m_room: 
+    m_room: Hardware
     m_position: {x: 0, y: 0}
     m_faceDirection: 2
     m_clickable: 1
@@ -63,7 +63,7 @@ MonoBehaviour:
     m_turnBeforeFacing: 1
     m_turnSpeedFPS: 12
     m_adjustSpeedWithScaling: 1
-    m_textColour: {r: 1, g: 1, b: 1, a: 1}
+    m_textColour: {r: 0.9716981, g: 0.050418302, b: 0.95898956, a: 1}
     m_animIdle: Idle
     m_animWalk: Walk
     m_animTalk: Talk

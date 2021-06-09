@@ -14,4 +14,26 @@ public class RoomHardware : RoomScript<RoomHardware>
 		C.Dave.ChangeRoomBG(R.Map);
 		yield return E.Break;
 	}
+
+	void OnEnterRoom()
+	{
+		Globals.m_progressExample = eProgress.TriedPump1;
+		if(Globals.m_progressExample == eProgress.TriedPump1)
+		{
+		
+		C.Neighbor1.Visible=true;
+		C.Neighbor2.Visible=true;
+		}
+		else{
+		
+		C.Neighbor1.Visible=false;
+		C.Neighbor2.Visible=false;
+		}
+	}
+
+	IEnumerator OnEnterRoomAfterFade()
+	{
+
+		yield return E.Break;
+	}
 }

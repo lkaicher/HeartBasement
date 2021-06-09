@@ -19,7 +19,7 @@ MonoBehaviour:
   m_compression: 0
   m_crunchedCompression: 0
   m_sourcePSD: 
-  m_sourceDirectory: 
+  m_sourceDirectory: C:\Users\Paul\Desktop
   m_deleteImportedPngs: 1
   m_spriteDirectory: Sprites
   m_gui: 0

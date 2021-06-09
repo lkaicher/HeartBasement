@@ -20,24 +20,33 @@ public class RoomHome : RoomScript<RoomHome>
 	{
 		// Put things here that you need to set up BEFORE the room fades in (but nothing "blocking")
 		// Note, you can also just do this at the top of OnEnterRoomAfterFade
-		C.Player.SetPosition(-156,-54);
+		
+		
+		if ( R.Current.FirstTimeVisited ) // Only run this part the first time you visit
+		{
 		C.Dave.Say("Oh no! My basement is flooded! Maybe I can get something at the local hardware store to help. ");
+		E.WaitSkip();
+		C.Display("Left Click to Walk & Interact\nRight Click to Look At");
+		}
+		C.Dave.WalkToBG(Point("EntryWalk"));
+		
+		
 	}
 
 	public IEnumerator OnEnterRoomAfterFade()
 	{
 		// Put things here that happen when you enter a room
 		
-		if ( R.Current.FirstTimeVisited && false ) // Only run this part the first time you visit
-		{
+		if ( R.Current.FirstTimeVisited  ) // Only run this part the first time you visit
+		{	C.Dave.WalkToBG(Point("EntryWalk"));
 			yield return C.Dave.Say("Oh no! The basement is flooded!");
-			yield return C.Dave.WalkTo(Point("EntryWalk"));
-			yield return C.Dave.Say("Sure looks adventurey!");
+		   
+		
 			//Audio.PlayMusic("MusicExample");
 			yield return E.WaitSkip();
 			yield return C.Display("Left Click to Walk & Interact\nRight Click to Look At");
 		}
-		C.Dave.WalkToBG(Point("EntryWalk"));
+		
 	}
 
 
@@ -79,9 +88,9 @@ public class RoomHome : RoomScript<RoomHome>
 			  yield return E.WaitSkip();
 			yield return C.Dave.FaceDown();
 		
-		
+			
 			// Here we're setting a custom 'enum' so we could check it somewhere else to see if the player won yet
-			Globals.m_progressExample = eProgress.WonGame;		 
+				  
 		}
 		yield return E.Break;
 		

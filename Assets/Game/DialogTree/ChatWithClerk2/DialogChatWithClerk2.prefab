@@ -46,7 +46,7 @@ MonoBehaviour:
   m_data:
     m_options:
     - m_name: 1
-      m_text: Hello
+      m_text: I would like to buy a pump
       m_visible: 1
       m_disabled: 0
       m_used: 0
