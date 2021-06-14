@@ -15,7 +15,6 @@ public class RoomHome : RoomScript<RoomHome>
 	// enums like this are a nice way of keeping track of what's happened in a room
 	enum eThingsYouveDone { Start, InsultedChimp, EatenSandwich, LoadedCrossbow, AttackedFlyingNun, PhonedAlbatross }
 	eThingsYouveDone m_thingsDone = eThingsYouveDone.Start;
-	
 	public void OnEnterRoom()
 	{
 		// Put things here that you need to set up BEFORE the room fades in (but nothing "blocking")
@@ -29,6 +28,10 @@ public class RoomHome : RoomScript<RoomHome>
 		C.Display("Left Click to Walk & Interact\nRight Click to Look At");
 		}
 		C.Dave.WalkToBG(Point("EntryWalk"));
+		
+		
+		I.BilgePunp.Add();
+		
 		
 		
 	}
@@ -83,6 +86,8 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return C.FaceClicked();
 			yield return C.Display("Dave begins to try to pump out the water.");
 			Globals.m_progressExample = eProgress.TriedPump1;
+			Globals.myVar = "testGlobal";
+			yield return C.Dave.WalkTo(0,-400);
 			yield return C.Dave.Say("This is too hard! I think the handle is too short and the diameter of the hose is too small, I need to go back to the hardware store. ");
 			yield return E.Wait(1);
 			  yield return E.WaitSkip();

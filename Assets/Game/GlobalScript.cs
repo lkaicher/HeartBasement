@@ -24,6 +24,9 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		TriedPump2,
 		WonGame
 	};
+	
+	public string myVar = "testGlobal";
+	
 	public eProgress m_progressExample = eProgress.None;
 	
 	/// Just an example of using a global variable that can be accessed in any room with `Globals.m_spokeToBarney`. 

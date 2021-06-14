@@ -17,7 +17,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 
 	void OnEnterRoom()
 	{
-		Globals.m_progressExample = eProgress.TriedPump1;
+		// Globals.m_progressExample = eProgress.TriedPump1;
 		if(Globals.m_progressExample == eProgress.TriedPump1)
 		{
 		

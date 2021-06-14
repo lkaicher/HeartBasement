@@ -54,8 +54,7 @@ namespace PowerScript
 	{
 		// Access to specific dialog trees (Auto-generated)
 
-		public static IDialogTree ChatWithClerk2		{ get{return PowerQuest.Get.GetDialogTree("ChatWithClerk2"); } }
-		public static IDialogTree F		{ get{return PowerQuest.Get.GetDialogTree("F"); } }
+		public static IDialogTree DialogWithClerk		{ get{return PowerQuest.Get.GetDialogTree("DialogWithClerk"); } }
 		// #DIALOG# - Do not edit this line, it's used by the system to insert rooms for easy access	    	    
 	}
 

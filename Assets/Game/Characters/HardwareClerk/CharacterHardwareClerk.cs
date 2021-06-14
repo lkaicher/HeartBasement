@@ -17,7 +17,8 @@ public class CharacterHardwareClerk : CharacterScript<CharacterHardwareClerk>
 
 	IEnumerator OnInteract()
 	{
-		D.ChatWithClerk2.Start();
+         D.DialogWithClerk.Start();
+		// D.ChatWithClerk2.Start();
 		yield return E.Break;
 	}
 
