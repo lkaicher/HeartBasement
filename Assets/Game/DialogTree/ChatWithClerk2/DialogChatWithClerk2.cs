@@ -27,7 +27,7 @@ public IEnumerator OnStart()
 				yield return C.HardwareClerk.Say("Yes");
 				yield return E.WaitSkip();
 				yield return C.Dave.Say("OK, I will take it.");
-				I.BilgePunp.Add();
+				I.BilgePump.Add();
 				yield return C.Display("You now have a pump in your inventory, to us it grab it from your inventory (upper right)");
 				Stop();
 		yield return E.Break;

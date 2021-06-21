@@ -30,7 +30,7 @@ public class RoomHome : RoomScript<RoomHome>
 		C.Dave.WalkToBG(Point("EntryWalk"));
 		
 		
-		I.BilgePunp.Add();
+		// I.BilgePump.Add();
 		
 		
 		
@@ -80,7 +80,7 @@ public class RoomHome : RoomScript<RoomHome>
 	IEnumerator OnUseInvPropWater( IProp prop, IInventory item )
 	{
 		// NB: You need to check they used the correct item!
-		if ( item == I.BilgePunp )
+		if ( item == I.BilgePump )
 		{ 
 			yield return C.WalkToClicked();
 			yield return C.FaceClicked();
@@ -103,13 +103,41 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnLookAtPropWater( IProp prop )
 	{
-		yield return C.Dave.Say("That's alot of water!");
+		yield return C.Dave.Say("That's a lot of water!");
 		yield return E.Break;
 	}
 
 	IEnumerator OnInteractPropWater( IProp prop )
 	{
 		yield return C.Dave.Say(" I can't clean out all of this using only my hands.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnExitRoom( IRoom oldRoom, IRoom newRoom )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator UpdateBlocking()
+	{
+
+		yield return E.Break;
+	}
+
+	void Update()
+	{
+	}
+
+	IEnumerator OnAnyClick()
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnWalkTo()
+	{
+
 		yield return E.Break;
 	}
 }

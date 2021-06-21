@@ -4,14 +4,13 @@ using PowerTools.Quest;
 using PowerScript;
 using static GlobalScript;
 
-public class CharacterNeighbor2 : CharacterScript<CharacterNeighbor2>
+public class InventoryMediumHandle : InventoryScript<InventoryMediumHandle>
 {
 
 
-	IEnumerator OnLookAt()
+	IEnumerator OnUseInvInventory( IInventory thisItem, IInventory item )
 	{
-		yield return C.Dave.Say(" That's my friend Jim. ");
-		
+
 		yield return E.Break;
 	}
 }

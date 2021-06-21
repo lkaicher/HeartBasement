@@ -32,7 +32,7 @@ public class DialogChatWithBarney : DialogTreeScript<DialogChatWithBarney>
 		
 		Audio.Play("Bucket");
 		//I.BilgePump.Disable();
-		I.BilgePunp.AddAsActive();
+		I.BilgePump.AddAsActive();
 		yield return E.WaitSkip();
 	}
 

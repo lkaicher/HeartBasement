@@ -11,14 +11,27 @@ public class CharacterHardwareClerk : CharacterScript<CharacterHardwareClerk>
 	
 	IEnumerator OnLookAt()
 	{
-		yield return C.Dave.Say("It's the Hardware Clerk");
+		yield return C.Dave.Say("There's the clerk. He looks bored.");
 		yield return E.Break;
 	}
 
 	IEnumerator OnInteract()
 	{
-         D.DialogWithClerk.Start();
-		// D.ChatWithClerk2.Start();
+		 yield return C.Dave.WalkTo(Point("HWCounterPosition"));
+		 
+		
+		
+		
+		 if (D.DialogWithClerk.GetOption(2).Used) {
+			 D.BuyOptions.Start();
+		 } else if (D.DialogWithClerk.GetOption(1).Used && Globals.m_progressExample == eProgress.None) {
+			 yield return C.HardwareClerk.Say("Good luck.	 ");
+		 } else {
+			 D.DialogWithClerk.Start();
+		 } 
+		 
+		
+		//D.DialogWithClerk.Start();
 		yield return E.Break;
 	}
 

@@ -13,4 +13,11 @@ public class CharacterNeighbor1 : CharacterScript<CharacterNeighbor1>
 
 		yield return E.Break;
 	}
+
+	IEnumerator OnLookAt()
+	{
+		yield return C.Dave.Say(" It's my neighbor Bob. Maybe he can help.");
+		
+		yield return E.Break;
+	}
 }

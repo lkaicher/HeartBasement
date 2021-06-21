@@ -39,7 +39,25 @@ public class RoomMap : RoomScript<RoomMap>
 
 	IEnumerator OnLookAtPropHardware( IProp prop )
 	{
+		yield return C.Display(" The Hardware Store");
+		yield return E.Break;
+	}
 
+	IEnumerator OnLookAtPropHome( IProp prop )
+	{
+		yield return C.Display(" Home");
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtPropNeighbor1( IProp prop )
+	{
+		yield return C.Display(" Jim's House");
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtPropNeighbor2( IProp prop )
+	{
+		yield return C.Display(" Bob's House");
 		yield return E.Break;
 	}
 }

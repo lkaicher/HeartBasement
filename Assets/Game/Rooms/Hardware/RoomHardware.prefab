@@ -62,7 +62,13 @@ MonoBehaviour:
     m_shortName: Hardware
     m_scriptClass: RoomHardware
     m_sceneName: SceneRoomHardware
-    m_points: []
+    m_points:
+    - m_name: HWDavePosition
+      m_position: {x: -100, y: -20}
+    - m_name: HWClerkPosition
+      m_position: {x: 24, y: 6}
+    - m_name: HWCounterPosition
+      m_position: {x: -10, y: -23}
   m_debugStartFunction: 
   m_hotspotComponents:
   - {fileID: 1719442105018200373}
@@ -202,7 +208,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -990
+  m_SortingOrder: -1628
   m_Sprite: {fileID: 21300000, guid: 0f78c4f23ae87b94ea5bafe5928371c1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -262,7 +268,7 @@ MonoBehaviour:
     m_description: Door
     m_cursor: 
     m_clickable: 1
-    m_baseline: -20
+    m_baseline: -23
     m_walkToPoint: {x: -115, y: -4}
     m_lookAtPoint: {x: -115, y: 6}
     m_scriptName: Door
@@ -291,11 +297,10 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: -10, y: -10}
+    - - {x: -93, y: -8}
       - {x: -127.62919, y: -19.751503}
-      - {x: -128.64487, y: 24.394413}
+      - {x: -128.6449, y: 24.394413}
       - {x: -93.37806, y: 38.788822}
-      - {x: -91.19709, y: -1.7123079}
 --- !u!1 &8912422497206964873
 GameObject:
   m_ObjectHideFlags: 0

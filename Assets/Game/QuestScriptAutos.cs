@@ -24,7 +24,11 @@ namespace PowerScript
 	public static partial class I
 	{		
 		// Access to specific Inventory (Auto-generated)
-		public static IInventory BilgePunp		{ get{return PowerQuest.Get.GetInventory("BilgePunp"); } }
+		public static IInventory BilgePump		{ get{return PowerQuest.Get.GetInventory("BilgePump"); } }
+		public static IInventory MediumHandle		{ get{return PowerQuest.Get.GetInventory("MediumHandle"); } }
+		public static IInventory LargeHandle		{ get{return PowerQuest.Get.GetInventory("LargeHandle"); } }
+		public static IInventory MediumHose		{ get{return PowerQuest.Get.GetInventory("MediumHose"); } }
+		public static IInventory LargeHose		{ get{return PowerQuest.Get.GetInventory("LargeHose"); } }
 		// #INVENTORY# - Do not edit this line, it's used by the system to insert rooms for easy access
 	}
 
@@ -55,6 +59,7 @@ namespace PowerScript
 		// Access to specific dialog trees (Auto-generated)
 
 		public static IDialogTree DialogWithClerk		{ get{return PowerQuest.Get.GetDialogTree("DialogWithClerk"); } }
+		public static IDialogTree BuyOptions		{ get{return PowerQuest.Get.GetDialogTree("BuyOptions"); } }
 		// #DIALOG# - Do not edit this line, it's used by the system to insert rooms for easy access	    	    
 	}
 

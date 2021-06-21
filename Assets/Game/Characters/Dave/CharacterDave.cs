@@ -10,7 +10,7 @@ public class CharacterDave : CharacterScript<CharacterDave>
 
 	IEnumerator OnLookAt()
 	{
-
+		yield return C.Dave.Say(" My lucky day...");
 		yield return E.Break;
 	}
 

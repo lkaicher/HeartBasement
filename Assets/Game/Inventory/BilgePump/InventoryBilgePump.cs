@@ -4,10 +4,11 @@ using PowerTools.Quest;
 using PowerScript;
 using static GlobalScript;
 
-public class InventoryBilgePunp : InventoryScript<InventoryBilgePunp>
+public class InventoryBilgePump : InventoryScript<InventoryBilgePump>
 {
 
 
+	
 	IEnumerator OnLookAtInventory( IInventory thisItem )
 	{
 
