@@ -8,8 +8,7 @@ public class DialogDialogWithClerk : DialogTreeScript<DialogDialogWithClerk>
 {
 	public IEnumerator OnStart()
 	{
-		// Globals.m_progressExample = eProgress.TriedPump1;
-		
+		//Globals.m_progressExample = eProgress.TriedPump1;
 		
 		if (Globals.m_progressExample == eProgress.None) {
 			D.DialogWithClerk.OptionOff(2);
@@ -36,7 +35,7 @@ public class DialogDialogWithClerk : DialogTreeScript<DialogDialogWithClerk>
 				yield return E.WaitSkip();
 				
 				
-				yield return C.HardwareClerk.Say("Sure, I have this bilge pump (a hand operated pump).");
+				yield return C.HardwareClerk.Say("Sure, I have this bilge pump. It's hand operated.");
 				 
 				yield return E.WaitSkip();
 				 

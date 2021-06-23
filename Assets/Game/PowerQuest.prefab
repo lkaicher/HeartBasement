@@ -105,12 +105,15 @@ MonoBehaviour:
   m_dialogTreePrefabs:
   - {fileID: 8335644054673927705, guid: 936e334c8eb1a3e4f85a6f1762a405c0, type: 3}
   - {fileID: 2882276155536126998, guid: 5d9268bec638af04092e7bb406893506, type: 3}
+  - {fileID: 3894528593384921385, guid: a9a78207e44b92b41bbc4a0d56ca29c6, type: 3}
+  - {fileID: 8724563678278337084, guid: fb29441264fb1824c8ff2d21c9266551, type: 3}
   m_inventoryPrefabs:
   - {fileID: 8997837797640581250, guid: 64ba661e400d04b4691995f67d00b33a, type: 3}
   - {fileID: 2183949740929831866, guid: da20027f41664344d8705a843d260dce, type: 3}
   - {fileID: 5165184787064949590, guid: e3b96633a083bc94fa1db07dc00a382b, type: 3}
   - {fileID: 5746998277443809991, guid: 6d34387b497f2ab4ea8fc9fc85aad379, type: 3}
   - {fileID: 3139234644013432476, guid: 2e09ab4f0e14d2b48a83d8c12bf7e920, type: 3}
+  - {fileID: 1501004446058777338, guid: 74332344cc96a4142bf068205bfe53b2, type: 3}
   m_inventoryAnimations:
   - {fileID: 7400000, guid: 10856a3a6e09a994f876dd16f8272cce, type: 2}
   m_preloadedShaders:

@@ -29,6 +29,7 @@ namespace PowerScript
 		public static IInventory LargeHandle		{ get{return PowerQuest.Get.GetInventory("LargeHandle"); } }
 		public static IInventory MediumHose		{ get{return PowerQuest.Get.GetInventory("MediumHose"); } }
 		public static IInventory LargeHose		{ get{return PowerQuest.Get.GetInventory("LargeHose"); } }
+		public static IInventory CellPhone		{ get{return PowerQuest.Get.GetInventory("CellPhone"); } }
 		// #INVENTORY# - Do not edit this line, it's used by the system to insert rooms for easy access
 	}
 
@@ -60,6 +61,8 @@ namespace PowerScript
 
 		public static IDialogTree DialogWithClerk		{ get{return PowerQuest.Get.GetDialogTree("DialogWithClerk"); } }
 		public static IDialogTree BuyOptions		{ get{return PowerQuest.Get.GetDialogTree("BuyOptions"); } }
+		public static IDialogTree GetHelpBob		{ get{return PowerQuest.Get.GetDialogTree("GetHelpBob"); } }
+		public static IDialogTree UsePhone		{ get{return PowerQuest.Get.GetDialogTree("UsePhone"); } }
 		// #DIALOG# - Do not edit this line, it's used by the system to insert rooms for easy access	    	    
 	}
 

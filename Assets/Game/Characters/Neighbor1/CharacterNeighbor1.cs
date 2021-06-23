@@ -20,4 +20,14 @@ public class CharacterNeighbor1 : CharacterScript<CharacterNeighbor1>
 		
 		yield return E.Break;
 	}
+
+	IEnumerator OnInteract()
+	{
+		if ( R.Current == R.Hardware) {
+			yield return C.Dave.WalkTo(C.Neighbor1.Position);
+			D.GetHelpBob.Start();
+		}
+		
+		yield return E.Break;
+	}
 }

@@ -13,4 +13,10 @@ public class InventoryLargeHandle : InventoryScript<InventoryLargeHandle>
 
 		yield return E.Break;
 	}
+
+	IEnumerator OnInteractInventory( IInventory thisItem )
+	{
+
+		yield return E.Break;
+	}
 }

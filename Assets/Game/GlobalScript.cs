@@ -39,6 +39,13 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	/// Called when game first starts
 	public void OnGameStart()
 	{     
+		I.CellPhone.Add();
+		
+		
+		// temporary 
+		// Globals.m_progressExample = eProgress.TriedPump1;
+		
+		
 	} 
 
 	/// Called after restoring a game. Use this if you need to update any references based on saved data.

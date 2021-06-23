@@ -64,6 +64,8 @@ MonoBehaviour:
     m_points:
     - m_name: EntryWalk
       m_position: {x: 123, y: -53}
+    - m_name: HomeDoorPosition
+      m_position: {x: 156, y: -15}
   m_debugStartFunction: 
   m_hotspotComponents:
   - {fileID: 1414296606168599632}

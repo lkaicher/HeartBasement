@@ -21,7 +21,7 @@ public class RoomHome : RoomScript<RoomHome>
 		// Note, you can also just do this at the top of OnEnterRoomAfterFade
 		
 		
-		if ( R.Current.FirstTimeVisited ) // Only run this part the first time you visit
+		if ( (R.Current.FirstTimeVisited) && (Globals.m_progressExample == eProgress.None) ) // Only run this part the first time you visit
 		{
 		C.Dave.Say("Oh no! My basement is flooded! Maybe I can get something at the local hardware store to help. ");
 		E.WaitSkip();
@@ -31,6 +31,7 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		
 		// I.BilgePump.Add();
+		
 		
 		
 		
