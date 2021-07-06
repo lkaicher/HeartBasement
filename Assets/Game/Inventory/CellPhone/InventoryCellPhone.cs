@@ -14,6 +14,7 @@ public class InventoryCellPhone : InventoryScript<InventoryCellPhone>
 		//	D.UsePhone.Start();
 		// }
 		
+		D.UsePhone.Start();
 		
 		yield return E.Break;
 	}
@@ -22,10 +23,18 @@ public class InventoryCellPhone : InventoryScript<InventoryCellPhone>
 	{
 		if  ( (Globals.m_progressExample == eProgress.TriedPump1) && (!D.UsePhone.GetOptionUsed(1)) ) {
 			yield return C.Dave.Say(" Maybe I could call my friend Jim to come help out. ");
+			D.UsePhone.Start();
 		} else {
 			yield return C.Dave.Say(" Thats my cell phone. ");
 		}
 		
+		
+		
+		yield return E.Break;
+	}
+
+	IEnumerator OnUseInvInventory( IInventory thisItem, IInventory item )
+	{
 		D.UsePhone.Start();
 		
 		yield return E.Break;

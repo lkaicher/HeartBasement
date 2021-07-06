@@ -56,7 +56,7 @@ MonoBehaviour:
     m_transitionFadeTime: 0.3
     m_alwaysShowDisplayText: 1
     m_languageCode: EN
-  m_verticalResolution: 180
+  m_verticalResolution: 540
   m_snapToPixel: 1
   m_pixelCamEnabled: 1
   m_defaultPixelsPerUnit: 1

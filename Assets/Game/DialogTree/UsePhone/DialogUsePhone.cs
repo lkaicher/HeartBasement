@@ -39,4 +39,11 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 		
 		yield return E.Break;
 	}
+
+	IEnumerator Option3( IDialogOption option )
+	{
+		Stop();
+		
+		yield return E.Break;
+	}
 }

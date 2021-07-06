@@ -301,21 +301,9 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1990040433, guid: 7c0ae79c116ab474698aa2d37b3a1399, type: 3}
-      propertyPath: m_SortingOrder
-      value: -111
-      objectReference: {fileID: 0}
     - target: {fileID: 1754034811923503449, guid: 7c0ae79c116ab474698aa2d37b3a1399, type: 3}
       propertyPath: m_Name
       value: RoomMap
-      objectReference: {fileID: 0}
-    - target: {fileID: 7101942362037979051, guid: 7c0ae79c116ab474698aa2d37b3a1399, type: 3}
-      propertyPath: m_SortingOrder
-      value: 200
-      objectReference: {fileID: 0}
-    - target: {fileID: 9067063762368886996, guid: 7c0ae79c116ab474698aa2d37b3a1399, type: 3}
-      propertyPath: m_SortingOrder
-      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 9181628233819649447, guid: 7c0ae79c116ab474698aa2d37b3a1399, type: 3}
       propertyPath: m_RootOrder

@@ -39,7 +39,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	/// Called when game first starts
 	public void OnGameStart()
 	{     
-		I.CellPhone.Add();
+		// I.CellPhone.Add();
 		
 		
 		// temporary 

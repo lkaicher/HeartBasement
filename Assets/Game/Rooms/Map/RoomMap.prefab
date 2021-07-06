@@ -137,11 +137,11 @@ MonoBehaviour:
     m_verticalResolution: 0
     m_activeWalkableArea: 0
     m_bounds:
-      m_min: {x: -160, y: -87}
-      m_max: {x: 160, y: 80}
+      m_min: {x: -546, y: -268}
+      m_max: {x: 547, y: 269}
     m_scrollBounds:
-      m_min: {x: -160, y: -87}
-      m_max: {x: 160, y: 80}
+      m_min: {x: 0, y: 0}
+      m_max: {x: 0, y: 0}
     m_shortName: Map
     m_scriptClass: RoomMap
     m_sceneName: SceneRoomMap

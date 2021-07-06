@@ -13,4 +13,10 @@ public class InventoryMediumHandle : InventoryScript<InventoryMediumHandle>
 
 		yield return E.Break;
 	}
+
+	IEnumerator OnInteractInventory( IInventory thisItem )
+	{
+
+		yield return E.Break;
+	}
 }

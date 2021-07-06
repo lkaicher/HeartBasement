@@ -27,7 +27,7 @@ public class RoomHome : RoomScript<RoomHome>
 		E.WaitSkip();
 		C.Display("Left Click to Walk & Interact\nRight Click to Look At");
 		}
-		C.Dave.WalkToBG(Point("EntryWalk"));
+		// C.Dave.WalkToBG(Point("EntryWalk"));
 		
 		
 		// I.BilgePump.Add();
@@ -41,16 +41,16 @@ public class RoomHome : RoomScript<RoomHome>
 	{
 		// Put things here that happen when you enter a room
 		
+		 
 		if ( R.Current.FirstTimeVisited  ) // Only run this part the first time you visit
 		{	C.Dave.WalkToBG(Point("EntryWalk"));
 			yield return C.Dave.Say("Oh no! The basement is flooded!");
 		   
 		
-			//Audio.PlayMusic("MusicExample");
+			Audio.PlayMusic("MusicExample");
 			yield return E.WaitSkip();
 			yield return C.Display("Left Click to Walk & Interact\nRight Click to Look At");
 		}
-		
 	}
 
 

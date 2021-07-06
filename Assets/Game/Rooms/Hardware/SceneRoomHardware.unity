@@ -285,6 +285,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: QuestGuiCamera
       objectReference: {fileID: 0}
+    - target: {fileID: 138134, guid: dba8cdb55bc7ac6458f9a539610fe130, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 424708, guid: dba8cdb55bc7ac6458f9a539610fe130, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -328,6 +332,10 @@ PrefabInstance:
     - target: {fileID: 424708, guid: dba8cdb55bc7ac6458f9a539610fe130, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2059038, guid: dba8cdb55bc7ac6458f9a539610fe130, type: 3}
+      propertyPath: orthographic size
+      value: 90
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dba8cdb55bc7ac6458f9a539610fe130, type: 3}
@@ -381,7 +389,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3725240697376510532, guid: 23fdac69010168444a76818029d7630a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 500
       objectReference: {fileID: 0}
     - target: {fileID: 3725240697376510532, guid: 23fdac69010168444a76818029d7630a, type: 3}
       propertyPath: m_LocalPosition.y
