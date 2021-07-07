@@ -320,7 +320,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &99422674241766039
 Transform:
   m_ObjectHideFlags: 0
@@ -329,7 +329,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5910487952582479608}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -245, y: -109, z: 0}
   m_LocalScale: {x: 0.46, y: 0.36, z: 1}
   m_Children: []
   m_Father: {fileID: 4865622036928958}
@@ -367,7 +367,7 @@ PolygonCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5910487952582479608}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
   m_IsTrigger: 1
@@ -385,14 +385,15 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 207.4647, y: -185.95331}
-      - {x: -9.19337, y: -244.01773}
-      - {x: -521.1814, y: -86.58652}
-      - {x: -37.8415, y: 74.42006}
-      - {x: 219.93999, y: 10}
-      - {x: 471.88254, y: -54.15059}
-      - {x: 513.0762, y: -84.7956}
-      - {x: 339.58322, y: -140.76312}
+    - - {x: -1633.3789, y: -446.35138}
+      - {x: -1635.458, y: -42.43775}
+      - {x: 1324.0521, y: 103.85257}
+      - {x: 1606.2417, y: 74.37416}
+      - {x: 1810.0933, y: 131.981}
+      - {x: 2458.105, y: 92.5602}
+      - {x: 2519.9062, y: 28.339117}
+      - {x: 2691.0803, y: 29.31345}
+      - {x: 2700.0872, y: -439.2724}
 --- !u!95 &3130755280558890350
 Animator:
   serializedVersion: 3

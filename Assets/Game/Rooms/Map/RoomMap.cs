@@ -10,7 +10,7 @@ public class RoomMap : RoomScript<RoomMap>
 
 	void OnEnterRoom()
 	{
-		C.Dave.Say(" The hardware store is to the northeast");
+		// Display:  The hardware store is to the north
 	}
 
 	IEnumerator OnInteractPropHome( IProp prop )

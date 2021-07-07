@@ -38,11 +38,17 @@ TagManager:
   - 
   - 
   m_SortingLayers:
-  - name: Default
-    uniqueID: 0
+  - name: Background
+    uniqueID: 1621366403
     locked: 0
   - name: ClerkLayer
     uniqueID: 1547338543
+    locked: 0
+  - name: CounterLayer
+    uniqueID: 514354629
+    locked: 0
+  - name: Default
+    uniqueID: 0
     locked: 0
   - name: Gui
     uniqueID: 3130941793

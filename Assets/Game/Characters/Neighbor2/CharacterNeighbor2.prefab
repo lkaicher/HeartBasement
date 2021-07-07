@@ -52,7 +52,7 @@ MonoBehaviour:
     m_description: Neighbor2
     m_cursor: 
     m_room: Hardware
-    m_position: {x: 10, y: 0}
+    m_position: {x: 2100, y: -100}
     m_faceDirection: 2
     m_clickable: 1
     m_visible: 1
