@@ -7,7 +7,7 @@ using static GlobalScript;
 public class InventoryMediumHandle : InventoryScript<InventoryMediumHandle>
 {
 
-
+	public bool isHandle = true;
 	IEnumerator OnUseInvInventory( IInventory thisItem, IInventory item )
 	{
 

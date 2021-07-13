@@ -23,7 +23,7 @@ public class InventoryCellPhone : InventoryScript<InventoryCellPhone>
 	{
 		if  ( (Globals.m_progressExample == eProgress.TriedPump1) && (!D.UsePhone.GetOptionUsed(1)) ) {
 			yield return C.Dave.Say(" Maybe I could call my friend Jim to come help out. ");
-			D.UsePhone.Start();
+		
 		} else {
 			yield return C.Dave.Say(" Thats my cell phone. ");
 		}

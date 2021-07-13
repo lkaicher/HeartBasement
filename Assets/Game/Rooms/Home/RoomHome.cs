@@ -88,10 +88,10 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return C.Display("Dave begins to try to pump out the water.");
 			Globals.m_progressExample = eProgress.TriedPump1;
 			Globals.myVar = "testGlobal";
-			yield return C.Dave.WalkTo(0,-400);
+			// C.Dave.WalkTo(0,-400);
 			yield return C.Dave.Say("This is too hard! I think the handle is too short and the diameter of the hose is too small, I need to go back to the hardware store. ");
 			yield return E.Wait(1);
-			  yield return E.WaitSkip();
+			yield return E.WaitSkip();
 			yield return C.Dave.FaceDown();
 		
 			

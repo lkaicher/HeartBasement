@@ -66,7 +66,7 @@ MonoBehaviour:
   m_enableUse: 1
   m_enableLook: 1
   m_enableInventory: 1
-  m_inventoryClickStyle: 0
+  m_inventoryClickStyle: 1
   m_saveVersion: 0
   m_saveVersionRequired: 0
   m_menuManager:
@@ -114,6 +114,8 @@ MonoBehaviour:
   - {fileID: 5746998277443809991, guid: 6d34387b497f2ab4ea8fc9fc85aad379, type: 3}
   - {fileID: 3139234644013432476, guid: 2e09ab4f0e14d2b48a83d8c12bf7e920, type: 3}
   - {fileID: 1501004446058777338, guid: 74332344cc96a4142bf068205bfe53b2, type: 3}
+  - {fileID: 1410521532660060822, guid: 595dde656c43cb547a4227cbc2168c41, type: 3}
+  - {fileID: 871485924275079629, guid: f7a7bc7a25fd6c041abb82e20366868e, type: 3}
   m_inventoryAnimations:
   - {fileID: 7400000, guid: 10856a3a6e09a994f876dd16f8272cce, type: 2}
   m_preloadedShaders:

@@ -31,7 +31,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	
 	/// Just an example of using a global variable that can be accessed in any room with `Globals.m_spokeToBarney`. 
 	/// All variables like this in Quest Scripts are automatically saved
-	public bool m_spokeToBarney = false;
+	// public bool	
 	
 	////////////////////////////////////////////////////////////////////////////////////
 	// Global Game Functions
@@ -43,7 +43,12 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		
 		
 		// temporary 
-		// Globals.m_progressExample = eProgress.TriedPump1;
+		Globals.m_progressExample = eProgress.TriedPump1;
+		I.BilgePump.Add();
+		I.MediumHandle.Add();
+		I.LargeHandle.Add();
+		I.MediumHose.Add();
+		I.LargeHose.Add();
 		
 		
 	} 
@@ -197,6 +202,14 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		// This function is called when the uses an item on things that don't have a response
 		yield return C.Display( "You can't use that" ); 
 	}
+
+	    /// Called when a player clicked an inventory item that didn't have an interaction
+    public IEnumerator UnhandledInteractInventory(IInventory item)
+    {        
+        // This function is called when an item in the inventory is clicked that doesn't have a "use" interaction
+        E.ActiveInventory = item;
+        yield return E.Break;
+    }
 
 
 }

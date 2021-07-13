@@ -4,7 +4,7 @@ using PowerTools.Quest;
 using PowerScript;
 using static GlobalScript;
 
-public class InventoryMediumHose : InventoryScript<InventoryMediumHose>
+public class InventorySmallHose : InventoryScript<InventorySmallHose>
 {
     public bool isHose = true;
 }

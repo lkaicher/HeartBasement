@@ -8,6 +8,14 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 {
 	public IEnumerator OnStart()
 	{
+		if (Globals.m_progressExample == eProgress.None) {
+			D.UsePhone.OptionOff(1);
+			D.UsePhone.OptionOff(2);
+		} else {
+			D.UsePhone.OptionOn(1);
+			D.UsePhone.OptionOn(2);
+		}		
+		
 		yield return E.ConsumeEvent;
 	}
 
@@ -35,7 +43,7 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 		
 		Stop();
 		
-		D.UsePhone.OptionOff(1);
+		D.UsePhone.OptionOffForever(1);
 		
 		yield return E.Break;
 	}
@@ -44,6 +52,17 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 	{
 		Stop();
 		
+		yield return E.Break;
+	}
+
+	IEnumerator Option2( IDialogOption option )
+	{
+		yield return C.Dave.Say("Hi, I'd like to order a large cheese and pepporini pizza for delivery");
+		yield return C.Display(" Okay, what is the address?");
+		yield return C.Dave.Say(" 22 Hart Street");
+		yield return C.Display(" Your order will be there in 30 minutes.");
+		D.UsePhone.OptionOffForever(2);
+		Stop();
 		yield return E.Break;
 	}
 }

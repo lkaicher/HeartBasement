@@ -7,7 +7,7 @@ using static GlobalScript;
 public class InventoryLargeHose : InventoryScript<InventoryLargeHose>
 {
 
-
+	public bool isHose = true;
 	IEnumerator OnInteractInventory( IInventory thisItem )
 	{
 

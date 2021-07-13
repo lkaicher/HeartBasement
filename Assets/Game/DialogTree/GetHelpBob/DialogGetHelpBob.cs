@@ -34,7 +34,7 @@ public class DialogGetHelpBob : DialogTreeScript<DialogGetHelpBob>
 		yield return C.Neighbor1.WalkTo(Point("HWDoorPosition"));
 		
 		C.Neighbor1.ChangeRoom(R.Home);
-		C.Neighbor2.SetPosition(-160, 0);
+		
 		// C.Dave.ChangeRoom(R.Home);
 		
 		

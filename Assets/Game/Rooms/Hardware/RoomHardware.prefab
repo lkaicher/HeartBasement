@@ -717,11 +717,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1983487136388120576, guid: ef96f9240e30bc64a8ab75184977f7b2, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 173
       objectReference: {fileID: 0}
     - target: {fileID: 1983487136388120576, guid: ef96f9240e30bc64a8ab75184977f7b2, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 458
       objectReference: {fileID: 0}
     - target: {fileID: 1983487136388120576, guid: ef96f9240e30bc64a8ab75184977f7b2, type: 3}
       propertyPath: m_LocalPosition.z
@@ -729,7 +729,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1983487136388120576, guid: ef96f9240e30bc64a8ab75184977f7b2, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.97187585
       objectReference: {fileID: 0}
     - target: {fileID: 1983487136388120576, guid: ef96f9240e30bc64a8ab75184977f7b2, type: 3}
       propertyPath: m_LocalRotation.x
@@ -737,7 +737,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1983487136388120576, guid: ef96f9240e30bc64a8ab75184977f7b2, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0.23549399
       objectReference: {fileID: 0}
     - target: {fileID: 1983487136388120576, guid: ef96f9240e30bc64a8ab75184977f7b2, type: 3}
       propertyPath: m_LocalRotation.z
@@ -749,7 +749,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1983487136388120576, guid: ef96f9240e30bc64a8ab75184977f7b2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 27.241
       objectReference: {fileID: 0}
     - target: {fileID: 1983487136388120576, guid: ef96f9240e30bc64a8ab75184977f7b2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -757,11 +757,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4870277455036649029, guid: ef96f9240e30bc64a8ab75184977f7b2, type: 3}
       propertyPath: m_data.m_position.x
-      value: 1149
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4870277455036649029, guid: ef96f9240e30bc64a8ab75184977f7b2, type: 3}
       propertyPath: m_data.m_position.y
-      value: -73
+      value: 500
       objectReference: {fileID: 0}
     - target: {fileID: 4870277455036649029, guid: ef96f9240e30bc64a8ab75184977f7b2, type: 3}
       propertyPath: m_data.m_walkSpeed.x

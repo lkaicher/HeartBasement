@@ -7,6 +7,7 @@ using static GlobalScript;
 public class InventoryLargeHandle : InventoryScript<InventoryLargeHandle>
 {
 
+	public bool isHandle = true;
 
 	IEnumerator OnLookAtInventory( IInventory thisItem )
 	{

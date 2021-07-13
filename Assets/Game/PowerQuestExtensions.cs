@@ -79,6 +79,10 @@ public partial class Region
 /// Functions/Properties added here are accessable from the 'I.<itemName>.' object in quest script
 public partial interface IInventory
 {
+//	public bool isHandle;
+//	public bool isHose;
+
+//	public enum size {small, medium, large};
 }
 
 public partial class Inventory
