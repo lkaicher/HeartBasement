@@ -45,9 +45,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_data:
     m_description: Medium Hose
-    m_animGui: Bucket
-    m_animCursor: Bucket
-    m_animCursorInactive: Bucket
+    m_animGui: hose
+    m_animCursor: hose
+    m_animCursorInactive: hose
     m_stack: 0
     m_scriptName: MediumHose
     m_scriptClass: InventoryMediumHose

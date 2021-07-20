@@ -73,4 +73,13 @@ public class RoomHardware : RoomScript<RoomHardware>
 		
 		yield return E.Break;
 	}
+
+	IEnumerator OnInteractPropBeerPack( IProp prop )
+	{
+		I.Beer.Add();
+		
+		yield return C.Display(" Beer has been added to your inventory.");
+		
+		yield return E.Break;
+	}
 }

@@ -25,7 +25,11 @@ public class DialogGetHelpBob : DialogTreeScript<DialogGetHelpBob>
 		yield return C.Dave.Say(" Yeah...");
 		yield return E.WaitSkip();
 		yield return E.WaitSkip();
+		yield return C.Neighbor1.Say("I dunno man...");
 		
+		if (I.Beer.Owned) {
+		yield return C.Dave.Say(" I have beer");
+		yield return E.WaitSkip();
 		yield return C.Neighbor1.Say("Alright, I'll see what I can do. ");
 		
 		Stop();
@@ -34,7 +38,9 @@ public class DialogGetHelpBob : DialogTreeScript<DialogGetHelpBob>
 		yield return C.Neighbor1.WalkTo(Point("HWDoorPosition"));
 		
 		C.Neighbor1.ChangeRoom(R.Home);
-		
+		} else {
+		Stop();
+		}
 		// C.Dave.ChangeRoom(R.Home);
 		
 		

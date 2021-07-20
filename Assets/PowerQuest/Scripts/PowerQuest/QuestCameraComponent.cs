@@ -174,8 +174,8 @@ public class QuestCameraComponent : MonoBehaviour
 		
 		Vector2 position = m_data.GetPosition();
 
-		ICharacter character = m_data.GetCharacterToFollow();
-		if ( character != null || PowerQuest.Get.GetCurrentRoom() != character.Room )
+		ICharacter character = m_data.GetCharacterToFollow(); 
+		if ( character != null || PowerQuest.Get.GetCurrentRoom() != character.Room ) 
 		{
 			// When character is facing left/right, add/change offset from the character so the camera leads in the direction they're facing
 

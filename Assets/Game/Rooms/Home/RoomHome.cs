@@ -21,12 +21,6 @@ public class RoomHome : RoomScript<RoomHome>
 		// Note, you can also just do this at the top of OnEnterRoomAfterFade
 		
 		
-		if ( (R.Current.FirstTimeVisited) && (Globals.m_progressExample == eProgress.None) ) // Only run this part the first time you visit
-		{
-		C.Dave.Say("Oh no! My basement is flooded! Maybe I can get something at the local hardware store to help. ");
-		E.WaitSkip();
-		C.Display("Left Click to Walk & Interact\nRight Click to Look At");
-		}
 		// C.Dave.WalkToBG(Point("EntryWalk"));
 		
 		
@@ -41,15 +35,15 @@ public class RoomHome : RoomScript<RoomHome>
 	{
 		// Put things here that happen when you enter a room
 		
-		 
-		if ( R.Current.FirstTimeVisited  ) // Only run this part the first time you visit
-		{	C.Dave.WalkToBG(Point("EntryWalk"));
-			yield return C.Dave.Say("Oh no! The basement is flooded!");
-		   
 		
-			Audio.PlayMusic("MusicExample");
-			yield return E.WaitSkip();
-			yield return C.Display("Left Click to Walk & Interact\nRight Click to Look At");
+		if ( (R.Current.FirstTimeVisited) && (Globals.m_progressExample == eProgress.None) ) // Only run this part the first time you visit
+		{
+		Prop("Pump").Visible = false;
+		yield return C.Dave.Say("Oh no! My basement is flooded! ");
+		yield return E.WaitSkip();
+		yield return C.Dave.Say("Maybe I can get something at the local hardware store to help. ");
+		yield return E.WaitSkip();
+		yield return C.Display("Left Click to Walk & Interact\nRight Click to Look At");
 		}
 	}
 
@@ -83,8 +77,10 @@ public class RoomHome : RoomScript<RoomHome>
 		// NB: You need to check they used the correct item!
 		if ( item == I.BilgePump )
 		{ 
-			yield return C.WalkToClicked();
-			yield return C.FaceClicked();
+			yield return C.Dave.WalkTo(Point("PumpPosition"));
+			I.BilgePump.Remove();
+			// Prop("Pump").Visible = true;
+			// FaceClicked
 			yield return C.Display("Dave begins to try to pump out the water.");
 			Globals.m_progressExample = eProgress.TriedPump1;
 			Globals.myVar = "testGlobal";

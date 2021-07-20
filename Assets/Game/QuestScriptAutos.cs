@@ -32,6 +32,7 @@ namespace PowerScript
 		public static IInventory CellPhone		{ get{return PowerQuest.Get.GetInventory("CellPhone"); } }
 		public static IInventory SmallHandle		{ get{return PowerQuest.Get.GetInventory("SmallHandle"); } }
 		public static IInventory SmallHose		{ get{return PowerQuest.Get.GetInventory("SmallHose"); } }
+		public static IInventory Beer		{ get{return PowerQuest.Get.GetInventory("Beer"); } }
 		// #INVENTORY# - Do not edit this line, it's used by the system to insert rooms for easy access
 	}
 
@@ -53,6 +54,7 @@ namespace PowerScript
 		public static IRoom Home		{ get{return PowerQuest.Get.GetRoom("Home"); } }
 		public static IRoom Map		{ get{return PowerQuest.Get.GetRoom("Map"); } }
 		public static IRoom Hardware		{ get{return PowerQuest.Get.GetRoom("Hardware"); } }
+		public static IRoom Testroom		{ get{return PowerQuest.Get.GetRoom("Testroom"); } }
 		// #ROOM# - Do not edit this line, it's used by the system to insert rooms for easy access
 	}
 

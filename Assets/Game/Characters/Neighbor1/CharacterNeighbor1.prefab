@@ -49,10 +49,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: Neighbor1
+    m_description: Bob
     m_cursor: 
     m_room: Hardware
-    m_position: {x: 1200, y: -100}
+    m_position: {x: 900, y: -100}
     m_faceDirection: 0
     m_clickable: 1
     m_visible: 1

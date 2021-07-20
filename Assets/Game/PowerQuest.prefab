@@ -89,6 +89,7 @@ MonoBehaviour:
   - {fileID: 114107578643181592, guid: 815776d2d5a9623498c61578ffc4c1cc, type: 3}
   - {fileID: 6691753714027150367, guid: 7c0ae79c116ab474698aa2d37b3a1399, type: 3}
   - {fileID: 3733532514121063368, guid: 23fdac69010168444a76818029d7630a, type: 3}
+  - {fileID: 3726085848907043709, guid: f249b6c7c2c01f34c81a6738c6974d16, type: 3}
   m_characterPrefabs:
   - {fileID: 114953134120639602, guid: b4910caf4195aeb45895069ad277b9fd, type: 3}
   - {fileID: 6035720155002498351, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
@@ -116,8 +117,12 @@ MonoBehaviour:
   - {fileID: 1501004446058777338, guid: 74332344cc96a4142bf068205bfe53b2, type: 3}
   - {fileID: 1410521532660060822, guid: 595dde656c43cb547a4227cbc2168c41, type: 3}
   - {fileID: 871485924275079629, guid: f7a7bc7a25fd6c041abb82e20366868e, type: 3}
+  - {fileID: 4039372558538899296, guid: 8dc06dc05388dd94490858c5da43a77d, type: 3}
   m_inventoryAnimations:
   - {fileID: 7400000, guid: 10856a3a6e09a994f876dd16f8272cce, type: 2}
+  - {fileID: 7400000, guid: 96a451a2543d7d44c815093b445695c8, type: 2}
+  - {fileID: 7400000, guid: 2d57f5d8a52fcd44091ca8e253d946d6, type: 2}
+  - {fileID: 7400000, guid: 1fff7db4fc20a26438f10dfb103715cc, type: 2}
   m_preloadedShaders:
   - {fileID: 4800000, guid: be43750faab6d0b40baba2acf00099df, type: 3}
   - {fileID: 4800000, guid: 67fc4aa44467421478679021cc374fc4, type: 3}

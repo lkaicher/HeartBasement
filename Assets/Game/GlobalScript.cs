@@ -40,10 +40,11 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	public void OnGameStart()
 	{     
 		// I.CellPhone.Add();
-		
+		// 
 		
 		// temporary 
-		Globals.m_progressExample = eProgress.TriedPump1;
+		
+		// Globals.m_progressExample = eProgress.TriedPump1;
 		I.BilgePump.Add();
 		I.MediumHandle.Add();
 		I.LargeHandle.Add();

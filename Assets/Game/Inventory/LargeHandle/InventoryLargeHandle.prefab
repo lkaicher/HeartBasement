@@ -45,9 +45,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_data:
     m_description: Large Handle
-    m_animGui: Bucket
-    m_animCursor: Bucket
-    m_animCursorInactive: Bucket
+    m_animGui: handle
+    m_animCursor: handle
+    m_animCursorInactive: handle
     m_stack: 0
     m_scriptName: LargeHandle
     m_scriptClass: InventoryLargeHandle

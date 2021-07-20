@@ -15,9 +15,6 @@ namespace PowerTools
 public class PowerSpriteImportEditor : Editor 
 {
 	#region Definitions
-
-	static readonly float DEFAULT_SAMPLE_RATE = 100;
-
 	static readonly string LIST_PROPERTY_NAME = "m_animations";
 	static readonly string REGEX_PNG = @"(?<name>.*)_(?<id>\d+)\.png";
 	static readonly string[] ASEPRITE_PATHS = { @"C:\Program Files\Aseprite\Aseprite.exe", @"C:\Program Files (x86)\Aseprite\Aseprite.exe", @"C:\Program Files (x86)\Steam\SteamApps\common\Aseprite\Aseprite.exe" };
@@ -56,7 +53,7 @@ public class PowerSpriteImportEditor : Editor
 		AssetDatabase.CreateAsset (asset, assetPathAndName);
  
 		AssetDatabase.SaveAssets ();
-        AssetDatabase.Refresh();
+        	AssetDatabase.Refresh();
 		EditorUtility.FocusProjectWindow ();
 		Selection.activeObject = asset;
 	}
@@ -74,7 +71,7 @@ public class PowerSpriteImportEditor : Editor
 	[MenuItem("Assets/Import Sprites from Photoshop",true)]
 	static bool ContextImportFromPhotoshopValidate(MenuCommand command) { return Selection.activeObject != null && string.IsNullOrEmpty(AssetDatabase.GetAssetPath(Selection.activeObject)) == false; }
 
-	[MenuItem("Assets/Import Sprites from Photoshop",false,30)]
+	[MenuItem("Assets/Import Sprites from Photoshop",false,20)]
 	static void ContextImportFromPhotoshop(MenuCommand command)
 	{
 		string path = AssetDatabase.GetAssetPath(Selection.activeObject);
@@ -95,16 +92,15 @@ public class PowerSpriteImportEditor : Editor
 		process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Minimized;
 		process.Start();
 		// Wait up to 20 seconds for exit
-		process.WaitForExit(20000);		
-	    AssetDatabase.Refresh();
-		EditorUtility.ClearProgressBar();		
+		process.WaitForExit(20000);
+		EditorUtility.ClearProgressBar();
 	}
 
 
-	[MenuItem("Assets/Create Anim From Sprites #%&a",true)]
+	[MenuItem("Assets/Create/Animation From Sprites",true)]
 	static bool ContextCreateAnimationFromSpritesValidate(MenuCommand command) { return Selection.activeObject != null && Selection.activeObject is Texture; }
 
-	[MenuItem("Assets/Create Anim From Sprites #%&a",false,31)]
+	[MenuItem("Assets/Create/Animation From Sprites",false,410)]
 	static void ContextCreateAnimationFromSprites(MenuCommand command)
 	{
 		PowerSpriteImportEditor.CreateAnimationsFromSelected();
@@ -287,9 +283,6 @@ public class PowerSpriteImportEditor : Editor
 			m_component.m_packingTag = EditorGUILayout.TextField("Packing Tag", m_component.m_packingTag);
 			m_component.m_pixelsPerUnit = EditorGUILayout.FloatField("Pixels Per Unit", m_component.m_pixelsPerUnit);
 			m_component.m_filterMode = (FilterMode)EditorGUILayout.EnumPopup("Filter Mode", (System.Enum)m_component.m_filterMode);
-			m_component.m_compression = (PowerSpriteImport.eTextureCompression)EditorGUILayout.EnumPopup("Compression", (System.Enum)m_component.m_compression);
-			m_component.m_crunchedCompression = EditorGUILayout.Toggle("Crunched Compression",m_component.m_crunchedCompression);
-
 			m_asepritePath = EditorGUILayout.TextField("Aseprite Path", m_asepritePath);
 		}
 
@@ -308,7 +301,7 @@ public class PowerSpriteImportEditor : Editor
 		EditorGUILayout.HelpBox(@"OR JUST IGNORE THIS PREFAB AND:
      1) Open photoshop file you want to import sprites from.
      2) Right click target folder -> Import Sprites from Photoshop
-     3) Select sprites, right click -> Create -> Anim from Sprites", 
+     3) Select sprites, right click -> Create -> Animation from Sprites", 
 
 			MessageType.None);
 
@@ -340,7 +333,7 @@ public class PowerSpriteImportEditor : Editor
 
 	void ImportPNGs()
 	{
-		if ( string.IsNullOrEmpty( m_component.m_sourcePSD ) == false && (m_component.m_sourcePSD.EndsWith(".ase") ||m_component.m_sourcePSD.EndsWith(".aseprite")) )
+		if ( string.IsNullOrEmpty( m_component.m_sourcePSD ) == false && m_component.m_sourcePSD.EndsWith(".ase") )
 		{
 			m_component.m_sourceDirectory = Path.GetDirectoryName(m_component.m_sourcePSD)+@"/Export";
 
@@ -378,8 +371,7 @@ public class PowerSpriteImportEditor : Editor
 			}
 
 			process.StartInfo.FileName = asepritePath;
-			// nb: includes "ignore-layer" argument, any layers named "guide" or "ignore" aren't exported
-			process.StartInfo.Arguments = string.Format("-b --ignore-layer \"Guide\" --ignore-layer \"Ignore\" --ignore-layer \"ignore\" \"{0}\" --save-as \"{1}\\{2}_1.png\"", Path.GetFullPath(m_component.m_sourcePSD), Path.GetFullPath(m_component.m_sourceDirectory), Path.GetFileNameWithoutExtension(m_component.m_sourcePSD) );
+			process.StartInfo.Arguments = string.Format("-b \"{0}\" --save-as \"{1}\\{2}_1.png\"", Path.GetFullPath(m_component.m_sourcePSD), Path.GetFullPath(m_component.m_sourceDirectory), Path.GetFileNameWithoutExtension(m_component.m_sourcePSD) );
 			process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Minimized;
 			process.Start();
 
@@ -510,21 +502,13 @@ public class PowerSpriteImportEditor : Editor
 							
 							importer = TextureImporter.GetAtPath(relativeTargetPath) as TextureImporter;
 							importer.spritePixelsPerUnit = m_component.m_pixelsPerUnit;
-							switch ( m_component.m_compression )
-							{
-								case PowerSpriteImport.eTextureCompression.None:  importer.textureCompression = TextureImporterCompression.Uncompressed; break;
-								case PowerSpriteImport.eTextureCompression.Low:  importer.textureCompression = TextureImporterCompression.CompressedLQ; break;
-								case PowerSpriteImport.eTextureCompression.Normal:  importer.textureCompression = TextureImporterCompression.Compressed; break;
-								case PowerSpriteImport.eTextureCompression.High:  importer.textureCompression = TextureImporterCompression.CompressedHQ; break;
-							}
-							importer.crunchedCompression = m_component.m_crunchedCompression;
 							importer.filterMode = m_component.m_filterMode;
 							importer.mipmapEnabled = false;
-
+							importer.textureCompression = TextureImporterCompression.Uncompressed;
 							//importer.textureFormat = TextureImporterFormat.AutomaticTruecolor;
 							if ( m_component.m_gui && string.IsNullOrEmpty(m_component.m_packingTag) == false)
 								importer.spritePackingTag = "[RECT]"+m_component.m_packingTag;
-							else if ( string.IsNullOrEmpty(m_component.m_packingTag) == false )
+							else
 								importer.spritePackingTag = m_component.m_packingTag;			
 
 							#if UNITY_2017_1_OR_NEWER
@@ -671,30 +655,24 @@ public class PowerSpriteImportEditor : Editor
 				curveBinding.path = "";
 
 				if ( isNew )
-					animClip.frameRate = DEFAULT_SAMPLE_RATE;
+					animClip.frameRate = 10;
 
-				int numFrames = lastFrame - firstFrame;
-				ObjectReferenceKeyframe[] keyframes = new ObjectReferenceKeyframe[numFrames+1]; // NB: duplicating last frame so can have higher sample rate than frame rate
-				for ( int frameIndex = 0; frameIndex < numFrames; ++frameIndex )
+				ObjectReferenceKeyframe[] keyframes = new ObjectReferenceKeyframe[lastFrame - firstFrame];
+
+				for ( int frameIndex = 0; frameIndex < keyframes.Length; ++frameIndex )
 				{
-					keyframes[frameIndex] = new ObjectReferenceKeyframe();	
-					keyframes[frameIndex].time = 0.1f * frameIndex;
-
-					string fileName = m_items[i].m_name + "_"+(frameIndex).ToString()+".png";
+					int spriteId = firstFrame + frameIndex;
+					string fileName = m_items[i].m_name + "_"+(spriteId-firstFrame).ToString()+".png";
 					string relativeTargetPath = MakeRelative( spritePath + fileName, Application.dataPath);
+
+					keyframes[frameIndex] = new ObjectReferenceKeyframe();	
+					keyframes[frameIndex].time = (1.0f/animClip.frameRate) * frameIndex;
 					#if UNITY_5_0_0
 					Sprite sprite = AssetDatabase.LoadAssetAtPath(relativeTargetPath, typeof(Sprite)) as Sprite;
 					#else
 					Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(relativeTargetPath);
 					#endif
 					keyframes[frameIndex].value = sprite;
-				}
-				// Add duplicate frame to end
-				if ( numFrames > 0 )
-				{
-					keyframes[numFrames] = new ObjectReferenceKeyframe() { 
-						time = (0.1f*numFrames)-(1.0f/animClip.frameRate),
-						value = keyframes[numFrames-1].value };			
 				}
 
 				AnimationUtility.SetObjectReferenceCurve(animClip,curveBinding,keyframes);
@@ -777,22 +755,15 @@ public class PowerSpriteImportEditor : Editor
 		curveBinding.path = "";
 
 		if ( isNew )
-			animClip.frameRate = DEFAULT_SAMPLE_RATE;
-		
-		ObjectReferenceKeyframe[] keyframes = new ObjectReferenceKeyframe[sprites.Count+1]; // NB: duplicating last frame so can have higher sample rate than frame rate
+			animClip.frameRate = 10;
 
-		for ( int frameIndex = 0; frameIndex < keyframes.Length-1; ++frameIndex )
+		ObjectReferenceKeyframe[] keyframes = new ObjectReferenceKeyframe[sprites.Count];
+
+		for ( int frameIndex = 0; frameIndex < keyframes.Length; ++frameIndex )
 		{
 			keyframes[frameIndex] = new ObjectReferenceKeyframe();	
-			keyframes[frameIndex].time = 0.1f * frameIndex;
+			keyframes[frameIndex].time = (1.0f/animClip.frameRate) * frameIndex;
 			keyframes[frameIndex].value = sprites[frameIndex];
-		}
-		// Add duplicate frame to end
-		if ( sprites.Count > 0 )
-		{
-			keyframes[sprites.Count] = new ObjectReferenceKeyframe() { 
-				time = (0.1f*sprites.Count)-(1.0f/animClip.frameRate),
-				value = keyframes[sprites.Count-1].value };			
 		}
 
 		AnimationUtility.SetObjectReferenceCurve(animClip,curveBinding,keyframes);

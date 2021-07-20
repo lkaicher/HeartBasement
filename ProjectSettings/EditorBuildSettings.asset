@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Game/Rooms/Hardware/SceneRoomHardware.unity
     guid: edfa9de17bb00e44699be4e1a1eac4ae
+  - enabled: 1
+    path: Assets/Game/Rooms/Testroom/SceneRoomTestroom.unity
+    guid: b406ac59fce6ea6478d1d76b8155ff97
   m_configObjects: {}

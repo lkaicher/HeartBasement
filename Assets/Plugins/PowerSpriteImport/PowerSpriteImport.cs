@@ -40,9 +40,6 @@ public class PowerSpriteImport : ScriptableObject
 	public string m_packingTag = string.Empty;
 	public float m_pixelsPerUnit = 1;
 	public FilterMode m_filterMode = FilterMode.Point;
-	public enum eTextureCompression {None,Low,Normal,High}
-	public eTextureCompression m_compression = eTextureCompression.None;
-	public bool m_crunchedCompression = false;
 	public string m_sourcePSD = string.Empty;
 	public string m_sourceDirectory = string.Empty;
 	public bool m_deleteImportedPngs = true;
