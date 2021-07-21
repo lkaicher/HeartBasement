@@ -10,7 +10,14 @@ public class RoomHome : RoomScript<RoomHome>
 	
 	// Here's an example variable, an integer which is used when clicking the sky.
 	// The 'm_' at the start is just a naming convention so you can tell it's not just a 'local' variable
-	int m_timesClickedSky = 0;
+	public enum handleType {small, medium, large};
+	
+	public enum hoseType {small, medium, large};
+
+	private string[] sizeString  = {"Small", "Medium", "Large"};
+
+	handleType currentHandle = handleType.small;
+	hoseType currentHose = hoseType.small;
 	
 	// enums like this are a nice way of keeping track of what's happened in a room
 	enum eThingsYouveDone { Start, InsultedChimp, EatenSandwich, LoadedCrossbow, AttackedFlyingNun, PhonedAlbatross }
@@ -44,6 +51,8 @@ public class RoomHome : RoomScript<RoomHome>
 		yield return C.Dave.Say("Maybe I can get something at the local hardware store to help. ");
 		yield return E.WaitSkip();
 		yield return C.Display("Left Click to Walk & Interact\nRight Click to Look At");
+		} else {
+		C.Dave.Position = Point("HomeDoorPosition");
 		}
 	}
 
@@ -136,5 +145,94 @@ public class RoomHome : RoomScript<RoomHome>
 	{
 
 		yield return E.Break;
+	}
+
+	IEnumerator OnInteractPropPump( IProp prop )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtPropPump( IProp prop )
+	{
+		yield return C.Display(sizeString[(int)currentHandle] + " Handle\n" + sizeString[(int)currentHose] + " Hose" );
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnUseInvPropPump( IProp prop, IInventory item )
+	{
+		if (item == I.SmallHandle) {
+			string prevHandle = sizeString[(int)currentHandle];
+			returnHandleToInv();
+			currentHandle = handleType.small;
+			I.SmallHandle.Remove();
+			yield return C.Display(prevHandle + " Handle replaced with " + sizeString[(int)currentHandle] + " Handle");  
+		} else if (item == I.MediumHandle) {
+			string prevHandle = sizeString[(int)currentHandle];
+			returnHandleToInv();
+			currentHandle = handleType.medium;
+			I.MediumHandle.Remove();
+			yield return C.Display(prevHandle + " Handle replaced with " + sizeString[(int)currentHandle] + " Handle");  
+		} else if (item == I.LargeHandle) {
+			string prevHandle = sizeString[(int)currentHandle];
+			returnHandleToInv();
+			currentHandle = handleType.large;
+			I.LargeHandle.Remove();
+			yield return C.Display(prevHandle + " Handle replaced with " + sizeString[(int)currentHandle] + " Handle");  
+		} else if (item == I.SmallHose) { 
+			string prevHose = sizeString[(int)currentHose];
+			returnHoseToInv();
+			currentHose = hoseType.small;
+			I.SmallHose.Remove();
+			yield return C.Display(prevHose + " Hose replaced with " + sizeString[(int)currentHose] + " Hose");
+		} else if (item == I.MediumHose) {
+			string prevHose = sizeString[(int)currentHose];
+			returnHoseToInv();
+			currentHose = hoseType.medium;
+			I.MediumHose.Remove();
+			yield return C.Display(prevHose + " Hose replaced with " + sizeString[(int)currentHose] + " Hose");
+		} else if (item == I.LargeHose) {
+			string prevHose = sizeString[(int)currentHose];
+			returnHoseToInv();
+			currentHose = hoseType.large;
+			I.LargeHose.Remove();
+			yield return C.Display(prevHose + " Hose replaced with " + sizeString[(int)currentHose] + " Hose");
+		} else {}
+		
+		
+		yield return E.Break;
+	}
+
+	private void returnHandleToInv() {
+		switch(currentHandle) {
+			case handleType.small:
+				I.SmallHandle.Add();
+				break;
+			case handleType.medium:
+				I.MediumHandle.Add();
+				break;
+			case handleType.large:
+				I.LargeHandle.Add();
+				break;
+			default:
+				break;
+		}
+	}
+
+	private void returnHoseToInv() {
+		switch(currentHose) {
+			case hoseType.small:
+				I.SmallHose.Add();
+				break;
+			case hoseType.medium:
+				I.MediumHose.Add();
+				break;
+			case hoseType.large:
+				I.LargeHose.Add();
+				break;
+			default:
+				break;
+		}		
 	}
 }

@@ -77,6 +77,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 	IEnumerator OnInteractPropBeerPack( IProp prop )
 	{
 		I.Beer.Add();
+		Prop("BeerPack").Disable();
 		
 		yield return C.Display(" Beer has been added to your inventory.");
 		

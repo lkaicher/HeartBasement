@@ -24,7 +24,9 @@ public class CharacterNeighbor1 : CharacterScript<CharacterNeighbor1>
 	IEnumerator OnInteract()
 	{
 		if ( R.Current == R.Hardware) {
-			yield return C.Dave.WalkTo(C.Neighbor1.Position);
+			Vector2 speakPosition = C.Neighbor1.Position;
+			speakPosition[0] = (C.Neighbor1.Position[0] - 100);
+			yield return C.Dave.WalkTo(speakPosition);
 			D.GetHelpBob.Start();
 		}
 		
