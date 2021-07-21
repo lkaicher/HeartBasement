@@ -38,7 +38,7 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		if ( (R.Current.FirstTimeVisited) && (Globals.m_progressExample == eProgress.None) ) // Only run this part the first time you visit
 		{
-		Prop("Pump").Visible = false;
+		Prop("Pump").Disable();
 		yield return C.Dave.Say("Oh no! My basement is flooded! ");
 		yield return E.WaitSkip();
 		yield return C.Dave.Say("Maybe I can get something at the local hardware store to help. ");
@@ -79,7 +79,7 @@ public class RoomHome : RoomScript<RoomHome>
 		{ 
 			yield return C.Dave.WalkTo(Point("PumpPosition"));
 			I.BilgePump.Remove();
-			// Prop("Pump").Visible = true;
+			Prop("Pump").Enable();
 			// FaceClicked
 			yield return C.Display("Dave begins to try to pump out the water.");
 			Globals.m_progressExample = eProgress.TriedPump1;

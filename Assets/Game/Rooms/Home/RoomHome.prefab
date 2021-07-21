@@ -359,7 +359,7 @@ MonoBehaviour:
     m_clickable: 1
     m_animation: Pump
     m_position: {x: 0, y: 0}
-    m_baseline: 0
+    m_baseline: -74
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: 0, y: 0}
     m_scriptName: Pump
@@ -465,7 +465,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 1940
   m_Sprite: {fileID: 21300000, guid: f6eae275757d95446a77071695d25303, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
