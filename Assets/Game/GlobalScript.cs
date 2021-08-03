@@ -21,7 +21,9 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	{
 		None,
 		TriedPump1,
-		TriedPump2,
+		RightParts,
+		Friend1,
+		Friend2,
 		WonGame
 	};
 	
@@ -43,14 +45,14 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		// 
 		
 		// temporary 
-		/*
-		Globals.m_progressExample = eProgress.TriedPump1;
+		
+		Globals.m_progressExample = eProgress.RightParts;
 		I.BilgePump.Add();
 		I.MediumHandle.Add();
 		I.LargeHandle.Add();
 		I.MediumHose.Add();
 		I.LargeHose.Add();
-		*/
+		
 		
 	} 
 

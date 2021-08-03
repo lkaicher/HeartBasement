@@ -34,10 +34,20 @@ public class DialogGetHelpBob : DialogTreeScript<DialogGetHelpBob>
 		
 		Stop();
 		
-		// C.Dave.WalkTo(Point("HWDoorPosition"));
-		yield return C.Neighbor1.WalkTo(Point("HWDoorPosition"));
-		
+		C.Neighbor1.WalkToBG(Point("HWDoorPosition"));
+		yield return C.Dave.WalkTo(Point("HWDoorPosition"));
 		C.Neighbor1.ChangeRoom(R.Home);
+		C.Dave.ChangeRoom(R.Home);
+		C.Neighbor1.SetPosition(Point("HomeDoorPosition"));
+		//C.Neighbor1.WalkToBG(Point("PumpPosition"));
+		
+		//Vector2 davePosition = C.Neighbor1.Position;
+		//davePosition[0] = (Point("PumpPosition")[0] - 150);
+		//C.Dave.WalkTo(Point("davePosition"));
+		
+		//Globals.m_progressExample = eProgress.Friend1;
+		 
+		//C.Neighbor1.SetPosition(Point("PumpPosition"));
 		} else {
 		Stop();
 		}

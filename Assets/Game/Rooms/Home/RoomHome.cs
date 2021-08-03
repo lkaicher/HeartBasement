@@ -8,16 +8,23 @@ public class RoomHome : RoomScript<RoomHome>
 {
 	// This area is where you can put variables you want to use for game logic in your room
 	
-	// Here's an example variable, an integer which is used when clicking the sky.
-	// The 'm_' at the start is just a naming convention so you can tell it's not just a 'local' variable
+	// Pump Part variables
 	public enum handleType {small, medium, large};
 	
 	public enum hoseType {small, medium, large};
-
+	
 	private string[] sizeString  = {"Small", "Medium", "Large"};
-
+	
 	handleType currentHandle = handleType.small;
 	hoseType currentHose = hoseType.small;
+	
+	// Water level variables
+	public int waterLevelInt = (int)Globals.m_progressExample * 40;
+	
+	public void lowerWater(){
+		Prop("Water").MoveTo(500, 0 - ((float)Globals.m_progressExample * 30), 50);
+	}
+	
 	
 	// enums like this are a nice way of keeping track of what's happened in a room
 	enum eThingsYouveDone { Start, InsultedChimp, EatenSandwich, LoadedCrossbow, AttackedFlyingNun, PhonedAlbatross }
@@ -26,6 +33,10 @@ public class RoomHome : RoomScript<RoomHome>
 	{
 		// Put things here that you need to set up BEFORE the room fades in (but nothing "blocking")
 		// Note, you can also just do this at the top of OnEnterRoomAfterFade
+		
+		// sets water level according to the stage of the game
+		
+		Prop("Water").SetPosition(500, 0 - ((float)Globals.m_progressExample * 30));
 		
 		
 		// C.Dave.WalkToBG(Point("EntryWalk"));
@@ -92,15 +103,14 @@ public class RoomHome : RoomScript<RoomHome>
 			// FaceClicked
 			yield return C.Display("Dave begins to try to pump out the water.");
 			Globals.m_progressExample = eProgress.TriedPump1;
-			Globals.myVar = "testGlobal";
+			lowerWater();
 			// C.Dave.WalkTo(0,-400);
+			yield return C.Display("Congratulations! You have recognized the problem, and the water level has decreased. However, it is not enough... ");
 			yield return C.Dave.Say("This is too hard! I think the handle is too short and the diameter of the hose is too small, I need to go back to the hardware store. ");
 			yield return E.Wait(1);
 			yield return E.WaitSkip();
 			yield return C.Dave.FaceDown();
 		
-			
-			// Here we're setting a custom 'enum' so we could check it somewhere else to see if the player won yet
 				  
 		}
 		yield return E.Break;
@@ -149,7 +159,17 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnInteractPropPump( IProp prop )
 	{
-
+		if (currentHandle == handleType.large && currentHose == hoseType.large){
+		
+			Globals.m_progressExample = eProgress.RightParts;
+			lowerWater();
+			yield return C.Display("You've chosen the correct parts for the pump and the water level has decreased. Equivalent to afterload reduction");
+			yield return C.Dave.Say("I'm getting tired... I should find help.");
+		} else {
+			yield return C.Dave.Say(" This isn't any better. I should try different parts. ");
+		}
+		
+		
 		yield return E.Break;
 	}
 

@@ -14,30 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_animations:
   - m_name: Back
+    m_firstFrame: 1
+    m_length: 1
+  - m_name: Water
     m_firstFrame: 2
-    m_length: 1
-  - m_name: ForegroundL
-    m_firstFrame: 3
-    m_length: 1
-  - m_name: ForegroundR
-    m_firstFrame: 4
-    m_length: 1
-  - m_name: Foreground
-    m_firstFrame: 5
-    m_length: 1
-  - m_name: Well
-    m_firstFrame: 6
-    m_length: 1
-  - m_name: Bucket
-    m_firstFrame: 7
     m_length: 1
   m_packingTag: RoomForest
   m_pixelsPerUnit: 1
   m_filterMode: 0
-  m_compression: 0
-  m_crunchedCompression: 0
-  m_sourcePSD: Art/RoomForest.ase
-  m_sourceDirectory: C:\Users\Duzz\Desktop
+  m_sourcePSD: ../Documents/asesprite/BasementBackgroundSprite_split.ase
+  m_sourceDirectory: ..\Documents\asesprite/Export
   m_deleteImportedPngs: 1
   m_spriteDirectory: Sprites
   m_gui: 0

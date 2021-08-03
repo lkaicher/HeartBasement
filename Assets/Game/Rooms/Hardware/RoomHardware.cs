@@ -34,18 +34,12 @@ public class RoomHardware : RoomScript<RoomHardware>
 		// Globals.m_progressExample = eProgress.TriedPump1;
 		
 		
-		if(Globals.m_progressExample == eProgress.TriedPump1)
+		if( Globals.m_progressExample >= eProgress.RightParts)
 		{
-			C.Neighbor1.Visible=true;
-			C.Neighbor2.Visible=true;
-			C.Neighbor1.Clickable=true;
-			C.Neighbor2.Clickable=true;
+			C.Neighbor1.Enable();
 		}
 		else {
-			C.Neighbor1.Visible=false;
-			C.Neighbor2.Visible=false;
-			C.Neighbor1.Clickable=false;
-			C.Neighbor2.Clickable=false;
+			C.Neighbor1.Disable();
 		}
 	}
 
