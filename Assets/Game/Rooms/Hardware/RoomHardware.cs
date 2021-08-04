@@ -77,4 +77,10 @@ public class RoomHardware : RoomScript<RoomHardware>
 		
 		yield return E.Break;
 	}
+
+	IEnumerator OnInteractCharacterNeighbor1( ICharacter character )
+	{
+
+		yield return E.Break;
+	}
 }

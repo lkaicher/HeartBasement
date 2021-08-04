@@ -55,8 +55,8 @@ MonoBehaviour:
     m_verticalResolution: 0
     m_activeWalkableArea: 0
     m_bounds:
-      m_min: {x: -500, y: -270}
-      m_max: {x: 1500, y: 270}
+      m_min: {x: -1000, y: -269}
+      m_max: {x: 1002, y: 270}
     m_scrollBounds:
       m_min: {x: 0, y: 0}
       m_max: {x: 0, y: 0}
@@ -65,11 +65,13 @@ MonoBehaviour:
     m_sceneName: SceneRoomHome
     m_points:
     - m_name: EntryWalk
-      m_position: {x: 1111, y: -141}
+      m_position: {x: 611, y: -141}
     - m_name: HomeDoorPosition
-      m_position: {x: 1345, y: -156}
+      m_position: {x: 845, y: -156}
     - m_name: PumpPosition
-      m_position: {x: 266, y: -179}
+      m_position: {x: -234, y: -179}
+    - m_name: WindowPosition
+      m_position: {x: -859, y: -176}
   m_debugStartFunction: 
   m_hotspotComponents:
   - {fileID: 1414296606168599632}
@@ -138,7 +140,7 @@ MonoBehaviour:
     m_position: {x: 0, y: 0}
     m_baseline: 271
     m_walkToPoint: {x: 0, y: 0}
-    m_lookAtPoint: {x: 0, y: 0}
+    m_lookAtPoint: {x: -2, y: -1}
     m_scriptName: Back
   m_parallaxDepth: 0
   m_parallaxAlignment: {x: 0, y: 0}
@@ -796,7 +798,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: f41ea2f20ccc66946b922c19df009adf, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -818,7 +820,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -230
   m_Sprite: {fileID: 21300000, guid: fbe2501dec7194b488f544437167acda, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.78431374}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

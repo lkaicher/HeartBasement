@@ -26,14 +26,16 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 
 	IEnumerator Option1( IDialogOption option )
 	{
-		yield return C.Dave.Say("Hi Jim. My basement is flooded, can you come over and help me pump it out?");
+		yield return C.Dave.Say("Hi Jim. My basement is flooded, can you come over and help me out?");
 		yield return E.WaitSkip();
-		yield return C.Display("That doesn't sound good. I'll be right over.");
+		yield return C.Display("That doesn't sound good. I'll bring my bucket.");
 		yield return E.WaitSkip();
-		C.Neighbor2.Visible=true;
-		C.Neighbor2.Clickable=true;
+		C.Neighbor2.Enable();
 		C.Neighbor2.ChangeRoom(R.Home);
 		C.Neighbor2.SetPosition(Point("HomeDoorPosition"));
+		
+		Camera.SetCharacterToFollow(C.Neighbor2, 200);
+		yield return E.Wait(1);
 		
 		yield return C.Neighbor2.Say("Hi Dave, I'm here to he-");
 		yield return E.WaitSkip();
@@ -42,7 +44,7 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 		yield return C.Neighbor2.Say("Oh boy.");
 		
 		Stop();
-		
+		Camera.SetCharacterToFollow(C.Dave, 200);
 		D.UsePhone.OptionOffForever(1);
 		
 		yield return E.Break;

@@ -22,7 +22,7 @@ public class RoomHome : RoomScript<RoomHome>
 	public int waterLevelInt = (int)Globals.m_progressExample * 40;
 	
 	public void lowerWater(){
-		Prop("Water").MoveTo(500, 0 - ((float)Globals.m_progressExample * 30), 50);
+		Prop("Water").MoveTo(0, 0 - ((float)Globals.m_progressExample * 30), 50);
 	}
 	
 	
@@ -36,7 +36,7 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		// sets water level according to the stage of the game
 		
-		Prop("Water").SetPosition(500, 0 - ((float)Globals.m_progressExample * 30));
+		Prop("Water").SetPosition(0, 0 - ((float)Globals.m_progressExample * 30));
 		
 		
 		// C.Dave.WalkToBG(Point("EntryWalk"));
@@ -163,8 +163,8 @@ public class RoomHome : RoomScript<RoomHome>
 		
 			Globals.m_progressExample = eProgress.RightParts;
 			lowerWater();
-			yield return C.Display("You've chosen the correct parts for the pump and the water level has decreased. Equivalent to afterload reduction");
-			yield return C.Dave.Say("I'm getting tired... I should find help.");
+			yield return C.Display("You've chosen the correct parts for the pump and the water level has decreased. Equivalent to afterload reduction.");
+			yield return C.Dave.Say("Still not enough... I could use some extra hands.");
 		} else {
 			yield return C.Dave.Say(" This isn't any better. I should try different parts. ");
 		}
@@ -254,5 +254,51 @@ public class RoomHome : RoomScript<RoomHome>
 			default:
 				break;
 		}		
+	}
+
+	IEnumerator OnInteractCharacterNeighbor1( ICharacter character )
+	{
+		C.Neighbor1.WalkToBG(Point("PumpPosition"));
+		
+		Vector2 davePosition = Point("PumpPosition");
+		davePosition[0] = (Point("PumpPosition")[0] - 150);
+		yield return C.Dave.WalkTo(Point("davePosition"));
+		
+		yield return C.Neighbor1.Say("Here goes nothing!");
+		
+		Globals.m_progressExample = eProgress.Friend2;
+		lowerWater();
+		
+		yield return C.Display(" The recruited muscle has helped bring the water level down. Equivalent to using positive inotropes to improve heart muscle.");
+		
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractCharacterNeighbor2( ICharacter character )
+	{
+		Camera.SetCharacterToFollow(C.Neighbor2, 200);
+		
+		C.Neighbor2.WalkToBG(Point("WindowPosition"));
+		yield return C.Dave.WalkTo(Point("PumpPosition"));
+		
+		yield return E.WaitUntil( ()=> C.Neighbor2.Position == Point("WindowPosition"));
+		
+		yield return C.Display("Jim helps get some more water out by scooping it out the window with his bucket. Equivalent to using a diuretic.");
+		
+		Globals.m_progressExample = eProgress.Friend1;
+		lowerWater();
+		
+		yield return E.Wait(2);
+		yield return E.FadeOut();
+		yield return C.Display(" 30 minutes later...");
+		yield return E.FadeIn();
+		
+		yield return C.Neighbor2.Say("Phew, I'm exhausted");
+		
+		yield return C.Dave.Say(" Me too. We could use some extra muscle.");
+		
+		Camera.SetCharacterToFollow(C.Dave, 200);
+		
+		yield return E.Break;
 	}
 }

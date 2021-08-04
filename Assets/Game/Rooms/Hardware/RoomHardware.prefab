@@ -519,8 +519,8 @@ MonoBehaviour:
     m_verticalResolution: 0
     m_activeWalkableArea: 0
     m_bounds:
-      m_min: {x: -500, y: -270}
-      m_max: {x: 1500, y: 270}
+      m_min: {x: -1000, y: -270}
+      m_max: {x: 1000, y: 270}
     m_scrollBounds:
       m_min: {x: 0, y: 0}
       m_max: {x: 0, y: 0}
@@ -529,11 +529,11 @@ MonoBehaviour:
     m_sceneName: SceneRoomHardware
     m_points:
     - m_name: HWDoorPosition
-      m_position: {x: -383, y: -101}
+      m_position: {x: -883, y: -101}
     - m_name: HWClerkPosition
-      m_position: {x: 1290, y: 25}
+      m_position: {x: 790, y: 25}
     - m_name: HWCounterPosition
-      m_position: {x: 1160, y: -158}
+      m_position: {x: 660, y: -158}
   m_debugStartFunction: 
   m_hotspotComponents:
   - {fileID: 1719442105018200373}
@@ -858,11 +858,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 263998225330206919, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 300
+      value: 330
       objectReference: {fileID: 0}
     - target: {fileID: 263998225330206919, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 90
+      value: -45
       objectReference: {fileID: 0}
     - target: {fileID: 263998225330206919, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
       propertyPath: m_LocalPosition.z
@@ -898,7 +898,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4143797130560263171, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
       propertyPath: m_SortingOrder
-      value: 2530
+      value: -760
       objectReference: {fileID: 0}
     - target: {fileID: 4143797130560263171, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -906,7 +906,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6035720155002498351, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
       propertyPath: m_data.m_baseline
-      value: -153
+      value: -14
       objectReference: {fileID: 0}
     - target: {fileID: 6035720155002498351, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
       propertyPath: m_data.m_position.x
@@ -930,19 +930,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6035720155002498351, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
       propertyPath: m_data.m_lookAtPoint.x
-      value: 6
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6035720155002498351, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
       propertyPath: m_data.m_lookAtPoint.y
-      value: -22
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6035720155002498351, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
       propertyPath: m_data.m_walkToPoint.x
-      value: 6
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6035720155002498351, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
       propertyPath: m_data.m_walkToPoint.y
-      value: -22
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6181078106652560515, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
       propertyPath: m_Name

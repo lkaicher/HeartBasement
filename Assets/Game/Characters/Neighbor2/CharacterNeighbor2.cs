@@ -14,4 +14,10 @@ public class CharacterNeighbor2 : CharacterScript<CharacterNeighbor2>
 		
 		yield return E.Break;
 	}
+
+	IEnumerator OnInteract()
+	{
+
+		yield return E.Break;
+	}
 }

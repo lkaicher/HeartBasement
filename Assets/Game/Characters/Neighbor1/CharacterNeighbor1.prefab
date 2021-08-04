@@ -52,7 +52,7 @@ MonoBehaviour:
     m_description: Bob
     m_cursor: 
     m_room: Hardware
-    m_position: {x: 850, y: 90}
+    m_position: {x: 350, y: -45}
     m_faceDirection: 0
     m_clickable: 1
     m_visible: 1
@@ -72,9 +72,9 @@ MonoBehaviour:
     m_useRegionScaling: 1
     m_LipSyncEnabled: 0
     m_footstepSound: 
-    m_baseline: 0
-    m_walkToPoint: {x: 0, y: 0}
-    m_lookAtPoint: {x: 0, y: 0}
+    m_baseline: -15
+    m_walkToPoint: {x: 0, y: 135}
+    m_lookAtPoint: {x: 0, y: 135}
     m_scriptName: Neighbor1
     m_scriptClass: CharacterNeighbor1
   m_clickableColliders: []
@@ -101,7 +101,7 @@ PolygonCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 135}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -113,10 +113,10 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: -10, y: -10}
-      - {x: -10, y: 10}
-      - {x: 10, y: 10}
-      - {x: 10, y: -10}
+    - - {x: -18.059639, y: -146.34222}
+      - {x: -18.731274, y: 54.32802}
+      - {x: 31.124138, y: 52.313107}
+      - {x: 31.191784, y: -149.26028}
 --- !u!212 &4143797130560263171
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -156,7 +156,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 10
+  m_SortingOrder: 320
   m_Sprite: {fileID: 21300000, guid: 5db5a310ca78c6f458607ee4cbba1f6f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -182,7 +182,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_tint: {r: 0.21542534, g: 0.20914915, b: 0.9433962, a: 0}
   m_outline: {r: 1, g: 1, b: 1, a: 0}
-  m_offset: {x: 0, y: 0}
+  m_offset: {x: 0, y: 135}
   m_shaderOverride: {fileID: 0}
 --- !u!95 &302015314446112285
 Animator:

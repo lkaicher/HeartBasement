@@ -156,7 +156,7 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _Offset: {r: 0, g: 0, b: 0, a: 0}
+    - _Offset: {r: 0, g: 135, b: 0, a: 0}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
     - _Tint: {r: 1, g: 1, b: 1, a: 0}
   m_BuildTextureStacks: []
@@ -409,7 +409,7 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _Offset: {r: 0, g: 0, b: 0, a: 0}
+    - _Offset: {r: 0, g: 135, b: 0, a: 0}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
     - _Tint: {r: 0.21542534, g: 0.20914915, b: 0.9433962, a: 0}
   m_BuildTextureStacks: []
@@ -472,6 +472,18 @@ PrefabInstance:
       propertyPath: m_data.m_baseline
       value: -118
       objectReference: {fileID: 0}
+    - target: {fileID: 114894982771319608, guid: 65de018bf92bf6a4088d8c3f977119e7, type: 3}
+      propertyPath: m_data.m_lookAtPoint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114894982771319608, guid: 65de018bf92bf6a4088d8c3f977119e7, type: 3}
+      propertyPath: m_data.m_walkToPoint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114894982771319608, guid: 65de018bf92bf6a4088d8c3f977119e7, type: 3}
+      propertyPath: m_data.m_walkToPoint.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 212752163434094802, guid: 65de018bf92bf6a4088d8c3f977119e7, type: 3}
       propertyPath: m_SortingLayer
       value: -2
@@ -503,7 +515,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3725240697376510532, guid: 23fdac69010168444a76818029d7630a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 500
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3725240697376510532, guid: 23fdac69010168444a76818029d7630a, type: 3}
       propertyPath: m_LocalPosition.y

@@ -74,9 +74,9 @@ MonoBehaviour:
     m_useRegionScaling: 1
     m_LipSyncEnabled: 0
     m_footstepSound: 
-    m_baseline: -16
-    m_walkToPoint: {x: 1, y: 109}
-    m_lookAtPoint: {x: 4, y: 108}
+    m_baseline: -14
+    m_walkToPoint: {x: 0, y: 135}
+    m_lookAtPoint: {x: 0, y: 135}
     m_scriptName: Dave
     m_scriptClass: CharacterDave
   m_clickableColliders: []
@@ -160,7 +160,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2033
+  m_SortingOrder: 1720
   m_Sprite: {fileID: 21300000, guid: 51b42b7f8e7c20e4d888ef4c617049fd, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
