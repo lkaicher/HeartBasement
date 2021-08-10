@@ -79,8 +79,11 @@ MonoBehaviour:
   m_dialogTextOffset: {x: 0, y: 1}
   m_spawnablePrefabs:
   - {fileID: 198790, guid: e3cad009f08664a4098fd91ac4e9f76b, type: 3}
-  m_textSpriteMaterial: {fileID: 0}
-  m_textSprites: []
+  m_textSpriteMaterial: {fileID: 2100000, guid: 6604e0a45a50e744683ee6b91bc56061, type: 3}
+  m_textSprites:
+  - m_tag: 
+    m_offsetY: 0
+    m_sprite: {fileID: 0}
   m_systems:
   - {fileID: 477118, guid: f0b6ac7e109cb2543a538fce1bf8a997, type: 3}
   - {fileID: 492308, guid: b59d39960f6839f428bcacef5efccdbd, type: 3}
@@ -89,7 +92,7 @@ MonoBehaviour:
   - {fileID: 114107578643181592, guid: 815776d2d5a9623498c61578ffc4c1cc, type: 3}
   - {fileID: 6691753714027150367, guid: 7c0ae79c116ab474698aa2d37b3a1399, type: 3}
   - {fileID: 3733532514121063368, guid: 23fdac69010168444a76818029d7630a, type: 3}
-  - {fileID: 3726085848907043709, guid: f249b6c7c2c01f34c81a6738c6974d16, type: 3}
+  - {fileID: 707601457055817731, guid: 44651c51f21780a4ca86fbfaede30fb2, type: 3}
   m_characterPrefabs:
   - {fileID: 114953134120639602, guid: b4910caf4195aeb45895069ad277b9fd, type: 3}
   - {fileID: 6035720155002498351, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}

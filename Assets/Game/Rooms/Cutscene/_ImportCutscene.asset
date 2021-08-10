@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0a16e9f9c6db14b418901a66d60f8d1b, type: 3}
-  m_Name: _ImportTestroom
+  m_Name: _ImportCutscene
   m_EditorClassIdentifier: 
   m_animations: []
   m_packingTag: 

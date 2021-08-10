@@ -7,20 +7,32 @@ using static GlobalScript;
 public class RoomMap : RoomScript<RoomMap>
 {
 
-
+	
+	
+	
 	void OnEnterRoom()
 	{
 		// Display:  The hardware store is to the north
+		if (C.Dave.LastRoom == R.Home) {
+			C.Dave.SetPosition(Point("HomePoint"));
+		} else if (C.Dave.LastRoom == R.Hardware) {
+			C.Dave.SetPosition(Point("HardwarePoint"));
+		} else {
+			C.Dave.SetPosition(Point("HomePoint"));
+	}
+	
 	}
 
 	IEnumerator OnInteractPropHome( IProp prop )
 	{
+		yield return C.Dave.WalkTo(Point("HomePoint"));
 		C.Dave.ChangeRoomBG(R.Home);
 		yield return E.Break;
 	}
 
 	IEnumerator OnInteractPropHardware( IProp prop )
 	{
+		yield return C.Dave.WalkTo(Point("HardwarePoint"));
 		C.Dave.ChangeRoomBG(R.Hardware);
 		yield return E.Break;
 	}
@@ -39,7 +51,8 @@ public class RoomMap : RoomScript<RoomMap>
 
 	IEnumerator OnLookAtPropHardware( IProp prop )
 	{
-		yield return C.Display(" The Hardware Store");
+
+		yield return C.Display(" The Hardware Store");
 		yield return E.Break;
 	}
 

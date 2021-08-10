@@ -38,6 +38,10 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		Prop("Water").SetPosition(0, 0 - ((float)Globals.m_progressExample * 30));
 		
+		if (C.Neighbor1.Room == R.Home) {
+			C.Neighbor1.SetPosition(new Vector2(Point("HomeDoorPosition")[0] - 100, Point("HomeDoorPosition")[1]));
+		}
+		
 		
 		// C.Dave.WalkToBG(Point("EntryWalk"));
 		
@@ -80,8 +84,10 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnInteractHotspotDoor( IHotspot hotspot )
 	{
+		if (Globals.m_progressExample == eProgress.None) {
 			yield return C.Dave.Say("Ok Here I go...");
-		C.Dave.ChangeRoomBG(R.Map);
+		}
+		C.Dave.ChangeRoomBG(R.Cutscene);
 		yield return E.Break;
 	}
 
@@ -163,6 +169,7 @@ public class RoomHome : RoomScript<RoomHome>
 		
 			Globals.m_progressExample = eProgress.RightParts;
 			lowerWater();
+			
 			yield return C.Display("You've chosen the correct parts for the pump and the water level has decreased. Equivalent to afterload reduction.");
 			yield return C.Dave.Say("Still not enough... I could use some extra hands.");
 		} else {
@@ -260,9 +267,8 @@ public class RoomHome : RoomScript<RoomHome>
 	{
 		C.Neighbor1.WalkToBG(Point("PumpPosition"));
 		
-		Vector2 davePosition = Point("PumpPosition");
-		davePosition[0] = (Point("PumpPosition")[0] - 150);
-		yield return C.Dave.WalkTo(Point("davePosition"));
+		yield return C.Dave.WalkTo(new Vector2(Point("PumpPosition")[0] - 150, Point("PumpPosition")[1]));
+		yield return C.Dave.Face(eFace.Right);
 		
 		yield return C.Neighbor1.Say("Here goes nothing!");
 		

@@ -47,6 +47,8 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -58,6 +60,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -70,6 +73,7 @@ MeshRenderer:
   m_SortingLayerID: -1164025503
   m_SortingLayer: 1
   m_SortingOrder: -10
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!102 &10256322
 TextMesh:
   serializedVersion: 3
@@ -78,15 +82,18 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 115000}
-  m_Text: 'Lorem ipsum dolor sit amet,
+  m_Text: 'Lorem ipsum dolor sit
 
-    consectetur adipiscing elit,
+    amet, consectetur
 
-    sed do eiusmod tempor
+    adipiscing elit, sed
+    do
 
-    incididunt ut labore et dolore
+    eiusmod tempor
 
-    magna aliqua'
+    incididunt ut labore et
+
+    dolore magna aliqua'
   m_OffsetZ: 0
   m_CharacterSize: 10
   m_LineSpacing: 0.9
