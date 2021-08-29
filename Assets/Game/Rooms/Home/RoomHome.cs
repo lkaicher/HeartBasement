@@ -18,6 +18,8 @@ public class RoomHome : RoomScript<RoomHome>
 	handleType currentHandle = handleType.small;
 	hoseType currentHose = hoseType.small;
 	
+	public Vector2 returnPosition = new Vector2(0,0);
+	
 	// Water level variables
 	public int waterLevelInt = (int)Globals.m_progressExample * 40;
 	
@@ -38,10 +40,12 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		Prop("Water").SetPosition(0, 0 - ((float)Globals.m_progressExample * 30));
 		
+		
 		if (C.Neighbor1.Room == R.Home) {
 			C.Neighbor1.SetPosition(new Vector2(Point("HomeDoorPosition")[0] - 100, Point("HomeDoorPosition")[1]));
 		}
 		
+					
 		
 		// C.Dave.WalkToBG(Point("EntryWalk"));
 		
@@ -60,14 +64,55 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		if ( (R.Current.FirstTimeVisited) && (Globals.m_progressExample == eProgress.None) ) // Only run this part the first time you visit
 		{
-		Prop("Pump").Disable();
-		yield return C.Dave.Say("Oh no! My basement is flooded! ");
-		yield return E.WaitSkip();
-		yield return C.Dave.Say("Maybe I can get something at the local hardware store to help. ");
-		yield return E.WaitSkip();
-		yield return C.Display("Left Click to Walk & Interact\nRight Click to Look At");
+			Prop("Pump").Disable();
+			yield return C.Dave.Say("Oh no! My basement is flooded! ");
+			yield return E.WaitSkip();
+			yield return C.Dave.Say("Maybe I can get something at the local hardware store to help. ");
+			yield return E.WaitSkip();
+			yield return C.Display("Left Click to Walk & Interact\nRight Click to Look At");
+		} else if (R.Previous == R.Cutscene) {
+			C.Dave.SetPosition(returnPosition);
+			switch ( (int)Globals.m_progressExample ) {
+				case 1:
+					yield return C.Dave.Say("This is too hard! I think the handle is too short and the diameter of the hose is too small, I need to go back to the hardware store. ");
+					yield return E.WaitSkip();
+					yield return C.Dave.FaceDown();
+					break;
+				case 2: 
+					yield return C.Dave.Say("Still not enough... I could use some extra hands.");
+					yield return E.WaitSkip();
+					yield return C.Dave.FaceDown();
+					break;
+				case 3:
+					yield return E.Wait(2);
+					yield return E.FadeOut();
+					yield return C.Display(" 30 minutes later...");
+					yield return E.FadeIn();
+					yield return C.Neighbor2.Say("Phew, I'm exhausted");
+					yield return C.Dave.Say(" Me too. We could use some extra muscle.");
+					// Camera.SetCharacterToFollow(C.Dave, 200);
+					yield return E.WaitSkip();
+					yield return C.Dave.FaceDown();
+					break;
+				case 4:
+					yield return C.Dave.Say("Finally, the water is out of my basement! Thanks for the help guys. ");
+					
+					yield return E.FadeOut();
+					yield return C.Display("2 weeks later...");
+					Prop("Water").SetPosition(0,0);
+					C.Dave.SetPosition(Point("HomeDoorPosition"));
+					C.Neighbor1.Disable();
+					C.Neighbor2.Disable();
+					yield return E.FadeIn();
+					
+					yield return C.Dave.Say(" Oh no! My basement is flooded again! ");
+					yield return C.Dave.Say(" I can't keep dealing with this. Is that house up on the hill still for sale?");
+					break; 
+				default:
+					break;
+			}
 		} else {
-		C.Dave.Position = Point("HomeDoorPosition");
+			C.Dave.Position = Point("HomeDoorPosition");
 		}
 	}
 
@@ -87,7 +132,7 @@ public class RoomHome : RoomScript<RoomHome>
 		if (Globals.m_progressExample == eProgress.None) {
 			yield return C.Dave.Say("Ok Here I go...");
 		}
-		C.Dave.ChangeRoomBG(R.Cutscene);
+		C.Dave.ChangeRoomBG(R.Map);
 		yield return E.Break;
 	}
 
@@ -110,13 +155,11 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return C.Display("Dave begins to try to pump out the water.");
 			Globals.m_progressExample = eProgress.TriedPump1;
 			lowerWater();
-			// C.Dave.WalkTo(0,-400);
-			yield return C.Display("Congratulations! You have recognized the problem, and the water level has decreased. However, it is not enough... ");
-			yield return C.Dave.Say("This is too hard! I think the handle is too short and the diameter of the hose is too small, I need to go back to the hardware store. ");
 			yield return E.Wait(1);
-			yield return E.WaitSkip();
-			yield return C.Dave.FaceDown();
-		
+			// C.Dave.WalkTo(0,-400);
+			returnPosition = C.Dave.Position;
+			C.Dave.ChangeRoomBG(R.Cutscene);
+		 
 				  
 		}
 		yield return E.Break;
@@ -169,9 +212,11 @@ public class RoomHome : RoomScript<RoomHome>
 		
 			Globals.m_progressExample = eProgress.RightParts;
 			lowerWater();
+			returnPosition = C.Dave.Position;
+			C.Dave.ChangeRoom(R.Cutscene);
 			
-			yield return C.Display("You've chosen the correct parts for the pump and the water level has decreased. Equivalent to afterload reduction.");
-			yield return C.Dave.Say("Still not enough... I could use some extra hands.");
+			// Display: You've chosen the correct parts for the pump and the water level has decreased. Equivalent to afterload reduction.
+			
 		} else {
 			yield return C.Dave.Say(" This isn't any better. I should try different parts. ");
 		}
@@ -272,10 +317,12 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		yield return C.Neighbor1.Say("Here goes nothing!");
 		
+		returnPosition = C.Dave.Position;
 		Globals.m_progressExample = eProgress.Friend2;
 		lowerWater();
+		C.Dave.ChangeRoom(R.Cutscene);
 		
-		yield return C.Display(" The recruited muscle has helped bring the water level down. Equivalent to using positive inotropes to improve heart muscle.");
+		// Display:  The recruited muscle has helped bring the water level down. Equivalent to using positive inotropes to improve heart muscle.
 		
 		yield return E.Break;
 	}
@@ -289,21 +336,16 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		yield return E.WaitUntil( ()=> C.Neighbor2.Position == Point("WindowPosition"));
 		
-		yield return C.Display("Jim helps get some more water out by scooping it out the window with his bucket. Equivalent to using a diuretic.");
+		returnPosition = C.Dave.Position;
+		
+		// Display: Jim helps get some more water out by scooping it out the window with his bucket. Equivalent to using a diuretic.
 		
 		Globals.m_progressExample = eProgress.Friend1;
 		lowerWater();
+		Camera.SetCharacterToFollow(C.Dave, 0);
+		C.Dave.ChangeRoom(R.Cutscene);
 		
-		yield return E.Wait(2);
-		yield return E.FadeOut();
-		yield return C.Display(" 30 minutes later...");
-		yield return E.FadeIn();
 		
-		yield return C.Neighbor2.Say("Phew, I'm exhausted");
-		
-		yield return C.Dave.Say(" Me too. We could use some extra muscle.");
-		
-		Camera.SetCharacterToFollow(C.Dave, 200);
 		
 		yield return E.Break;
 	}

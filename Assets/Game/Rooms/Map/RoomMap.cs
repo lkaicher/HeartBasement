@@ -73,4 +73,13 @@ public class RoomMap : RoomScript<RoomMap>
 		yield return C.Display(" Bob's House");
 		yield return E.Break;
 	}
+
+	IEnumerator OnInteractPropHillHouse( IProp prop )
+	{
+		Globals.m_progressExample = eProgress.WonGame;
+		C.Dave.ChangeRoom(R.Cutscene);
+		
+		
+		yield return E.Break;
+	}
 }

@@ -46,7 +46,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		
 		// temporary 
 		
-		//Globals.m_progressExample = eProgress.RightParts;
+		// Globals.m_progressExample = eProgress.Friend1;
 		I.BilgePump.Add();
 		I.MediumHandle.Add();
 		I.LargeHandle.Add();
