@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
@@ -30,15 +30,24 @@ public class GuiInventoryPanel : MonoBehaviour
 	[SerializeField] int m_maxVisibleItems = 64;
 	[Tooltip("How many items to scroll when pressing left/right or up/down buttons")]
 	[SerializeField] int m_scrollDistance = 1;
-	
+
 	// Scroll back (or up) button
 	[SerializeField] GameObject m_btnScrollBack = null;
 	// Scroll forward (or down) button
 	[SerializeField] GameObject m_btnScrollForward = null;
+	
+	[Tooltip("If true, inventory can be scrolled moving the mouse wheel")]
+	[SerializeField] bool m_scrollByWheel = true;	
+	[Tooltip("If true, inventory can be wheel-scrolled even when the cursor is not on it")]
+	[SerializeField] bool m_scrollByWheelAnywhere = false;
 
 	GuiInventoryPanelItems m_items = new GuiInventoryPanelItems();
 
-	int m_itemOffset = 0; // Todo - allow scrolling of items obviously.	
+	// Todo: Make these non-static so you can have multiple inventory panels. (or make guis persist across scenes)
+	// holds the last collected item to check if the inventory needs to be scrolled.
+	static Character.CollectedItem m_lastCollectedItem = null;	
+	static int m_itemOffset = 0;
+	
 
 	public void ScrollReset()
 	{
@@ -60,12 +69,35 @@ public class GuiInventoryPanel : MonoBehaviour
 		m_itemOffset = Mathf.Max(0,m_itemOffset - m_scrollDistance);
 	}
 
+	public bool ScrollByMouseWheel
+	{ 
+		get { return m_scrollByWheel; }
+		set { m_scrollByWheel = value; }
+	}
+
+	public bool ScrollByMouseWheelAnywhere
+	{ 
+		get { return m_scrollByWheelAnywhere; }
+		set { m_scrollByWheelAnywhere = value; }
+	}
+
 	Character GetCharacter() { return string.IsNullOrEmpty(m_targetCharacter)  ? PowerQuest.Get.GetPlayer() : PowerQuest.Get.GetCharacter(m_targetCharacter); }
 
 	void UpdateButtons()
 	{
 		Character character = GetCharacter();
 		List<Character.CollectedItem> inventory = character.GetInventory();
+
+		if (inventory.Count > 0 && inventory[inventory.Count-1] != m_lastCollectedItem)
+		{
+			if (GetCharacter().GetInventoryItemCount() > m_maxVisibleItems) 
+			{
+				int rows = (int)System.Math.Ceiling(GetCharacter().GetInventoryItemCount() / m_scrollDistance);
+				m_itemOffset = (rows - (m_maxVisibleItems / m_scrollDistance)) * m_scrollDistance;
+			}
+			// take note of the last collected item
+			m_lastCollectedItem = inventory[inventory.Count-1];
+		}
 
 		// add to end if not enough
 		while ( m_items.Count < inventory.Count-m_itemOffset && m_items.Count < m_maxVisibleItems )
@@ -105,12 +137,12 @@ public class GuiInventoryPanel : MonoBehaviour
 				guiItem.m_itemData = inventoryItem;				
 				guiItem.m_obj.GetComponent<InventoryComponent>().SetData(inventoryItem);
 			}
-			if ( guiItem.m_sprite.ClipName != inventoryItem.AnimGui )
+			if ( guiItem != null && guiItem.m_sprite != null && guiItem.m_sprite.ClipName != inventoryItem.AnimGui )
 			{
 				AnimationClip anim =  PowerQuest.Get.GetInventoryAnimation( inventoryItem.AnimGui );
 				if ( anim == null )
 				{
-				    Debug.LogWarning("Couldn't find inventory anim "+inventoryItem.AnimGui);
+					Debug.LogWarning("Couldn't find inventory anim "+inventoryItem.AnimGui);
 					inventoryItem.AnimGui = guiItem.m_sprite.ClipName; // so don't keep getting repeat warnings
 				}
 				guiItem.m_sprite.Play(anim);
@@ -128,6 +160,37 @@ public class GuiInventoryPanel : MonoBehaviour
 
 	}
 
+	void CheckScroll()
+	{
+		// if wheel scrolling is disabled, ignore
+		if (m_scrollByWheel==false) 
+			return;
+		// if the wheel must work from any point on the screen, ignore this block
+		if (m_scrollByWheelAnywhere==false) 
+		{
+			// do nothing if the GUI camera is unavailable or the game is blocked.
+			if ( PowerQuest.Get.GetCameraGui() == null || PowerQuest.Get.GetBlocked()) 
+				return;
+
+			Vector2 mousePos = PowerQuest.Get.GetCameraGui().ScreenToWorldPoint( Input.mousePosition.WithZ(0) );		
+			Rect rect = GetComponent<RectTransform>().GetWorldRect();
+
+			// if the mouse is not over the inventory, return
+			if (!rect.Contains(mousePos)) 
+				return;
+		}
+		if (Input.mouseScrollDelta.y < 0) 
+		{
+			// scroll downward
+			ScrollForward();
+		} 
+		else if (Input.mouseScrollDelta.y > 0) 
+		{
+			// scroll upward
+			ScrollBack();
+		}
+	}
+
 	// Update is called once per frame
 	void Start()
 	{
@@ -136,6 +199,7 @@ public class GuiInventoryPanel : MonoBehaviour
 
 	void Update() 
 	{
+		CheckScroll();
 		UpdateButtons();
 	}
 

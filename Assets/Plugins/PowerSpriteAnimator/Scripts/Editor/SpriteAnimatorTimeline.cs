@@ -1,4 +1,4 @@
-﻿//-----------------------------------------
+//-----------------------------------------
 //          PowerSprite Animator
 //  Copyright © 2017 Powerhoof Pty Ltd
 //			  powerhoof.com
@@ -642,7 +642,11 @@ public partial class SpriteAnimator
 		DrawRect( labelRect, eventBGColor);
 		GUI.Label( new Rect( labelRect ){ yMin = labelRect.yMin-4, height = TIMELINE_EVENT_HEIGHT + 5}, labelText, new GUIStyle( Styles.TIMELINE_EVENT_TEXT ) { normal = { textColor = eventColor } } ); 
 		if ( selected ) GUI.color = COLOR_UNITY_BLUE;
+		#if UNITY_2019_3_OR_NEWER
+		GUI.Box( new Rect(eventRect.xMin-8 ,eventRect.yMin-1,42,42), Contents.EVENT_MARKER, new GUIStyle( Styles.TIMELINE_EVENT_TICK ) { normal = { textColor = eventColor } }  );
+		#else
 		GUI.Box( new Rect(eventRect.xMin-2 ,eventRect.yMin,6,20), Contents.EVENT_MARKER, new GUIStyle( Styles.TIMELINE_EVENT_TICK ) { normal = { textColor = eventColor } }  );
+		#endif
 		GUI.color = Color.white;
 	}
 
@@ -1270,7 +1274,7 @@ public partial class SpriteAnimator
 	#endregion
 	#region Funcs: Private
 
-    public static string ToTimelineLabelString( float seconds, float sampleRate ) 
+    static string ToTimelineLabelString( float seconds, float sampleRate ) 
     {
 		return string.Format( "{0:0}:{1:00}",Mathf.FloorToInt(seconds),(seconds%1.0f)*100.0f );
     }

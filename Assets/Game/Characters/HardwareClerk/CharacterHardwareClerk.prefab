@@ -56,9 +56,11 @@ MonoBehaviour:
     m_faceDirection: 0
     m_clickable: 1
     m_visible: 1
-    m_moveable: 1
     m_inventory: []
     m_walkSpeed: {x: 80, y: 60}
+    m_moveable: 1
+    m_solid: 0
+    m_solidSize: {x: 20, y: 4}
     m_turnBeforeWalking: 1
     m_turnBeforeFacing: 1
     m_turnSpeedFPS: 12
@@ -72,6 +74,7 @@ MonoBehaviour:
     m_useRegionScaling: 1
     m_LipSyncEnabled: 0
     m_footstepSound: 
+    m_useSpriteAsHotspot: 0
     m_baseline: 0
     m_walkToPoint: {x: -34, y: -2}
     m_lookAtPoint: {x: 0, y: -2}

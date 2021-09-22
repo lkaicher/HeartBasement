@@ -56,9 +56,11 @@ MonoBehaviour:
     m_faceDirection: 0
     m_clickable: 1
     m_visible: 1
-    m_moveable: 1
     m_inventory: []
     m_walkSpeed: {x: 200, y: 200}
+    m_moveable: 1
+    m_solid: 0
+    m_solidSize: {x: 20, y: 4}
     m_turnBeforeWalking: 1
     m_turnBeforeFacing: 1
     m_turnSpeedFPS: 12
@@ -72,7 +74,8 @@ MonoBehaviour:
     m_useRegionScaling: 1
     m_LipSyncEnabled: 0
     m_footstepSound: 
-    m_baseline: -15
+    m_useSpriteAsHotspot: 0
+    m_baseline: -55
     m_walkToPoint: {x: 0, y: 135}
     m_lookAtPoint: {x: 0, y: 135}
     m_scriptName: Tony
@@ -81,9 +84,20 @@ MonoBehaviour:
   m_turnAnims: []
   m_transitionAnims: []
   m_animations:
-  - {fileID: 7400000, guid: 8c6f20b749f1b4b84bb2890f7ea55377, type: 2}
+  - {fileID: 7400000, guid: 27d1e7b772e3d9a4fb7fa11c3cc62f6d, type: 2}
+  - {fileID: 7400000, guid: b71aabf1924be2e4ca0400053c299352, type: 2}
+  - {fileID: 7400000, guid: 64ead4f99e5490443b02340abf182030, type: 2}
+  - {fileID: 7400000, guid: ed45a5cfecdec4e45a2eb1c0487d5094, type: 2}
+  - {fileID: 7400000, guid: 05d2dd039e4c69b4685538dae19c42cb, type: 2}
   - {fileID: 7400000, guid: 145b2c8eb8959462282ac1f4e8aeca27, type: 2}
   - {fileID: 7400000, guid: 2368facbf8a9a41e3a9e4f86420a338e, type: 2}
+  - {fileID: 7400000, guid: 8c6f20b749f1b4b84bb2890f7ea55377, type: 2}
+  - {fileID: 7400000, guid: 675bf7afa975cbd4ca3feec3606be186, type: 2}
+  - {fileID: 7400000, guid: a3336ddbc03c5e74ea61db5addecf24b, type: 2}
+  - {fileID: 7400000, guid: b3fd3ec83d895fb488a68b77420df737, type: 2}
+  - {fileID: 7400000, guid: b9864dbb990839c4c950c71cfbdc1739, type: 2}
+  - {fileID: 7400000, guid: 6d05347340742d84cbf3f36c71df10cb, type: 2}
+  - {fileID: 7400000, guid: ee71e634bef3bfc4a8953c4fa25295ef, type: 2}
 --- !u!60 &6211616764677334856
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -101,7 +115,7 @@ PolygonCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 160, y: 240}
+    oldSize: {x: 256, y: 384}
     newSize: {x: 64, y: 96}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -109,10 +123,10 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: -18.059639, y: -146.34222}
-      - {x: -18.731274, y: 54.32802}
-      - {x: 31.124138, y: 52.313107}
-      - {x: 31.191784, y: -149.26028}
+    - - {x: -82.53623, y: -194.69968}
+      - {x: -96.103195, y: 176.18878}
+      - {x: 97.53505, y: 176.75296}
+      - {x: 91.15503, y: -190.5253}
 --- !u!212 &4143797130560263171
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -152,7 +166,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 320
+  m_SortingOrder: 550
   m_Sprite: {fileID: 21300000, guid: 1bc34435fe43a492caa65cf99c6a7020, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

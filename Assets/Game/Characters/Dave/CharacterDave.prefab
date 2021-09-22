@@ -56,11 +56,13 @@ MonoBehaviour:
     m_faceDirection: 1
     m_clickable: 0
     m_visible: 1
-    m_moveable: 1
     m_inventory:
     - m_name: CellPhone
       m_quantity: 1
     m_walkSpeed: {x: 200, y: 200}
+    m_moveable: 1
+    m_solid: 0
+    m_solidSize: {x: 20, y: 4}
     m_turnBeforeWalking: 1
     m_turnBeforeFacing: 1
     m_turnSpeedFPS: 12
@@ -74,7 +76,8 @@ MonoBehaviour:
     m_useRegionScaling: 1
     m_LipSyncEnabled: 0
     m_footstepSound: 
-    m_baseline: -14
+    m_useSpriteAsHotspot: 0
+    m_baseline: 10
     m_walkToPoint: {x: 0, y: 135}
     m_lookAtPoint: {x: 0, y: 135}
     m_scriptName: Dave
@@ -87,12 +90,15 @@ MonoBehaviour:
   - {fileID: 7400000, guid: f4f1f74bc6279a5468a88bb1c9d16307, type: 2}
   - {fileID: 7400000, guid: 7caab760277841e4c9040c2ac8d629e4, type: 2}
   - {fileID: 7400000, guid: de3786316bbcb7944ba2837a712ecbf8, type: 2}
+  - {fileID: 7400000, guid: 7d176378fb1e7e24c9c3e7f20ebcd0c5, type: 2}
   - {fileID: 7400000, guid: ade078bb42e92124ebd002eb357306ef, type: 2}
   - {fileID: 7400000, guid: 2ca649a5d8c369e4fb7364562408007e, type: 2}
   - {fileID: 7400000, guid: 1f02d949641269547bb95af63aee4617, type: 2}
   - {fileID: 7400000, guid: 7c601a98aecc36941bd42cc8724fe369, type: 2}
+  - {fileID: 7400000, guid: 822f430bb34c2c343af5503f6d9288e3, type: 2}
   - {fileID: 7400000, guid: 275ebd936291a48e687abf0a687afd8e, type: 2}
   - {fileID: 7400000, guid: a9a81f8bc6b1a204e8c100c5fdfae5ba, type: 2}
+  - {fileID: 7400000, guid: 9799dcca7a0baa7449502b2db8f13573, type: 2}
 --- !u!60 &60411324518888156
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -110,7 +116,7 @@ PolygonCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 400, y: 400}
+    oldSize: {x: 256, y: 256}
     newSize: {x: 80, y: 80}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -118,10 +124,10 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: -24.774078, y: -14.946075}
-      - {x: -26.27327, y: 188.47864}
-      - {x: 27.402748, y: 188.067}
-      - {x: 28.9542, y: -15.570618}
+    - - {x: -66.42145, y: 9.76001}
+      - {x: -57.332325, y: 260.47916}
+      - {x: 57.755917, y: 259.36166}
+      - {x: 58.601482, y: 14.076653}
 --- !u!212 &212839372480152766
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -161,7 +167,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1720
+  m_SortingOrder: -100
   m_Sprite: {fileID: 21300000, guid: 51b42b7f8e7c20e4d888ef4c617049fd, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -220,4 +226,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89a8ca009b14008429f621808bba2086, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_defaultAnim: {fileID: 0}
+  m_defaultAnim: {fileID: 7400000, guid: f4f1f74bc6279a5468a88bb1c9d16307, type: 2}

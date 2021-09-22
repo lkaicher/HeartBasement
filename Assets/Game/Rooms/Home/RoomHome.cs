@@ -165,15 +165,25 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnInteractPropPump( IProp prop )
 	{
-		if (currentHandle == handleType.large && currentHose == hoseType.large){
+		yield return C.Dave.WalkTo(Point("PumpPosition"));
+		Prop("Pump").Visible = false;
+		Prop("Handle").Visible = false;
+		yield return C.Dave.PlayAnimation("Pumping");
+		yield return C.Dave.PlayAnimation("Pumping");
+		yield return C.Dave.PlayAnimation("Pumping");
+		yield return C.Dave.PlayAnimation("Pumping");
+		Prop("Pump").Visible = true;
+		Prop("Handle").Visible = true;
+		
+		if (currentHandle == handleType.large && currentHose == hoseType.large){
 		
 			Globals.m_progressExample = eProgress.RightParts;
 			lowerWater();
-			
+		
 			yield return C.Display("You've chosen the correct parts for the pump and the water level has decreased. Equivalent to afterload reduction.");
 			yield return C.Dave.Say("Still not enough... I could use some extra hands.");
 		} else {
-			yield return C.Dave.Say(" This isn't any better. I should try different parts. ");
+			yield return C.Dave.Say(" This isn't any better. I should try different parts.");
 		}
 		
 		
@@ -194,20 +204,23 @@ public class RoomHome : RoomScript<RoomHome>
 			returnHandleToInv();
 			currentHandle = handleType.small;
 			I.SmallHandle.Remove();
-			yield return C.Display(prevHandle + " Handle replaced with " + sizeString[(int)currentHandle] + " Handle");  
+			yield return C.Display(prevHandle + " Handle replaced with " + sizeString[(int)currentHandle] + " Handle");
+			Prop("Handle").SetPosition(-310, -81);
 		} else if (item == I.MediumHandle) {
 			string prevHandle = sizeString[(int)currentHandle];
 			returnHandleToInv();
 			currentHandle = handleType.medium;
 			I.MediumHandle.Remove();
-			yield return C.Display(prevHandle + " Handle replaced with " + sizeString[(int)currentHandle] + " Handle");  
+			yield return C.Display(prevHandle + " Handle replaced with " + sizeString[(int)currentHandle] + " Handle");
+			Prop("Handle").SetPosition(-310, -71);
 		} else if (item == I.LargeHandle) {
 			string prevHandle = sizeString[(int)currentHandle];
 			returnHandleToInv();
 			currentHandle = handleType.large;
 			I.LargeHandle.Remove();
-			yield return C.Display(prevHandle + " Handle replaced with " + sizeString[(int)currentHandle] + " Handle");  
-		} else if (item == I.SmallHose) { 
+			yield return C.Display(prevHandle + " Handle replaced with " + sizeString[(int)currentHandle] + " Handle");
+			Prop("Handle").SetPosition(-310, -61);
+		} else if (item == I.SmallHose) {
 			string prevHose = sizeString[(int)currentHose];
 			returnHoseToInv();
 			currentHose = hoseType.small;
@@ -271,6 +284,15 @@ public class RoomHome : RoomScript<RoomHome>
 		yield return C.Dave.Face(eFace.Right);
 		
 		yield return C.Tony.Say("Here goes nothing!");
+		Prop("Pump").Visible = false;
+		Prop("Handle").Visible = false;
+		yield return C.Tony.PlayAnimation("Pumping");
+		yield return C.Tony.PlayAnimation("Pumping");
+		yield return C.Tony.PlayAnimation("Pumping");
+		yield return C.Tony.PlayAnimation("Pumping");
+		Prop("Pump").Visible = true;
+		Prop("Handle").Visible = true;
+		
 		
 		Globals.m_progressExample = eProgress.Friend2;
 		lowerWater();

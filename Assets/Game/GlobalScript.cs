@@ -42,9 +42,9 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	public void OnGameStart()
 	{     
 		// I.CellPhone.Add();
-		// 
+		//
 		
-		// temporary 
+		// temporary
 		
 		Globals.m_progressExample = eProgress.Friend1;
 		I.BilgePump.Add();
@@ -53,7 +53,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		I.MediumHose.Add();
 		I.LargeHose.Add();
 		
-		
+		C.Tony.ChangeRoom(R.Home);
 	} 
 
 	/// Called after restoring a game. Use this if you need to update any references based on saved data.

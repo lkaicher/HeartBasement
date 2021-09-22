@@ -370,15 +370,15 @@ public class SystemTime : Singleton<SystemTime>
 
 		if ( Debug.isDebugBuild )
 		{
-			if ( Input.GetKey(KeyCode.BackQuote) && Input.GetKeyDown(KeyCode.PageDown) )
+			if ( PowerQuest.GetDebugKeyHeld() && Input.GetKeyDown(KeyCode.PageDown) )
 			{
 				SetDebugTimeMultiplier( GetDebugTimeMultiplier()*0.8f );
 			}
-			if ( Input.GetKey(KeyCode.BackQuote) && Input.GetKeyDown(KeyCode.PageUp) )
+			if ( PowerQuest.GetDebugKeyHeld() && Input.GetKeyDown(KeyCode.PageUp) )
 			{
 				SetDebugTimeMultiplier( GetDebugTimeMultiplier() + 0.2f );
 			}
-			if ( Input.GetKey(KeyCode.BackQuote) && Input.GetKeyDown(KeyCode.End) )
+			if ( PowerQuest.GetDebugKeyHeld() && Input.GetKeyDown(KeyCode.End) )
 			{
 				SetDebugTimeMultiplier( 1.0f );
 			}
