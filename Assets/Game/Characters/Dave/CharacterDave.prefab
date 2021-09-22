@@ -91,6 +91,7 @@ MonoBehaviour:
   - {fileID: 7400000, guid: 2ca649a5d8c369e4fb7364562408007e, type: 2}
   - {fileID: 7400000, guid: 1f02d949641269547bb95af63aee4617, type: 2}
   - {fileID: 7400000, guid: 7c601a98aecc36941bd42cc8724fe369, type: 2}
+  - {fileID: 7400000, guid: 275ebd936291a48e687abf0a687afd8e, type: 2}
   - {fileID: 7400000, guid: a9a81f8bc6b1a204e8c100c5fdfae5ba, type: 2}
 --- !u!60 &60411324518888156
 PolygonCollider2D:

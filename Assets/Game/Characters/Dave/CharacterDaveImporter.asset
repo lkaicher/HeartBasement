@@ -43,7 +43,7 @@ MonoBehaviour:
   m_packingTag: CharacterDave
   m_pixelsPerUnit: 1
   m_filterMode: 0
-  m_sourcePSD: ../../Downloads/HeartBasementDave_Final.aseprite
+  m_sourcePSD: Assets/Game/Characters/Dave/HeartBasementDave_Final (1).aseprite
   m_sourceDirectory: /Users/LKAICHER/Desktop
   m_deleteImportedPngs: 1
   m_spriteDirectory: Sprites

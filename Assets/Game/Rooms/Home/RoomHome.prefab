@@ -86,7 +86,13 @@ MonoBehaviour:
   m_walkableAreas:
   - {fileID: 1738929069030729536}
   m_animations:
+  - {fileID: 7400000, guid: c4707fb7cb4d5a04cbaf960aaf8a18ee, type: 2}
   - {fileID: 7400000, guid: 397ddb318f968a842af37bff01ae270c, type: 2}
+  - {fileID: 7400000, guid: 8e7cb2f41403bce40b3b10814f46e8f2, type: 2}
+  - {fileID: 7400000, guid: afda5bb61eabe8e4cbf0d080e5484992, type: 2}
+  - {fileID: 7400000, guid: d843470db05c0414d9a6755e8635619a, type: 2}
+  - {fileID: 7400000, guid: 29a17f734b0fb0b4e999700518a456f3, type: 2}
+  - {fileID: 7400000, guid: a413e9f044686174da81f504e8855cd8, type: 2}
 --- !u!1 &1188119584316416
 GameObject:
   m_ObjectHideFlags: 0

@@ -12,12 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a16e9f9c6db14b418901a66d60f8d1b, type: 3}
   m_Name: _ImportCutscene
   m_EditorClassIdentifier: 
-  m_animations: []
+  m_animations:
+  - m_name: background
+    m_firstFrame: 0
+    m_length: 1
+  - m_name: lit
+    m_firstFrame: 1
+    m_length: 1
   m_packingTag: 
   m_pixelsPerUnit: 1
   m_filterMode: 0
-  m_sourcePSD: 
-  m_sourceDirectory: 
+  m_sourcePSD: ../../Downloads/HeartBasementMap2.aseprite
+  m_sourceDirectory: /Users/LKAICHER/Desktop
   m_deleteImportedPngs: 1
   m_spriteDirectory: Sprites
   m_gui: 0

@@ -17,7 +17,7 @@ public class PowerSpriteImportEditor : Editor
 	#region Definitions
 	static readonly string LIST_PROPERTY_NAME = "m_animations";
 	static readonly string REGEX_PNG = @"(?<name>.*)_(?<id>\d+)\.png";
-	static readonly string[] ASEPRITE_PATHS = { @"C:\Program Files\Aseprite\Aseprite.exe", @"C:\Program Files (x86)\Aseprite\Aseprite.exe", @"C:\Program Files (x86)\Steam\SteamApps\common\Aseprite\Aseprite.exe" };
+	static readonly string[] ASEPRITE_PATHS = { @"/Applications/Aseprite.app/Contents/MacOS/aseprite",@"C:\Program Files\Aseprite\Aseprite.exe", @"C:\Program Files (x86)\Aseprite\Aseprite.exe", @"C:\Program Files (x86)\Steam\SteamApps\common\Aseprite\Aseprite.exe" };
 
 	#endregion 
 	#region Variables: Private

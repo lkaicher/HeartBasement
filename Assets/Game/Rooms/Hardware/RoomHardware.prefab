@@ -1026,6 +1026,38 @@ PrefabInstance:
       propertyPath: m_data.m_walkToPoint.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6035720155002498351, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
+      propertyPath: m_animations.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6035720155002498351, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
+      propertyPath: m_animations.Array.data[0]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6035720155002498351, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
+      propertyPath: m_animations.Array.data[1]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6035720155002498351, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
+      propertyPath: m_animations.Array.data[2]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6035720155002498351, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
+      propertyPath: m_animations.Array.data[3]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6035720155002498351, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
+      propertyPath: m_animations.Array.data[4]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6035720155002498351, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
+      propertyPath: m_animations.Array.data[5]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6035720155002498351, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
+      propertyPath: m_animations.Array.data[6]
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6181078106652560515, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
       propertyPath: m_Name
       value: CharacterNeighbor1

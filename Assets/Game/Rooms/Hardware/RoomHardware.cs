@@ -36,11 +36,15 @@ public class RoomHardware : RoomScript<RoomHardware>
 		
 		if( Globals.m_progressExample >= eProgress.RightParts)
 		{
-			C.Neighbor1.Enable();
+			C.Tony.Enable();
 		}
 		else {
-			C.Neighbor1.Disable();
+			C.Tony.Disable();
 		}
+		
+		
+		
+		//E.SetPlayer(C.Tony);
 	}
 
 	IEnumerator OnEnterRoomAfterFade()
@@ -78,7 +82,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 		yield return E.Break;
 	}
 
-	IEnumerator OnInteractCharacterNeighbor1( ICharacter character )
+	IEnumerator OnInteractCharacterTony( ICharacter character )
 	{
 
 		yield return E.Break;

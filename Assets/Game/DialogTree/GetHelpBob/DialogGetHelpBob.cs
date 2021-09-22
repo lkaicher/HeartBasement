@@ -18,36 +18,36 @@ public class DialogGetHelpBob : DialogTreeScript<DialogGetHelpBob>
 
 	IEnumerator Option1( IDialogOption option )
 	{
-		yield return C.Neighbor1.Face(C.Dave);
+		yield return C.Tony.Face(C.Dave);
 		
-		yield return C.Neighbor1.Say("Uhh... Now?");
+		yield return C.Tony.Say("Uhh... Now?");
 		yield return E.WaitSkip();
 		yield return C.Dave.Say(" Yeah...");
 		yield return E.WaitSkip();
 		yield return E.WaitSkip();
-		yield return C.Neighbor1.Say("I dunno man...");
+		yield return C.Tony.Say("I dunno man...");
 		
 		if (I.Beer.Owned) {
 		yield return C.Dave.Say(" I have beer");
 		yield return E.WaitSkip();
-		yield return C.Neighbor1.Say("Alright, I'll see what I can do. ");
+		yield return C.Tony.Say("Alright, I'll see what I can do. ");
 		
 		Stop();
 		
-		C.Neighbor1.WalkToBG(Point("HWDoorPosition"));
+		C.Tony.WalkToBG(Point("HWDoorPosition"));
 		yield return C.Dave.WalkTo(Point("HWDoorPosition"));
 		C.Dave.ChangeRoom(R.Home);
-		C.Neighbor1.ChangeRoom(R.Home);
-		C.Neighbor1.SetPosition(Point("HomeDoorPosition"));
-		//C.Neighbor1.WalkToBG(Point("PumpPosition"));
+		C.Tony.ChangeRoom(R.Home);
+		C.Tony.SetPosition(Point("HomeDoorPosition"));
+		//C.Tony.WalkToBG(Point("PumpPosition"));
 		
-		//Vector2 davePosition = C.Neighbor1.Position;
+		//Vector2 davePosition = C.Tony.Position;
 		//davePosition[0] = (Point("PumpPosition")[0] - 150);
 		//C.Dave.WalkTo(Point("davePosition"));
 		
 		//Globals.m_progressExample = eProgress.Friend1;
 		 
-		//C.Neighbor1.SetPosition(Point("PumpPosition"));
+		//C.Tony.SetPosition(Point("PumpPosition"));
 		} else {
 		Stop();
 		}

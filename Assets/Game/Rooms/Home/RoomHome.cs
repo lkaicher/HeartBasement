@@ -38,8 +38,8 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		Prop("Water").SetPosition(0, 0 - ((float)Globals.m_progressExample * 30));
 		
-		if (C.Neighbor1.Room == R.Home) {
-			C.Neighbor1.SetPosition(new Vector2(Point("HomeDoorPosition")[0] - 100, Point("HomeDoorPosition")[1]));
+		if (C.Tony.Room == R.Home) {
+			C.Tony.SetPosition(new Vector2(Point("HomeDoorPosition")[0] - 100, Point("HomeDoorPosition")[1]));
 		}
 		
 		
@@ -263,14 +263,14 @@ public class RoomHome : RoomScript<RoomHome>
 		}		
 	}
 
-	IEnumerator OnInteractCharacterNeighbor1( ICharacter character )
+	IEnumerator OnInteractCharacterTony( ICharacter character )
 	{
-		C.Neighbor1.WalkToBG(Point("PumpPosition"));
+		C.Tony.WalkToBG(Point("PumpPosition"));
 		
 		yield return C.Dave.WalkTo(new Vector2(Point("PumpPosition")[0] - 150, Point("PumpPosition")[1]));
 		yield return C.Dave.Face(eFace.Right);
 		
-		yield return C.Neighbor1.Say("Here goes nothing!");
+		yield return C.Tony.Say("Here goes nothing!");
 		
 		Globals.m_progressExample = eProgress.Friend2;
 		lowerWater();
