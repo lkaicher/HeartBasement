@@ -794,7 +794,7 @@ MonoBehaviour:
     m_description: Water
     m_cursor: 
     m_visible: 1
-    m_clickable: 1
+    m_clickable: 0
     m_animation: Water
     m_position: {x: 0, y: 0}
     m_baseline: 23
