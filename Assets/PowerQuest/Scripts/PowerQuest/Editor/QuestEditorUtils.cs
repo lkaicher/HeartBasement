@@ -102,7 +102,7 @@ public class QuestEditorUtils
 	{
 		UnityEditorInternal.EditMode.ChangeEditMode(UnityEditorInternal.EditMode.SceneViewEditMode.None, new Bounds(), null);						
 		#if UNITY_2019_3_OR_NEWER
-		UnityEditor.EditorTools.EditorTools.SetActiveTool((UnityEditor.EditorTools.EditorTool)null);
+		UnityEditor.EditorTools.ToolManager.SetActiveTool((UnityEditor.EditorTools.EditorTool)null);
 		#endif
 	}
     public static void ShowPolygonEditor( Collider2D col )
@@ -134,7 +134,7 @@ public class QuestEditorUtils
 			if (assembly.GetType("UnityEditor.PolygonCollider2DTool") != null) 
 			{
 						// This fails when the selection was changed this frame
-				UnityEditor.EditorTools.EditorTools.SetActiveTool(assembly.GetType("UnityEditor.PolygonCollider2DTool"));
+				UnityEditor.EditorTools.ToolManager.SetActiveTool(assembly.GetType("UnityEditor.PolygonCollider2DTool"));
 			}
 		}
 		}
