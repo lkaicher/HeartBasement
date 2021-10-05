@@ -60,7 +60,7 @@ MonoBehaviour:
       m_min: {x: -1000, y: -270}
       m_max: {x: 1000, y: 270}
     m_scrollBounds:
-      m_min: {x: 0, y: 0}
+      m_min: {x: -1.5, y: -9}
       m_max: {x: 0, y: 0}
     m_shortName: Home
     m_scriptClass: RoomHome
@@ -453,7 +453,7 @@ MonoBehaviour:
     m_clickable: 1
     m_animation: Pump
     m_position: {x: 0, y: 0}
-    m_baseline: -148
+    m_baseline: -154
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: 0, y: 0}
     m_scriptName: Pump
@@ -559,7 +559,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1936
+  m_SortingOrder: 1996
   m_Sprite: {fileID: 21300000, guid: f91541f0cac0aab4bbc83cdc29dcaf4d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
