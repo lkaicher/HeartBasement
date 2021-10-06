@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: Beer
+    m_description: '&20 Beer'
     m_animGui: bucket
     m_animCursor: bucket
     m_animCursorInactive: bucket

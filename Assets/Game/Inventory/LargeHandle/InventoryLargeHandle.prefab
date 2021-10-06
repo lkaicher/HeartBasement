@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: Large Handle
+    m_description: '&14 Large Handle'
     m_animGui: handle
     m_animCursor: handle
     m_animCursorInactive: handle

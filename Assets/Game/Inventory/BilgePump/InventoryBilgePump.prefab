@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: Bilge Pump
+    m_description: '&12 Bilge Pump'
     m_animGui: Bucket
     m_animCursor: Bucket
     m_animCursorInactive: Bucket

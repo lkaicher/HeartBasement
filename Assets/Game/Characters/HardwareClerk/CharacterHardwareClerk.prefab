@@ -49,7 +49,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: Hardware Clerk
+    m_description: '&10 Hardware Clerk'
     m_cursor: Talk
     m_room: Hardware
     m_position: {x: 24, y: 6}

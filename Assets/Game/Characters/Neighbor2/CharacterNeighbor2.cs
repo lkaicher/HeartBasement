@@ -10,7 +10,7 @@ public class CharacterNeighbor2 : CharacterScript<CharacterNeighbor2>
 
 	IEnumerator OnLookAt()
 	{
-		yield return C.Dave.Say(" That's my friend Jim. ");
+		yield return C.Dave.Say(" That's my friend Jim. ", 15);
 		
 		yield return E.Break;
 	}

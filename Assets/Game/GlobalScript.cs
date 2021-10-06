@@ -53,7 +53,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		I.MediumHose.Add();
 		I.LargeHose.Add();
 		
-		C.Tony.ChangeRoom(R.Home);
+		// C.Tony.ChangeRoom(R.Home);
 	} 
 
 	/// Called after restoring a game. Use this if you need to update any references based on saved data.
@@ -64,6 +64,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	/// Blocking script called whenever you enter a room, before fading in. Non-blocking functions only
 	public void OnEnterRoom()
 	{
+		C.Tony.ChangeRoom(R.Home);
 	}
 
 	/// Blocking script called whenever you enter a room, after fade in is complete
@@ -106,16 +107,19 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
     {
 		bool mouseOverSomething = E.GetMouseOverClickable() != null;
 		
-		// Check if should clear inventory	
+		// Check if should clear inventory
+		if (!C.Player.Walking) {
+		
+		
 		if ( C.Player.HasActiveInventory && ( rightClick || (mouseOverSomething == false && leftClick ) || Cursor.NoneCursorActive ) )
 		{
 			// Clear inventory on Right click, or left click on empty space, or on hotspot with cursor set to "None"
 			I.Active = null;
-		}		
-		else if ( Cursor.NoneCursorActive ) // Checks if cursor is set to "None"	
+		}
+		else if ( Cursor.NoneCursorActive ) // Checks if cursor is set to "None"
 		{
-			// Special case for clickables with cursor set to "None"- Don't do anything		
-		}	
+			// Special case for clickables with cursor set to "None"- Don't do anything
+		}
 		else if ( E.GetMouseOverType() == eQuestClickableType.Gui )  // Checks if clicked on a gui
 		{
 			// Clicked on a gui - Don't do anything
@@ -123,7 +127,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		else if ( leftClick ) // Checks if player left clicked
 		{
 			if ( mouseOverSomething ) // Check if they clicked on anything
-			{					
+			{
 				// Check if they clicked inventory, or something else
 				if ( C.Player.HasActiveInventory && Cursor.InventoryCursorOverridden == false )
 				{
@@ -140,14 +144,16 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 			{
 				// Left click empty space, so walk
 				E.ProcessClick( eQuestVerb.Walk );
+		
 			}
 		}
 		else if ( rightClick )
-		{	
-			// If right clicked something, look at it (if 'look' enabled in PowerQuest Settings)			
+		{
+			// If right clicked something, look at it (if 'look' enabled in PowerQuest Settings)
 			if ( mouseOverSomething )
 				E.ProcessClick( eQuestVerb.Look );
-		}	
+		}
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////
@@ -164,11 +170,11 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		// This bit of logic cycles between three options. The '% 3' makes it cycle between 3 options.
 		int option = E.Occurrance("unhandledInteract") % 3;
 		if ( option == 0 )	
-			yield return C.Display("You can't use that");
+			yield return C.Display("You can't use that", 20);
 		else if ( option == 1 )
-			yield return C.Display("That doesn't work");
+			yield return C.Display("That doesn't work", 21);
 		else if ( option == 2 )
-			yield return E.Display("Nothing happened");
+			yield return E.Display("Nothing happened", 22);
 		
 	}
 
@@ -184,18 +190,18 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		// This bit of logic randomly chooses between three options
 		int option = Random.Range(0,3);
 		if ( option == 0 )	
-			yield return C.Display("It's nothing interesting ");
+			yield return C.Display("It's nothing interesting ", 23);
 		else if ( option == 1 )
-			yield return C.Display("You don't see anything");
+			yield return C.Display("You don't see anything", 24);
 		else if ( option == 2 ) // in this one we do some fancy manipulation to include the name of what was clicked
-			yield return C.Display("The "+ mouseOver.Description.ToLower() + " isn't very interesting");
+			yield return C.Display("The "+ mouseOver.Description.ToLower() + " isn't very interesting", 25);
 	}
 
 	/// Called when player used one inventory item on another that doesn't have a response
 	public IEnumerator UnhandledUseInvInv(Inventory invA, Inventory invB)
 	{
 		// Called when player used one inventory item on another that doesn't have a response
-		yield return C.Display( "You can't use those together" ); 
+		yield return C.Display( "You can't use those together", 26); 
 
 	}
 
@@ -203,7 +209,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	public IEnumerator UnhandledUseInv(IQuestClickable mouseOver, Inventory item)
 	{		
 		// This function is called when the uses an item on things that don't have a response
-		yield return C.Display( "You can't use that" ); 
+		yield return C.Display( "You can't use that", 27); 
 	}
 
 	    /// Called when a player clicked an inventory item that didn't have an interaction

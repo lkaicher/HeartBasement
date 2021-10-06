@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: Medium Hose
+    m_description: '&15 Medium Hose'
     m_animGui: hose
     m_animCursor: hose
     m_animCursorInactive: hose

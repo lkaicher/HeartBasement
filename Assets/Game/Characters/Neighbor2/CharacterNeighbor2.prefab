@@ -49,7 +49,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: Neighbor2
+    m_description: '&11 Neighbor2'
     m_cursor: 
     m_room: Hardware
     m_position: {x: 2000, y: -235}

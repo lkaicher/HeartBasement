@@ -11,7 +11,7 @@ public class CharacterHardwareClerk : CharacterScript<CharacterHardwareClerk>
 	
 	IEnumerator OnLookAt()
 	{
-		yield return C.Dave.Say("There's the clerk. He looks bored.");
+		yield return C.Dave.Say("There's the clerk. He looks bored.", 14);
 		yield return E.Break;
 	}
 
@@ -25,7 +25,7 @@ public class CharacterHardwareClerk : CharacterScript<CharacterHardwareClerk>
 		 if (D.DialogWithClerk.GetOption(2).Used) {
 			 D.BuyOptions.Start();
 		 } else if (D.DialogWithClerk.GetOption(1).Used && Globals.m_progressExample == eProgress.None) {
-			 yield return C.HardwareClerk.Say("Good luck.	 ");
+			 yield return C.HardwareClerk.Say("Good luck.	 ", 0);
 		 } else {
 			 D.DialogWithClerk.Start();
 		 } 

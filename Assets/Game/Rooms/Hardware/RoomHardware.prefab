@@ -190,7 +190,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: Beer
+    m_description: '&6 Beer'
     m_cursor: 
     m_visible: 1
     m_clickable: 1
@@ -815,7 +815,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: Door
+    m_description: '&7 Door'
     m_cursor: 
     m_clickable: 1
     m_baseline: -23

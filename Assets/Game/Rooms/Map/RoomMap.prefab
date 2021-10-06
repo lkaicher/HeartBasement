@@ -126,7 +126,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: Hardware
+    m_description: '&4 Hardware'
     m_cursor: 
     m_visible: 1
     m_clickable: 1
@@ -600,7 +600,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: Home
+    m_description: '&5 Home'
     m_cursor: 
     m_visible: 1
     m_clickable: 1

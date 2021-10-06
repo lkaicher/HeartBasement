@@ -14,10 +14,10 @@ public class RoomHardware : RoomScript<RoomHardware>
 		
 			if (I.BilgePump.Owned){
 			
-				yield return C.Dave.Say("Let's take this back home and see how it works!");
+				yield return C.Dave.Say("Let's take this back home and see how it works!", 10);
 				C.Dave.ChangeRoomBG(R.Map);
 			} else {
-				yield return C.Dave.Say("I need to buy a pump.");
+				yield return C.Dave.Say("I need to buy a pump.", 11);
 			}
 		} else {
 			C.Dave.ChangeRoomBG(R.Map);
@@ -77,7 +77,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 		I.Beer.Add();
 		Prop("BeerPack").Disable();
 		
-		yield return C.Display(" Beer has been added to your inventory.");
+		yield return C.Display(" Beer has been added to your inventory.", 11);
 		
 		yield return E.Break;
 	}

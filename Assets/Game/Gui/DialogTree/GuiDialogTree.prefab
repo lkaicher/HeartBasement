@@ -49,7 +49,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: DialogTree
+    m_description: '&32 DialogTree'
     m_position: {x: 0, y: 0}
     m_baseline: 0
     m_visible: 0

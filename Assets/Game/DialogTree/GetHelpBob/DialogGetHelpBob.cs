@@ -20,17 +20,17 @@ public class DialogGetHelpBob : DialogTreeScript<DialogGetHelpBob>
 	{
 		yield return C.Tony.Face(C.Dave);
 		
-		yield return C.Tony.Say("Uhh... Now?");
+		yield return C.Tony.Say("Uhh... Now?", 1);
 		yield return E.WaitSkip();
-		yield return C.Dave.Say(" Yeah...");
+		yield return C.Dave.Say(" Yeah...", 25);
 		yield return E.WaitSkip();
 		yield return E.WaitSkip();
-		yield return C.Tony.Say("I dunno man...");
+		yield return C.Tony.Say("I dunno man...", 2);
 		
 		if (I.Beer.Owned) {
-		yield return C.Dave.Say(" I have beer");
+		yield return C.Dave.Say(" I have beer", 26);
 		yield return E.WaitSkip();
-		yield return C.Tony.Say("Alright, I'll see what I can do. ");
+		yield return C.Tony.Say("Alright, I'll see what I can do. ", 3);
 		
 		Stop();
 		

@@ -16,7 +16,7 @@ public class CharacterTony : CharacterScript<CharacterTony>
 
 	IEnumerator OnLookAt()
 	{
-		yield return C.Dave.Say(" It's my neighbor Bob. Maybe he can help.");
+		yield return C.Dave.Say(" It's my neighbor Bob. Maybe he can help.", 13);
 		
 		yield return E.Break;
 	}

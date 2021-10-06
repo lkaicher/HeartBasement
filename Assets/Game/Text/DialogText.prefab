@@ -82,18 +82,14 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 115000}
-  m_Text: 'Lorem ipsum dolor sit
+  m_Text: 'Lorem ipsum dolor sit amet,
 
-    amet, consectetur
+    consectetur adipiscing elit, sed do
 
-    adipiscing elit, sed
-    do
+    eiusmod
+    tempor incididunt ut labore
 
-    eiusmod tempor
-
-    incididunt ut labore et
-
-    dolore magna aliqua'
+    et dolore magna aliqua'
   m_OffsetZ: 0
   m_CharacterSize: 10
   m_LineSpacing: 0.9
@@ -106,7 +102,7 @@ TextMesh:
   m_Font: {fileID: 12800000, guid: 703176b3361ccab4da6c9d4e7a52ad55, type: 3}
   m_Color:
     serializedVersion: 2
-    rgba: 4283058902
+    rgba: 4292467161
 --- !u!114 &11401660
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -131,13 +127,11 @@ MonoBehaviour:
   m_keepOnScreen: 1
   m_shaderOverride: {fileID: 0}
   m_outline:
-    m_directions: 15
+    m_directions: 68
     m_width: 1
     m_color: {r: 0.08088237, g: 0.08088237, b: 0.08088237, a: 1}
   m_unlocalizedText: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
     do eiusmod tempor incididunt ut labore et dolore magna aliqua
   m_outlineMeshes:
-  - {fileID: 0}
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}

@@ -11,24 +11,24 @@ public class DialogChatWithBarney : DialogTreeScript<DialogChatWithBarney>
 		yield return C.WalkToClicked();
 		C.FaceClicked();
 		C.HardwareClerk.Face(C.Dave);
-		yield return C.HardwareClerk.Say("What is it?");
+		yield return C.HardwareClerk.Say("What is it?", 9);
 		yield return E.Break;
 		
 	}
 
 	public IEnumerator Option1( IDialogOption option )
 	{
-		yield return C.Dave.Say("I would like to buy a pump");
+		yield return C.Dave.Say("I would like to buy a pump", 30);
 		yield return E.WaitSkip();
 		yield return C.HardwareClerk.Face(C.Dave);
 		yield return E.WaitSkip();
-		yield return C.HardwareClerk.Say("HSO: Sure, I have this bilge pump (a hand operated pump).");
+		yield return C.HardwareClerk.Say("HSO: Sure, I have this bilge pump (a hand operated pump).", 10);
 		yield return E.WaitSkip();
-		yield return C.Dave.Say("Is that the only one you have?");
+		yield return C.Dave.Say("Is that the only one you have?", 31);
 		yield return E.WaitSkip();
-		yield return C.HardwareClerk.Say("Yes");
+		yield return C.HardwareClerk.Say("Yes", 11);
 		yield return E.WaitSkip();
-		yield return C.Dave.Say("OK, I will take it.");
+		yield return C.Dave.Say("OK, I will take it.", 32);
 		
 		Audio.Play("Bucket");
 		//I.BilgePump.Disable();
@@ -39,8 +39,8 @@ public class DialogChatWithBarney : DialogTreeScript<DialogChatWithBarney>
 
 	public IEnumerator Option2( IDialogOption option )
 	{
-		yield return C.Dave.Say("What's with this forest anyway?");
-		yield return C.HardwareClerk.Say("Whaddaya mean?");
+		yield return C.Dave.Say("What's with this forest anyway?", 33);
+		yield return C.HardwareClerk.Say("Whaddaya mean?", 12);
 		
 		// Here we start a seperate branch of dialog (about forests):
 		// Turn off the main options
@@ -56,9 +56,9 @@ public class DialogChatWithBarney : DialogTreeScript<DialogChatWithBarney>
 
 	public IEnumerator Option3( IDialogOption option )
 	{
-		yield return C.Dave.Say("Nice well there, huh?");
-		yield return C.HardwareClerk.Say("No. I hate it. Lets never speak of it again");
-		yield return C.Dave.Say("Alright");
+		yield return C.Dave.Say("Nice well there, huh?", 34);
+		yield return C.HardwareClerk.Say("No. I hate it. Lets never speak of it again", 13);
+		yield return C.Dave.Say("Alright", 35);
 		option.OffForever();
 		yield return E.Break;
 		
@@ -86,8 +86,8 @@ public class DialogChatWithBarney : DialogTreeScript<DialogChatWithBarney>
 
 	public IEnumerator OptionTree( IDialogOption option )
 	{
-		yield return C.Dave.Say("The trees are cool");
-		yield return C.HardwareClerk.Say(" I guess");
+		yield return C.Dave.Say("The trees are cool", 36);
+		yield return C.HardwareClerk.Say(" I guess", 14);
 		yield return E.Break;
 		
 	}
@@ -95,19 +95,19 @@ public class DialogChatWithBarney : DialogTreeScript<DialogChatWithBarney>
 
 	public IEnumerator OptionLeaf( IDialogOption option )
 	{
-		yield return C.Dave.Say("I like the foliage");
-		yield return C.HardwareClerk.Say("Yes. It is pleasant foliage");
+		yield return C.Dave.Say("I like the foliage", 37);
+		yield return C.HardwareClerk.Say("Yes. It is pleasant foliage", 15);
 		yield return E.Break;
 		
 	}
 
 	public IEnumerator OptionBye( IDialogOption option )
 	{
-		yield return C.Dave.Say("Later!");
+		yield return C.Dave.Say("Later!", 38);
 		yield return E.WaitSkip();
 		yield return C.HardwareClerk.FaceRight();
 		yield return E.WaitSkip();
-		yield return C.HardwareClerk.Say("Whatever");
+		yield return C.HardwareClerk.Say("Whatever", 16);
 		
 		// Don't mark the 'end' option as used
 		option.Used = false;
