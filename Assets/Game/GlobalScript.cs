@@ -27,6 +27,8 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		WonGame
 	};
 	
+	public bool isDragging = false;
+
 	public string myVar = "testGlobal";
 	
 	public eProgress m_progressExample = eProgress.None;
@@ -88,71 +90,103 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	/// Called every frame. Non-blocking functions only
 	public void Update()
 	{
+		PowerQuest.Get.ResetWalkClickDown();
+
+		// yield return E.WaitUntil( ()=> Input.GetMouseButtonUp(0));
+		
 	}
 
 	/// Blocking script called whenever the player clicks anywwere. This function is called before any other click interaction. If this function blocks, it will stop any other interaction from happening.
 	public IEnumerator OnAnyClick()
 	{
+		// yield return E.WaitUntil( ()=> Input.GetMouseButtonUp(0));
 		yield return E.Break;
 	}
 
 	/// Blocking script called whenever the player tries to walk somewhere. Even if `C.Player.Moveable` is set to false.
 	public IEnumerator OnWalkTo()
 	{
+		//yield return E.WaitUntil( ()=> Input.GetMouseButtonUp(0));
+		//E.ProcessClick( eQuestVerb.Walk );
+		//E.ProcessClick( E.GetMouseOverType() );
+		// Vector2 coords = Cursor.PositionOverride;
+		
+		//yield return E.WaitUntil( ()=> Input.GetMouseButtonUp(0));
+		//C.Player.WalkToBG(E.GetMousePosition());
+		//Debug.Log(Input.GetMouseButtonUp(0));
+		
+		//C.Player.WalkTo(coords);
+
+		//while (!Input.GetMouseButtonUp(0)) yield return E.Wait(0);
+
 		yield return E.Break;
+	}
+
+
+
+	public void OnMouseDrag() {
+		isDragging = true;
+		//Debug.Log(isDragging);
+	}
+
+	public void OnMouseUp() {
+		isDragging = false;
+		//Debug.Log(isDragging);
 	}
 
 	/// Called when the mouse is clicked in the game screen. Use this to customise your game interface by calling E.ProcessClick() with the verb that should be used. By default this is set up for a 2 click interface
     public void OnMouseClick( bool leftClick, bool rightClick )
     {
 		bool mouseOverSomething = E.GetMouseOverClickable() != null;
+		// Debug.Log(isDragging);
 		
-		// Check if should clear inventory
+		// if player is not walking, clicks are enabled, if they are walking, they cannot click until they are done
 		if (!C.Player.Walking) {
-		
-		
-		if ( C.Player.HasActiveInventory && ( rightClick || (mouseOverSomething == false && leftClick ) || Cursor.NoneCursorActive ) )
-		{
-			// Clear inventory on Right click, or left click on empty space, or on hotspot with cursor set to "None"
-			I.Active = null;
-		}
-		else if ( Cursor.NoneCursorActive ) // Checks if cursor is set to "None"
-		{
-			// Special case for clickables with cursor set to "None"- Don't do anything
-		}
-		else if ( E.GetMouseOverType() == eQuestClickableType.Gui )  // Checks if clicked on a gui
-		{
-			// Clicked on a gui - Don't do anything
-		}
-		else if ( leftClick ) // Checks if player left clicked
-		{
-			if ( mouseOverSomething ) // Check if they clicked on anything
+			//E.WaitUntilRelease();	
+			// Check if should clear inventory
+			if ( C.Player.HasActiveInventory && ( rightClick || (mouseOverSomething == false && leftClick ) || Cursor.NoneCursorActive ) )
 			{
-				// Check if they clicked inventory, or something else
-				if ( C.Player.HasActiveInventory && Cursor.InventoryCursorOverridden == false )
+				// Clear inventory on Right click, or left click on empty space, or on hotspot with cursor set to "None"
+				I.Active = null;
+			}
+			else if ( Cursor.NoneCursorActive ) // Checks if cursor is set to "None"
+			{
+				// Special case for clickables with cursor set to "None"- Don't do anything
+			}
+			else if ( E.GetMouseOverType() == eQuestClickableType.Gui )  // Checks if clicked on a gui
+			{
+				// Clicked on a gui - Don't do anything
+			}
+			else if ( leftClick ) // Checks if player left clicked
+			{
+				if ( mouseOverSomething ) // Check if they clicked on anything
 				{
-					// Left click with active inventory, use the inventory item
-					E.ProcessClick( eQuestVerb.Inventory );
+					// Check if they clicked inventory, or something else
+					if ( C.Player.HasActiveInventory && Cursor.InventoryCursorOverridden == false )
+					{
+						// Left click with active inventory, use the inventory item
+						E.ProcessClick( eQuestVerb.Inventory );
+					}
+					else
+					{
+						// Left click on item, so use it
+						E.ProcessClick(eQuestVerb.Use);
+					}
 				}
-				else
+				else  // They've clicked empty space
 				{
-					// Left click on item, so use it
-					E.ProcessClick(eQuestVerb.Use);
+					
+
+					E.ProcessClick( eQuestVerb.Walk );
+					
 				}
 			}
-			else  // They've clicked empty space
+			else if ( rightClick )
 			{
-				// Left click empty space, so walk
-				E.ProcessClick( eQuestVerb.Walk );
-		
+				// If right clicked something, look at it (if 'look' enabled in PowerQuest Settings)
+				if ( mouseOverSomething )
+					E.ProcessClick( eQuestVerb.Look );
 			}
-		}
-		else if ( rightClick )
-		{
-			// If right clicked something, look at it (if 'look' enabled in PowerQuest Settings)
-			if ( mouseOverSomething )
-				E.ProcessClick( eQuestVerb.Look );
-		}
 		}
 	}
 

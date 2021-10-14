@@ -64,9 +64,9 @@ MonoBehaviour:
     m_sceneName: SceneRoomMap
     m_points:
     - m_name: HomePoint
-      m_position: {x: -251, y: -120}
+      m_position: {x: 46, y: 8}
     - m_name: HardwarePoint
-      m_position: {x: -165, y: -74}
+      m_position: {x: -94, y: 98}
   m_debugStartFunction: 
   m_hotspotComponents: []
   m_propComponents:
@@ -107,7 +107,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2491461335203807332}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -54.3, y: -115.3, z: 0}
+  m_LocalPosition: {x: -95, y: 97, z: 0}
   m_LocalScale: {x: 0.64042044, y: 0.32021022, z: 0.32021022}
   m_Children: []
   m_Father: {fileID: 9181628233819649447}
@@ -163,10 +163,10 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: -203.60776, y: 73.75792}
-      - {x: -202.49844, y: 194.1729}
-      - {x: -148.46243, y: 185.29665}
-      - {x: -142.73154, y: 68.76521}
+    - - {x: -24.545517, y: -46.70208}
+      - {x: -29.947586, y: 70.457184}
+      - {x: 28.97194, y: 68.092255}
+      - {x: 29.81932, y: -48.439125}
 --- !u!95 &2666639523493183119
 Animator:
   serializedVersion: 3
@@ -239,7 +239,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 4963
-  m_Sprite: {fileID: 21300000, guid: b6e2fedea757eea4099b47bcf0e0d795, type: 3}
+  m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -247,7 +247,7 @@ SpriteRenderer:
   m_Size: {x: 162, y: 180}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &3108736523171083744
@@ -279,7 +279,7 @@ Transform:
   m_GameObject: {fileID: 3108736523171083744}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_Children: []
   m_Father: {fileID: 9181628233819649447}
   m_RootOrder: 1
@@ -303,7 +303,7 @@ MonoBehaviour:
     m_clickable: 0
     m_animation: Back
     m_position: {x: 0, y: 0}
-    m_baseline: 0
+    m_baseline: 271
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: -1, y: -1}
     m_scriptName: Back
@@ -380,8 +380,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 4
-  m_Sprite: {fileID: 21300000, guid: 56c52a5f095cb7344998223b15dbae1e, type: 3}
+  m_SortingOrder: -2710
+  m_Sprite: {fileID: 21300000, guid: 3edd7587fc834a240b42af6f3286cc72, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -449,17 +449,13 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: -456.77103, y: -251.19778}
-      - {x: -457.31573, y: -83.04376}
-      - {x: -302.39685, y: 48.266205}
-      - {x: -238.99841, y: 38.402035}
-      - {x: -161.23013, y: -10.655712}
-      - {x: -114.99514, y: -92.41315}
-      - {x: 44.575676, y: -157.09645}
-      - {x: 139.34084, y: -211.61742}
-      - {x: 308.51187, y: -205.08519}
-      - {x: 453.23813, y: -174.158}
-      - {x: 466.18658, y: -252.52652}
+    - - {x: 178.64604, y: 79.15611}
+      - {x: 102.51022, y: -135.00359}
+      - {x: -108.733215, y: -148.11252}
+      - {x: -147.67834, y: -104.820145}
+      - {x: -183.52678, y: 69.61932}
+      - {x: -163.27454, y: 149.5524}
+      - {x: 138.96274, y: 156.79953}
 --- !u!114 &2678240337107981029
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -581,7 +577,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6826570942866618935}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -347.4, y: -181.3, z: 0}
+  m_LocalPosition: {x: 47, y: 10, z: 0}
   m_LocalScale: {x: 0.51268214, y: 0.51268214, z: 0.5075553}
   m_Children: []
   m_Father: {fileID: 9181628233819649447}
@@ -637,10 +633,10 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 141.76663, y: 80.036514}
-      - {x: 143.69432, y: 152.15619}
-      - {x: 223.39186, y: 158.3878}
-      - {x: 228.3289, y: 79.83162}
+    - - {x: -29.041107, y: -39.935616}
+      - {x: -31.180283, y: 24.050354}
+      - {x: 36.316727, y: 30.281967}
+      - {x: 39.22032, y: -42.173927}
 --- !u!95 &6289158969444632169
 Animator:
   serializedVersion: 3

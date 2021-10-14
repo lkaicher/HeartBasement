@@ -20,6 +20,10 @@ public partial interface IPowerQuest
 
 public partial class PowerQuest
 {
+	public void ResetWalkClickDown()
+    {
+        m_walkClickDown = false;
+    }
 }
 
 /// Functions/Properties added here are accessable from the 'C.<characterName>.' object in quest script
