@@ -329,4 +329,8 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		yield return E.Break;
 	}
+
+	void OnPostRestore( int version )
+	{
+	}
 }
