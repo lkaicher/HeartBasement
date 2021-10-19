@@ -28,7 +28,7 @@ public class InventoryBilgePump : InventoryScript<InventoryBilgePump>
 
 	IEnumerator OnInteractInventory( IInventory thisItem )
 	{
-		
+		E.GetRoom("Home").GetProp("Water").Clickable = true;
 		
 		yield return E.Break;
 	}

@@ -61,9 +61,10 @@ public class RoomHome : RoomScript<RoomHome>
 		if ( (R.Current.FirstTimeVisited) && (Globals.m_progressExample == eProgress.None) ) // Only run this part the first time you visit
 		{
 		Prop("Pump").Disable();
-		yield return C.Dave.Say("Oh no! My basement is flooded! ", 0);
+		Prop("Handle").Disable();
+		yield return C.Dave.Say("Oh no! My basement is flooded!", 0);
 		yield return E.WaitSkip();
-		yield return C.Dave.Say("Maybe I can get something at the local hardware store to help. ", 1);
+		yield return C.Dave.Say("Maybe I can get something at the local hardware store to help.", 1);
 		yield return E.WaitSkip();
 		yield return C.Display("Left Click to Walk & Interact\nRight Click to Look At", 0);
 		} else {
@@ -102,22 +103,24 @@ public class RoomHome : RoomScript<RoomHome>
 	{
 		// NB: You need to check they used the correct item!
 		if ( item == I.BilgePump )
-		{ 
+		{
+			Prop("Water").Clickable = false;
 			yield return C.Dave.WalkTo(Point("PumpPosition"));
 			I.BilgePump.Remove();
 			Prop("Pump").Enable();
+			Prop("Handle").Enable();
 			// FaceClicked
 			yield return C.Display("Dave begins to try to pump out the water.", 1);
 			Globals.m_progressExample = eProgress.TriedPump1;
 			lowerWater();
 			// C.Dave.WalkTo(0,-400);
-			yield return C.Display("Congratulations! You have recognized the problem, and the water level has decreased. However, it is not enough... ", 2);
-			yield return C.Dave.Say("This is too hard! I think the handle is too short and the diameter of the hose is too small, I need to go back to the hardware store. ", 4);
+			yield return C.Display("Congratulations! You have recognized the problem, and the water level has decreased. However, it is not enough...", 2);
+			yield return C.Dave.Say("This is too hard! I think the handle is too short and the diameter of the hose is too small, I need to go back to the hardware store.", 4);
 			yield return E.Wait(1);
 			yield return E.WaitSkip();
 			yield return C.Dave.FaceDown();
 		
-				  
+		
 		}
 		yield return E.Break;
 		
@@ -131,7 +134,7 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnInteractPropWater( IProp prop )
 	{
-		yield return C.Dave.Say(" I can't clean out all of this using only my hands.", 6);
+		// Dave(6):  I can't clean out all of this using only my hands.
 		yield return E.Break;
 	}
 
