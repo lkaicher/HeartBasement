@@ -36,11 +36,14 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		// sets water level according to the stage of the game
 		
+		C.Tony.ChangeRoom(R.Home);
+		
 		Prop("Water").SetPosition(0, 0 - ((float)Globals.m_progressExample * 30));
 		
 		if (C.Tony.Room == R.Home) {
-			C.Tony.SetPosition(new Vector2(Point("HomeDoorPosition")[0] - 100, Point("HomeDoorPosition")[1]));
+			 C.Tony.SetPosition(new Vector2(Point("HomeDoorPosition")[0] - 100, Point("HomeDoorPosition")[1]));
 		}
+		
 		
 		
 		// C.Dave.WalkToBG(Point("EntryWalk"));

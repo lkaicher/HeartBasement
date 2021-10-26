@@ -75,7 +75,7 @@ MonoBehaviour:
     m_LipSyncEnabled: 0
     m_footstepSound: 
     m_useSpriteAsHotspot: 0
-    m_baseline: -189
+    m_baseline: 0
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: 0, y: 0}
     m_scriptName: Tony
@@ -111,7 +111,7 @@ PolygonCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 135}
+  m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -123,10 +123,10 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: -86.49795, y: -324.44595}
-      - {x: -86.24817, y: 37.123398}
-      - {x: 94.25004, y: 38.782593}
-      - {x: 89.17417, y: -326.21417}
+    - - {x: -63.272087, y: 2.9281006}
+      - {x: -68.55231, y: 376.6634}
+      - {x: 73.23615, y: 379.42853}
+      - {x: 72.58427, y: 3.3718567}
 --- !u!212 &4143797130560263171
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -192,7 +192,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_tint: {r: 0.21542534, g: 0.20914915, b: 0.9433962, a: 0}
   m_outline: {r: 1, g: 1, b: 1, a: 0}
-  m_offset: {x: 0, y: 0}
+  m_offset: {x: 0, y: 192}
   m_shaderOverride: {fileID: 0}
 --- !u!95 &302015314446112285
 Animator:

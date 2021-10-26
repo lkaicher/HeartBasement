@@ -66,7 +66,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	/// Blocking script called whenever you enter a room, before fading in. Non-blocking functions only
 	public void OnEnterRoom()
 	{
-		C.Tony.ChangeRoom(R.Home);
+		
 	}
 
 	/// Blocking script called whenever you enter a room, after fade in is complete
