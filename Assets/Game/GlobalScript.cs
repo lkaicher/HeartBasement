@@ -15,7 +15,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	////////////////////////////////////////////////////////////////////////////////////
 	// Global Game Variables
 	
-	/// Just an example of using an enum for game state. 
+	/// Just an example of using an enum for game state.
 	/// This can be accessed from other scripts, eg: if ( Globals.m_progressExample == eProgress.DrankWater )...
 	public enum eProgress
 	{
@@ -27,15 +27,14 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		WonGame
 	};
 	
-	public bool isDragging = false;
-
+	
 	public string myVar = "testGlobal";
 	
 	public eProgress m_progressExample = eProgress.None;
 	
-	/// Just an example of using a global variable that can be accessed in any room with `Globals.m_spokeToBarney`. 
+	/// Just an example of using a global variable that can be accessed in any room with `Globals.m_spokeToBarney`.
 	/// All variables like this in Quest Scripts are automatically saved
-	// public bool	
+	// public bool
 	
 	////////////////////////////////////////////////////////////////////////////////////
 	// Global Game Functions
@@ -49,12 +48,13 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		// temporary
 		
 		Globals.m_progressExample = eProgress.None;
-		I.BilgePump.Add();
-		I.MediumHandle.Add();
-		I.LargeHandle.Add();
+		/*
+		 I.BilgePump.Add();
+		 I.MediumHandle.Add();
+		 I.LargeHandle.Add();
 		I.MediumHose.Add();
-		I.LargeHose.Add();
-		
+		 I.LargeHose.Add();
+		*/
 		// C.Tony.ChangeRoom(R.Home);
 	} 
 
@@ -90,8 +90,8 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	/// Called every frame. Non-blocking functions only
 	public void Update()
 	{
-		PowerQuest.Get.ResetWalkClickDown();
-
+		// PowerQuest.Get.ResetWalkClickDown();
+		
 		// yield return E.WaitUntil( ()=> Input.GetMouseButtonUp(0));
 		
 	}
@@ -111,28 +111,18 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		//E.ProcessClick( E.GetMouseOverType() );
 		// Vector2 coords = Cursor.PositionOverride;
 		
-		//yield return E.WaitUntil( ()=> Input.GetMouseButtonUp(0));
-		//C.Player.WalkToBG(E.GetMousePosition());
+		yield return E.WaitUntil( ()=> Input.GetMouseButtonUp(0));
+		C.Player.WalkToBG(E.GetMousePosition());
 		//Debug.Log(Input.GetMouseButtonUp(0));
 		
 		//C.Player.WalkTo(coords);
-
+		
 		//while (!Input.GetMouseButtonUp(0)) yield return E.Wait(0);
-
+		
 		yield return E.Break;
 	}
 
 
-
-	public void OnMouseDrag() {
-		isDragging = true;
-		//Debug.Log(isDragging);
-	}
-
-	public void OnMouseUp() {
-		isDragging = false;
-		//Debug.Log(isDragging);
-	}
 
 	/// Called when the mouse is clicked in the game screen. Use this to customise your game interface by calling E.ProcessClick() with the verb that should be used. By default this is set up for a 2 click interface
     public void OnMouseClick( bool leftClick, bool rightClick )

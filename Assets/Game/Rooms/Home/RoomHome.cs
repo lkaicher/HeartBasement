@@ -307,6 +307,7 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnInteractCharacterNeighbor2( ICharacter character )
 	{
+		
 		Camera.SetCharacterToFollow(C.Neighbor2, 200);
 		
 		C.Neighbor2.WalkToBG(Point("WindowPosition"));

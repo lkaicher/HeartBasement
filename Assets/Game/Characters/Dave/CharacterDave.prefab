@@ -50,7 +50,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: '&8 Dave'
+    m_description: Dave
     m_cursor: 
     m_room: Home
     m_position: {x: -301, y: -173}
@@ -78,9 +78,9 @@ MonoBehaviour:
     m_LipSyncEnabled: 0
     m_footstepSound: 
     m_useSpriteAsHotspot: 0
-    m_baseline: 10
-    m_walkToPoint: {x: 0, y: 135}
-    m_lookAtPoint: {x: 0, y: 135}
+    m_baseline: -127
+    m_walkToPoint: {x: 0, y: 0}
+    m_lookAtPoint: {x: 0, y: 0}
     m_scriptName: Dave
     m_scriptClass: CharacterDave
   m_clickableColliders: []
@@ -125,10 +125,10 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: -66.42145, y: 9.76001}
-      - {x: -57.332325, y: 260.47916}
-      - {x: 57.755917, y: 259.36166}
-      - {x: 58.601482, y: 14.076653}
+    - - {x: -61.461052, y: -124.170654}
+      - {x: -56.340252, y: 123.57229}
+      - {x: 56.763836, y: 124.438934}
+      - {x: 57.609406, y: -122.83024}
 --- !u!212 &212839372480152766
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -168,7 +168,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -100
+  m_SortingOrder: 2010
   m_Sprite: {fileID: 21300000, guid: 51b42b7f8e7c20e4d888ef4c617049fd, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -194,7 +194,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_tint: {r: 1, g: 1, b: 1, a: 0}
   m_outline: {r: 1, g: 1, b: 1, a: 0}
-  m_offset: {x: -0, y: 135}
+  m_offset: {x: -0, y: 0}
   m_shaderOverride: {fileID: 0}
 --- !u!95 &95575645197976436
 Animator:
@@ -235,7 +235,7 @@ SpriteMask:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1387124637103046}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -268,7 +268,7 @@ SpriteMask:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 644ebaab8b82d8747946e583321867a9, type: 3}
+  m_Sprite: {fileID: 0}
   m_MaskAlphaCutoff: 0.2
   m_FrontSortingLayerID: 0
   m_BackSortingLayerID: 0

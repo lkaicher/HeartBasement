@@ -60,7 +60,7 @@ MonoBehaviour:
       m_min: {x: -1000, y: -270}
       m_max: {x: 1000, y: 270}
     m_scrollBounds:
-      m_min: {x: -1.5, y: -9}
+      m_min: {x: 0, y: 0}
       m_max: {x: 0, y: 0}
     m_shortName: Home
     m_scriptClass: RoomHome

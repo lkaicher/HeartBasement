@@ -49,7 +49,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: '&9 Bob'
+    m_description: Tony
     m_cursor: 
     m_room: Hardware
     m_position: {x: 350, y: -45}
@@ -75,9 +75,9 @@ MonoBehaviour:
     m_LipSyncEnabled: 0
     m_footstepSound: 
     m_useSpriteAsHotspot: 0
-    m_baseline: -55
-    m_walkToPoint: {x: 0, y: 135}
-    m_lookAtPoint: {x: 0, y: 135}
+    m_baseline: -189
+    m_walkToPoint: {x: 0, y: 0}
+    m_lookAtPoint: {x: 0, y: 0}
     m_scriptName: Tony
     m_scriptClass: CharacterTony
   m_clickableColliders: []
@@ -123,10 +123,10 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: -82.53623, y: -194.69968}
-      - {x: -96.103195, y: 176.18878}
-      - {x: 97.53505, y: 176.75296}
-      - {x: 91.15503, y: -190.5253}
+    - - {x: -86.49795, y: -324.44595}
+      - {x: -86.24817, y: 37.123398}
+      - {x: 94.25004, y: 38.782593}
+      - {x: 89.17417, y: -326.21417}
 --- !u!212 &4143797130560263171
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -166,7 +166,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 550
+  m_SortingOrder: 1890
   m_Sprite: {fileID: 21300000, guid: 1bc34435fe43a492caa65cf99c6a7020, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -192,7 +192,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_tint: {r: 0.21542534, g: 0.20914915, b: 0.9433962, a: 0}
   m_outline: {r: 1, g: 1, b: 1, a: 0}
-  m_offset: {x: 0, y: 135}
+  m_offset: {x: 0, y: 0}
   m_shaderOverride: {fileID: 0}
 --- !u!95 &302015314446112285
 Animator:
