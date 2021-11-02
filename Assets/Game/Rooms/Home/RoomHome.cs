@@ -36,7 +36,7 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		// sets water level according to the stage of the game
 		
-		C.Tony.ChangeRoom(R.Home);
+		//C.Tony.ChangeRoom(R.Hardware);
 		
 		Prop("Water").SetPosition(0, 0 - ((float)Globals.m_progressExample * 30));
 		
