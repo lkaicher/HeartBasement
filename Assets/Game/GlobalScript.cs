@@ -20,6 +20,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	public enum eProgress
 	{
 		None,
+		UsedBucket,
 		TriedPump1,
 		RightParts,
 		Friend1,
@@ -48,6 +49,9 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		// temporary
 		
 		Globals.m_progressExample = eProgress.None;
+		// C.Tony.ChangeRoom(R.Home);
+		
+		
 		/*
 		 I.BilgePump.Add();
 		 I.MediumHandle.Add();

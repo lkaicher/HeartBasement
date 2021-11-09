@@ -33,6 +33,7 @@ namespace PowerScript
 		public static IInventory SmallHandle		{ get{return PowerQuest.Get.GetInventory("SmallHandle"); } }
 		public static IInventory SmallHose		{ get{return PowerQuest.Get.GetInventory("SmallHose"); } }
 		public static IInventory Beer		{ get{return PowerQuest.Get.GetInventory("Beer"); } }
+		public static IInventory Bucket         { get { return PowerQuest.Get.GetInventory("Bucket"); } }
 		// #INVENTORY# - Do not edit this line, it's used by the system to insert rooms for easy access
 	}
 

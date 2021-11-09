@@ -52,162 +52,199 @@ MonoBehaviour:
   - m_character: Dave
     m_id: 0
     m_orderId: 0
-    m_string: 'Oh no! My basement is flooded! '
+    m_string: Oh no! My basement is flooded!
     m_sourceFile: Room- Home
     m_sourceFunction: OnEnterRoomAfterFade
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: Dave
-    m_id: 1
-    m_orderId: 1
-    m_string: 'Maybe I can get something at the local hardware store to help. '
-    m_sourceFile: Room- Home
-    m_sourceFunction: OnEnterRoomAfterFade
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
-    m_id: 0
-    m_orderId: 2
-    m_string: 'Left Click to Walk & Interact
-
-      Right Click to Look At'
+    m_id: 29
+    m_orderId: 1
+    m_string: Click on a space in the room to walk to it
     m_sourceFile: Room- Home
     m_sourceFunction: OnEnterRoomAfterFade
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
+  - m_character: Dave
+    m_id: 41
+    m_orderId: 2
+    m_string: Good thing I have my trusty bucket!
+    m_sourceFile: Room- Home
+    m_sourceFunction: OnEnterRoomAfterFade
+    m_translations: []
+    m_phonesTime: []
+    m_phonesCharacter: 
+    m_changedSinceImport: 0
+  - m_character: Narr
+    m_id: 30
+    m_orderId: 3
+    m_string: Your bucket is over on the shelf. Click on it to add it to your inventory.
+    m_sourceFile: Room- Home
+    m_sourceFunction: OnEnterRoomAfterFade
+    m_translations: []
+    m_phonesTime: []
+    m_phonesCharacter: 
+    m_changedSinceImport: 0
+  - m_character: Narr
+    m_id: 31
+    m_orderId: 4
+    m_string: ' To access your inventory, move the cursor to the top of the window.'
+    m_sourceFile: Room- Home
+    m_sourceFunction: OnEnterRoomAfterFade
+    m_translations: []
+    m_phonesTime: []
+    m_phonesCharacter: 
+    m_changedSinceImport: 0
+  - m_character: Dave
+    m_id: 42
+    m_orderId: 5
+    m_string: ' There it is! Now I can scoop this water out the window.'
+    m_sourceFile: Room- Home
+    m_sourceFunction: OnEnterRoomAfterFade
+    m_translations: []
+    m_phonesTime: []
+    m_phonesCharacter: 
+    m_changedSinceImport: 0
+  - m_character: Narr
+    m_id: 32
+    m_orderId: 6
+    m_string: ' Click on the bucket icon in your inventory to select  it.'
+    m_sourceFile: Room- Home
+    m_sourceFunction: OnEnterRoomAfterFade
+    m_translations: []
+    m_phonesTime: []
+    m_phonesCharacter: 
+    m_changedSinceImport: 0
+  - m_character: Narr
+    m_id: 33
+    m_orderId: 7
+    m_string: ' Click on the window with the bucket to scoop water out of the basement.'
+    m_sourceFile: Room- Home
+    m_sourceFunction: OnEnterRoomAfterFade
+    m_translations: []
+    m_phonesTime: []
+    m_phonesCharacter: 
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 2
-    m_orderId: 3
+    m_orderId: 8
     m_string: ' It''s a door to the outside.'
     m_sourceFile: Room- Home
     m_sourceFunction: OnLookAtHotspotDoor
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 3
-    m_orderId: 4
+    m_orderId: 9
     m_string: Ok Here I go...
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractHotspotDoor
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 1
-    m_orderId: 5
+    m_orderId: 10
     m_string: Dave begins to try to pump out the water.
     m_sourceFile: Room- Home
     m_sourceFunction: OnUseInvPropWater
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 2
-    m_orderId: 6
-    m_string: 'Congratulations! You have recognized the problem, and the water level
-      has decreased. However, it is not enough... '
+    m_orderId: 11
+    m_string: Congratulations! You have recognized the problem, and the water level
+      has decreased. However, it is not enough...
     m_sourceFile: Room- Home
     m_sourceFunction: OnUseInvPropWater
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 4
-    m_orderId: 7
-    m_string: 'This is too hard! I think the handle is too short and the diameter
-      of the hose is too small, I need to go back to the hardware store. '
+    m_orderId: 12
+    m_string: This is too hard! I think the handle is too short and the diameter
+      of the hose is too small, I need to go back to the hardware store.
     m_sourceFile: Room- Home
     m_sourceFunction: OnUseInvPropWater
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 5
-    m_orderId: 8
+    m_orderId: 13
     m_string: That's a lot of water!
     m_sourceFile: Room- Home
     m_sourceFunction: OnLookAtPropWater
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: Dave
-    m_id: 6
-    m_orderId: 9
-    m_string: ' I can''t clean out all of this using only my hands.'
-    m_sourceFile: Room- Home
-    m_sourceFunction: OnInteractPropWater
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 3
-    m_orderId: 10
+    m_orderId: 14
     m_string: You've chosen the correct parts for the pump and the water level has
-      decreased. Equivalent to afterload reduction.
+      decreased.
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractPropPump
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 7
-    m_orderId: 11
+    m_orderId: 15
     m_string: Still not enough... I could use some extra hands.
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractPropPump
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 8
-    m_orderId: 12
+    m_orderId: 16
     m_string: ' This isn''t any better. I should try different parts.'
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractPropPump
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Tony
     m_id: 0
-    m_orderId: 13
+    m_orderId: 17
     m_string: Here goes nothing!
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractCharacterTony
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 4
-    m_orderId: 14
-    m_string: ' The recruited muscle has helped bring the water level down. Equivalent
-      to using positive inotropes to improve heart muscle.'
+    m_orderId: 18
+    m_string: ' The recruited muscle has helped bring the water level down.'
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractCharacterTony
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 5
-    m_orderId: 15
+    m_orderId: 19
     m_string: Jim helps get some more water out by scooping it out the window with
       his bucket. Equivalent to using a diuretic.
     m_sourceFile: Room- Home
@@ -215,207 +252,167 @@ MonoBehaviour:
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 6
-    m_orderId: 16
+    m_orderId: 20
     m_string: ' 30 minutes later...'
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractCharacterNeighbor2
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Neighbor2
     m_id: 0
-    m_orderId: 17
+    m_orderId: 21
     m_string: Phew, I'm exhausted
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractCharacterNeighbor2
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 9
-    m_orderId: 18
+    m_orderId: 22
     m_string: ' Me too. We could use some extra muscle.'
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractCharacterNeighbor2
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 0
-    m_orderId: 19
-    m_string: Water
+    m_changedSinceImport: 0
+  - m_character: Narr
+    m_id: 34
+    m_orderId: 23
+    m_string: Bucket added to  your inventory.
     m_sourceFile: Room- Home
-    m_sourceFunction: Prop Description
+    m_sourceFunction: OnInteractPropBucket
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 1
-    m_orderId: 20
-    m_string: WaterFront
+    m_changedSinceImport: 0
+  - m_character: Dave
+    m_id: 43
+    m_orderId: 24
+    m_string: ' There''s my bucket! I can use that to scoop out the water.'
     m_sourceFile: Room- Home
-    m_sourceFunction: Prop Description
+    m_sourceFunction: OnLookAtPropBucket
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 2
-    m_orderId: 21
-    m_string: Pump
+    m_changedSinceImport: 0
+  - m_character: Narr
+    m_id: 35
+    m_orderId: 25
+    m_string: ' You use the bucket to scoop some water out of the window.'
     m_sourceFile: Room- Home
-    m_sourceFunction: Prop Description
+    m_sourceFunction: OnUseInvHotspotWindow
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 3
-    m_orderId: 22
-    m_string: Door
+    m_changedSinceImport: 0
+  - m_character: Dave
+    m_id: 44
+    m_orderId: 26
+    m_string: Oh man... this is going to take forever.
     m_sourceFile: Room- Home
-    m_sourceFunction: Hotspot Description
+    m_sourceFunction: OnUseInvHotspotWindow
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
+  - m_character: Dave
+    m_id: 45
+    m_orderId: 27
+    m_string: Maybe there's
+    m_sourceFile: Room- Home
+    m_sourceFunction: OnUseInvHotspotWindow
+    m_translations: []
+    m_phonesTime: []
+    m_phonesCharacter: 
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 7
-    m_orderId: 23
+    m_orderId: 28
     m_string: ' The Hardware Store'
     m_sourceFile: Room- Map
     m_sourceFunction: OnLookAtPropHardware
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 8
-    m_orderId: 24
+    m_orderId: 29
     m_string: ' Home'
     m_sourceFile: Room- Map
     m_sourceFunction: OnLookAtPropHome
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 9
-    m_orderId: 25
+    m_orderId: 30
     m_string: ' Jim''s House'
     m_sourceFile: Room- Map
     m_sourceFunction: OnLookAtPropNeighbor1
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 10
-    m_orderId: 26
+    m_orderId: 31
     m_string: ' Bob''s House'
     m_sourceFile: Room- Map
     m_sourceFunction: OnLookAtPropNeighbor2
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 4
-    m_orderId: 27
-    m_string: Hardware
-    m_sourceFile: Room- Map
-    m_sourceFunction: Prop Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 5
-    m_orderId: 28
-    m_string: Home
-    m_sourceFile: Room- Map
-    m_sourceFunction: Prop Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 10
-    m_orderId: 29
+    m_orderId: 32
     m_string: Let's take this back home and see how it works!
     m_sourceFile: Room- Hardware
     m_sourceFunction: OnInteractHotspotDoor
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 11
-    m_orderId: 30
+    m_orderId: 33
     m_string: I need to buy a pump.
     m_sourceFile: Room- Hardware
     m_sourceFunction: OnInteractHotspotDoor
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 11
-    m_orderId: 31
+    m_orderId: 34
     m_string: ' Beer has been added to your inventory.'
     m_sourceFile: Room- Hardware
     m_sourceFunction: OnInteractPropBeerPack
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 6
-    m_orderId: 32
-    m_string: Beer
-    m_sourceFile: Room- Hardware
-    m_sourceFunction: Prop Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 7
-    m_orderId: 33
-    m_string: Door
-    m_sourceFile: Room- Hardware
-    m_sourceFunction: Hotspot Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 12
-    m_orderId: 34
+    m_orderId: 35
     m_string: ' My lucky day...'
     m_sourceFile: Character- Dave
     m_sourceFunction: OnLookAt
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 8
-    m_orderId: 35
-    m_string: Dave
-    m_sourceFile: Character- Dave
-    m_sourceFunction: Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 13
     m_orderId: 36
@@ -425,220 +422,100 @@ MonoBehaviour:
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 9
-    m_orderId: 37
-    m_string: Bob
-    m_sourceFile: Character- Tony
-    m_sourceFunction: Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 14
-    m_orderId: 38
+    m_orderId: 37
     m_string: There's the clerk. He looks bored.
     m_sourceFile: Character- HardwareClerk
     m_sourceFunction: OnLookAt
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: HardwareClerk
     m_id: 0
-    m_orderId: 39
+    m_orderId: 38
     m_string: "Good luck.\t "
     m_sourceFile: Character- HardwareClerk
     m_sourceFunction: OnInteract
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 10
-    m_orderId: 40
-    m_string: Hardware Clerk
-    m_sourceFile: Character- HardwareClerk
-    m_sourceFunction: Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 15
-    m_orderId: 41
+    m_orderId: 39
     m_string: ' That''s my friend Jim. '
     m_sourceFile: Character- Neighbor2
     m_sourceFunction: OnLookAt
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 11
-    m_orderId: 42
-    m_string: Neighbor2
-    m_sourceFile: Character- Neighbor2
-    m_sourceFunction: Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 12
-    m_orderId: 43
-    m_string: Bilge Pump
-    m_sourceFile: Item- BilgePump
-    m_sourceFunction: Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 13
-    m_orderId: 44
-    m_string: Medium Handle
-    m_sourceFile: Item- MediumHandle
-    m_sourceFunction: Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 14
-    m_orderId: 45
-    m_string: Large Handle
-    m_sourceFile: Item- LargeHandle
-    m_sourceFunction: Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 15
-    m_orderId: 46
-    m_string: Medium Hose
-    m_sourceFile: Item- MediumHose
-    m_sourceFunction: Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 16
-    m_orderId: 47
-    m_string: Large Hose
-    m_sourceFile: Item- LargeHose
-    m_sourceFunction: Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 16
-    m_orderId: 48
+    m_orderId: 40
     m_string: ' Maybe I could call my friend Jim to come help out. '
     m_sourceFile: Item- CellPhone
     m_sourceFunction: OnLookAtInventory
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 17
-    m_orderId: 49
+    m_orderId: 41
     m_string: ' Thats my cell phone. '
     m_sourceFile: Item- CellPhone
     m_sourceFunction: OnLookAtInventory
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 17
-    m_orderId: 50
-    m_string: Cell Phone
-    m_sourceFile: Item- CellPhone
-    m_sourceFunction: Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 18
-    m_orderId: 51
-    m_string: Small Handle
-    m_sourceFile: Item- SmallHandle
-    m_sourceFunction: Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 19
-    m_orderId: 52
-    m_string: Small Hose
-    m_sourceFile: Item- SmallHose
-    m_sourceFunction: Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 20
-    m_orderId: 53
-    m_string: Beer
-    m_sourceFile: Item- Beer
-    m_sourceFunction: Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: HardwareClerk
     m_id: 1
-    m_orderId: 54
+    m_orderId: 42
     m_string: Sure, I have this bilge pump. It's hand operated.
     m_sourceFile: Dialog- DialogWithClerk
     m_sourceFunction: Option1
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 18
-    m_orderId: 55
+    m_orderId: 43
     m_string: Is that the only one you have?
     m_sourceFile: Dialog- DialogWithClerk
     m_sourceFunction: Option1
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: HardwareClerk
     m_id: 2
-    m_orderId: 56
+    m_orderId: 44
     m_string: Yes
     m_sourceFile: Dialog- DialogWithClerk
     m_sourceFunction: Option1
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 19
-    m_orderId: 57
+    m_orderId: 45
     m_string: OK, I will take it.
     m_sourceFile: Dialog- DialogWithClerk
     m_sourceFunction: Option1
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 12
-    m_orderId: 58
+    m_orderId: 46
     m_string: You now have a pump in your inventory, to use it grab it from your
       inventory (upper right)
     m_sourceFile: Dialog- DialogWithClerk
@@ -646,765 +523,374 @@ MonoBehaviour:
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 20
-    m_orderId: 59
+    m_orderId: 47
     m_string: ' I am having a hard time pumping the water out of my basement.'
     m_sourceFile: Dialog- DialogWithClerk
     m_sourceFunction: Option2
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: HardwareClerk
     m_id: 3
-    m_orderId: 60
+    m_orderId: 48
     m_string: You may want to consider some options for the pump.
     m_sourceFile: Dialog- DialogWithClerk
     m_sourceFunction: Option2
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: HardwareClerk
     m_id: 4
-    m_orderId: 61
+    m_orderId: 49
     m_string: We have handles and hoses in stock.
     m_sourceFile: Dialog- DialogWithClerk
     m_sourceFunction: Option2
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 21
-    m_orderId: 62
-    m_string: I'd like to buy a pump
-    m_sourceFile: Dialog- DialogWithClerk
-    m_sourceFunction: Dialog Option
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 22
-    m_orderId: 63
-    m_string: I need to talk to you about the pump.
-    m_sourceFile: Dialog- DialogWithClerk
-    m_sourceFunction: Dialog Option
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 21
-    m_orderId: 64
+    m_orderId: 50
     m_string: I'll take a medium handle.
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option1
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 13
-    m_orderId: 65
+    m_orderId: 51
     m_string: Medium Handle added to  your inventory.
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option1
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: HardwareClerk
     m_id: 5
-    m_orderId: 66
+    m_orderId: 52
     m_string: Anything else?
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option1
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 22
-    m_orderId: 67
+    m_orderId: 53
     m_string: I'll take a large handle.
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option2
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 14
-    m_orderId: 68
+    m_orderId: 54
     m_string: Large Handle added to  your inventory.
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option2
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: HardwareClerk
     m_id: 6
-    m_orderId: 69
+    m_orderId: 55
     m_string: Anything else?
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option2
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 23
-    m_orderId: 70
+    m_orderId: 56
     m_string: I'll take a medium diameter hose.
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option3
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 15
-    m_orderId: 71
+    m_orderId: 57
     m_string: Medium Hose added to  your inventory.
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option3
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: HardwareClerk
     m_id: 7
-    m_orderId: 72
+    m_orderId: 58
     m_string: Anything else?
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option3
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 24
-    m_orderId: 73
+    m_orderId: 59
     m_string: I'll take a large diameter hose.
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option4
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 16
-    m_orderId: 74
+    m_orderId: 60
     m_string: Large Hose added to  your inventory.
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option4
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: HardwareClerk
     m_id: 8
-    m_orderId: 75
+    m_orderId: 61
     m_string: Anything else?
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option4
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 23
-    m_orderId: 76
-    m_string: Medium Handle
-    m_sourceFile: Dialog- BuyOptions
-    m_sourceFunction: Dialog Option
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 24
-    m_orderId: 77
-    m_string: Large Handle
-    m_sourceFile: Dialog- BuyOptions
-    m_sourceFunction: Dialog Option
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 25
-    m_orderId: 78
-    m_string: Medium Diameter Hose
-    m_sourceFile: Dialog- BuyOptions
-    m_sourceFunction: Dialog Option
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 26
-    m_orderId: 79
-    m_string: Large Diameter Hose
-    m_sourceFile: Dialog- BuyOptions
-    m_sourceFunction: Dialog Option
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 27
-    m_orderId: 80
-    m_string: Leave
-    m_sourceFile: Dialog- BuyOptions
-    m_sourceFunction: Dialog Option
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Tony
     m_id: 1
-    m_orderId: 81
+    m_orderId: 62
     m_string: Uhh... Now?
     m_sourceFile: Dialog- GetHelpBob
     m_sourceFunction: Option1
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 25
-    m_orderId: 82
+    m_orderId: 63
     m_string: ' Yeah...'
     m_sourceFile: Dialog- GetHelpBob
     m_sourceFunction: Option1
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Tony
     m_id: 2
-    m_orderId: 83
+    m_orderId: 64
     m_string: I dunno man...
     m_sourceFile: Dialog- GetHelpBob
     m_sourceFunction: Option1
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 26
-    m_orderId: 84
+    m_orderId: 65
     m_string: ' I have beer'
     m_sourceFile: Dialog- GetHelpBob
     m_sourceFunction: Option1
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Tony
     m_id: 3
-    m_orderId: 85
+    m_orderId: 66
     m_string: 'Alright, I''ll see what I can do. '
     m_sourceFile: Dialog- GetHelpBob
     m_sourceFunction: Option1
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 28
-    m_orderId: 86
-    m_string: I have a flood in my basement. Can you come help me pump it out?
-    m_sourceFile: Dialog- GetHelpBob
-    m_sourceFunction: Dialog Option
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 27
-    m_orderId: 87
+    m_orderId: 67
     m_string: Hi Jim. My basement is flooded, can you come over and help me out?
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option1
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 17
-    m_orderId: 88
+    m_orderId: 68
     m_string: That doesn't sound good. I'll bring my bucket.
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option1
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Neighbor2
     m_id: 1
-    m_orderId: 89
+    m_orderId: 69
     m_string: Hi Dave, I'm here to he-
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option1
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Neighbor2
     m_id: 2
-    m_orderId: 90
+    m_orderId: 70
     m_string: ...
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option1
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Neighbor2
     m_id: 3
-    m_orderId: 91
+    m_orderId: 71
     m_string: Oh boy.
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option1
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 28
-    m_orderId: 92
+    m_orderId: 72
     m_string: Hi, I'd like to order a large cheese and pepporini pizza for delivery
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option2
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 18
-    m_orderId: 93
+    m_orderId: 73
     m_string: ' Okay, what is the address?'
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option2
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Dave
     m_id: 29
-    m_orderId: 94
+    m_orderId: 74
     m_string: ' 22 Hart Street'
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option2
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 19
-    m_orderId: 95
+    m_orderId: 75
     m_string: ' Your order will be there in 30 minutes.'
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option2
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 29
-    m_orderId: 96
-    m_string: Call Jim
-    m_sourceFile: Dialog- UsePhone
-    m_sourceFunction: Dialog Option
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 30
-    m_orderId: 97
-    m_string: Order Pizza
-    m_sourceFile: Dialog- UsePhone
-    m_sourceFunction: Dialog Option
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 31
-    m_orderId: 98
-    m_string: Put Away Phone
-    m_sourceFile: Dialog- UsePhone
-    m_sourceFunction: Dialog Option
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 20
-    m_orderId: 99
+    m_orderId: 76
     m_string: You can't use that
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledInteract
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 21
-    m_orderId: 100
+    m_orderId: 77
     m_string: That doesn't work
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledInteract
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 22
-    m_orderId: 101
+    m_orderId: 78
     m_string: Nothing happened
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledInteract
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 23
-    m_orderId: 102
+    m_orderId: 79
     m_string: 'It''s nothing interesting '
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledLookAt
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 24
-    m_orderId: 103
+    m_orderId: 80
     m_string: You don't see anything
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledLookAt
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 25
-    m_orderId: 104
+    m_orderId: 81
     m_string: The "+ mouseOver.Description.ToLower() + " isn't very interesting
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledLookAt
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 26
-    m_orderId: 105
+    m_orderId: 82
     m_string: You can't use those together
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledUseInvInv
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
   - m_character: Narr
     m_id: 27
-    m_orderId: 106
+    m_orderId: 83
     m_string: You can't use that
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledUseInv
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 32
-    m_orderId: 107
-    m_string: DialogTree
-    m_sourceFile: Guis
-    m_sourceFunction: Gui Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 33
-    m_orderId: 108
-    m_string: InventoryItem
-    m_sourceFile: Guis
-    m_sourceFunction: Gui Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 34
-    m_orderId: 109
-    m_string: SpeechBox
-    m_sourceFile: Guis
-    m_sourceFunction: Gui Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 35
-    m_orderId: 110
-    m_string: Save and Exit
-    m_sourceFile: Guis
-    m_sourceFunction: Gui Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 36
-    m_orderId: 111
-    m_string: Toggle Text Display
-    m_sourceFile: Guis
-    m_sourceFunction: Gui Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: 
-    m_id: 37
-    m_orderId: 112
-    m_string: Toggle Volume
-    m_sourceFile: Guis
-    m_sourceFunction: Gui Description
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: HardwareClerk
-    m_id: 9
-    m_orderId: 113
-    m_string: What is it?
-    m_sourceFile: DialogChatWithBarney
-    m_sourceFunction: Start
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: Dave
-    m_id: 30
-    m_orderId: 114
-    m_string: I would like to buy a pump
-    m_sourceFile: DialogChatWithBarney
-    m_sourceFunction: Option1
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: HardwareClerk
-    m_id: 10
-    m_orderId: 115
-    m_string: 'HSO: Sure, I have this bilge pump (a hand operated pump).'
-    m_sourceFile: DialogChatWithBarney
-    m_sourceFunction: Option1
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: Dave
-    m_id: 31
-    m_orderId: 116
-    m_string: Is that the only one you have?
-    m_sourceFile: DialogChatWithBarney
-    m_sourceFunction: Option1
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: HardwareClerk
-    m_id: 11
-    m_orderId: 117
-    m_string: Yes
-    m_sourceFile: DialogChatWithBarney
-    m_sourceFunction: Option1
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: Dave
-    m_id: 32
-    m_orderId: 118
-    m_string: OK, I will take it.
-    m_sourceFile: DialogChatWithBarney
-    m_sourceFunction: Option1
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: Dave
-    m_id: 33
-    m_orderId: 119
-    m_string: What's with this forest anyway?
-    m_sourceFile: DialogChatWithBarney
-    m_sourceFunction: Option2
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: HardwareClerk
-    m_id: 12
-    m_orderId: 120
-    m_string: Whaddaya mean?
-    m_sourceFile: DialogChatWithBarney
-    m_sourceFunction: Option2
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: Dave
-    m_id: 34
-    m_orderId: 121
-    m_string: Nice well there, huh?
-    m_sourceFile: DialogChatWithBarney
-    m_sourceFunction: Option3
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: HardwareClerk
-    m_id: 13
-    m_orderId: 122
-    m_string: No. I hate it. Lets never speak of it again
-    m_sourceFile: DialogChatWithBarney
-    m_sourceFunction: Option3
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: Dave
-    m_id: 35
-    m_orderId: 123
-    m_string: Alright
-    m_sourceFile: DialogChatWithBarney
-    m_sourceFunction: Option3
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: Dave
-    m_id: 36
-    m_orderId: 124
-    m_string: The trees are cool
-    m_sourceFile: DialogChatWithBarney
-    m_sourceFunction: OptionTree
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: HardwareClerk
-    m_id: 14
-    m_orderId: 125
-    m_string: ' I guess'
-    m_sourceFile: DialogChatWithBarney
-    m_sourceFunction: OptionTree
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: Dave
-    m_id: 37
-    m_orderId: 126
-    m_string: I like the foliage
-    m_sourceFile: DialogChatWithBarney
-    m_sourceFunction: OptionLeaf
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: HardwareClerk
-    m_id: 15
-    m_orderId: 127
-    m_string: Yes. It is pleasant foliage
-    m_sourceFile: DialogChatWithBarney
-    m_sourceFunction: OptionLeaf
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: Dave
-    m_id: 38
-    m_orderId: 128
-    m_string: Later!
-    m_sourceFile: DialogChatWithBarney
-    m_sourceFunction: OptionBye
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: HardwareClerk
-    m_id: 16
-    m_orderId: 129
-    m_string: Whatever
-    m_sourceFile: DialogChatWithBarney
-    m_sourceFunction: OptionBye
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: HardwareClerk
-    m_id: 17
-    m_orderId: 130
-    m_string: 'HSO: Sure, I have this bilge pump (a hand operated pump).'
-    m_sourceFile: DialogChatWithClerk2
-    m_sourceFunction: Option1
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: Dave
-    m_id: 39
-    m_orderId: 131
-    m_string: Is that the only one you have?
-    m_sourceFile: DialogChatWithClerk2
-    m_sourceFunction: Option1
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: HardwareClerk
-    m_id: 18
-    m_orderId: 132
-    m_string: Yes
-    m_sourceFile: DialogChatWithClerk2
-    m_sourceFunction: Option1
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: Dave
-    m_id: 40
-    m_orderId: 133
-    m_string: OK, I will take it.
-    m_sourceFile: DialogChatWithClerk2
-    m_sourceFunction: Option1
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: Narr
-    m_id: 28
-    m_orderId: 134
-    m_string: You now have a pump in your inventory, to us it grab it from your inventory
-      (upper right)
-    m_sourceFile: DialogChatWithClerk2
-    m_sourceFunction: Option1
-    m_translations: []
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
+    m_changedSinceImport: 0
