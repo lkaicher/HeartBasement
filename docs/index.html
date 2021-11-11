@@ -4,8 +4,12 @@
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity WebGL Player | May2021a</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css">
+    <link rel="shortcut icon" href="Unity/TemplateData/favicon.ico">
+    <link rel="stylesheet" href="Unity/TemplateData/style.css">
+    <style>
+      #unity-canvas {cursor: none!important;}
+    </style>
+
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
@@ -26,7 +30,7 @@
       </div>
     </div>
     <script>
-      var buildUrl = "Build";
+      var buildUrl = "Unity/Build";
       var loaderUrl = buildUrl + "/docs.loader.js";
       var config = {
         dataUrl: buildUrl + "/docs.data",

@@ -21,8 +21,12 @@ public class RoomHome : RoomScript<RoomHome>
 	// Water level variables
 	public int waterLevelInt = (int)Globals.m_progressExample * 40;
 	
+	
+	
+	
+	
 	public void lowerWater(){
-		Prop("Water").MoveTo(0, 0 - ((float)Globals.m_progressExample * 30), 50);
+		Prop("Water").MoveTo(0, 0 - ((float)Globals.m_progressExample * 20), 50);
 	}
 	
 	
@@ -65,51 +69,17 @@ public class RoomHome : RoomScript<RoomHome>
 		{
 		Prop("Pump").Disable();
 		Prop("Handle").Disable();
-		Vector2 startPosition = C.Player.Position;
+		C.Dave.SetPosition(Point("StartPosition"));
 		
 		yield return C.Dave.Say("Oh no! My basement is flooded!", 0);
 		yield return E.WaitSkip();
-		//Dave(1): Maybe I can get something at the local hardware store to help.
-		//...
-		//Display(0): Left Click to Walk & Interact\nRight Click to Look At
 		yield return C.Display("Click on a space in the room to walk to it", 29);
 		yield return E.WaitSkip();
-		
-		// E.WaitUntil( ()=> (C.Player.Position != startPosition && !C.Player.Walking));
-		
-		if (C.Player.Position != startPosition && !C.Player.Walking) {
-		
-		yield return E.WaitSkip();
-		yield return C.Dave.Say("Good thing I have my trusty bucket!", 41);
-		yield return E.WaitSkip();
-		yield return C.Display("Your bucket is over on the shelf. Click on it to add it to your inventory.", 30);
-		yield return E.WaitSkip();
-		
-		// E.WaitUntil( ()=> (I.Bucket.Owned));
-		
-		if (I.Bucket.Owned) {
-		
-		yield return E.WaitSkip();
-		yield return C.Display(" To access your inventory, move the cursor to the top of the window.", 31);
-		yield return E.WaitSkip();
-		yield return C.Dave.Say(" There it is! Now I can scoop this water out the window.", 42);
-		yield return E.WaitSkip();
-		yield return C.Display(" Click on the bucket icon in your inventory to select  it.", 32);
-		yield return E.WaitSkip();
-		
-		//E.WaitUntil( ()=> (I.Bucket.Active));
-		if (I.Bucket.Active){
-		
-		yield return E.WaitSkip();
-		yield return C.Display(" Click on the window with the bucket to scoop water out of the basement.", 33);
-		
-		yield return E.Break;
-		
-		}}}
 		
 		} else {
 		C.Dave.Position = Point("HomeDoorPosition");
 		}
+		yield return E.Break;
 	}
 
 
@@ -186,12 +156,23 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator UpdateBlocking()
 	{
-
+		if ( (Globals.tutorialProgress == tutorialStage.start) && (C.Player.Position != Point("StartPosition") && !C.Player.Walking) )
+		{
+			Globals.tutorialProgress = tutorialStage.moved;
+		
+			yield return C.Dave.Say("Good thing I have my trusty bucket!", 41);
+			yield return E.WaitSkip();
+			yield return C.Display("Your bucket is over on the shelf. Click on it to add it to your inventory.", 30);
+			yield return E.WaitSkip();
+		
+		}
 		yield return E.Break;
 	}
 
 	void Update()
 	{
+		
+		
 	}
 
 	IEnumerator OnAnyClick()
@@ -202,7 +183,6 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnWalkTo()
 	{
-
 		yield return E.Break;
 	}
 
@@ -384,6 +364,17 @@ public class RoomHome : RoomScript<RoomHome>
 		I.Bucket.Add();
 		Prop("Bucket").Disable();
 		yield return C.Display("Bucket added to  your inventory.", 34);
+		
+		if (Globals.tutorialProgress == tutorialStage.moved)
+		{
+			Globals.tutorialProgress = tutorialStage.clickedBucket;
+			yield return E.WaitSkip();
+			yield return C.Dave.Say(" There it is! Now I can scoop this water out the window.", 42);
+			yield return E.WaitSkip();
+			yield return C.Display(" Click on the bucket icon in your inventory to select  it.", 32);
+		
+		}
+		
 		yield return E.Break;
 	}
 
@@ -397,14 +388,22 @@ public class RoomHome : RoomScript<RoomHome>
 	{
 		if (item == I.Bucket) {
 		
-			Globals.m_progressExample = eProgress.UsedBucket;
-			lowerWater();
-			yield return E.WaitSkip();
-			yield return C.Display(" You use the bucket to scoop some water out of the window.", 35);
-			yield return E.WaitSkip();
-			yield return C.Dave.Say("Oh man... this is going to take forever.", 44);
-			yield return E.WaitSkip();
-			yield return C.Dave.Say("Maybe there's", 45);
+			if (Globals.tutorialProgress == tutorialStage.selectedBucket) {
+				Globals.m_progressExample = eProgress.UsedBucket;
+				Globals.tutorialProgress = tutorialStage.usedBucket;
+				lowerWater();
+				I.Active = null;
+				// ...
+				// Display(35):  You use the bucket to scoop some water out of the window.
+				yield return E.WaitSkip();
+				yield return C.Dave.Say("Oh man... this is going to take forever.", 44);
+				yield return E.WaitSkip();
+				yield return C.Dave.Say("Maybe there's something at Doc's hardware store that can help.", 45);
+				yield return E.WaitSkip();
+				yield return C.Display("To leave your basement, walk all the way to the right and click on the door.");
+			} else {
+				yield return C.Dave.Say(" This bucket aint going to cut it...");
+			}
 		
 		}
 		yield return E.Break;

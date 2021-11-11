@@ -57,9 +57,7 @@ MonoBehaviour:
     m_faceDirection: 1
     m_clickable: 0
     m_visible: 1
-    m_inventory:
-    - m_name: CellPhone
-      m_quantity: 1
+    m_inventory: []
     m_walkSpeed: {x: 200, y: 200}
     m_moveable: 1
     m_solid: 0

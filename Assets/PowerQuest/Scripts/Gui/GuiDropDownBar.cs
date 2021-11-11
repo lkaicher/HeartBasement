@@ -73,7 +73,7 @@ public class GuiDropDownBar : MonoBehaviour
 			SystemAudio.Play(m_soundShow);
 
 		m_shown = true;
-		//Debug.Log("Show");
+		Debug.Log("Show");
 		if ( m_guiComponent != null )
 		{
 			m_guiComponent.GetData().Clickable = true;
@@ -99,7 +99,7 @@ public class GuiDropDownBar : MonoBehaviour
 			SystemAudio.Play(m_soundHide);
 
 		m_shown = false;
-		//Debug.Log("Hide");
+		Debug.Log("Hide");
 
 		if ( m_guiComponent != null )
 		{
@@ -141,6 +141,7 @@ public class GuiDropDownBar : MonoBehaviour
 	// Update is called once per frame
 	void Update () 
 	{	
+		// Show();
 		if ( m_highlightPopupTimer > 0 )
 			m_highlightPopupTimer -= Time.deltaTime;
 

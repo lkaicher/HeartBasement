@@ -76,6 +76,8 @@ MonoBehaviour:
       m_position: {x: -312, y: -205}
     - m_name: WindowPosition
       m_position: {x: -859, y: -176}
+    - m_name: StartPosition
+      m_position: {x: -700, y: -200}
   m_debugStartFunction: 
   m_hotspotComponents:
   - {fileID: 1414296606168599632}
