@@ -610,7 +610,7 @@ MonoBehaviour:
     - m_name: HWDoorPosition
       m_position: {x: -883, y: -101}
     - m_name: HWClerkPosition
-      m_position: {x: 790, y: 25}
+      m_position: {x: 770, y: 69}
     - m_name: HWCounterPosition
       m_position: {x: 660, y: -158}
   m_debugStartFunction: 

@@ -67,7 +67,7 @@ MonoBehaviour:
     m_adjustSpeedWithScaling: 1
     m_textColour: {r: 0.21568629, g: 0.5803922, b: 0.43137258, a: 1}
     m_animIdle: Idle
-    m_animWalk: Walk
+    m_animWalk: Idle
     m_animTalk: Talk
     m_animMouth: 
     m_useRegionTinting: 1
@@ -75,22 +75,17 @@ MonoBehaviour:
     m_LipSyncEnabled: 0
     m_footstepSound: 
     m_useSpriteAsHotspot: 0
-    m_baseline: 0
-    m_walkToPoint: {x: -34, y: -2}
-    m_lookAtPoint: {x: 0, y: -2}
+    m_baseline: -118
+    m_walkToPoint: {x: 0, y: 0}
+    m_lookAtPoint: {x: 0, y: 0}
     m_scriptName: HardwareClerk
     m_scriptClass: CharacterHardwareClerk
   m_clickableColliders: []
   m_turnAnims: []
   m_transitionAnims: []
   m_animations:
-  - {fileID: 7400000, guid: 2798b7acc99b7204eb58b3d7f618aa00, type: 2}
-  - {fileID: 7400000, guid: 6863a6854a465c54fbb41eb5c7a26fbe, type: 2}
-  - {fileID: 7400000, guid: 5a1f478790248754dae832cc648accac, type: 2}
-  - {fileID: 7400000, guid: 2fa3b95e75b87a84e88d01decc8727e8, type: 2}
-  - {fileID: 7400000, guid: 92d0c25cd8050b84dbcabc7a5b223d77, type: 2}
-  - {fileID: 7400000, guid: 0f69390c55193a842968beef3fca19b7, type: 2}
-  - {fileID: 7400000, guid: f3d8e3fb90e7ef5478393df9c025fa95, type: 2}
+  - {fileID: 7400000, guid: c0161676c4ffd6e48a79693efc49c8f7, type: 2}
+  - {fileID: 7400000, guid: 5ca73eb2fe77b3d44926603be2d536f4, type: 2}
 --- !u!60 &60498109293141074
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -108,18 +103,18 @@ PolygonCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 400, y: 400}
-    newSize: {x: 80, y: 80}
+    oldSize: {x: 213.33333, y: 213.33333}
+    newSize: {x: 64, y: 64}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 35.856873, y: -120.576225}
-      - {x: -23.319252, y: -118.0653}
-      - {x: -17.406334, y: 82.97993}
-      - {x: 34.195244, y: 82.57117}
+    - - {x: 19.9729, y: -4.2493515}
+      - {x: -21.4506, y: -3.1399689}
+      - {x: -18.340721, y: 55.883713}
+      - {x: 22.048637, y: 58.745186}
 --- !u!212 &212752163434094802
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -159,13 +154,13 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1547338543
   m_SortingLayer: -2
-  m_SortingOrder: 10
-  m_Sprite: {fileID: 21300000, guid: 9cc329db0f6334842a1b7e4601f43cb2, type: 3}
+  m_SortingOrder: 1900
+  m_Sprite: {fileID: 21300000, guid: c8339a1199210ae46b4736de56a91f99, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 80, y: 80}
+  m_Size: {x: 64, y: 64}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1

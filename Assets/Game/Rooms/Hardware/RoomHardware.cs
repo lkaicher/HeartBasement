@@ -28,7 +28,8 @@ public class RoomHardware : RoomScript<RoomHardware>
 
 	void OnEnterRoom()
 	{
-		C.Dave.Position = Point("HWDoorPosition");
+		//C.Dave.Position = Point("HWDoorPosition");
+		C.Dave.Position = Point("HWCounterPosition");
 		C.HardwareClerk.Position = Point("HWClerkPosition");
 		
 		// Globals.m_progressExample = eProgress.TriedPump1;
@@ -95,6 +96,18 @@ public class RoomHardware : RoomScript<RoomHardware>
 	}
 
 	IEnumerator OnInteractCharacterNeighbor2( ICharacter character )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnEnterRegionScale( IRegion region, ICharacter character )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnExitRegionScale( IRegion region, ICharacter character )
 	{
 
 		yield return E.Break;

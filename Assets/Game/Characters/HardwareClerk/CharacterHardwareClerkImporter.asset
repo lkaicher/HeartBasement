@@ -13,34 +13,24 @@ MonoBehaviour:
   m_Name: CharacterHardwareClerkImporter
   m_EditorClassIdentifier: 
   m_animations:
-  - m_name: IdleR
+  - m_name: Idle
     m_firstFrame: 1
-    m_length: 1
-  - m_name: TalkR
-    m_firstFrame: 2
+    m_loop: 0
+    m_length: 34
+    m_frameDurations: b80b0000640000006400000064000000640000006400000064000000640000006400000064000000640000004b0000004b0000004b0000004b0000004b0000004b0000004b0000004b0000004b0000004b0000004b0000004b000000e803000019000000e80300006400000064000000640000006400000064000000640000006400000064000000
+  - m_name: Talking
+    m_firstFrame: 35
+    m_loop: 0
     m_length: 3
-  - m_name: IdleU
-    m_firstFrame: 5
-    m_length: 1
-  - m_name: TalkU
-    m_firstFrame: 6
-    m_length: 2
-  - m_name: WalkR
-    m_firstFrame: 8
-    m_length: 4
-  - m_name: IdleD
-    m_firstFrame: 12
-    m_length: 1
-  - m_name: TalkD
-    m_firstFrame: 13
-    m_length: 1
+    m_frameDurations: 640000006400000064000000
   m_packingTag: CharacterDave
   m_pixelsPerUnit: 1
   m_filterMode: 0
   m_compression: 0
   m_crunchedCompression: 0
-  m_sourcePSD: Art/CharBarney.ase
-  m_sourceDirectory: C:\Users\Duzz\Desktop
+  m_sourcePSD: ../Documents/HeartBasementAssets/HeartBasementDoc.aseprite
+  m_sourceDirectory: ..\Documents\HeartBasementAssets/Export
   m_deleteImportedPngs: 1
   m_spriteDirectory: Sprites
   m_gui: 0
+  m_isAseprite: 1
