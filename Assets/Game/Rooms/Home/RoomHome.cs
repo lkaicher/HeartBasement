@@ -78,6 +78,7 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		} else {
 		C.Dave.Position = Point("HomeDoorPosition");
+		yield return C.Dave.Face(eFace.Left, true);
 		}
 		yield return E.Break;
 	}

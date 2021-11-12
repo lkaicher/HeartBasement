@@ -17,7 +17,7 @@ public class CharacterHardwareClerk : CharacterScript<CharacterHardwareClerk>
 
 	IEnumerator OnInteract()
 	{
-		 yield return C.Dave.WalkTo(Point("HWCounterPosition"));
+		yield return C.Dave.WalkTo(Point("HWCounterPosition"));
 		yield return C.Dave.Face(eFace.Right);
 		
 		

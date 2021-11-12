@@ -608,7 +608,7 @@ MonoBehaviour:
     m_sceneName: SceneRoomHardware
     m_points:
     - m_name: HWDoorPosition
-      m_position: {x: -883, y: -101}
+      m_position: {x: -815, y: -140}
     - m_name: HWClerkPosition
       m_position: {x: 905, y: -8}
     - m_name: HWCounterPosition
@@ -814,7 +814,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_data:
     m_description: '&7 Door'
-    m_cursor: 
+    m_cursor: Left
     m_clickable: 1
     m_baseline: -23
     m_walkToPoint: {x: -115, y: -4}

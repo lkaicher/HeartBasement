@@ -31,28 +31,28 @@ public class DialogDialogWithClerk : DialogTreeScript<DialogDialogWithClerk>
 	IEnumerator Option1( IDialogOption option )
 	{
 				yield return C.HardwareClerk.Face(C.Dave);
-				 
+		
 				yield return E.WaitSkip();
-				
-				
+		
+		
 				yield return C.HardwareClerk.Say("Sure, I have this bilge pump. It's hand operated.", 1);
-				 
+		
 				yield return E.WaitSkip();
-				 
+		
 				yield return C.Dave.Say("Is that the only one you have?", 18);
-				
+		
 				yield return E.WaitSkip();
-				
+		
 				yield return C.HardwareClerk.Say("Yes", 2);
-				
+		
 				yield return E.WaitSkip();
-				
+		
 				yield return C.Dave.Say("OK, I will take it.", 19);
-				
+		
 				I.BilgePump.Add();
-				
-				yield return C.Display("You now have a pump in your inventory, to use it grab it from your inventory (upper right)", 12);
-				
+		
+				yield return C.Display("Pump added to inventory", 12);
+		
 				Stop();
 		
 		yield return E.Break;

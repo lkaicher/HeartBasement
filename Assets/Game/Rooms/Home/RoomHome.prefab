@@ -71,7 +71,7 @@ MonoBehaviour:
     - m_name: EntryWalk
       m_position: {x: 611, y: -141}
     - m_name: HomeDoorPosition
-      m_position: {x: 845, y: -156}
+      m_position: {x: 845, y: -200}
     - m_name: PumpPosition
       m_position: {x: -312, y: -205}
     - m_name: WindowPosition
@@ -1053,7 +1053,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_data:
     m_description: '&3 Door'
-    m_cursor: 
+    m_cursor: Right
     m_clickable: 1
     m_baseline: 0
     m_walkToPoint: {x: 0, y: 0}
@@ -1259,8 +1259,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9119872820269267112}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -460, y: 169, z: 0}
-  m_LocalScale: {x: 4, y: 4, z: 1}
+  m_LocalPosition: {x: -460, y: 178, z: 0}
+  m_LocalScale: {x: 3, y: 3, z: 1}
   m_Children: []
   m_Father: {fileID: 4865622036928958}
   m_RootOrder: 8
@@ -1307,7 +1307,7 @@ PolygonCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 8, y: 8}
+    oldSize: {x: 24, y: 24}
     newSize: {x: 12, y: 12}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -1391,7 +1391,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 5
-  m_Sprite: {fileID: 21300000, guid: 3128a95e76c6adf44a7ffde8daa56743, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7a785040b5041074f82f5bc8e6000f89, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
