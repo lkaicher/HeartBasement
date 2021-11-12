@@ -49,20 +49,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: '&32 DialogTree'
-    m_position: {x: 0, y: 0}
     m_baseline: 0
     m_visible: 0
-    m_clickable: 1
+    m_visibleInCutscenes: 1
     m_modal: 1
     m_pauseGame: 0
-    m_cursor: 
-    m_allowInventoryCursor: 0
-    m_hideGuisWhenActive:
+    m_hideObscuredGuis: 0
+    m_hideSpecificGuis:
     - Inventory
     - InfoBar
+    m_description: '&32 DialogTree'
+    m_cursor: 
+    m_allowInventoryCursor: 0
+    m_position: {x: 0, y: 0}
     m_scriptName: DialogTree
     m_scriptClass: GuiDialogTree
+  m_animations: []
+  m_sprites: []
+  m_controlComponents: []
 --- !u!114 &114843414521857666
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -102,7 +106,7 @@ MonoBehaviour:
   m_maxVisibleItems: 5
   m_arrowButtonWidth: 12
   m_textInstance: {fileID: 1834133629796872}
-  m_background: {fileID: 114653357389249032}
+  m_background: {fileID: 0}
   m_btnScrollBack: {fileID: 1377296875545402323}
   m_btnScrollForward: {fileID: 3789556315336930743}
 --- !u!1 &1164661929574550

@@ -73,7 +73,7 @@ public partial class PowerQuestEditor
 			GUILayout.BeginHorizontal();
 
 			m_showPowerQuestEdit = EditorGUILayout.Foldout(m_showPowerQuestEdit,"PowerQuest Project Settings", true, m_showPowerQuestEdit ? new GUIStyle(EditorStyles.foldout) { fontStyle = FontStyle.Bold } : EditorStyles.foldout );
-			if ( GUILayout.Button( "Select Prefab", EditorStyles.miniButton, GUILayout.MaxWidth(80) ) ) { Selection.activeObject = m_powerQuest.gameObject; }
+			if ( GUILayout.Button( "Select Prefab", EditorStyles.miniButton, GUILayout.MaxWidth(90) ) ) { Selection.activeObject = m_powerQuest.gameObject; }
 			GUILayout.EndHorizontal();
 			if ( m_showPowerQuestEdit && m_powerQuest != null ) 
 			{
@@ -93,7 +93,7 @@ public partial class PowerQuestEditor
 		{
 			GUILayout.BeginHorizontal();
 			m_showTextManagerEdit = EditorGUILayout.Foldout(m_showTextManagerEdit,"Game Text Tools", true, m_showTextManagerEdit ? new GUIStyle(EditorStyles.foldout) { fontStyle = FontStyle.Bold } : EditorStyles.foldout );
-			if ( GUILayout.Button( "Select Prefab", EditorStyles.miniButton, GUILayout.MaxWidth(80) ) ) { Selection.activeObject = m_systemText.gameObject; }
+			if ( GUILayout.Button( "Select Prefab", EditorStyles.miniButton, GUILayout.MaxWidth(90) ) ) { Selection.activeObject = m_systemText.gameObject; }
 			GUILayout.EndHorizontal();
 		
 			if ( m_showTextManagerEdit && m_systemText != null ) 
@@ -120,7 +120,7 @@ public partial class PowerQuestEditor
 		{
 			GUILayout.BeginHorizontal();
 			m_showQuestCursorEdit = EditorGUILayout.Foldout(m_showQuestCursorEdit,"Mouse Cursor", true, m_showQuestCursorEdit ? new GUIStyle(EditorStyles.foldout) { fontStyle = FontStyle.Bold } : EditorStyles.foldout );
-			if ( GUILayout.Button( "Select Prefab", EditorStyles.miniButton, GUILayout.MaxWidth(80) ) ) { Selection.activeObject =m_powerQuest.GetCursorPrefab().gameObject; }
+			if ( GUILayout.Button( "Select Prefab", EditorStyles.miniButton, GUILayout.MaxWidth(90) ) ) { Selection.activeObject =m_powerQuest.GetCursorPrefab().gameObject; }
 			GUILayout.EndHorizontal();
 
 			if ( m_showQuestCursorEdit && m_powerQuest.GetCursorPrefab() != null ) 
@@ -146,7 +146,7 @@ public partial class PowerQuestEditor
 		{
 			GUILayout.BeginHorizontal();
 			m_showQuestCameraEdit = EditorGUILayout.Foldout(m_showQuestCameraEdit,"Game Camera", true, m_showQuestCameraEdit ? new GUIStyle(EditorStyles.foldout) { fontStyle = FontStyle.Bold } : EditorStyles.foldout );
-			if ( GUILayout.Button( "Select Prefab", EditorStyles.miniButton, GUILayout.MaxWidth(80) ) ) { Selection.activeObject = m_powerQuest.GetCameraPrefab().gameObject; }
+			if ( GUILayout.Button( "Select Prefab", EditorStyles.miniButton, GUILayout.MaxWidth(90) ) ) { Selection.activeObject = m_powerQuest.GetCameraPrefab().gameObject; }
 			GUILayout.EndHorizontal();
 
 			if ( m_showQuestCameraEdit && m_powerQuest.GetCameraPrefab() != null ) 
@@ -172,7 +172,7 @@ public partial class PowerQuestEditor
 		{
 			GUILayout.BeginHorizontal();
 			m_showSystemAudioEdit = EditorGUILayout.Foldout(m_showSystemAudioEdit,"Audio Settings", true, m_showSystemAudioEdit ? new GUIStyle(EditorStyles.foldout) { fontStyle = FontStyle.Bold } : EditorStyles.foldout );
-			if ( GUILayout.Button( "Select Prefab", EditorStyles.miniButton, GUILayout.MaxWidth(80) ) ) { Selection.activeObject =m_systemAudio.gameObject; }
+			if ( GUILayout.Button( "Select Prefab", EditorStyles.miniButton, GUILayout.MaxWidth(90) ) ) { Selection.activeObject =m_systemAudio.gameObject; }
 			GUILayout.EndHorizontal();
 			if ( m_showSystemAudioEdit && m_systemAudio != null ) 
 			{
@@ -192,7 +192,7 @@ public partial class PowerQuestEditor
 
 		GUILayout.BeginHorizontal();
 		EditorGUILayout.LabelField("Dialog Text Object");
-		if ( GUILayout.Button( "Select Prefab", EditorStyles.miniButton, GUILayout.MaxWidth(80) ) ) { Selection.activeObject = m_powerQuest.GetDialogTextPrefabEditor().gameObject; }
+		if ( GUILayout.Button( "Select Prefab", EditorStyles.miniButton, GUILayout.MaxWidth(90) ) ) { Selection.activeObject = m_powerQuest.GetDialogTextPrefabEditor().gameObject; }
 		GUILayout.EndHorizontal();
 
 		GuiLine();

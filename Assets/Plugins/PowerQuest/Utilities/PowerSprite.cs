@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,6 +6,7 @@ namespace PowerTools
 {
 
 [RequireComponent(typeof(SpriteRenderer))]
+[AddComponentMenu("PowerTools/Sprite")]
 public class PowerSprite : MonoBehaviour 
 {
 	#region Definitions
@@ -167,7 +168,7 @@ public class PowerSprite : MonoBehaviour
 		CheckMaterial();
 	}
 
-	void OnValidate()
+	public void OnValidate()
 	{
 		// DL TODO: Apparently OnValidate can cause slowdowns on saving in the editor? 
 		{		

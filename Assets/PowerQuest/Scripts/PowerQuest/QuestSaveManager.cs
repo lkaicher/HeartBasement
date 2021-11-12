@@ -1,5 +1,13 @@
-﻿//#define LOG_DATA
-//#define LOG_TIME
+#define LOG_TIME
+
+//#define LOG_DATA
+#if LOG_DATA 
+	#define LOG_DATA_SERIALIZEABLE // More verbose, shows all serializables, not just custom classes
+	#define LOG_DATA_SURROGATE
+#endif
+
+// Checking the QuestDontSave attribute potentially makes save/load slower. Though testing with/without this  and logging time, it didn't seem dramatically differnt
+//#define ENABLE_DONTSAVE_ATTRIB
 
 using UnityEngine;
 using System.Collections;
@@ -376,8 +384,12 @@ public class QuestSaveManager
 		bool manualSaveType = Attribute.IsDefined(type, TYPE_QUESTSAVE);
 		foreach (var finfo in finfos) 
 		{
-			if ( /*Attribute.IsDefined(finfo, TYPE_QUESTDONTSAVE)
-				&&*/ (manualSaveType == false || Attribute.IsDefined(finfo, TYPE_QUESTSAVE) ) )
+			
+			#if ENABLE_DONTSAVE_ATTRIB
+			if ( Attribute.IsDefined(finfo, TYPE_QUESTDONTSAVE)	&& (manualSaveType == false || Attribute.IsDefined(finfo, TYPE_QUESTSAVE) ) )
+			#else
+			if ( (manualSaveType == false || Attribute.IsDefined(finfo, TYPE_QUESTSAVE) ) )
+			#endif
 			{
 				finfo.SetValue(to, finfo.GetValue(from));
 			}
@@ -587,7 +599,10 @@ sealed class QuestSaveSurrogateSelector  : ISerializationSurrogate , ISurrogateS
 	{		
 		#if LOG_DATA
 		if ( s_log.Length > 1 )		
+		{
+			File.WriteAllText("SaveLog.txt",QuestSaveSurrogateSelector.s_log.ToString());
 			Debug.Log(QuestSaveSurrogateSelector.s_log.ToString());
+		}
 		QuestSaveSurrogateSelector.s_log.Clear();
 		#endif
 	}
@@ -612,21 +627,20 @@ sealed class QuestSaveSurrogateSelector  : ISerializationSurrogate , ISurrogateS
 	}
 
 	public ISerializationSurrogate GetSurrogate( Type type, StreamingContext context, out ISurrogateSelector selector)
-	{		
+	{			
 		if ( IsIgnoredType(type) )
 		{
-			/*		
-			#if LOG_DATA
+				
+			#if LOG_DATA_SURROGATE
 				s_log.Append("\nIgnored: ");
 				s_log.Append(type.ToString());
-			#endif
-			*/
+			#endif			
 			selector = this;
 			return this;
 		}
 		else if (IsKnownType(type))
 		{
-			#if LOG_DATA
+			#if LOG_DATA_SURROGATE
 				s_log.Append("\nKnown: ");				
 				s_log.Append(type.ToString());
 			#endif
@@ -635,7 +649,7 @@ sealed class QuestSaveSurrogateSelector  : ISerializationSurrogate , ISurrogateS
 		}
 		else if (type.IsClass )
 		{
-			#if LOG_DATA		
+			#if LOG_DATA_SURROGATE		
 				s_log.Append("\nClass: ");
 				s_log.Append(type.ToString());		
 			#endif
@@ -644,7 +658,7 @@ sealed class QuestSaveSurrogateSelector  : ISerializationSurrogate , ISurrogateS
 		}
 		else if (type.IsValueType)
 		{
-			#if LOG_DATA
+			#if LOG_DATA_SURROGATE
 				s_log.Append("\nValue: ");
 				s_log.Append(type.ToString());		
 			#endif
@@ -653,7 +667,7 @@ sealed class QuestSaveSurrogateSelector  : ISerializationSurrogate , ISurrogateS
 		}
 		else
 		{
-			#if LOG_DATA
+			#if LOG_DATA_SURROGATE
 				s_log.Append("\nUnknown: ");
 				s_log.Append(type.ToString());		
 			#endif
@@ -693,11 +707,17 @@ sealed class QuestSaveSurrogateSelector  : ISerializationSurrogate , ISurrogateS
 			if ( IsIgnoredType(type) && manualType == false ) 
 			{
 				#if LOG_DATA					
-					s_log.Append("\nIgnored ");
+					s_log.Append("\n\nIgnored: ");
 					s_log.Append(obj.ToString());	
 				#endif
 				return;
 			}
+
+			#if LOG_DATA					
+				s_log.Append("\n\nObject: ");
+				s_log.Append(obj.ToString());	
+				if (manualType) s_log.Append("  (Manual)");
+			#endif
 				
 			FieldInfo[] fieldInfos = type.GetFields( BINDING_FLAGS );
 
@@ -712,7 +732,11 @@ sealed class QuestSaveSurrogateSelector  : ISerializationSurrogate , ISurrogateS
 						s_log.Append(fi.Name.ToString());
 					#endif
 				}
+				#if ENABLE_DONTSAVE_ATTRIB
+				else if ( IsIgnoredType(fi.FieldType) || Attribute.IsDefined(fi, TYPE_QUESTDONTSAVE) )
+				#else 
 				else if ( IsIgnoredType(fi.FieldType) /*|| Attribute.IsDefined(fi, TYPE_QUESTDONTSAVE)*/ )
+				#endif
 				{
 					// NO-OP
 					#if LOG_DATA					
@@ -805,7 +829,7 @@ sealed class QuestSaveSurrogateSelector  : ISerializationSurrogate , ISurrogateS
 				else if ( IsIgnoredType(fi.FieldType) ) 
 				{
 					// NO-OP
-					// Debug.Log("Ignored: "+fi.Name);
+					 //Debug.Log("Ignored: "+fi.Name);
 				}
 				else if (IsKnownType(fi.FieldType))
 				{
@@ -813,21 +837,21 @@ sealed class QuestSaveSurrogateSelector  : ISerializationSurrogate , ISurrogateS
 
 					if (IsNullableType(fi.FieldType))
 					{
-						// Debug.Log("Known Nullifiable: "+fi.Name);
+						//Debug.Log("Known Nullifiable: "+fi.Name);
 						// Nullable<argumentValue>
 						Type argumentValueForTheNullableType = GetFirstArgumentOfGenericType( fi.FieldType);//fi.FieldType.GetGenericArguments()[0];
 						fi.SetValue(obj, info.GetValue(fi.Name, argumentValueForTheNullableType));
 					}
 					else
 					{
-						// Debug.Log("Known non-Nullifiable: "+fi.Name);
+						//Debug.Log("Known non-Nullifiable: "+fi.Name);
 						fi.SetValue(obj, info.GetValue(fi.Name, fi.FieldType));
 					}
 
 				}
 				else if (fi.FieldType.IsClass || fi.FieldType.IsValueType)
 				{
-					// Debug.Log("class: "+fi.Name);
+					//Debug.Log("class: "+fi.Name);
 					fi.SetValue(obj, info.GetValue(fi.Name, fi.FieldType));
 				}
 			}
@@ -870,6 +894,9 @@ sealed class QuestSaveSurrogateSelector  : ISerializationSurrogate , ISurrogateS
 			       || type.IsSubclassOf(typeof(Component))
 			       || type.IsSubclassOf(typeof(MulticastDelegate)) // Eg: Action, Action<object>, Action<object, object> etc etc
 			       || Attribute.IsDefined(type, TYPE_COMPILERGENERATED) 
+				   /*#if ENABLE_DONTSAVE_ATTRIB
+				   || Attribute.IsDefined(type, TYPE_QUESTDONTSAVE)
+				   #endif*/
 			   )
 			);
 	}
@@ -877,8 +904,12 @@ sealed class QuestSaveSurrogateSelector  : ISerializationSurrogate , ISurrogateS
 
 	// Known types can be serialised already and don't need this serializationSurrogate to be saved/loaded (primitive classes, things marked serialisable)
 	bool IsKnownType(Type type)
-	{
+	{	
+		#if LOG_DATA_SERIALIZEABLE
+			return type == STRING_TYPE || type.IsPrimitive; // don't treat serializables as "known" so they're handled manually and can be logged.
+		#endif
 		return type == STRING_TYPE || type.IsPrimitive || type.IsSerializable;
+	
 	}
 
 	// Determines whether this instance is nullable type the specified type.

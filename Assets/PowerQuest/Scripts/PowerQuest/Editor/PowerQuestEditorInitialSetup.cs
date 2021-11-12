@@ -169,7 +169,8 @@ public partial class PowerQuestEditor
 		}
 	}
 
-
+	// Called when updating to new version of powerquest. 
+	// I always forget what to search for when editng this, so... UpdateVersion VersionUpdate VersionUpgrade UpdatePowerQuest PowerQuestUpdate PowerQuestUpgrade
 	bool UpgradeVersion(int oldVersion, int newVersion)
 	{
 		try 
@@ -313,10 +314,53 @@ public partial class PowerQuestEditor
 					"Got it!");
 			}
 
-			if (oldVersion < Version(0,14,5))
+			//if (oldVersion < Version(0,14,5)) // do this for all future versions (until we can be sure no-one's updating from pre 14.5)
 			{
 				// Delete old version of PowerSpriteImportEditor				
 				AssetDatabase.DeleteAsset(@"Assets\Plugins\PowerSpriteImport\Editor\PowerSpriteImportEditor.cs");				
+			}
+			
+			if ( oldVersion < Version(0,14,10) )
+			{
+				// Pre-empting 0.15 change to 9-verb. Otherwise when they install 0.15 it'll have compile error and won't get to this update code.
+				if ( File.Exists("Assets/Game/PowerQuestExtensions9Verb.cs") )
+				{
+					AssetDatabase.ImportPackage("Assets/PowerQuest/Templates/Update-0-15-9Verb.unitypackage", false );
+				}
+			}
+
+			if ( oldVersion < Version(0,15,0) )
+			{
+				// Rename Gui/Sprites to Gui/GuiSprites
+				Debug.Log(AssetDatabase.RenameAsset("Assets/Game/Gui/Sprites", "GuiSprites"));
+
+				// Create sprite atlases
+				#if !UNITY_2020_3_OR_NEWER
+				EditorUtility.DisplayDialog(
+					"Older Unity Detectved",
+					"Unity 2020.3 or greater is now the minimum unity version PowerQuest supports. Sorry!","Ok");
+				#endif
+				if ( EditorUtility.DisplayDialog("Create Sprite Atlases",
+					"PowerQuest v0.15 now creates sprite atlases automatically for new rooms, characteres, etc.\n\nCreate atlases for existing sprites?","Yes (Recommended)","No, I'll do it myself") )
+				{
+					CreateSpriteAtlases();
+				}
+
+				// update cursor sprite sort order to 32000
+				if ( m_powerQuest != null && m_powerQuest.GetCursorPrefab() != null && m_powerQuest.GetCursorPrefab().GetComponentInChildren<SpriteRenderer>() != null )
+				{
+					m_powerQuest.GetCursorPrefab().GetComponentInChildren<SpriteRenderer>().sortingOrder = 32000;
+					EditorUtility.SetDirty(m_powerQuest.GetCursorPrefab());
+				}
+				
+				// update project settings to set new atlas settings
+				PowerQuestProjectSetupUtil.SetProjectSettings();
+				
+				// Import controls, gui sprites/anims, and prompt gui
+				AssetDatabase.ImportPackage( "Assets/PowerQuest/Templates/Update-0-15.unitypackage", false );
+				
+				EditorUtility.SetDirty(m_powerQuest);
+
 			}
 
 		}
@@ -328,7 +372,43 @@ public partial class PowerQuestEditor
 
 		return true;
 	}
+	
+	[MenuItem("Edit/PowerQuest/Create sprite atlases")]
+	static void CreateSpriteAtlases()
+	{
+		bool pixel = PowerQuestEditor.GetPowerQuest().GetSnapToPixel();
 
+		string result = "Created Sprite Atlases:\n";
+		
+		// Inventory
+		string path = "Assets/Game/Inventory";
+		if ( QuestEditorUtils.CreateSpriteAtlas($"{path}/InventoryAtlas.spriteatlas",$"{path}/Sprites",pixel,false) )
+			result += $"{path}/InventoryAtlas.spriteatlas\n";
+		// Gui
+		path = "Assets/Game/Gui";
+		if ( QuestEditorUtils.CreateSpriteAtlas($"{path}/GuiAtlas.spriteatlas",$"{path}/GuiSprites",pixel,true) )
+			result += $"{path}/GuiAtlas.spriteatlas\n";
+		
+		// Rooms
+		foreach ( RoomComponent prefab in PowerQuestEditor.GetPowerQuest().GetRoomPrefabs() )
+		{
+			path = Path.GetDirectoryName( AssetDatabase.GetAssetPath(prefab));
+			if ( QuestEditorUtils.CreateSpriteAtlas($"{path}/Room{prefab.GetData().ScriptName}Atlas.spriteatlas", $"{path}/Sprites",pixel,false) )
+				result += $"{path}/Room{prefab.GetData().ScriptName}.spriteatlas\n";
+		}
+		
+		// Characters
+		foreach ( CharacterComponent prefab in PowerQuestEditor.GetPowerQuest().GetCharacterPrefabs() )
+		{
+			path = Path.GetDirectoryName(AssetDatabase.GetAssetPath(prefab));
+			if ( QuestEditorUtils.CreateSpriteAtlas($"{path}/Character{prefab.GetData().ScriptName}Atlas.spriteAtlas", $"{path}/Sprites",pixel,false) )
+				result += $"{path}/Character{prefab.GetData().ScriptName}.spriteatlas\n";
+		}
+		result=result.Replace('\\','/');
+		EditorUtility.DisplayDialog( "Created Sprite Atlases",	result, "Ok!");
+
+		AssetDatabase.Refresh();
+	}
 }
 
 #endregion
@@ -341,18 +421,7 @@ public class PowerQuestProjectSetupUtil
 	static readonly string[] LAYERS_REQUIRED = {"NoPause","HighRes"};
 	static readonly string[] SORTINGLAYERS_NAME = {"Gui","GameText"};
 	static readonly long[] SORTINGLAYERS_HASH = {3130941793,1935310555}; // hack but it was breaking existing stuff without it.
-
-	/*
-	static readonly string[] SHADER_PATHS_REQUIRED = 
-		{
-			"Assets/PowerQuest/Scripts/Shaders/PowerSprite.shader",
-			"Assets/PowerQuest/Scripts/Shaders/PowerSpriteOutline.shader",
-			"Assets/PowerQuest/Scripts/Shaders/FontPixel.shader",
-			"Assets/PowerQuest/Scripts/Shaders/FontPixelSmooth.shader",
-			"Assets/PowerQuest/Scripts/Shaders/FontSharp.shader"
-		};
-	*/
-
+	
 	static PowerQuestProjectSetupUtil()
 	{
 		if ( HasLayers() == false )
@@ -361,41 +430,6 @@ public class PowerQuestProjectSetupUtil
 			SetProjectSettings();
 		}
 	}
-
-	/*
-	static void AddShaders()
-	{
-		return;
-		SerializedObject tagManager = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath ("ProjectSettings/GraphicsSettings.asset")[0]);
-
-		SerializedProperty allLayers = tagManager.FindProperty ("m_AlwaysIncludedShaders");
-		if (allLayers == null || !allLayers.isArray)
-			return;	
-
-		List<string> shadersToAdd = new List<string>(SHADER_PATHS_REQUIRED);
-
-		for (int i = 0; i < allLayers.arraySize; ++i )
-		{
-			string name = AssetDatabase.GetAssetPath(allLayers.GetArrayElementAtIndex(i).objectReferenceValue);
-			shadersToAdd.RemoveAll(item=>item == name);
-			Debug.Log("Found Shader "+name);
-		}
-
-		foreach( string shaderPath in shadersToAdd )
-		{
-			// Find the shader
-			Shader shader = AssetDatabase.LoadAssetAtPath<Shader>(shaderPath);
-			if ( shader != null )
-			{
-				allLayers.InsertArrayElementAtIndex( allLayers.arraySize );
-				allLayers.GetArrayElementAtIndex(allLayers.arraySize-1).objectReferenceValue = shader;
-				Debug.Log("Added Shader "+shaderPath);
-			}
-			else 
-				Debug.Log("Failed to add shader "+shaderPath);
-			
-		}		
-	}*/
 
 	static bool HasLayers()
 	{	
@@ -479,11 +513,12 @@ public class PowerQuestProjectSetupUtil
 		if (  editorSettings != null )
 		{
 			// Sprite packer setting
-			SerializedProperty prop = editorSettings.FindProperty ("m_SpritePackerMode");
+			SerializedProperty prop = editorSettings.FindProperty ("m_SpritePackerMode");			
 			if ( prop != null )
 			{
-				#if UNITY_2020_1_OR_NEWER
-					Debug.LogWarning("PowerQuest setup - NB: If using unity 2020+, sprite atlases are not created automatically (yet). If your game runs poorly, google how to set up sprite atlases ;)"); 
+				#if UNITY_2020_3_OR_NEWER
+					prop.intValue = (int)SpritePackerMode.BuildTimeOnlyAtlas;
+					Debug.Log("PowerQuest setup - Set sprite packer to build time atlas mode"); 
 				#else				
 					prop.intValue = (int)SpritePackerMode.BuildTimeOnly;
 					Debug.Log("PowerQuest setup - Set sprite packer to legacy mode"); 
@@ -515,27 +550,29 @@ public class PowerQuestProjectSetupUtil
 		}
 	}
 	
-	public static void SetLineEndingsSetting()
+	// TODO: Remove this? Not sure it's used...
+	public static void SetEditorSettings()
 	{
 		SerializedObject editorSettings = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath ("ProjectSettings/EditorSettings.asset")[0]);
 		if (  editorSettings == null )
 			return;
-		SerializedProperty prop = editorSettings.FindProperty ("m_SpritePackerMode");
-		if ( prop != null )
+		/*
 		{
-			prop.intValue = (int)SpritePackerMode.BuildTimeOnly;
-		}
+			SerializedProperty prop = editorSettings.FindProperty ("m_SpritePackerMode");
+			if ( prop != null )
+			{
+				prop.intValue = (int)SpritePackerMode.BuildTimeOnly;
+			}
+			Debug.Log("PowerQuest setup - Set sprite packer to legacy mode"); 
+		}*/
 
-		prop = editorSettings.FindProperty ("m_LineEndingsForNewScripts");
+		SerializedProperty prop = editorSettings.FindProperty ("m_LineEndingsForNewScripts");
 		if ( prop != null )
 		{
 			prop.intValue = (int)LineEndingsMode.Unix;
 		}
 		editorSettings.ApplyModifiedProperties();
 
-		//webGLExceptionSupport: 2
-
-		Debug.Log("PowerQuest setup - Set sprite packer to legacy mode"); 
 	}
 
 }

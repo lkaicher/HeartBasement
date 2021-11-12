@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: RoomHardwareAtlas
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 0
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings:
+    - serializedVersion: 3
+      m_BuildTarget: DefaultTexturePlatform
+      m_MaxTextureSize: 2048
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: -1
+      m_TextureCompression: 0
+      m_CompressionQuality: 50
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 0
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 1
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: 799a54f310ccf6e4cb5c16994d1ae872, type: 3}
+    totalSpriteSurfaceArea: 3364891
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: d39c9af15ce3f6046890fea10f8f35e5, type: 3}
+  - {fileID: 21300000, guid: 0f78c4f23ae87b94ea5bafe5928371c1, type: 3}
+  - {fileID: 21300000, guid: a5db0d651d16aeb4190faa9c2cccb744, type: 3}
+  - {fileID: 21300000, guid: d9a415e880ca645458ead0ad9bad03c2, type: 3}
+  - {fileID: 21300000, guid: 644ebaab8b82d8747946e583321867a9, type: 3}
+  - {fileID: 21300000, guid: a21da2fb8df4e5749a0dff3b8cad6720, type: 3}
+  - {fileID: 21300000, guid: 00234bed2c99fba49a7649d430d26ac8, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - IsolatedCounter
+  - hardware-graphic_1
+  - HardwareStoreBackground
+  - hardwareplaceholder
+  - hardware_0004_Desk
+  - IsolatedShelf
+  - beer
+  m_RenderDataMap: {}
+  m_Tag: RoomHardwareAtlas
+  m_IsVariant: 0

@@ -58,7 +58,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		
 		/*
 		 I.BilgePump.Add();
-		 I.MediumHandle.Add();
+		I.MediumHandle.Add();
 		 I.LargeHandle.Add();
 		I.MediumHose.Add();
 		 I.LargeHose.Add();

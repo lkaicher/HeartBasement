@@ -34,6 +34,20 @@ public class InventoryComponentEditor : Editor
 			// Open the script
 			QuestScriptEditor.Open( component );	
 		}
+		if ( PowerQuestEditor.GetActionEnabled(eQuestVerb.Use) && GUILayout.Button("On Interact") )
+		{
+			QuestScriptEditor.Open( component, PowerQuest.SCRIPT_FUNCTION_INTERACT_INVENTORY, PowerQuestEditor.SCRIPT_PARAMS_INTERACT_INVENTORY ); 
+		}
+
+		if ( PowerQuestEditor.GetActionEnabled(eQuestVerb.Look) && GUILayout.Button("On Look") )
+		{
+			QuestScriptEditor.Open( component, PowerQuest.SCRIPT_FUNCTION_LOOKAT_INVENTORY, PowerQuestEditor.SCRIPT_PARAMS_LOOKAT_INVENTORY);
+		}
+
+		if ( PowerQuestEditor.GetActionEnabled(eQuestVerb.Inventory) && GUILayout.Button("On Use Item") )
+		{
+			QuestScriptEditor.Open( component, PowerQuest.SCRIPT_FUNCTION_USEINV_INVENTORY, PowerQuestEditor.SCRIPT_PARAMS_USEINV_INVENTORY);
+		}
 
 		GUILayout.Space(5);
 		EditorGUILayout.LabelField("Debug", EditorStyles.boldLabel);

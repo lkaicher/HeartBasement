@@ -52,7 +52,7 @@ MonoBehaviour:
     m_description: Tony
     m_cursor: 
     m_room: Hardware
-    m_position: {x: 350, y: -45}
+    m_position: {x: 350, y: -100}
     m_faceDirection: 0
     m_clickable: 1
     m_visible: 1
@@ -115,7 +115,7 @@ PolygonCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 256, y: 384}
+    oldSize: {x: 213.33333, y: 320}
     newSize: {x: 64, y: 96}
     adaptiveTilingThreshold: 0.5
     drawMode: 0

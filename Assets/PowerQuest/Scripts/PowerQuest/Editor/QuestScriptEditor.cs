@@ -114,12 +114,16 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			new Regex(@"(?<=^|\W)Hotspot\(\s*""(\w+)""\s*\)", RegexOptions.Compiled), 	// Hotspot("blah") -> Hotspots.blah.
 			new Regex(@"(?<=^|\W)Prop\(\s*""(\w+)""\s*\)", RegexOptions.Compiled), 	// Prop("blah") -> Props.blah.
 			new Regex(@"(?<=^|\W)Region\(\s*""(\w+)""\s*\)", RegexOptions.Compiled), 	// Region("blah") -> Regions.blah.
-			new Regex(@"(?<=^|\W)Point\(\s*""(\w+)""\s*\)", RegexOptions.Compiled), 	// Point("blah") -> Points.blah		
+			new Regex(@"(?<=^|\W)Point\(\s*""(\w+)""\s*\)", RegexOptions.Compiled), 	// Point("blah") -> Points.blah
+			new Regex(@"(?<=^|\W)Control\(\s*""(\w+)""\s*\)", RegexOptions.Compiled), 	// Control("blah") -> Controls.blah
+			new Regex(@"(?<=^|\W)Button\(\s*""(\w+)""\s*\)", RegexOptions.Compiled), 	// Button("blah") -> Buttons.blah
+			new Regex(@"(?<=^|\W)Image\(\s*""(\w+)""\s*\)", RegexOptions.Compiled), 	// Image("blah") -> Images.blah
+			new Regex(@"(?<=^|\W)Label\(\s*""(\w+)""\s*\)", RegexOptions.Compiled), 	// Label("blah") -> Labels.blah
 			new Regex(@"(?<=^|\W)Option\(\s*""(\w+)""\s*\)", RegexOptions.Compiled), 	// Option("blah") -> O.blah.	
 			new Regex(@"(?<=^|\W)Option\(\s*(\d+)\s*\)", RegexOptions.Compiled), 	// Option(1) -> O.1.
 			new Regex(@"(?<=^|\W)C\.Plr\.", RegexOptions.Compiled), 	// C.Plr. -> Plr.
 			new Regex(@"(?<=^|\W)GlobalScript\.Script\.", RegexOptions.Compiled), 	// GlobalScript.Script. -> Globals. No longer needed, but left to cleanup old scripts that might still be using GlobalScript.Script
-			new Regex(@"(?<=^|\W)(R|C|I)(?:oom|haracter|nventory)(\w*)\.Script\.", RegexOptions.Compiled), 	// RoomKitchen.Script. => R.Kitchen.Script. (or CharacterDave => C.Dave, or InventoryBucket => I.Bucket)
+			new Regex(@"(?<=^|\W)(R|C|I|G)(?:oom|haracter|nventory|ui)(\w*)\.Script\.", RegexOptions.Compiled), 	// RoomKitchen.Script. => R.Kitchen.Script. (or CharacterDave => C.Dave, or InventoryBucket => I.Bucket, GuiBlah => G.GuiBlah)
 
 		};
 
@@ -146,6 +150,10 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			@"P.$1",
 			@"Regions.$1",
 			@"Points.$1",
+			@"Controls.$1",
+			@"Buttons.$1",
+			@"Images.$1",
+			@"Labels.$1",
 			@"O.$1",
 			@"O.$1",
 			@"Plr.",
@@ -192,12 +200,17 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			new Regex(@"(^|\W)P\.(\w+)", RegexOptions.Compiled),
 			new Regex(@"(^|\W)Regions\.(\w+)", RegexOptions.Compiled),
 			new Regex(@"(^|\W)Points\.(\w+)", RegexOptions.Compiled),
+			new Regex(@"(^|\W)Controls\.(\w+)", RegexOptions.Compiled),
+			new Regex(@"(^|\W)Buttons\.(\w+)", RegexOptions.Compiled),
+			new Regex(@"(^|\W)Images\.(\w+)", RegexOptions.Compiled),
+			new Regex(@"(^|\W)Labels\.(\w+)", RegexOptions.Compiled),
 			new Regex(@"(^|\W)O\.(\d+)", RegexOptions.Compiled),
 			new Regex(@"(^|\W)O\.(\w+)", RegexOptions.Compiled),
 			new Regex(@"(^|[^\.\w])Plr\.", RegexOptions.Compiled), // match start of line, or non-word that's not a '.'
 			new Regex(@"(^|\W)R\.(\w+)\.Script\.", RegexOptions.Compiled),
 			new Regex(@"(^|\W)C\.(\w+)\.Script\.", RegexOptions.Compiled),
 			new Regex(@"(^|\W)I\.(\w+)\.Script\.", RegexOptions.Compiled),
+			new Regex(@"(^|\W)G\.(\w+)\.Script\.", RegexOptions.Compiled),
 		};
 
 	// The $1 preserves any spacing that's at the start
@@ -232,12 +245,17 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			@"$1Prop(""$2"")", // // Prop("blah") -> Props.blah.
 			@"$1Region(""$2"")", // // Region("blah") -> Regions.blah.
 			@"$1Point(""$2"")", // // Point("blah") -> Points.blah.
+			@"$1Control(""$2"")", // // Control("blah") -> Controls.blah.
+			@"$1Button(""$2"")", // // Button("blah") -> Buttons.blah.
+			@"$1Image(""$2"")", // // Image("blah") -> Images.blah.
+			@"$1Label(""$2"")", // // Label("blah") -> Labels.blah.
 			@"$1Option($2)", // // Option(3) -> O.3.
 			@"$1Option(""$2"")", // // Option("blah") -> O.blah.
 			@"$1C.Plr.", // // Plr. -> C.Plr.
 			@"$1Room$2.Script.", // R.Kitchen.Script. -> RoomKitchen.Script.
 			@"$1Character$2.Script.", // C.Dave.Script. -> CharacterDave.Script.
 			@"$1Inventory$2.Script.", // I.Bucket.Script. -> InventoryBucket.Script.
+			@"$1Gui$2.Script.", // G.Prompt.Script. -> GuiPrompt.Script.
 		};
 
 
@@ -1558,8 +1576,8 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			MethodInfo[] methods = t.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
 			foreach ( MethodInfo method in methods )
 			{
-				// if ( functionToWaitFor.Method.IsSpecialName == false && functionToWaitFor.Method.Name[0] == '<') // <- maybe this is cheaper and does the same thing? comp-generated classes are named like "<CallingClass>_d__02"
-				if ( System.Attribute.IsDefined(method, TYPE_COMPILERGENERATED) == false )
+				//if ( System.Attribute.IsDefined(method, TYPE_COMPILERGENERATED) == false )
+				if ( method.IsSpecialName == false && method.Name[0] != '<') // <- maybe this is cheaper and does the same thing? comp-generated classes are named like "<CallingClass>_d__02"				
 					m_functionNames.Add(method.Name);
 			}
 		}

@@ -1,18 +1,59 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine.EventSystems;
 using PowerTools;
+using PowerTools.QuestGui;
 
 namespace PowerTools.Quest
 {
 
 // Script class to inherit from for gui scripts
 [System.Serializable]
-public class GuiScript<T> : QuestScript where T : QuestScript {
-	/// Allows access to specific room's script by calling eg. GuiSomething.Script instead of E.GetScript<GuiSomething>()
-	public static T Script { get {return E.GetScript<T>(); } }}
+public class GuiScript<T> : QuestScript where T : QuestScript 
+{	
+	/// Access with Data property. \sa Data
+	Gui m_gui = null;
+	
+	/// Get the IGui associated with this script. 
+	/// eg. `Data.Hide()` 
+	/// \sa PowerTools.Quest.IGui
+	public Gui Data { get{return m_gui;} }		
+	
+	/// Gets an IGuiControl from this script's gui.
+	/// All gui buttons, image, labels, etc are types of Controls. This function returns their base class. Can be used for your own custom Controls too.
+	/// eg. `Control.MyCustomButton.Hide()`
+	/// eg. `Control.MyCustomControl.Instance.GetComponent<CoolCustomControl>().DoSomethingCool();`
+	/// \sa Button \sa Label \sa Image
+	public IGuiControl Control(string name) { return Data?.GetControl(name) ?? null; }
+
+	/// Gets an IButton from this script's gui.
+	/// eg. `Button.KeypadEnter.Clickable = false;`
+	/// \sa Control \sa Label \sa Image
+	public IButton Button(string name) { return Data?.GetControl(name) as IButton ?? null; }
+
+	/// Gets an ILabel from this script's gui.
+	/// eg. `Label.KeypadReadout.Text = "ENTER PASSWORD";`
+	/// \sa Control \sa Button \sa Image
+	public ILabel Label(string name) { return Data?.GetControl(name) as ILabel ?? null; }
+	
+	/// Gets an IImage from this script's gui.
+	/// eg. `Image.LockedIndicator.Image = "Unlocked";`
+	/// \sa Control \sa Label \sa Button
+	public IImage Image(string name) { return Data?.GetControl(name) as IImage ?? null; }
+
+	/// Gets an IInventoryPanel from this script's gui.
+	/// eg. `IInventoryPanel.MyInvPanel.ScrollForward();`
+	/// \sa Control \sa Label \sa Button \sa Image
+	public IInventoryPanel InventoryPanel(string name) { return Data?.GetControl(name) as IInventoryPanel ?? null; }
+	
+	/// PowerQuest internal function: (Called via reflection)
+	protected void Initialise(Gui gui) { m_gui = gui; }
+
+	/// PowerQuest internal functionAllows access to specific room's script by calling eg. GuiSomething.Script instead of E.GetScript<GuiSomething>()
+	public static T Script { get {return E.GetScript<T>(); } }
+}
 
 //
 // Prop Data and functions. Persistant between scenes, as opposed to GuiComponent which lives on a GameObject in a scene.
@@ -20,40 +61,62 @@ public class GuiScript<T> : QuestScript where T : QuestScript {
 [System.Serializable] 
 public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 {
-
 	//
 	// Default values set in inspector
 	//
-	[SerializeField] string m_description = "Gui New";
-	[ReadOnly][SerializeField] Vector2 m_position = Vector2.zero; // This is taken from the instance position in the scene first time it's loaded
-	[SerializeField] float m_baseline = 0;
-	[SerializeField] bool m_visible = true;
-	[Tooltip("Whether clicking on hotspot triggers an event")]
-	[SerializeField] bool m_clickable = true;
-	[Tooltip("If true, game clicks won't be processed while this gui is visible")]
+	[Tooltip("The sort order for the gui, like other hotspots, LOWER is IN-FRONT")]
+	[Range(-319,319)]
+	[SerializeField] float m_baseline = -1;
+	
+	[Tooltip("Whether the gui is starts on")]
+	[SerializeField] bool m_visible = true;	
+	[Tooltip("Whether the gui hides itself during cutscenes")]
+	[SerializeField] bool m_visibleInCutscenes = true;	
+	[Tooltip("If true, the gui blocks input to the game or any guis behind it. Useful for popups and things")]
 	[SerializeField] bool m_modal = false;
+
+	[Header("When Shown...")]
 	[Tooltip("Whether the gui should pause the game when it's visible")]
 	[SerializeField] bool m_pauseGame = false;
+	[Tooltip("Whether guis behind this one should be hidden")]
+	[SerializeField] bool m_hideObscuredGuis = false;
+	[Tooltip("Other guis to hide when gui is visible")]
+	[UnityEngine.Serialization.FormerlySerializedAs("m_hideGuisWhenActive")]
+	[SerializeField] string[] m_hideSpecificGuis = null; // todo: rename "m_hideSpecificGuis"...?
+		
+	[Header("Mouse over")]
+	[SerializeField] string m_description = "Gui New";
 	[Tooltip("If set, changes the name of the cursor when moused over")]
 	[SerializeField] string m_cursor = "";
 	[Tooltip("Whether to show the inventory cursor while active")]
 	[SerializeField] bool m_allowInventoryCursor = false;
-	[Tooltip("Other guis to hide when gui is visible")]
-	[SerializeField] string[] m_hideGuisWhenActive = null;
+
+	[Header("Read only")]
+	[ReadOnly][SerializeField] Vector2 m_position = Vector2.zero; // This is taken from the instance position in the scene first time it's loaded
 	[ReadOnly][SerializeField] string m_scriptName = "GuiNew";
 	[ReadOnly][SerializeField] string m_scriptClass = "GuiNew";
+	
 
 	//
 	// Private variables
 	//
+	
+	//[Tooltip("Whether clicking on hotspot triggers an event")]
+	bool m_clickable = true;
+
+	bool m_hiddenBySystem = false;
+
 	QuestScript m_script = null;
 	GameObject m_prefab = null;
 	GuiComponent m_instance = null;
-	List<string> m_hiddenGuis = new List<string>();
+	//List<string> m_hiddenGuis = new List<string>();
+	
+	List<GuiControl> m_controls = new List<GuiControl>();
 
 	//
 	//  Properties
 	//
+
 	public eQuestClickableType ClickableType { get {return eQuestClickableType.Gui; } }
 	public string ScriptName { get{ return m_scriptName;} }
 	public MonoBehaviour Instance { get{ return m_instance; } }
@@ -64,57 +127,110 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 	public Vector2 LookAtPoint { get{return Vector2.zero;} set{} } // No op for gui
 	public string Cursor { get { return m_cursor; } set { m_cursor = value; } }
 
-	public bool Visible { get{ return m_visible;} 
+	public GuiControl GetControl(string name ) 
+	{ 
+		GuiControl result = m_controls.Find(prop=>prop !=null && string.Equals(prop.ScriptName, name, System.StringComparison.OrdinalIgnoreCase ));
+		if ( result == null )
+			Debug.LogError("Gui Control '"+name+"' doesn't exist in " +ScriptName);
+		return result;
+	}
+
+
+	public bool Visible 
+	{ 
+		get { return m_visible;} 
 		set
 		{
 			bool changed = m_visible != value;
 			m_visible = value; 
-			if ( m_instance != null ) 
-			{
-				m_instance.gameObject.SetActive(m_visible);
-			}
-			if ( changed && PauseGame )
-			{				
-				if ( m_visible )
-					PowerQuest.Get.Pause(m_scriptName);
-				else
-					PowerQuest.Get.UnPause(m_scriptName);
-			}
-
+			if ( changed && m_visible &&  VisibleInCutscenes == false && PowerQuest.Get.GetBlocked() )
+				HiddenBySystem = true; // set visible when it should be hidden by system
 			if ( changed )
-			{
-				if ( m_visible )
-				{
-					foreach ( string guiName in m_hideGuisWhenActive )
-					{
-						Gui gui = PowerQuest.Get.GetGui(guiName);
-						if ( gui != null && gui.Visible )
-						{
-							gui.Visible = false;
-							m_hiddenGuis.Add(guiName);
-						}
-					}
-				}
-				else 
-				{
-					foreach ( string guiName in m_hiddenGuis )
-					{
-						Gui gui = PowerQuest.Get.GetGui(guiName);
-						if ( gui != null )
-							gui.Visible = true;						
-					}
-					m_hiddenGuis.Clear();
-				}
-			}
-
+				OnVisibilityChanged();
 		} 
 	}
+
+	/// Whether clicking on hotspot triggers an event. Can be set false to have a gui visible but not clickable.
 	public bool Clickable { get{ return m_clickable;} set{m_clickable = value;} }
-	public bool Modal { get{ return m_modal;} set{m_modal = value;} }
+	
+	// Property used when gui is hidden by the system, despite being "shown" by the user. (eg. when obscured by another gui, or hidden while in a cutscene)
+	public bool HiddenBySystem
+	{ 
+		get => m_hiddenBySystem; 
+		set 
+		{	
+			bool oldVisibility = IsActuallyVisible();
+			m_hiddenBySystem = value;
+			if  ( oldVisibility != IsActuallyVisible() )
+				OnVisibilityChanged();			
+		}
+	}
+	public string[] HideSpecificGuis => m_hideSpecificGuis;
+
+	public bool Modal { get{ return m_modal;} set{m_modal = value;} }	
 	public bool PauseGame { get{ return m_pauseGame;} set{m_pauseGame = value;} }
+	public bool VisibleInCutscenes { get{ return m_visibleInCutscenes;} set{m_visibleInCutscenes = value;} }
+	public bool HideObscuredGuis { get{ return m_hideObscuredGuis;} set{ m_hideObscuredGuis = value;} }
+	
+	// Returns true if the gui is under another modal gui
+	public bool ObscuredByModal { get => PowerQuest.Get.GetIsGuiObscuredByModal(this); }
+
 	public Vector2 Position { get{ return m_position;} set{ m_position = value; if ( m_instance != null ) { m_instance.transform.position = m_position.WithZ(m_instance.transform.position.z); } } }
-	public float Baseline { get{ return m_baseline;} set{m_baseline = value;} }
+	public float Baseline { get{ return m_baseline;} 
+		set 
+		{ 	
+			if ( m_baseline != value )
+			{
+				m_baseline = value;
+				m_instance?.OnSetBaseline();				
+			}
+		} 
+	}
 	public bool AllowInventoryCursor { get { return m_allowInventoryCursor; } }
+	
+	public void Show() { Visible=true; }
+	
+	/// Shows the gui, in front of all others.
+	public void ShowAtFront()
+	{
+		Show();
+		float minBaseline = float.MinValue;
+		PowerQuest.Get.GetGuis().ForEach( item=> { if ( item != null && item.Baseline < minBaseline) minBaseline=item.Baseline;} );
+		if ( minBaseline > float.MinValue )
+			Baseline=minBaseline-1;
+	}
+	/// Shows the gui, behind all others.
+	public void ShowAtBack()
+	{
+		Show();
+
+		float minBaseline = float.MaxValue;
+		PowerQuest.Get.GetGuis().ForEach( item=> { if ( item != null && item.Baseline > minBaseline) minBaseline=item.Baseline;} );				
+		if ( minBaseline < float.MaxValue )
+			Baseline=minBaseline+1;
+	}
+
+	/// Shows the gui, behind a specific other gui.
+	public void ShowBehind(IGui gui)
+	{
+		Show();
+		if ( gui != null )
+			Baseline = gui.Baseline+1;
+	}
+
+	/// Shows the gui, in front of a specific other gui.
+	public void ShowInfront(IGui gui)
+	{
+		Show();
+		if ( gui != null )
+			Baseline = gui.Baseline-1;
+	}
+
+	public void Hide() 
+	{
+		Visible=false;
+		Clickable=false;
+	}
 
 	//
 	// Getters/Setters - These are used by the engine. Scripts mainly use the properties
@@ -124,7 +240,18 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 	public IQuestScriptable GetScriptable() { return this; }
 	public string GetScriptName(){ return m_scriptName; }
 	public string GetScriptClassName() { return m_scriptClass; }
-	public void HotLoadScript(Assembly assembly) { QuestUtils.HotSwapScript( ref m_script, m_scriptClass, assembly ); }
+	public void HotLoadScript(Assembly assembly) 
+	{ 
+		QuestUtils.HotSwapScript( ref m_script, m_scriptClass, assembly ); 
+		if ( m_script != null )
+		{
+			// Hack to set gui in script
+			System.Reflection.MethodInfo method = m_script.GetType().GetMethod( "Initialise", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy  );
+			if ( method != null ) 
+				method.Invoke(m_script, new object[]{Data});		
+		}
+	}
+	public T GetScript<T>() where T : GuiScript<T> {  return ( m_script != null ) ? m_script as T : null; }
 
 	public GameObject GetPrefab() { return m_prefab; }
 	public GuiComponent GetInstance() { return m_instance; }
@@ -132,6 +259,15 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 	{ 
 		m_instance = instance; 
 		m_instance.SetData(this);
+				
+		// Set the instances for child controls-  They don't have their own data (like rooms) but need access to the gui's data (I think?);		
+		GuiControl[] controls= m_instance.GetComponentsInChildren<GuiControl>(true);
+		m_controls = new List<GuiControl>(controls);
+		foreach ( GuiControl control in controls )
+		{
+			control.SetGui(this);
+		}
+		
 	}
 
 	//
@@ -139,10 +275,6 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 	//
 	public void OnInteraction( eQuestVerb verb ) {}	// No op for gui
 	public void OnCancelInteraction( eQuestVerb verb ) {}	// No op for gui
-	public void PlayAnimation() {throw new System.NotImplementedException();} // TODO: Object Animation
-	public void PauseAnimation() {throw new System.NotImplementedException();} // TODO: Object Animation
-	public void StopAnimation() {throw new System.NotImplementedException();} // TODO: Object Animation
-	public void IsCollidingWith() {throw new System.NotImplementedException();} // TODO: object collision
 
 	//
 	// Internal Functions
@@ -156,7 +288,7 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 	{
 		m_scriptName = name;
 		m_scriptClass = "Gui"+name;
-		m_description = name;
+		m_description = string.Empty;
 	}
 	public void EditorRename(string name)
 	{
@@ -168,7 +300,14 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 	{
 		m_prefab = prefab;
 		if ( m_script == null ) // script could be null if it didn't exist in old save game, but does now.
-			m_script = QuestUtils.ConstructByName<QuestScript>(m_scriptClass);
+			m_script = QuestUtils.ConstructByName<QuestScript>(m_scriptClass);			
+		if ( m_script != null )
+		{
+			// Hack to set gui in script
+			System.Reflection.MethodInfo method = m_script.GetType().GetMethod( "Initialise", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy  );
+			if ( method != null ) 
+				method.Invoke(m_script, new object[]{Data});		
+		}
 
 		// Pause state might need to change
 		if ( Modal )
@@ -186,6 +325,32 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 		m_prefab = prefab;
 		// Construct the script
 		m_script = QuestUtils.ConstructByName<QuestScript>(m_scriptClass);
+		if ( m_script != null )
+		{
+			// Hack to set gui in script
+			System.Reflection.MethodInfo method = m_script.GetType().GetMethod( "Initialise", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy );
+			if ( method != null ) 
+				method.Invoke(m_script, new object[]{Data});		
+		}
+
+	}
+
+	bool IsActuallyVisible() { return Visible && HiddenBySystem == false; }
+
+	// Since multiple things control visibility, this controls when it changed. NB: ONLY CALL IF IsActuallyVisible CHANGED! 
+	void OnVisibilityChanged()
+	{
+		if ( m_instance != null ) 
+			m_instance.gameObject.SetActive(IsActuallyVisible());
+
+		// Not really sure if should pause/unpause if the gui is marked Shown, but hidden by some other gui. (eg. in case that a pausing gui is hidden by a non-pauseing one... might be wierd..?
+		if ( PauseGame )
+		{				
+			if ( IsActuallyVisible() )
+				PowerQuest.Get.Pause(m_scriptName);
+			else
+				PowerQuest.Get.UnPause(m_scriptName);
+		}
 	}
 
 	// Handles setting up defaults incase items have been added or removed since last loading a save file
@@ -203,32 +368,125 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 public class GuiComponent : MonoBehaviour
 {
 	[SerializeField] Gui m_data = new Gui();
+	[SerializeField, ReadOnly, NonReorderable] List<AnimationClip> m_animations =  new List<AnimationClip>();
+	[SerializeField, ReadOnly, NonReorderable] List<Sprite> m_sprites = new List<Sprite>();	
+		
+	// this is stored mainly for editor
+    [SerializeField] [HideInInspector] List<GuiControl> m_controlComponents = new List<GuiControl>();
+
+	// Callback when gui is focused (At top, or mouse is over one of its controls)
+	public System.Action CallbackOnFocus = null;
+	// Callback when gui loses focused
+	public System.Action CallbackOnDefocus = null;
+
+	// Called from PowerQuest when gui gains focus (At top, or mouse is over one of its controls)
+	public void OnFocus()
+	{
+		CallbackOnFocus?.Invoke();
+	}
+
+	// Called from PowerQuest when gui loses focus
+	public void OnDefocus()
+	{
+		CallbackOnDefocus?.Invoke();
+	}
 
 	public Gui GetData() { return m_data; }
 	public void SetData(Gui data) { m_data = data; }
+	
+	// Note- this function might end up being relatively expensive
+	public AnimationClip GetAnimation(string animName) 
+	{ 
+		AnimationClip clip = m_animations.Find(item=>item != null && string.Equals(animName, item.name, System.StringComparison.OrdinalIgnoreCase));  
 
-	/// Updates input, if true returned, or Modal is true, then input won't be passed to next gui
-	public bool UpdateInput()
-	{
-		return false;
+		// Tryu in shared gui animations
+		if ( clip == null && PowerQuest.Get != null )		
+			clip = PowerQuest.Get.GetGuiAnimation(animName);	
+
+		// Try in inventory animations
+		if ( clip == null && PowerQuest.Get != null  )		
+			clip = PowerQuest.Get.GetInventoryAnimation(animName);
+		return clip;
+	}
+	public List<AnimationClip> GetAnimations() { return m_animations; }
+	
+	public Sprite GetSprite(string animName) 
+	{ 
+		Sprite sprite = m_sprites.Find(item=>item != null && string.Equals(animName, item.name, System.StringComparison.OrdinalIgnoreCase));  
+
+		// Tryu in shared gui sprites
+		if ( sprite == null && PowerQuest.Get != null )		
+			sprite = PowerQuest.Get.GetGuiSprite(animName);
+
+		return sprite;
+	}
+	public List<Sprite> GetSprites() { return m_sprites; }
+	
+	public void OnSetBaseline()
+	{		
+		foreach (GuiControl control in m_controlComponents)
+			control?.UpdateBaseline();
 	}
 
-	/*
+	void Awake()
+	{
+		m_controlComponents.Clear();
+		m_controlComponents.AddRange(GetComponentsInChildren<GuiControl>());	
+	}
+	
 	// Use this for initialization
 	void Start () 
 	{	
+
+		// Update baselines of controls
+		OnSetBaseline();
 	}
 
+	void OnEnable()
+	{	
+		if ( PowerQuest.Get != null )
+			PowerQuest.Get.OnGuiShown(GetData());
+	}
+
+	/*
 	// Called once room and everything in it has been created and PowerQuest has initialised references. After Start, Before OnEnterRoom.
 	public void OnLoadComplete()
 	{
 	}
+	*/
+
+	/*
+	void OnDestroy()
+	{
+		// Decided not to call this here, until I actually find it's needed at least.
+		if ( CallbackOnDefocus != null && PowerQuest.Get != null && GetData() != null && PowerQuest.Get.GetFocusedGui() == GetData() ) 
+			CallbackOnDefocus.Invoke();
+	}
+	*/
 
 	// Update is called once per frame
 	void Update () 
 	{
+		// Handle mouse clicks for the gui itself
+		if ( PowerQuest.Get.GetFocusedGui() == GetData() && PowerQuest.Get.GetFocusedGuiControl() == null && (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1)) )
+		{			
+			PowerQuest.Get.ProcessGuiClick(GetData());
+		}
+
 	}
-	*/
+	
+	public void RegisterControl(GuiControl control)
+	{
+		if ( m_controlComponents.Exists(item=>item==control) == false )
+			m_controlComponents.Add(control);
+	}
+	public void EditorUpdateChildComponents()
+	{
+		m_controlComponents.Clear();
+		m_controlComponents.AddRange(GetComponentsInChildren<GuiControl>(true));
+	}
+
+	public List<GuiControl> GetControlComponents() { return m_controlComponents; }
 }
 
 }

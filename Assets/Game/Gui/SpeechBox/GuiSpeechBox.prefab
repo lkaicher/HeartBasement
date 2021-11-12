@@ -627,18 +627,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: '&34 SpeechBox'
-    m_position: {x: 0, y: 0}
     m_baseline: 0
     m_visible: 0
-    m_clickable: 0
+    m_visibleInCutscenes: 1
     m_modal: 0
     m_pauseGame: 0
+    m_hideObscuredGuis: 0
+    m_hideSpecificGuis: []
+    m_description: '&34 SpeechBox'
     m_cursor: 
     m_allowInventoryCursor: 0
-    m_hideGuisWhenActive: []
+    m_position: {x: 0, y: 0}
     m_scriptName: SpeechBox
     m_scriptClass: GuiSpeechBox
+  m_animations: []
+  m_sprites: []
+  m_controlComponents: []
   m_usePlayerTextColour: 1
 --- !u!114 &114414554596698078
 MonoBehaviour:

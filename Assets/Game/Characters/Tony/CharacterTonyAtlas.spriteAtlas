@@ -1,0 +1,176 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: CharacterTonyAtlas
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 0
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings:
+    - serializedVersion: 3
+      m_BuildTarget: DefaultTexturePlatform
+      m_MaxTextureSize: 2048
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: -1
+      m_TextureCompression: 0
+      m_CompressionQuality: 50
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 0
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 1
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: 6c468017365a1bf458891dc69cc1101e, type: 3}
+    totalSpriteSurfaceArea: 368640
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 98bc4e30202b6264dbe54965d12fb25d, type: 3}
+  - {fileID: 21300000, guid: aef07a5091e15b642afa693a7a339320, type: 3}
+  - {fileID: 21300000, guid: a64ab2e09b467d646a21d828fd72a48c, type: 3}
+  - {fileID: 21300000, guid: c4753301c6ad84af5915fd2b2d97e81d, type: 3}
+  - {fileID: 21300000, guid: 95e87951d806b3940a4120a322f97612, type: 3}
+  - {fileID: 21300000, guid: a32f3181cb94a47b9973d1b0cee85920, type: 3}
+  - {fileID: 21300000, guid: c210a781c586347b08b1e8e1e82d60f4, type: 3}
+  - {fileID: 21300000, guid: 4a7423d11f57546089b98d986da03508, type: 3}
+  - {fileID: 21300000, guid: f7633ee1fb80a6944bbd66f8b50d6c7a, type: 3}
+  - {fileID: 21300000, guid: a0b014327936245afa9cfe15a50c29ea, type: 3}
+  - {fileID: 21300000, guid: 3c6c4c42d282daa4c828d02afd0d6dd2, type: 3}
+  - {fileID: 21300000, guid: 6a580162be308ff4d9a78f20138229a9, type: 3}
+  - {fileID: 21300000, guid: a1c9fdd2d9a4b1440aceb3d6816142b5, type: 3}
+  - {fileID: 21300000, guid: 39eb15e2ecf3e474183676c0b62a2072, type: 3}
+  - {fileID: 21300000, guid: 2c778983cc43e814ba0878928b166192, type: 3}
+  - {fileID: 21300000, guid: fc6b41932cee5484890c084af0ff24f9, type: 3}
+  - {fileID: 21300000, guid: 2c1327e3d0c9ebb40a3d05a84b0ec165, type: 3}
+  - {fileID: 21300000, guid: e1df0e2470992444980f03e327222faa, type: 3}
+  - {fileID: 21300000, guid: 08d08164fdba2487d9ee63ca070760c8, type: 3}
+  - {fileID: 21300000, guid: 9d35a8a40782741d99d3f1ad3a80b60b, type: 3}
+  - {fileID: 21300000, guid: 041a73b4f00984460b239b5d7276507a, type: 3}
+  - {fileID: 21300000, guid: 1bc34435fe43a492caa65cf99c6a7020, type: 3}
+  - {fileID: 21300000, guid: c8745be55ccec43ed9772707938ee4a8, type: 3}
+  - {fileID: 21300000, guid: abdae5f5b969c474ebb24c5f702cb07d, type: 3}
+  - {fileID: 21300000, guid: 47871d068178c4c7ca8fff8eba33540f, type: 3}
+  - {fileID: 21300000, guid: 8deef63677151e942a382b07fb3b6849, type: 3}
+  - {fileID: 21300000, guid: 2550c546a123f7246b36dedb070982f3, type: 3}
+  - {fileID: 21300000, guid: 534908c6b763a914ca9a7eb7be4c7c20, type: 3}
+  - {fileID: 21300000, guid: 418cdac6d4b8ac44a80dafabee95336a, type: 3}
+  - {fileID: 21300000, guid: 33c8d9d6cd240c243963ae2c40b7d9b1, type: 3}
+  - {fileID: 21300000, guid: 2ca47807aa84142ceb816d03f9495da7, type: 3}
+  - {fileID: 21300000, guid: 3f536f17a2d2c5441a18673bdc07f5b3, type: 3}
+  - {fileID: 21300000, guid: 55eec447f7a3244569a0cfa8abb075e5, type: 3}
+  - {fileID: 21300000, guid: 42775747772bb40b5b3557fd5ad9925d, type: 3}
+  - {fileID: 21300000, guid: f8d9c6b7f6e114022b7cb2cb18bf9e09, type: 3}
+  - {fileID: 21300000, guid: d8872528b8809df40afe892a0b6cae49, type: 3}
+  - {fileID: 21300000, guid: 449da438565174c5b97551a8dba23ac5, type: 3}
+  - {fileID: 21300000, guid: 6b8b5668e19fdc745ae90d8718d0ee26, type: 3}
+  - {fileID: 21300000, guid: 7af58978dc2a90a4fa39d6c494b8200e, type: 3}
+  - {fileID: 21300000, guid: 952917b82bdd44ce98c6ba514f7f68d2, type: 3}
+  - {fileID: 21300000, guid: 966c54d9d8e0f1c4a9a34711736f0ac6, type: 3}
+  - {fileID: 21300000, guid: 7e68a38a0c6f94e568f0d2f3885c9362, type: 3}
+  - {fileID: 21300000, guid: e69e939acf560184096a59023dea7950, type: 3}
+  - {fileID: 21300000, guid: bb0fd0aa18eef914ca4e09cc65c863ab, type: 3}
+  - {fileID: 21300000, guid: 56bdaefac376ead46b4a208ca3dbec5c, type: 3}
+  - {fileID: 21300000, guid: 352b880b33b5f0b44a39023b6b99b3a8, type: 3}
+  - {fileID: 21300000, guid: 1e5ba92b109084fb39c31cd87d40a605, type: 3}
+  - {fileID: 21300000, guid: 19beee3bcc9c54379bde46eb378f5515, type: 3}
+  - {fileID: 21300000, guid: c105ab5bbf318db40aabf202e109e8ed, type: 3}
+  - {fileID: 21300000, guid: 373dce1cd1c9b2a45bf074e353e4b91b, type: 3}
+  - {fileID: 21300000, guid: 43d1302c7ed1f3742a924dc46c7699f1, type: 3}
+  - {fileID: 21300000, guid: 17b2c98cd6c1c4f87a69d354a68c8a20, type: 3}
+  - {fileID: 21300000, guid: 27ec22cc93def20458b7555e8ad6fee4, type: 3}
+  - {fileID: 21300000, guid: 6631f1ec1c449404abbad69eef45852d, type: 3}
+  - {fileID: 21300000, guid: 8f02731d4cece4a459105526ae9f7207, type: 3}
+  - {fileID: 21300000, guid: 7ecd940ef4d9f41269be0b336b91330c, type: 3}
+  - {fileID: 21300000, guid: 7158e23ebb2bca2468583628436211b4, type: 3}
+  - {fileID: 21300000, guid: b66949ee86b664068ab64d165db486fb, type: 3}
+  - {fileID: 21300000, guid: 7460d87fa3a194e7eb046654a67d542b, type: 3}
+  - {fileID: 21300000, guid: e71504dfd3b74c3459a6ec956f1e4626, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - TalkR_1
+  - WalkR_1
+  - TalkU_1
+  - HeartBasementTonyFinal18
+  - WalkUR_2
+  - HeartBasementTonyFinal6
+  - HeartBasementTonyFinal16
+  - HeartBasementTonyFinal9
+  - IdleUR_0
+  - HeartBasementTonyFinal17
+  - IdleU_1
+  - Pumping_4
+  - TalkD_0
+  - HeartBasementTonyFinal8
+  - WalkR_4
+  - Pumping_3
+  - TalkR_2
+  - HeartBasementTonyFinal7
+  - HeartBasementTonyFinal3
+  - HeartBasementTonyFinal2
+  - HeartBasementTonyFinal25
+  - HeartBasementTonyFinal23
+  - HeartBasementTonyFinal11
+  - Pumping_1
+  - HeartBasementTonyFinal19
+  - Pumping_0
+  - TalkUR_1
+  - IdleU_0
+  - TalkD_1
+  - IdleR_0
+  - HeartBasementTonyFinal10
+  - IdleD_1
+  - HeartBasementTonyFinal13
+  - HeartBasementTonyFinal5
+  - HeartBasementTonyFinal20
+  - WalkR_3
+  - HeartBasementTonyFinal22
+  - Pumping_5
+  - WalkUR_1
+  - HeartBasementTonyFinal21
+  - TalkR_0
+  - HeartBasementTonyFinal4
+  - Pumping_2
+  - TalkD_2
+  - IdleR_1
+  - IdleD_0
+  - HeartBasementTonyFinal15
+  - HeartBasementTonyFinal26
+  - TalkU_0
+  - IdleUR_1
+  - WalkUR_0
+  - HeartBasementTonyFinal24
+  - WalkR_0
+  - HeartBasementTonyFinal27
+  - TalkUR_0
+  - HeartBasementTonyFinal14
+  - TalkUR_2
+  - HeartBasementTonyFinal12
+  - HeartBasementTonyFinal1
+  - WalkR_2
+  m_RenderDataMap: {}
+  m_Tag: CharacterTonyAtlas
+  m_IsVariant: 0

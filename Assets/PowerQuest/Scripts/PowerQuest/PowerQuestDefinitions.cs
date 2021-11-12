@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
@@ -169,6 +169,9 @@ public partial class PowerQuest
 	public static readonly string SCRIPT_FUNCTION_ENTER_REGION = "OnEnterRegion";
 	public static readonly string SCRIPT_FUNCTION_EXIT_REGION = "OnExitRegion";
 	public static readonly string SCRIPT_FUNCTION_GETCURSOR = "GetCursor";
+	public static readonly string SCRIPT_FUNCTION_ONWALKTO = "OnWalkTo";
+	public static readonly string SCRIPT_FUNCTION_ONANYCLICK= "OnAnyClick";
+	public static readonly string SCRIPT_FUNCTION_CLICKGUI = "OnClick";
 
 	static readonly YieldInstruction EMPTY_YIELD_INSTRUCTION = new YieldInstruction(); // Used to prevent having to wait a frame in UpdateBlocking which happens when a routine returns yield break
 	static readonly YieldInstruction CONSUME_YIELD_INSTRUCTION = new YieldInstruction(); // Used to prevent falling through to default interaction in an empty function

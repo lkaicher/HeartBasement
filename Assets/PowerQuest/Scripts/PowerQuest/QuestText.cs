@@ -5,7 +5,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using PowerTools;
-using PowerTools.QuestText;
+using PowerTools.Quest.Text;
 using System.Text.RegularExpressions;
 
 namespace PowerTools.Quest
@@ -153,7 +153,12 @@ public class QuestText : MonoBehaviour
 			for ( int i = 0; i < m_outlineMeshes.Count; ++i ) 
 			{
 				if ( m_outlineMeshes[i] != null )
-					GameObject.Destroy(	m_outlineMeshes[i].gameObject );
+				{
+					if ( Application.isPlaying )
+						GameObject.Destroy(	m_outlineMeshes[i].gameObject );
+					else 
+						GameObject.DestroyImmediate( m_outlineMeshes[i].gameObject );
+				}
 			}
 			m_outlineMeshes.Clear();
 		}
@@ -301,7 +306,7 @@ public class QuestText : MonoBehaviour
 				int meshId = 0;
 				for ( int i = 0; i < 8; ++i ) 
 				{
-					if ( PowerTools.QuestText.BitMask.IsSet(m_outline.m_directions, i)  )
+					if ( PowerTools.Quest.Text.BitMask.IsSet(m_outline.m_directions, i)  )
 					{
 						if ( m_outlineMeshes == null )
 							m_outlineMeshes = new List<TextMesh>();			
@@ -322,7 +327,7 @@ public class QuestText : MonoBehaviour
 							newShadowRenderer.receiveShadows = false;
 							newShadowRenderer.sortingLayerID = m_meshRenderer.sortingLayerID;
 							newShadowRenderer.sortingLayerName = m_meshRenderer.sortingLayerName;
-							newShadowRenderer.sortingOrder = m_meshRenderer.sortingOrder - 1;
+							newShadowRenderer.sortingOrder = m_meshRenderer.sortingOrder;// - 1;
 
 							TextMesh newShadowMesh = obj.GetComponent<TextMesh>();
 							newShadowMesh.alignment = m_mesh.alignment;
@@ -373,7 +378,7 @@ public class QuestText : MonoBehaviour
 	{
 		if ( gameObject.activeInHierarchy && Application.isEditor && Application.isPlaying == false && m_editorRefresh )
 		{
-			if ( m_outline != null )
+			if ( m_outline != null && m_outlineMeshes != null )
 			{
 				// remove existing outline meshes
 				for ( int i = 0; i < m_outlineMeshes.Count; ++i ) 
@@ -575,7 +580,7 @@ public class QuestText : MonoBehaviour
 }
 }
 
-namespace PowerTools.QuestText
+namespace PowerTools.Quest.Text
 {
 
 	public struct BitMask

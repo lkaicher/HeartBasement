@@ -67,8 +67,7 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 	#region Editable vars
 
 	[Header("Default volume levels(and/or mixer groups), by type (Music, SFX, Dialog)")]
-	[ReorderableArray]
-	[SerializeField] List<AudioTypeVolume> m_volumeByType = new List<AudioTypeVolume>();
+	[SerializeField, ReorderableArray, NonReorderable] List<AudioTypeVolume> m_volumeByType = new List<AudioTypeVolume>();
 	[SerializeField] float m_musicDuckingMaxVolume = 0.5f;
 
 	[Header("Default falloff values (radios of screen width)")]
@@ -89,7 +88,7 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 	[Tooltip("If set, any cues in the Audio folder will be automatically added (you don't have to click the button in the cue)")]
 	[SerializeField] bool m_autoAddCues = true;
 	[Tooltip("Audio cues that can be played by name")]
-	[SerializeField, ReorderableArray] List<AudioCue> m_audioCues = new List<AudioCue>();
+	[SerializeField] List<AudioCue> m_audioCues = new List<AudioCue>();
 
 	#endregion
 	#region private vars
@@ -276,6 +275,7 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 		}
 
 		float pitch =  cue.m_pitch.GetRandom() *  cueClip.m_pitch.GetRandom() * pitchMult;
+		float pan = cue.m_pan.GetRandom();
 
 		// Create the source
 		AudioSource source = self.SpawnAudioSource( 
@@ -360,6 +360,7 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 
 		self.SetSource(ref source, clip, volume, pitch, 128, emmitter );		
 		source.loop = cue.m_loop;
+		source.panStereo = pan;
 
 		if ( fromTime <= 0.0f && cueClip.m_startTime > 0 )
 		{
@@ -397,6 +398,7 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 				handles = new List<AudioHandle>();
 			handles.Add(handle);
 		}
+		
 
 		// Stop clip before it's end
 		if ( cueClip.m_endTime > 0 )

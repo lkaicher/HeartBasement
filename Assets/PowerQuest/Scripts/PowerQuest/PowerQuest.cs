@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using System.Reflection;
 using PowerTools;
+using PowerTools.QuestGui;
 
 namespace PowerTools.Quest
 {
@@ -15,6 +16,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	#region internal classes/definitions
 	
 	static readonly System.Type TYPE_COMPILERGENERATED = typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute);
+	static readonly string FUNC_UPDATE = "Update";
 
 	// Class for timers
 	[System.Serializable] class Timer { public string n; public float t; }	
@@ -92,21 +94,22 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	[Header("Text Sprite setup")]
 
 	public Material m_textSpriteMaterial = null;
-	[ReorderableArrayAttribute]
+	[ReorderableArray,NonReorderable]
 	public QuestText.TextSpriteData[] m_textSprites = null;
 
 	[Header("Other systems to create")]
 	[SerializeField] List<Component> m_systems = null;
 		
-	[Header("Prefab Lists (read only, enable debug inspector to edit)")]
+	[Header("Prefab Lists (Read only, enable debug inspector to edit)")]
 
-	[SerializeField, ReadOnly] List<RoomComponent> m_roomPrefabs = new List<RoomComponent>();
-	[SerializeField, ReadOnly] List<CharacterComponent> m_characterPrefabs = new List<CharacterComponent>();
-	[SerializeField, ReadOnly] List<GuiComponent> m_guiPrefabs = new List<GuiComponent>();
-	[SerializeField, ReadOnly] List<DialogTreeComponent> m_dialogTreePrefabs = new List<DialogTreeComponent>();
-	[SerializeField, ReadOnly] List<InventoryComponent> m_inventoryPrefabs = new List<InventoryComponent>();
-	//[Header("Inventory Animations (read only)")]
-	[SerializeField, ReadOnly] List<AnimationClip> m_inventoryAnimations = new List<AnimationClip>();
+	[SerializeField, ReadOnly, NonReorderable] List<RoomComponent> m_roomPrefabs = new List<RoomComponent>();
+	[SerializeField, ReadOnly, NonReorderable] List<CharacterComponent> m_characterPrefabs = new List<CharacterComponent>();
+	[SerializeField, ReadOnly, NonReorderable] List<GuiComponent> m_guiPrefabs = new List<GuiComponent>();
+	[SerializeField, ReadOnly, NonReorderable] List<DialogTreeComponent> m_dialogTreePrefabs = new List<DialogTreeComponent>();
+	[SerializeField, ReadOnly, NonReorderable] List<InventoryComponent> m_inventoryPrefabs = new List<InventoryComponent>();	
+	[SerializeField, ReadOnly, NonReorderable] List<AnimationClip> m_inventoryAnimations = new List<AnimationClip>();
+	[SerializeField, ReadOnly, NonReorderable] List<AnimationClip> m_guiAnimations = new List<AnimationClip>();
+	[SerializeField, ReadOnly, NonReorderable] List<Sprite> m_guiSprites = new List<Sprite>();
 
 	[Header("Pre-loaded Shaders")]
 
@@ -216,6 +219,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 
 	Coroutine m_consumedInteraction = null;
 
+
 	#endregion
 	#region Functions: Implementing IPowerQuest
 
@@ -264,7 +268,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 			if ( scriptable != null )
 			{
 				// If function is called like this: WaitFor(()=>MyFunction(34); The function name will be dynamic, eg. "<OnInteractDoor>b__20_0" don't think we can auto-load it.				
-				//if ( functionToWaitFor.Method.IsSpecialName == false && functionToWaitFor.Method.Name[0] == '<') // check it's not dynamic lambda expression method. Can't auto-load these.
+				//if ( functionToWaitFor.Method.IsSpecialName == false && functionToWaitFor.Method.Name[0] != '<') // check it's not dynamic lambda expression method. Can't auto-load these.
 				if ( System.Attribute.IsDefined(functionToWaitFor.Method, TYPE_COMPILERGENERATED) == false )
 					SetAutoLoadScript( scriptable, functionToWaitFor.Method.Name, true );
 			}	
@@ -330,6 +334,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	public Color GetFadeColor() {return m_menuManager.GetFadeColor();}
 
 	public QuestMenuManager GetMenuManager() { return m_menuManager; }
+	
 
 	//
 	// Pause/Unpause the game
@@ -412,9 +417,8 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	/// Change the current room. Alternative to C.Player.Room = room;
 	public void ChangeRoomBG( IRoom room ) { GetPlayer().Room = room; }
 
-	/// Change the current room. Can be yielded too, and blocks until after OnEnterAfterFade of the new room finishes. NB: This does NOT currently work in Unity 2019 and later.
+	/// Change the current room. Can be yielded too, and blocks until after OnEnterAfterFade of the new room finishes.
 	public Coroutine ChangeRoom( IRoom room ) { return StartCoroutine( CoroutineChangeRoom(room) ); }
-
 
 	//
 	// Access to Quest Objects (rooms, characters, inventory, dialog, guis)
@@ -445,6 +449,11 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		{
 			scriptName = scriptName.Substring(9);
 			scriptable = GetInventory(scriptName);
+		}
+		else if ( type.IsSubclassOf(typeof(GuiScript<T>)) )
+		{
+			scriptName = scriptName.Substring(3);
+			scriptable = GetGui(scriptName);
 		}
 		else if ( type.ToString() == GLOBAL_SCRIPT_NAME ) // type.IsSubclassOf(typeof(GlobalScriptBase<T>)) )
 		{
@@ -495,6 +504,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	public UnityEngine.Camera GetCameraGui() { return m_cameraGui; }
 	public Canvas GetCanvas() { return m_canvas; }
 	public Vector2 GetMousePosition() { return m_mousePos; }
+	public bool GetHasMousePositionOverride() { return m_overrideMousePos; }
 	public void SetMousePositionOverride(Vector2 mousePos) { m_overrideMousePos = true; m_mousePos = mousePos; }
 	public void ResetMousePositionOverride() { m_overrideMousePos = false; } 
 	public IQuestClickable GetMouseOverClickable() { return m_mouseOverClickable; }
@@ -509,6 +519,18 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	}
 	public Vector2 GetLastLookAt() { return (m_lastClickable == null || m_lastClickable.Instance == null) ? Vector2.zero : (m_lastClickable.LookAtPoint + (Vector2)m_lastClickable.Instance.transform.position); }
 	public Vector2 GetLastWalkTo() { return (m_lastClickable == null || m_lastClickable.Instance == null) ? Vector2.zero : (m_lastClickable.WalkToPoint + (Vector2)m_lastClickable.Instance.transform.position); }
+
+	
+	public Gui GetFocusedGui() { return m_focusedGui; }
+	public GuiControl GetFocusedGuiControl() 
+	{ 
+		// When script blocked, contols aren't focused UNLESS it's part of a "blocking gui" (gui shown during blocked scripts, like prompts)...
+		// Maybe guis themselves should be able to set whether they're controllable while blocking...?
+		if ( PowerQuest.Get.GetBlocked() == false || (m_focusedGui != null && m_focusedGui == m_blockingGui) )
+			return m_focusedControl; 
+		return null;
+	}
+	public GuiControl GetFocusedKeyboardControl() { return m_keyboardFocusedControl; }
 
 	/// Returns the current vertical resolution (using room override if one exists)
 	public float VerticalResolution { get 
@@ -533,6 +555,56 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	//
 	// Functions for handling mouse clicks on things
 	//
+		
+	/// ProcessGuiClick is a bit different to ProcessClick. 
+	/// It doesn't call OnAnyClick, or care verb is selected, there's no unhandled event for it eithers
+	public bool ProcessGuiClick(Gui gui, GuiControl control = null )
+	{
+		// If control is null it means the gui itself was clicked
+		IQuestClickable clickable = (control == null) ? (gui as IQuestClickable) : (control as IQuestClickable);
+		
+		if ( control != null )
+			gui = control.GuiData;
+
+		bool interactionFound = false;
+
+		GameObject clickedObj = (clickable == null || clickable.Instance == null) ? null : (clickable.Instance.gameObject);
+		
+		
+		if ( ( Paused || gui.Modal ) && m_inventoryClickStyle == eInventoryClickStyle.OnMouseClick )
+		{
+			// Call globalscript onmouse click... Mainly because we want to be able to right click when inventory's up and have it clear the active inventory item.				
+			System.Reflection.MethodInfo method = null;
+			if ( m_globalScript != null )
+			{
+				method = m_globalScript.GetType().GetMethod( "OnMouseClick", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
+				if ( method != null ) 
+					method.Invoke(m_globalScript, new object[]{Input.GetMouseButton(0), Input.GetMouseButton(1)});
+
+				// If any script interactions were queued, return 'true' to unpause the inventory
+				if ( m_queuedScriptInteractions.Count > 0 )
+					interactionFound = true;
+			}		
+		}
+
+		// Call gui's OnAnyClick function, passing in the control. If this is blocking, the main button interaction will still be called
+		if ( StartScriptInteraction(gui.GetScriptable(), SCRIPT_FUNCTION_ONANYCLICK, new object[] {control}, false, true ) )
+		{		
+			m_queuedScriptInteractions.Add(m_currentSequence);
+			interactionFound = true;
+		}
+
+		if (  Input.GetMouseButton(1) == false && control != null ) // Note: we're checking that it's NOT the right mousebutton... dumb. But easier than passing down whether the LeftMouseButton was *lifted* from the button... ugh.
+		{
+			if ( StartScriptInteraction( gui.GetScriptable(), SCRIPT_FUNCTION_CLICKGUI+control.ScriptName, new object[] {control}, false, true ) )
+			{		
+				m_queuedScriptInteractions.Add(m_currentSequence);
+				interactionFound = true;
+			}
+		}
+
+		return interactionFound;
+	}
 
 	/// Starts the specified action for the verb on whatever the mouse is over (whatever the current GetMouseOverClickable() happens to be ). 
 	/**
@@ -554,9 +626,9 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		{
 			// OnAnyClick is first checked in global script and in the current room. So can be used to interrupt what would normally cause an action
 			if ( clickHandled == false )
-				clickHandled = StartScriptInteraction(m_currentRoom, "OnAnyClick" );
+				clickHandled = StartScriptInteraction(m_currentRoom, SCRIPT_FUNCTION_ONANYCLICK );
 			if ( clickHandled == false )
-				clickHandled = StartScriptInteraction( this, "OnAnyClick" );
+				clickHandled = StartScriptInteraction( this, SCRIPT_FUNCTION_ONANYCLICK );
 
 			if ( clickHandled )
 			{
@@ -579,9 +651,9 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 			{
 				// Check for "OnWalkTo" interrupts
 				if ( clickHandled == false )
-					clickHandled = StartScriptInteraction(m_currentRoom, "OnWalkTo" );
+					clickHandled = StartScriptInteraction(m_currentRoom, SCRIPT_FUNCTION_ONWALKTO );
 				if ( clickHandled == false )
-					clickHandled = StartScriptInteraction( this, "OnWalkTo" );
+					clickHandled = StartScriptInteraction( this, SCRIPT_FUNCTION_ONWALKTO );
 				if ( clickHandled )
 				{
 					m_queuedScriptInteractions.Add(m_currentSequence); 
@@ -722,6 +794,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 			{								
 				string methodName = "";
 				object[] parameters = null;
+				bool stopWalk = true;
 				if ( verb == eQuestVerb.Inventory && m_player.HasActiveInventory )
 				{
 					if ( clickable.ClickableType == eQuestClickableType.Inventory ) // use items on eachother
@@ -739,10 +812,12 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 				{
 					methodName = verb != eQuestVerb.Look ? "UnhandledInteract" : "UnhandledLookAt";
 					parameters = new object[]{ clickable };
+					if ( clickable.ClickableType == eQuestClickableType.Inventory )
+						stopWalk = false; // Don't stop walking for unhandled inventory event. Since we want to let you change inventory without stopping
 				}
 
 				if ( clickHandled == false )
-					clickHandled = StartScriptInteraction( this, methodName, parameters, true );
+					clickHandled = StartScriptInteraction( this, methodName, parameters, stopWalk );
 
 				if ( clickHandled )
 				{
@@ -1006,6 +1081,8 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		SV.m_tempCursorNoneCursor.Clear();
 	}
 
+
+
 	int m_inlineDialogResult = -1;
 	DialogTree m_inlineDialogPrevDialog = null;
 	public Coroutine WaitForInlineDialog(params string[] options)
@@ -1096,6 +1173,10 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	public System.Action CallbackOnEndCutscene = null;
 	// Callback when cutscene's skipped, CallbackOnProcessClick(bool interactionFound)
 	public System.Action<bool> CallbackOnProcessClick = null;
+	// Callback called whenver script is set to "Block". May be multiple times in a single frame
+	public System.Action CallbackOnBlock = null;
+	// Callback called whenver script is set to "Unblock". May be multiple times in a single frame
+	public System.Action CallbackOnUnblock = null;
 
 	//  Used by characters to check if should set autoavance flag on dialog
 	public bool GetShouldSayTextAutoAdvance() { return m_sayTextAutoAdvance; }
@@ -1293,6 +1374,29 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	}
 
 	// Processes a click on a gui inventory item- returns true if the inventory should unpause or hide to allow a sequence to run
+	public bool OnInventoryClick()
+	{		
+		if ( Paused || GetModalGuiActive() )
+		{		
+			if ( m_inventoryClickStyle != eInventoryClickStyle.OnMouseClick )
+				Debug.LogWarning("InventoryClickStyle should be set to OnMouseClick, other modes are no longer in use");
+
+			// Do some special handling to check for process click
+			System.Reflection.MethodInfo method = null;
+			if ( m_globalScript != null )
+			{
+				method = m_globalScript.GetType().GetMethod( "OnMouseClick", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
+				if ( method != null ) 
+					method.Invoke(m_globalScript, new object[]{Input.GetMouseButton(0), Input.GetMouseButton(1)});
+
+				// If any script interactions were queued, return 'true' to unpause the inventory
+				if ( m_queuedScriptInteractions.Count > 0 )
+					return true;
+			}
+		}
+		return false;
+
+	}
 	public bool OnInventoryClick(string item, PointerEventData.InputButton button)
 	{		
 		if ( m_inventoryClickStyle == eInventoryClickStyle.OnMouseClick )
@@ -1502,7 +1606,12 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	public QuestCameraComponent GetCameraPrefab() { return m_cameraPrefab; }
 	public QuestText GetDialogTextPrefabEditor() { return m_dialogTextPrefab; }
 	public List<AnimationClip> GetInventoryAnimations() { return m_inventoryAnimations; }
-	public AnimationClip GetInventoryAnimation(string animName) { return m_inventoryAnimations.Find(item=> item == null ? false : string.Equals(item.name, animName, System.StringComparison.OrdinalIgnoreCase));  }
+	public AnimationClip GetInventoryAnimation(string animName) { return m_inventoryAnimations.Find(item=> item == null ? false : string.Equals(item.name, animName, System.StringComparison.OrdinalIgnoreCase));  }	
+	public List<AnimationClip> GetGuiAnimations() { return m_guiAnimations; }
+	public AnimationClip GetGuiAnimation(string animName) { return m_guiAnimations.Find(item=> item == null ? false : string.Equals(item.name, animName, System.StringComparison.OrdinalIgnoreCase));  }	
+	public List<Sprite> GetGuiSprites() { return m_guiSprites; }
+	public Sprite GetGuiSprite(string animName) { return m_guiSprites.Find(item=> item == null ? false : string.Equals(item.name, animName, System.StringComparison.OrdinalIgnoreCase));  }
+	
 	public List<IQuestScriptable> GetAllScriptables()
 	{
 		List<IQuestScriptable> scriptables = new List<IQuestScriptable>();
@@ -1520,6 +1629,17 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	public bool GetModalGuiActive() 
 	{ 
 		return m_guis.Exists( item=> item.Modal && item.Visible ) || m_guiConsumedClick; 
+	}
+	public Gui GetTopModalGui()
+	{
+		// Finds the topmost modal gui		
+		Gui result = null;
+		foreach( Gui item in m_guis )
+		{
+			if ( item.Modal && item.Visible && (result == null || item.Baseline > result.Baseline) )
+				result = item;
+		}
+		return result;
 	}
 
 	/// Use when you want something else to capture input so it won't be handled in-game (eg: when mouse is over a GUI)
@@ -1670,7 +1790,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		}
 
 
-		// Initialise Guis
+		// Initialise inventory
 		foreach (InventoryComponent prefab in m_inventoryPrefabs) 
 		{
 			Inventory data = new Inventory();
@@ -1774,6 +1894,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	// Update is called once per frame
 	void Update() 
 	{
+
 		// When restoring a save game, update the fade-in, but nothing else, until room is loaded.
 		if ( m_restoring )
 		{
@@ -1792,6 +1913,12 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		// Pathfinder.DrawDebugLines();
 
 		//
+		// Update guis visiblity
+		//
+		UpdateGuiVisibility();
+
+
+		//
 		// Update input
 		//
 		
@@ -1804,17 +1931,16 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 			{				
 				m_mousePos = mainCamera.ScreenToWorldPoint( Input.mousePosition.WithZ(0) );
 			}
-
-			UnityEngine.Camera cam = UnityEngine.Camera.main;
-			if ( cam != null )
-			{				
-				m_mousePos = cam.ScreenToWorldPoint( Input.mousePosition.WithZ(0) );
-			}
 		}
+
+		Gui prevFocusedGui = m_focusedGui;
+		GuiControl prevFocusedControl = m_focusedControl;
 
 		if ( m_overrideMouseOverClickable == false )
 		{
-			m_mouseOverClickable = null;
+			m_mouseOverClickable = null;			
+			m_focusedControl = null;				
+			m_focusedGui = null;
 
 			// Check UI elements getting the hit/hover
 
@@ -1836,14 +1962,15 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 					}
 
 					GuiComponent guiComponent = raycastResult.gameObject.GetComponentInParent<GuiComponent>();
-					if ( guiComponent.GetData().Clickable )
+					if ( guiComponent?.GetData()?.Clickable ?? false )
 					{
 						m_mouseOverClickable = guiComponent.GetData();
 						break;
 					}
 				}
-
 	 		}
+			
+			GameObject pickedGameObject = null;
 
 			// If mouse isn't over Unity Gui then check other clickables
 			if ( m_mouseOverClickable == null && SV.m_captureInputSources.Count <= 0 )
@@ -1852,15 +1979,84 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 				if ( m_cameraGui != null )
 				{			
 					Vector2 guiMousePos = m_cameraGui.ScreenToWorldPoint( Input.mousePosition.WithZ(0) );
-					m_mouseOverClickable = GetObjectAt(guiMousePos, (1<<LAYER_UI) ); // Find object under mouse in gui layer
+					m_mouseOverClickable = GetObjectAt(guiMousePos, (1<<LAYER_UI), out pickedGameObject ); // Find object under mouse in gui layer
 				}
 
-				if ( m_mouseOverClickable == null ) // if not null, the mouse is over a clickable gui
+				if ( m_mouseOverClickable == null && GetModalGuiActive() == false ) // if not null, the mouse is over a clickable gui
 				{
-					m_mouseOverClickable = GetObjectAt(m_mousePos, ~(1<<LAYER_UI) ); // Find object under mouse (excluding gui)
+					m_mouseOverClickable = GetObjectAt(m_mousePos, ~(1<<LAYER_UI), out pickedGameObject ); // Find object under mouse (excluding gui)
 				}
 			}
+			
 
+			// Update gui focus
+			if ( m_mouseOverClickable != null )
+			{
+				if ( m_mouseOverClickable.ClickableType == eQuestClickableType.Gui || m_mouseOverClickable.ClickableType == eQuestClickableType.Inventory )
+				{
+					if ( m_mouseOverClickable.ClickableType == eQuestClickableType.Inventory )
+					{				
+						if ( pickedGameObject != null )
+						{
+							m_focusedControl = pickedGameObject.GetComponent<GuiControl>();
+							// Find control's gui
+							if ( m_focusedControl != null )
+								m_focusedGui = m_focusedControl.GuiData;
+							else 
+								m_focusedGui = null;		
+						}
+					}
+					else if ( m_mouseOverClickable is GuiControl )
+					{				
+						m_focusedControl = m_mouseOverClickable as GuiControl;
+						// Find control's gui
+						if ( m_focusedControl != null )
+							m_focusedGui = m_focusedControl.GuiData;
+						else 
+							m_focusedGui = null;				
+					}
+					else 
+					{
+						m_focusedGui = m_mouseOverClickable as Gui;
+					}	
+
+				}
+			}
+			
+
+			// Check if there's a modal gui above what the mouse is over, and if so, that overrides the focus, even if it's not "pickable"
+			Gui modalGui = GetTopModalGui();
+			if ( modalGui != null && modalGui != m_focusedGui && (m_focusedGui == null || modalGui.Baseline < m_focusedGui.Baseline) )
+			{
+				if ( modalGui.Clickable )
+				{
+					m_mouseOverClickable = modalGui;
+					m_focusedGui = modalGui;
+				}
+				else 
+				{
+					m_mouseOverClickable = null;
+					m_focusedGui = null;
+				}
+				m_focusedControl = null;
+			}
+
+		}
+
+		if ( prevFocusedGui != m_focusedGui )
+		{
+			if ( prevFocusedGui != null && prevFocusedGui.Instance != null )
+				(prevFocusedGui.Instance as GuiComponent).OnDefocus();
+			if ( m_focusedGui != null && m_focusedGui.Instance != null )
+				(m_focusedGui.Instance as GuiComponent).OnFocus();			
+		}
+
+		if ( prevFocusedControl != m_focusedControl )
+		{
+			if ( prevFocusedControl != null )
+				prevFocusedControl.OnDefocus();
+			if ( m_focusedControl != null )
+				m_focusedControl.OnFocus();
 		}
 
 		UpdateDebugKeys();
@@ -1914,22 +2110,57 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 				// 
 				if ( m_globalScript != null )
 				{
-					System.Reflection.MethodInfo method = m_globalScript.GetType().GetMethod( "Update", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
+					System.Reflection.MethodInfo method = m_globalScript.GetType().GetMethod( FUNC_UPDATE, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
 					if ( method != null ) method.Invoke(m_globalScript,null);
 				}
+				/* Gui should update even when paused
+				//
+				// Gui Update (non blocking)
+				//
+				foreach ( Gui gui in m_guis )
+				{
+					if ( gui.Instance != null && gui.Instance.isActiveAndEnabled && gui.GetScript() != null )
+					{
+						System.Reflection.MethodInfo method = gui.GetScript().GetType().GetMethod( FUNC_UPDATE, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
+						if ( method != null )
+						{							
+							method.Invoke(gui.GetScript(),null);
+						}						
+					}
+				}
+				*/
 
 				//
 				// Room Update (non blocking)
 				//
 				if ( m_currentRoom != null && m_currentRoom.GetScript() != null )
 				{
-					System.Reflection.MethodInfo method = m_currentRoom.GetScript().GetType().GetMethod( "Update", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
+					System.Reflection.MethodInfo method = m_currentRoom.GetScript().GetType().GetMethod( FUNC_UPDATE, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
 					if ( method != null )
 					{							
 						method.Invoke(m_currentRoom.GetScript(),null);
 					}
 				}
 			}
+		}
+		 
+		{
+		
+			//
+			// Gui Update (non blocking)
+			//
+			foreach ( Gui gui in m_guis )
+			{
+				if ( gui.Instance != null && gui.Instance.isActiveAndEnabled && gui.GetScript() != null )
+				{
+					System.Reflection.MethodInfo method = gui.GetScript().GetType().GetMethod( FUNC_UPDATE, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
+					if ( method != null )
+					{							
+						method.Invoke(gui.GetScript(),null);
+					}						
+				}
+			}
+
 		}
 
 		//
@@ -2029,10 +2260,13 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	void Block()
 	{
 		m_blocking = true;
+		CallbackOnBlock?.Invoke();
 	}
 	void Unblock()
 	{
 		m_blocking = false;
+		
+		CallbackOnUnblock?.Invoke();
 	}
 
 	// Show display box
@@ -2189,61 +2423,82 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		}
 	}
 
-	IQuestClickable GetObjectAt( Vector2 pos, int layerMask )
+	IQuestClickable GetObjectAt( Vector2 pos, int layerMask, out GameObject pickedGameObject )
 	{
 		IQuestClickable result = null;
 
-		bool pickedGui = false;
 		Collider2D[] picked = Physics2D.OverlapPointAll(pos, layerMask);
+		pickedGameObject = null;
+
 		if ( picked != null && picked.Length > 0 )
 		{
 			float lowestBaseline = float.MaxValue;
-			for ( int i = 0; i < picked.Length && pickedGui == false; ++i ) 
+			for ( int i = 0; i < picked.Length; ++i ) 
 			{
 				IQuestClickable clickable = null;
-				GameObject gameobj = picked[i].gameObject;
+				GameObject pickedObj = picked[i].gameObject;
 				{
-					GuiDialogOption component = gameobj.GetComponent<GuiDialogOption>();
+					GuiDialogOption component = pickedObj.GetComponent<GuiDialogOption>();
 					if ( component != null ) clickable = component.Clickable;
 				}
 				if ( clickable == null && m_inventoryClickStyle == eInventoryClickStyle.OnMouseClick)
 				{
-					InventoryComponent component = gameobj.GetComponent<InventoryComponent>();
+					InventoryComponent component = pickedObj.GetComponent<InventoryComponent>();					
 					if ( component != null ) clickable = component.GetData() as IQuestClickable;
 				}
 				if ( clickable == null )
 				{
-					
-					GuiComponent component = gameobj.GetComponent<GuiComponent>();
-					if ( component != null ) clickable = component.GetData() as IQuestClickable;
-					/* Don't bother with this, since we're testing UI layer seperately anyway *
-					// If picked a gui component, ignore everything else, since tha'ts handled seperately and steals the click					
-					if ( clickable != null && clickable.Clickable ) 
-						return null;
-					**/
+					GuiControl component = pickedObj.GetComponent<GuiControl>();
+					if ( component != null ) clickable = component as IQuestClickable;
 				}
 				if ( clickable == null )
 				{
-					HotspotComponent component = gameobj.GetComponent<HotspotComponent>();
-					if ( component != null ) clickable = component.GetData() as IQuestClickable;
+					GuiComponent component = pickedObj.GetComponent<GuiComponent>();
+					if ( component != null ) clickable = component.GetData() as IQuestClickable;					
 				}
 				if ( clickable == null )
 				{
-					PropComponent component = gameobj.GetComponent<PropComponent>();
+					HotspotComponent component = pickedObj.GetComponent<HotspotComponent>();
 					if ( component != null ) clickable = component.GetData() as IQuestClickable;
 				}
 				if ( clickable == null )
 				{
-					CharacterComponent component = gameobj.GetComponent<CharacterComponent>();
+					PropComponent component = pickedObj.GetComponent<PropComponent>();
+					if ( component != null ) clickable = component.GetData() as IQuestClickable;
+				}
+				if ( clickable == null )
+				{
+					CharacterComponent component = pickedObj.GetComponent<CharacterComponent>();
 					if ( component != null ) clickable = component.GetData() as IQuestClickable;
 				}
 				if ( clickable != null )
 				{
 					if ( clickable.Clickable )
 					{
-						float baseline = clickable.Baseline + gameobj.transform.position.y;
+						// Default baseline is the clickable baseline + the vertical offset of the object
+						float baseline = clickable.Baseline + pickedObj.transform.position.y; // + baselineOffset;
+
+						if ( clickable.ClickableType == eQuestClickableType.Gui || clickable.ClickableType == eQuestClickableType.Inventory )
+						{
+							if ( pickedObj.GetComponent<GuiComponent>() != null )
+							{
+								// Gui baseline doesn't have vertical offset added
+								baseline = clickable.Baseline;							
+							}
+							else 
+							{
+								// Control baseline uses it's gui baseline, with an offset
+								GuiComponent gui = pickedObj.GetComponentInParent<GuiComponent>();
+								if ( gui != null )
+								{
+									baseline = gui.GetData().Baseline - 0.5f + (clickable.Baseline/1000.0f); // Add gui baseline, with offset.
+								}
+							}
+						}
+
 						if ( baseline < lowestBaseline )
 						{
+							pickedGameObject = pickedObj; // this is solely for inventory items, since they're kidna hacky. Should really just be gui elements... I dunno ha ha
 							lowestBaseline = baseline;
 							result = clickable;
 						}

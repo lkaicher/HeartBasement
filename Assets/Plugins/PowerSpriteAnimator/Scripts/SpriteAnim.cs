@@ -1,4 +1,4 @@
-﻿//-----------------------------------------
+//-----------------------------------------
 //          PowerSprite Animator
 //  Copyright © 2017 Powerhoof Pty Ltd
 //			  powerhoof.com
@@ -16,6 +16,7 @@ namespace PowerTools
 // A shared animation controller is used, it has a single state which is overridden whenever an animation is played.
 [RequireComponent(typeof(Animator))]
 [DisallowMultipleComponent]
+[AddComponentMenu("PowerTools/Sprite Animation")]
 public class SpriteAnim : SpriteAnimEventHandler 
 {	
 	#region Definitions

@@ -52,7 +52,7 @@ public class PowerSpriteImport : ScriptableObject
 	public string m_spriteDirectory = "Sprites";
 	public bool m_gui = false;
 	public bool m_isAseprite = false;
-
+	public bool m_trimSprites = false;
 
 
 }

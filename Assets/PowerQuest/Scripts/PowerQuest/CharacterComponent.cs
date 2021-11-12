@@ -60,15 +60,16 @@ public class CharacterComponent : MonoBehaviour
 	[SerializeField] Character m_data = new Character();
 
 	[Tooltip("If the character needs to swap between multiple clickable colliders, hook them up here")]
-	[SerializeField, ReorderableArray] Collider2D[] m_clickableColliders = null;	// If multiple colliders that can be enabled/disabled
+	[SerializeField] Collider2D[] m_clickableColliders = null;	// If multiple colliders that can be enabled/disabled
 
 	[Tooltip("If character's changes from one anim to another, matching the from/to in this list, the transition anim will be played first")]
-	[SerializeField, ReorderableArray] TurnAnim[] m_turnAnims = null;
+	[SerializeField] TurnAnim[] m_turnAnims = null;
 
 	[Tooltip("EXPERIMENTAL: If character's changes from one anim to another, matching the from/to in this list, the transition anim will be played first")]
-	[SerializeField, ReorderableArray] TransitionAnim[] m_transitionAnims = null;
-
-	[ReadOnly][SerializeField] List<AnimationClip> m_animations = new List<AnimationClip>();
+	[SerializeField] TransitionAnim[] m_transitionAnims = null;
+	
+	[Tooltip("This list is read only, animations are automatically added to it")]
+	[ReadOnly, NonReorderable, SerializeField] List<AnimationClip> m_animations = new List<AnimationClip>();
 
 
 	#endregion
@@ -605,24 +606,19 @@ public class CharacterComponent : MonoBehaviour
 
 			Vector2 direction = m_targetPos - position;
 			float dist = Utils.NormalizeMag(ref direction);
-			Vector2 finalWalkSpeed = new Vector2( (m_walkSpeedOverride.x != -1 ? m_walkSpeedOverride.x :  m_data.WalkSpeed.x), (m_walkSpeedOverride.y != -1 ? m_walkSpeedOverride.y :  m_data.WalkSpeed.y) );
+			Vector2 finalWalkSpeed = new Vector2( (m_walkSpeedOverride.x != -1 ? m_walkSpeedOverride.x :  m_data.WalkSpeed.x), (m_walkSpeedOverride.y != -1 ? m_walkSpeedOverride.y :  m_data.WalkSpeed.y) );			
 			float speed =  (Mathf.Abs(direction.x) * finalWalkSpeed.x) + (Mathf.Abs(direction.y) * finalWalkSpeed.y);
 			if ( m_data.AdjustSpeedWithScaling )
 				speed *= transform.localScale.y; // scale by speed
-			/*
-			if ( dist == 0 )
-			{
-				// Already at destination. 
-				reachedTarget = true;
-				break;
-			}*/
+			
 			if ( dist > 0 )
 				m_data.FaceDirection( direction, true );
 
-			if ( dist < speed * remainingDeltaTime )
+			if ( dist == 0 || dist < speed * remainingDeltaTime )
 			{
 				// going to get there this frame
-				remainingDeltaTime -= dist/speed;
+				if ( dist > 0 )
+					remainingDeltaTime -= dist/speed;
 				position = m_targetPos;
 
 				if ( m_path != null && m_pathPointNext > 0 )
@@ -958,7 +954,7 @@ public class CharacterComponent : MonoBehaviour
 			m_targetPos = pos;
 			m_targetEndPos = m_targetPos;
 
-			Vector2[] path = pathfinder.FindPath(transform.position, pos);
+			Vector2[] path = pathfinder.FindPath(m_data.Position, pos);
 
 			if ( path != null && path.Length > 1 )
 			{
@@ -1035,17 +1031,20 @@ public class CharacterComponent : MonoBehaviour
 	// Walks in straight line to specified point, setting the walk state if not in it already
 	void WalkToInternal( Vector2 pos )
 	{
-		Vector2 toPos = pos - (Vector2)(transform.position);
+		
+		Vector2 toPos = pos - m_data.Position;
+		
 		if ( toPos.sqrMagnitude < Mathf.Epsilon )
-			return;		
+			return;
 		m_targetPos = pos;
 
+		bool wasWalking = m_walking;
 		m_walking = true;
 		OnAnimStateChange();
 
-		if ( Animating == false && m_playWalkAnim )
+		if ( Animating == false && m_playWalkAnim && wasWalking == false )
 		{
-			m_data.FaceDirection( toPos.normalized );
+			m_data.FaceDirection( toPos );
 
 			if ( CheckTargetDirectionWillChangeAnim() ) // check if the walk anim will change. if it won't, just walk immediately without turning to face first.
 			{
@@ -1057,7 +1056,6 @@ public class CharacterComponent : MonoBehaviour
 			{
 				m_data.SetFaceDirection(m_data.GetTargetFaceDirection()); // Not turning to face, so assume we've reached the target (due to anim frames we may not have actually)
 			}
-			
 		}
 	}
 
@@ -1705,8 +1703,8 @@ public class CharacterComponent : MonoBehaviour
 			// Else, hide mouth (if there is one)
 			if ( m_mouth != null )
 				m_mouth.gameObject.SetActive(false);
-		}    
-	}
+		}  
+	}  
 }
 
 #endregion

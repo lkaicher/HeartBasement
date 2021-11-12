@@ -1,11 +1,12 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
+//using UI = UnityEngine.UI;
 using PowerTools;
 using PowerTools.Quest;
 using System;
+using PowerTools.QuestGui;
 
 namespace PowerTools.Quest
 {
@@ -28,7 +29,7 @@ public class GuiDialogTreeComponent : MonoBehaviour
 	[SerializeField, Tooltip("How much to offset text when back/forward buttons are OFF.")] float m_arrowButtonWidth = 0;
 	[Header("Internal references")]
 	[SerializeField] GameObject m_textInstance = null;
-	[SerializeField] GUIContain m_background = null;
+	[SerializeField] FitToObject m_background = null;
 	[SerializeField] GameObject m_btnScrollBack = null; // Scroll back (or up) button
 	[SerializeField] GameObject m_btnScrollForward = null; // Scroll forward (or down) button
 	
@@ -44,6 +45,12 @@ public class GuiDialogTreeComponent : MonoBehaviour
 	// Use this for initialization
 	void Start() 
 	{
+		// If using simple buttons, move to the canvas
+		if ( m_btnScrollBack != null && m_btnScrollBack.GetComponent<RectTransform>() != null )
+		{
+			Transform canvas = transform.parent.Find("QuestCanvas");
+			transform.SetParent( canvas, true );
+		}
 	}
 
 	void Awake()
@@ -119,7 +126,8 @@ public class GuiDialogTreeComponent : MonoBehaviour
 			Vector3 pos = m_textInstance.transform.position + new Vector3( 0, m_items.Count*m_itemSpacing, 0);
 			GameObject obj = Instantiate(m_textInstance.gameObject, pos,Quaternion.identity, m_textInstance.transform.parent); 
 			m_items.Add(obj.GetComponent<QuestText>());
-			m_background.ContainY(obj);
+			if ( m_background != null )
+				m_background.FitToObjectHeight(obj);
 		}
 
 		// Reposition the text element to use all the space if we know we won't have arrows
@@ -196,6 +204,16 @@ public class GuiDialogTreeComponent : MonoBehaviour
 		if ( m_itemsOffset == m_maxNumOptions - m_maxVisibleItems)
 			return;
 		m_itemsOffset += 1;
+	}
+
+	// Messages sent from button
+	void OnClickScrollUp(Button button)
+	{
+		ScrollBack();
+	}
+	void OnClickScrollDown(Button button)
+	{
+		ScrollForward();
 	}
 }
 

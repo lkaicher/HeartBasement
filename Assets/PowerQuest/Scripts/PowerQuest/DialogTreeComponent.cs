@@ -107,6 +107,9 @@ public class DialogTreeScript<T> : QuestScript where T : QuestScript
 	public static T Script { get { return E.GetScript<T>(); } }
 }
 
+#endregion
+#region Class: DialogTree
+
 //
 // Prop Data and functions. Persistant between scenes, as opposed to GuiComponent which lives on a GameObject in a scene.
 //

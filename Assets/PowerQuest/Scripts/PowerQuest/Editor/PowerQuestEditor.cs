@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using PowerTools.Quest;
+using PowerTools.QuestGui;
 using PowerTools;
 #if UNITY_2018_3_OR_NEWER
 using UnityEditor.Experimental.SceneManagement;
@@ -25,8 +26,6 @@ public partial class PowerQuestEditor : EditorWindow
 	//
 	// Static definitions
 	//
-	static readonly int POWERQUEST_VERSION = Version(0,10,0);
-
 	static readonly string PATH_GAME = "Assets/Game/";
 	static readonly string PATH_AUDIO = "Assets/Audio";
 	public static readonly string PATH_GLOBAL_SCRIPT = PATH_GAME+"GlobalScript.cs";
@@ -55,6 +54,9 @@ public partial class PowerQuestEditor : EditorWindow
 
 	public static readonly string SCRIPT_PARAMS_ENTER_REGION = " IRegion region, ICharacter character ";
 	public static readonly string SCRIPT_PARAMS_EXIT_REGION = " IRegion region, ICharacter character ";
+
+	public static readonly string SCRIPT_PARAMS_ONCLICK_GUI = " IGuiControl control ";
+	public static readonly string SCRIPT_PARAMS_ONANYCLICK_GUI = " IGuiControl control ";
 
 	//struct ScriptFuncParamPair {string func, string param};
 	public static readonly Dictionary<string, string> SCRIPT_FUNC_PARAM_MAP = new Dictionary<string,string>() 
@@ -140,7 +142,8 @@ public partial class PowerQuestEditor : EditorWindow
 
 	[SerializeField] GameObject m_questCamera = null;
 	[SerializeField] GameObject m_questGuiCamera = null;
-	[SerializeField] int m_selectedTab;
+	enum eTab { Main,Room,Gui,Tools,Count }
+	[SerializeField] eTab m_selectedTab = eTab.Main;
 
 	[SerializeField] bool m_showRooms = true;
 	[SerializeField] bool m_showCharacters = true;
@@ -176,7 +179,6 @@ public partial class PowerQuestEditor : EditorWindow
 
 	static bool m_registered = false;
 
-	RoomComponent m_selectedRoom = null;
 
 	//
 	// Menu items
@@ -299,13 +301,9 @@ public partial class PowerQuestEditor : EditorWindow
 			return;
 
 		// create directory
+		if ( Directory.Exists($"{path}/{name}") == false )
+			AssetDatabase.CreateFolder(path,name);		
 		path += "/" + name;
-		if ( Directory.Exists(path) == false )
-		{
-			Directory.CreateDirectory(path);
-			// DL- With brief testing, it seems like I can leave out this refresh and it won't fuck up. 
-			//AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate); 
-		}
 
 		// Create game object
 		GameObject gameObject = new GameObject("Inventory"+name, typeof(InventoryComponent)) as GameObject; 
@@ -334,6 +332,9 @@ public partial class PowerQuestEditor : EditorWindow
 		// Add line to GameGlobals.cs for easy scripting
 		QuestEditorUtils.InsertTextIntoFile(PATH_GAME_GLOBALS, "#I", "\n\t\tpublic static IInventory "+name.PadRight(14)+" { get { return PowerQuest.Get.GetInventory(\""+name+"\"); } }");
 		
+		// Check that inventory atlas matches pixel settings
+		QuestEditorUtils.UpdateAtlasSettings("Assets/Game/Inventory/InventoryAtlas.spriteatlas", powerQuestEditor.m_powerQuest.GetSnapToPixel() );
+
 		powerQuestEditor.RequestAssetRefresh();
 	}
 
@@ -347,13 +348,9 @@ public partial class PowerQuestEditor : EditorWindow
 			return;
 
 		// create directory
+		if ( Directory.Exists($"{path}/{name}") == false )
+			AssetDatabase.CreateFolder(path,name);		
 		path += "/" + name;
-		if ( Directory.Exists(path) == false )
-		{
-			Directory.CreateDirectory(path);			
-			// DL- With brief testing, it seems like I can leave out this refresh and it won't fuck up. 
-			//AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
-		}
 
 		// Create game object
 		GameObject gameObject = new GameObject("Dialog"+name, typeof(DialogTreeComponent)) as GameObject; 
@@ -395,16 +392,31 @@ public partial class PowerQuestEditor : EditorWindow
 			return;
 
 		// create directory
+		if ( Directory.Exists($"{path}/{name}") == false )
+			AssetDatabase.CreateFolder(path,name);		
 		path += "/" + name;
-		if ( Directory.Exists(path) == false )
-		{
-			Directory.CreateDirectory(path);
-			// DL- With brief testing, it seems like I can leave out this refresh and it won't fuck up. 
-			//AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate); 
-		}
+		
+		// Create Sprite folder
+		if ( Directory.Exists(path+"/Sprites") == false )
+			AssetDatabase.CreateFolder(path,"Sprites");
+
+		// Create importer
+		QuestEditorUtils.CreateImporter(path+"/_Import"+name+".asset", string.Empty,false);
+
+		// Create atlas
+		QuestEditorUtils.CreateSpriteAtlas($"{path}/Gui{name}Atlas.spriteatlas",$"{path}/Sprites",GetPowerQuest().GetSnapToPixel(),false,false);
+
+		// Check that gui atlas matches pixel settings. Incase user has changed from pixel to non-pixel
+		QuestEditorUtils.UpdateAtlasSettings("Assets/Game/Gui/GuiAtlas.spriteatlas", powerQuestEditor.m_powerQuest.GetSnapToPixel() );
 
 		// Create game object
 		GameObject gameObject = new GameObject("Gui"+name, typeof(GuiComponent)) as GameObject; 
+		//gameObject.transform.position = new Vector3(0,1000,0);
+		gameObject.layer = LayerMask.NameToLayer("UI");
+		BoxCollider2D box = gameObject.AddComponent<BoxCollider2D>();
+		box.isTrigger = true;
+		box.size = new Vector2(200,100);
+		box.enabled = false;
 
 		GuiComponent gui = gameObject.GetComponent<GuiComponent>();
 		gui.GetData().EditorInitialise(name);
@@ -414,7 +426,7 @@ public partial class PowerQuestEditor : EditorWindow
 		Object prefab = PrefabUtility.SaveAsPrefabAssetAndConnect(gameObject, path + "/Gui"+name+".prefab", InteractionMode.AutomatedAction);		
 		#else
 		Object prefab = PrefabUtility.CreatePrefab(path + "/Gui"+name+".prefab", gameObject, ReplacePrefabOptions.ConnectToPrefab);
-		#endif
+		#endif				
 
 		// Select the prefab for editing
 		Selection.activeObject = prefab;
@@ -430,7 +442,7 @@ public partial class PowerQuestEditor : EditorWindow
 
 		// Add line to GameGlobals.cs for easy scripting
 		QuestEditorUtils.InsertTextIntoFile(PATH_GAME_GLOBALS, "#G", "\n\t\tpublic static IGui "+name.PadRight(14)+" { get { return PowerQuest.Get.GetGui(\""+name+"\"); } }");
-
+		 
 		powerQuestEditor.RequestAssetRefresh();
 	}
 
@@ -445,25 +457,23 @@ public partial class PowerQuestEditor : EditorWindow
 		if ( powerQuestEditor == null )
 			return;
 
-		// create directory
+		// This will mark as needing smartcompile
+		powerQuestEditor.RequestAssetRefresh();
+
+		// create directory		
+		if ( Directory.Exists($"{path}/{name}") == false )
+			AssetDatabase.CreateFolder(path,name);		
 		path += "/" + name;
-		if ( Directory.Exists(path) == false )
-		{
-			Directory.CreateDirectory(path);
-			// DL- With brief testing, it seems like I can leave out this refresh and it won't fuck up. 
-			//AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate); 
-		}
-
+		
 		// Create Sprite folder
-
-		// Create SpriteCollection
 		if ( Directory.Exists(path+"/Sprites") == false )
-		{
-			Directory.CreateDirectory(path+"/Sprites");
-			// DL- With brief testing, it seems like I can leave out this refresh and it won't fuck up. 
-			//AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
-		}
-		QuestEditorUtils.CreateImporter(path+"/_Import"+name+".asset", string.Empty);//"Character"+name);
+			AssetDatabase.CreateFolder(path,"Sprites");
+
+		// Create importer
+		QuestEditorUtils.CreateImporter(path+"/_Import"+name+".asset", string.Empty,false);
+
+		// Create atlas
+		QuestEditorUtils.CreateSpriteAtlas($"{path}/Character{name}Atlas.spriteatlas",$"{path}/Sprites",GetPowerQuest().GetSnapToPixel(),false,false);
 
 		// Create game object
 		GameObject gameObject = new GameObject("Character"+name, typeof(CharacterComponent), typeof(PolygonCollider2D), typeof(PowerSprite), typeof(SpriteAnim)) as GameObject; 
@@ -671,6 +681,12 @@ public partial class PowerQuestEditor : EditorWindow
 				{
 					RenameQuestObjectInScript( QuestEditorUtils.GetFullPath(component.gameObject, component.GetData().GetScriptClassName() +".cs"), regexCompiled, newName ); 
 				}
+				
+				// Process Gui Scripts
+				foreach ( GuiComponent component in m_powerQuest.GetGuiPrefabs() )
+				{
+					RenameQuestObjectInScript( QuestEditorUtils.GetFullPath(component.gameObject, component.GetData().GetScriptClassName() +".cs"), regexCompiled, newName ); 
+				}
 			}		
 		}
 		
@@ -858,6 +874,12 @@ public partial class PowerQuestEditor : EditorWindow
 	{ 
 		if ( IsReady() )
 			return GetPowerQuest().GetRoomPrefabs().Find(item=>item.GetData().ScriptName == roomName);
+		return null;
+	}
+	public GuiComponent GetGui(string roomName) 
+	{ 
+		if ( IsReady() )
+			return GetPowerQuest().GetGuiPrefabs().Find(item=>item.GetData().ScriptName == roomName);
 		return null;
 	}
 
@@ -1061,34 +1083,26 @@ public partial class PowerQuestEditor : EditorWindow
 			QuestScriptEditor.InitSpellCheck(true); 
 		} }
 
-	#if UNITY_2017_1_OR_NEWER
+	
 	void OnPlaymodeStateChanged(PlayModeStateChange stateChange)
-	#else 
-	void OnPlaymodeStateChanged()
-	#endif
 	{
 		bool startedPlaying = false;
 		bool stoppedPlaying = false;
 
 		m_sourceModifiedTime = System.DateTime.Now; 
+		
+		startedPlaying = (stateChange == PlayModeStateChange.ExitingEditMode);
+		stoppedPlaying = (stateChange == PlayModeStateChange.EnteredEditMode);
 
-		#if UNITY_2017_1_OR_NEWER			
-			startedPlaying = (stateChange == PlayModeStateChange.ExitingEditMode);
-			stoppedPlaying = (stateChange == PlayModeStateChange.EnteredEditMode);
-		#else
-			startedPlaying = ( EditorApplication.isPlayingOrWillChangePlaymode && EditorApplication.isPlaying == false );
-			stoppedPlaying = ( EditorApplication.isPlayingOrWillChangePlaymode == false && EditorApplication.isPlaying == false );
-		#endif
 		if ( startedPlaying )
 		{
-			// About to start playing - compile before play (NB: unity may hate me doing this at this point)
+			// About to start playing - compile before play
 			PerformSmartCompile();				
 
 			// Apply room changes
 			ApplySelectedRoomInstance();
 
 			// Turn off auto-import while playing
-			//EditorApplication.LockReloadAssemblies();
 			EditorPrefs.SetBool("kAutoRefresh", false);
 			//Application.logMessageReceived += OnLogMessageReceived; // now always receiving these
 		}
@@ -1102,14 +1116,9 @@ public partial class PowerQuestEditor : EditorWindow
 			UpdateRoomSelection(GameObject.FindObjectOfType<RoomComponent>(), true); 				
 
 			// Re-enable auto-import while playing
-			//EditorApplication.UnlockReloadAssemblies();
-			//Application.logMessageReceived -= OnLogMessageReceived;
-			
-			
 			EditorPrefs.SetBool("kAutoRefresh", true);
 
 			PerformSmartCompile(); // In case there were changes while play mode.
-			//AssetDatabase.Refresh(); // In case there were changes while play mode.
 		}
 	}
 
@@ -1166,6 +1175,8 @@ public partial class PowerQuestEditor : EditorWindow
 			#endif
 
 			EditorApplication.update += OnUpdate;
+			PrefabStage.prefabStageOpened += OnPrefabStaged;
+			PrefabStage.prefabStageClosing += OnPrefabUnstaged;
 			
 			#if UNITY_2017_1_OR_NEWER
 			EditorApplication.playModeStateChanged += OnPlaymodeStateChanged;
@@ -1191,7 +1202,9 @@ public partial class PowerQuestEditor : EditorWindow
 
 			m_selectedRoom = null;
 			UpdateRoomSelection(GameObject.FindObjectOfType<RoomComponent>(), true); 
+			UpdateGuiSelectionFromStage();
 		}
+
 	}
 
 	void OnSceneSaving(Scene scene, string path)
@@ -1210,12 +1223,35 @@ public partial class PowerQuestEditor : EditorWindow
 		if ( Selection.activeGameObject == null )
 			return;
 
+		/*
+		if ( Selection.activeGameObject != null && Selection.activeGameObject.GetComponent<GuiComponent>() != null )
+			UpdateGuiSelection( Selection.activeGameObject.GetComponent<GuiComponent>() );
+		*/
 		/*			
 		if ( Selection.activeGameObject != null && PrefabUtility.GetPrefabType(Selection.activeGameObject) != PrefabType.PrefabInstance && Selection.activeGameObject.GetComponent<RoomComponent>() != null )
 		{	
 			UpdateRoomSelection( Selection.activeGameObject.GetComponent<RoomComponent>() );
 		}*/
 
+	}
+
+	void OnPrefabStaged(PrefabStage stage)
+	{		
+		GuiComponent comp =  stage.prefabContentsRoot.GetComponent<GuiComponent>();
+		if ( comp != null )
+		{
+			UpdateGuiSelection( comp, true );
+			m_selectedTab = eTab.Gui;
+		}
+	}
+	void OnPrefabUnstaged(PrefabStage stage)
+	{
+		if ( m_selectedTab == eTab.Gui )
+		{
+			m_selectedTab = eTab.Main;
+			m_selectedGui = null;
+			Repaint(); 
+		}
 	}
 	
 	void OnUpdate()
@@ -1231,7 +1267,7 @@ public partial class PowerQuestEditor : EditorWindow
 				if ( m_mousePos != mousePos )
 				{
 					m_mousePos = mousePos;				
-					if ( m_selectedTab == 1 )
+					if ( m_selectedTab == eTab.Room )
 						PowerQuestEditor.Get.Repaint();
 				}
 			}
@@ -1271,12 +1307,11 @@ public partial class PowerQuestEditor : EditorWindow
 				SceneView.onSceneGUIDelegate -= OnScene;
 			#endif
 			
-			EditorApplication.update -= OnUpdate;
-			#if UNITY_2017_1_OR_NEWER
-				EditorApplication.playModeStateChanged += OnPlaymodeStateChanged;
-			#else
-				EditorApplication.playmodeStateChanged +=  OnPlaymodeStateChanged;
-			#endif
+			EditorApplication.update -= OnUpdate;			
+			PrefabStage.prefabStageOpened -= OnPrefabStaged;
+			PrefabStage.prefabStageClosing -= OnPrefabUnstaged;
+			EditorApplication.playModeStateChanged += OnPlaymodeStateChanged; // TODO: check this isn't supposed to be '-='
+			
 			EditorSceneManager.sceneSaving -= OnSceneSaving;
 			
 			Application.logMessageReceived -= OnLogMessageReceived;
@@ -1310,26 +1345,32 @@ public partial class PowerQuestEditor : EditorWindow
 		{
 			OnGuiInitialSetup();
 			return;
-		}
-
-		string[] tabstrings = new string[] { "Main", "Room", "Tools" };
-		int prevTab = m_selectedTab;
+		} 
+		
+		string[] tabstrings = new string[] { "Main", "Room", "Gui", "Tools" };
+		eTab prevTab = m_selectedTab;
+		if ( m_selectedGui == null && m_selectedTab == eTab.Gui )
+			m_selectedTab = eTab.Main;
 		m_selectedTab = Tabs( tabstrings, m_selectedTab );
 		bool tabChanged = prevTab != m_selectedTab;
 
-		// Update room selection
+		// Update room selection.
 		if ( m_selectedRoom == null || tabChanged || m_listHotspots == null || m_listProps == null || m_listRegions == null || m_listWalkableAreas == null )
 			UpdateRoomSelection( GameObject.FindObjectOfType<RoomComponent>() );
-
-		if ( m_selectedTab == 0 )
+				
+		if ( m_selectedTab == eTab.Main )
 		{
 			OnGuiMain();
 		}
-		else if ( m_selectedTab == 1 )
+		else if ( m_selectedTab == eTab.Room )
 		{
 			OnGuiRoom( tabChanged );
 		}
-		else if ( m_selectedTab == 2 )
+		else if ( m_selectedTab == eTab.Gui)
+		{
+			OnGuiGui( tabChanged );
+		}
+		else if ( m_selectedTab == eTab.Tools )
 		{
 			OnGuiTools();
 		}
@@ -1443,6 +1484,7 @@ public partial class PowerQuestEditor : EditorWindow
 		return hotloadedSomething;
 	}
 
+
 	//
 	// Tool for copying position to clipboard
 	//
@@ -1464,7 +1506,7 @@ public partial class PowerQuestEditor : EditorWindow
 	//
 	// Creates tab style layout
 	//
-	public static int Tabs(string[] options, int selected)
+	eTab Tabs(string[] options, eTab selected)
 	{
 		const float DarkGray = 0.6f;
 		const float LightGray = 0.9f;
@@ -1481,10 +1523,13 @@ public partial class PowerQuestEditor : EditorWindow
 	 
 		GUILayout.BeginHorizontal();
 		{   //Create a row of buttons
-			for (int i = 0; i < options.Length; ++i)
+			for (eTab i = 0; i < eTab.Count; ++i)
 			{
+				if ( m_selectedGui == null && i == eTab.Gui )
+					continue; // Don't show gui tab if no gui's selected
+
 				GUI.backgroundColor = i == selected ? highlightCol : bgCol;
-				if (GUILayout.Button(options[i], buttonStyle))
+				if (GUILayout.Button(options[(int)i], buttonStyle))
 				{
 					selected = i; //Tab click
 				}
@@ -1503,11 +1548,14 @@ public partial class PowerQuestEditor : EditorWindow
 			return;
 
 		//QuestUtils.StopwatchStart();
-	  	m_selectedRoom = null;
 
 		// Update room selection. TODO: Work out when this is actually necessary. Only if current room changed?
+	  	m_selectedRoom = null;
 		if ( PowerQuestAssetPostProcessor.HasPostProcessed("PowerQuest.prefab") || PowerQuestAssetPostProcessor.HasPostProcessed("Room") )
-			UpdateRoomSelection(GameObject.FindObjectOfType<RoomComponent>(), true); 		
+			UpdateRoomSelection(GameObject.FindObjectOfType<RoomComponent>(), true); 
+		
+		UpdateGuiSelectionFromStage();
+		// UpdateGuiSelection(GameObject.FindObjectOfType<GuiComponent>(), true );
 
 		PostProcessAnimationLists(); 		
 		PostProcessQuestObjectLists();		
@@ -1643,9 +1691,18 @@ public partial class PowerQuestEditor : EditorWindow
 			{
 				if ( PostProcessRefreshAnimationList( m_powerQuest.GetInventoryAnimations(), m_gamePath+"Inventory" ) )
 					EditorUtility.SetDirty(m_powerQuest);
-				
+
+				if ( PostProcessRefreshAnimationList( m_powerQuest.GetGuiAnimations(), m_gamePath+"Gui/GuiAnims" ) )
+					EditorUtility.SetDirty(m_powerQuest);
+	
 				if ( PostProcessRefreshAnimationList( m_powerQuest.GetCursorPrefab().GetAnimations(), Path.GetDirectoryName(AssetDatabase.GetAssetPath(m_powerQuest.GetCursorPrefab())) ) )
-					EditorUtility.SetDirty(m_powerQuest.GetCursorPrefab());
+					EditorUtility.SetDirty(m_powerQuest.GetCursorPrefab());			
+				
+			}
+			else if ( png )
+			{
+				if ( PostProcessRefreshSpriteList( m_powerQuest.GetGuiSprites(), m_gamePath+"Gui/GuiSprites" ) )
+					EditorUtility.SetDirty(m_powerQuest);	
 			}
 
 			// TODO: updateDefaultSprite should return true if need to set dirty
@@ -1686,6 +1743,43 @@ public partial class PowerQuestEditor : EditorWindow
 					EditorUtility.SetDirty(character.gameObject);
 				}					
 			}
+			foreach ( GuiComponent gui in m_powerQuest.GetGuiPrefabs() )
+			{
+				bool dirty = false;
+				if ( anim )
+					dirty = PostProcessRefreshAnimationList( gui.GetAnimations(), Path.GetDirectoryName(AssetDatabase.GetAssetPath(gui.gameObject)) );
+				else if ( png )
+					dirty =  PostProcessRefreshSpriteList( gui.GetSprites(), Path.GetDirectoryName(AssetDatabase.GetAssetPath(gui.gameObject))+"/Sprites" );
+			
+				// TODO: Update controls, if they have no sprite set
+				//UpdateDefaultSprite( character, character.GetData().AnimIdle, character.GetAnimations() );
+				
+				// TODO: updateDefaultSprite should return true if need to set dirty
+
+				if ( dirty )
+				{				
+					EditorUtility.SetDirty(gui.gameObject);
+
+					// NB: When the object's staged, it doesn't get changes immediately.
+					// Doesn't seem to be a fix for it. Maybe in unity 2021??.. For now just repeat the changes on the prefab contents	
+					PrefabStage stage = PrefabStageUtility.GetCurrentPrefabStage();
+					if ( stage != null && stage.prefabContentsRoot.name == gui.gameObject.name )
+					{
+						//Debug.Log("Gui sprites updated, close and re-open the prefab to update");						
+						GuiComponent stagedGui = stage.prefabContentsRoot.GetComponent<GuiComponent>();
+						if ( stagedGui != null )
+						{
+							if ( anim )
+								PostProcessRefreshAnimationList( stagedGui.GetAnimations(), Path.GetDirectoryName(AssetDatabase.GetAssetPath(gui.gameObject)) );
+							else if ( png )
+								 PostProcessRefreshSpriteList( stagedGui.GetSprites(), Path.GetDirectoryName(AssetDatabase.GetAssetPath(gui.gameObject))+"/Sprites" );
+							EditorUtility.SetDirty(stagedGui);					
+						}						
+						
+					}				
+					
+				}	
+			}
 		}
 		catch (System.Exception ex)
 		{
@@ -1697,9 +1791,10 @@ public partial class PowerQuestEditor : EditorWindow
 
 	// Updates list with animations in the path, returns true if it changed. Must be called from PostProcess
 	bool PostProcessRefreshAnimationList( List<AnimationClip> list, string path )
-	{
-		
+	{		
 		if ( PowerQuestAssetPostProcessor.HasPostProcessed('/'+Path.GetFileName(path)) == false )
+			return false;
+		if ( AssetDatabase.IsValidFolder(path) == false  )
 			return false;
 
 		string[] assets = AssetDatabase.FindAssets("t:animation", new string[]{path});
@@ -1736,15 +1831,60 @@ public partial class PowerQuestEditor : EditorWindow
 		return changed;
 	}
 
-	
-	static void UpdateDefaultSprite( MonoBehaviour owner, string animName, List<AnimationClip> animations )
+	// Updates list with animations in the path, returns true if it changed. Must be called from PostProcess
+	bool PostProcessRefreshSpriteList( List<Sprite> list, string path )
+	{		
+
+		if ( PowerQuestAssetPostProcessor.HasPostProcessed('/'+Path.GetFileName(path)) == false )
+			return false;
+		if ( AssetDatabase.IsValidFolder(path) == false  )
+			return false;
+
+		string[] assets = AssetDatabase.FindAssets("t:sprite", new string[]{path});
+		bool changed = list.Count != assets.Length;
+		if ( changed == false )
+		{  
+			// same number of assets- check if any have changed
+			string[] paths = new string[assets.Length];
+			for (int i = 0; i < list.Count; ++i) 
+				paths[i] = AssetDatabase.GetAssetPath(list[i]);
+			for (int i = 0; i < paths.Length; ++i) 
+			{
+				string assetPath = AssetDatabase.GUIDToAssetPath(assets[i]);
+				if ( System.Array.Exists(paths, item=>item == assetPath) == false )
+				{
+					changed = true;
+					break;
+				}					
+			}	
+		}
+
+		if ( changed )
+		{
+			list.Clear();
+			for (int i = 0; i < assets.Length; ++i)
+			{		    
+				Sprite clip = AssetDatabase.LoadAssetAtPath<Sprite>(AssetDatabase.GUIDToAssetPath(assets[i]));
+				if ( clip != null )
+					list.Add( clip );
+				else 
+					Debug.LogWarning("RefreshSpriteList() found null clip"); // if this is hit, it means we're refreshing anim lists repeatedly (slowing down post-process)
+			}
+		}
+		return changed;
+	}
+
+	// NB: Can either set anim name and animation list, or just the clip
+	public static void UpdateDefaultSprite( MonoBehaviour owner, string animName, AnimationClip clip ) {UpdateDefaultSprite(owner,animName,null,clip); }
+	public static void UpdateDefaultSprite( MonoBehaviour owner, string animName, List<AnimationClip> animations, AnimationClip clip = null )
 	{
 		if ( owner == null || animations == null )
 			return;
 		SpriteRenderer sprite = owner.GetComponentInChildren<SpriteRenderer>(true);
 		if ( sprite.sprite == null )
 		{
-			AnimationClip clip = animations.Find(item=> item != null && string.Equals(item.name, animName, System.StringComparison.OrdinalIgnoreCase));
+			if ( clip == null )
+				clip = animations.Find(item=> item != null && string.Equals(item.name, animName, System.StringComparison.OrdinalIgnoreCase));
 		
 			// Check if sprite has animation now
 			if ( clip != null )

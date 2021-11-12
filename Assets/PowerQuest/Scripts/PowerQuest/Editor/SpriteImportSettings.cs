@@ -14,7 +14,7 @@ class PowerQuestAssetPostProcessor : AssetPostprocessor
 		if ( PowerQuestEditor.Get != null && PowerQuestEditor.GetPowerQuest() != null && PowerQuestEditor.GetPowerQuest().GetSnapToPixel() )
 		{
 			// Check texture resolution is divisible by 2 and give warning if its not
-			if ( texture.width%2.0f != 0.0f || texture.height % 2.0f != 0.0f )
+			if ( (texture.width%2.0f != 0.0f || texture.height % 2.0f != 0.0f) && string.IsNullOrEmpty(texture.name) == false )
 			{
 				Debug.LogWarning($"Imported sprite {texture.name} size ({texture.width}, {texture.height}) isn't even/divisible by 2. This may result in wibbly-wobbly visuals, since when they're centered they'll be off-grid by half a pixel.");
 			}
@@ -33,7 +33,7 @@ class PowerQuestAssetPostProcessor : AssetPostprocessor
 		#if UNITY_2019_3_OR_NEWER		
 			// Ok, so the check to avoid forcing settings is broken for unity 2019.3 and above. Great.
 			// In leau of that, lets check the various settings, and only apply if it's default.				
-			if ( importer.spritePixelsPerUnit != 100 || (int)importer.filterMode != -1 || string.IsNullOrEmpty(importer.spritePackingTag) == false )
+			if ( importer.spritePixelsPerUnit != 100 || string.IsNullOrEmpty(importer.spritePackingTag) == false || importer.textureCompression != TextureImporterCompression.Compressed )
 				return;
 		#else
 		// If the metafile exists, don't reimport
@@ -48,6 +48,8 @@ class PowerQuestAssetPostProcessor : AssetPostprocessor
 		if (pixelSnap)
 			importer.filterMode = FilterMode.Point;
 
+		/* Old packing tags /
+		 
 		// Add Packing tag depending on directory
 		if ( assetPath.Contains("/Characters/") )
 		{
@@ -79,6 +81,7 @@ class PowerQuestAssetPostProcessor : AssetPostprocessor
 		{
 			importer.spritePackingTag = "Effects";
 		}
+		*/
 	}
 
 

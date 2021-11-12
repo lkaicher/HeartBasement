@@ -60,7 +60,7 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 	// Default values set in inspector
 	//
 	[Header("Mouse-over Defaults")]
-	[TextArea]
+	[TextArea(1,10)]
 	[SerializeField] string m_description = "New Character";
 	[Tooltip("If set, changes the name of the cursor when moused over")]
 	[SerializeField] string m_cursor = null;
@@ -170,8 +170,16 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 
 	// Variables for facing characters
 	FaceCharacterData m_faceChar = null;
+	
+	// Hack for data inside the character that we explicitly don't want to save
+	[QuestSave] // this actually means the class is saved but, any fields inside without [QuestSave] will be ommitted
+	class NonSavedData
+	{
+		public Room m_roomCached = null;
+	}
+	NonSavedData m_nonSavedData = new NonSavedData();
 
-	#endregion
+	#endregion 
 	#region Properties
 
 	//
@@ -184,10 +192,16 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 	public Character Data { get{ return this; } }
 	public IQuestClickable IClickable { get{ return this; } }
 
+
 	public IRoom Room 
-	{ 
-		// TODO: Cache the room so dont' have to look it up each call
-		get { return PowerQuest.Get.GetRoom(m_room); } 
+	{ 		
+		get 
+		{ 
+			// Ugly caching for efficiency
+			if ( m_nonSavedData.m_roomCached == null || m_room != m_nonSavedData.m_roomCached.ScriptName )
+				m_nonSavedData.m_roomCached = PowerQuest.Get.GetRoom(m_room);
+			return m_nonSavedData.m_roomCached; 
+		} 
 		set
 		{
 			string oldRoom = m_room;
@@ -1058,6 +1072,7 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 		int count = (int)eFace.UpRight+1;
 		float cosAngle = Mathf.Cos(Mathf.Deg2Rad * FACING_ANGLE_SEGMENT_DEG);
 		directionV2.Normalize();
+		//Debug.Log($"Angle: {directionV2.GetDirectionAngle()}");
 		for ( int i = 0; i < count; ++i )
 		{
 			// Find match - within 30 degree tolerance

@@ -1,0 +1,256 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using System.Text.RegularExpressions;
+using PowerTools;
+using PowerTools.QuestGui;
+
+namespace PowerTools.Quest
+{
+
+public partial class GuiControl : MonoBehaviour, IQuestClickable, IQuestScriptable, IGuiControl
+{
+
+	public enum eAlignHorizontal { None, Left, Center, Right }
+	public enum eAlignVertical { None, Top, Middle, Bottom }
+
+	#region Vars: Editor
+
+	//	[Header("Size")]
+	//	[SerializeField] Vector2 m_size = new Vector2(50,20);
+
+	//	[Header("Mouse-over Defaults")]
+	//	[TextArea]
+	//	[SerializeField] string m_description = "New Button";
+	//	[Tooltip("If set, changes the name of the cursor when moused over")]
+	//	[SerializeField] string m_cursor = null;
+	//[Header("Data")]
+	[Range(-98,98)]
+	[SerializeField] protected float m_baseline = 0;
+	[SerializeField] protected bool m_visible = true;
+	
+	// NB: just going to use gameobject name for now
+	//[HideInInspector, SerializeField] protected string m_scriptName = "";
+	
+	#endregion
+	#region Vars: Private
+	
+	protected Gui m_gui = null;
+	protected GuiComponent m_guiComponent = null;
+
+	#endregion
+	#region Funcs: For inheritors to implement
+	
+	// Things with images can overide this to allow image size controls
+	public virtual RectCentered CustomSize {get {return RectCentered.zero;} set{} }
+			
+	// Called when the control should be forced to update it's alignment and fit
+	public virtual void UpdateFitAndAlign()
+	{
+		// TODO: might want/need to check children objects too?
+
+		// TODO: cache?
+
+		// If what we're aligning to is a container, make sure that one's updated first
+		if ( gameObject.activeInHierarchy ) //  Assume renderers aren't working when not active. But can still align.
+		{
+			FitToObject otherContain = GetComponentInChildren<FitToObject>(false); // Get this one in children, since images are often nested inside controls.
+			if ( otherContain && otherContain.isActiveAndEnabled)
+				otherContain.UpdateSize();
+		}
+			
+		// If what we're aligning to is an AlignToObject, make sure that one's updated first. NB: this may be called on inactive object. (nice to be able to align to inactive objects
+		AlignToObject otherAlign = GetComponent<AlignToObject>();
+		if ( otherAlign && otherAlign.enabled )
+			otherAlign.UpdatePos();
+
+	}
+
+	// Returns the "rect" of the control. For images, that's the image size/position. Used for aligning controls to each other
+	public virtual RectCentered GetRect(Transform exclude = null)
+	{
+		// Brute force expensive! Should be cached... Tricky bit is working out when! Don't want to have complicated error prone "setDirty" flag
+		RectCentered result = GuiUtils.CalculateGuiRectInternal(transform, true,null,null,exclude); // using internal version so we don't cause infinite loop
+		result.Transform(transform);
+		return result;
+		//return new RectCentered(transform.position, transform.position);
+	}
+
+	// Called when mouse moved over active control (called from PowerQuest)
+	public virtual void OnFocus() 
+	{
+		CallbackOnFocus?.Invoke();
+	}
+
+	// Called when focused control stops being focus (called from PowerQuest)
+	public virtual void OnDefocus()
+	{
+		CallbackOnDefocus?.Invoke();
+	}
+
+	#endregion
+	#region Funcs: Public
+
+	void Start()
+	{
+		GuiComponent.EditorUpdateChildComponents(); // TEMP HACK- Should just check its in there itself
+		GuiComponent.RegisterControl(this);
+		Visible = m_visible;
+		// update sort order
+		UpdateBaseline();
+	}
+
+	public bool Visible 
+	{ 
+		get { return gameObject.activeSelf;} 
+		set	 { gameObject.SetActive(value); }
+	}
+	public void Show() { gameObject.SetActive(true); }
+	public void Hide() { gameObject.SetActive(false); }
+
+	public void SetGui(Gui gui) { m_gui=gui;}
+	public Gui GuiData => m_gui;
+	public GuiComponent GuiComponent 
+	{
+		get 
+		{  
+			if (m_guiComponent == null)
+				m_guiComponent = GetComponentInParent<GuiComponent>();	
+			return m_guiComponent;
+		}
+	}
+	
+	public AnimationClip GetAnimation(string animName) { return GuiComponent.GetAnimation(animName); }
+	public List<AnimationClip> GetAnimations() { return GuiComponent.GetAnimations(); }
+	public Sprite GetSprite(string name) { return GuiComponent.GetSprite(name); }
+	public List<Sprite> GetSprites() { return GuiComponent.GetSprites(); }
+
+	public bool Focused 
+	{ 
+		get 
+		{
+			return PowerQuest.Get.GetFocusedGuiControl() == this;
+		}	
+	}
+
+	// Callback when control is focused (ie: mouse overs over it)
+	public System.Action CallbackOnFocus = null;
+
+	// Callback when control is un-focused (ie: mouse stops hovering over it)
+	public System.Action CallbackOnDefocus = null;
+
+	// Gets all components under this Control, EXCLUDING any nested under other controls. This is for setting sort order of any sprites directly under a Control.
+	List<T> GetThisControlsComponents<T>() where T : Component
+	{
+		List<T> list = new List<T>();
+		GetControlsComponents(transform, list);
+		return list;
+	}
+	
+	static void GetControlsComponents<T>(Transform from, List<T> list) where T : Component
+	{
+		// Add own components
+		list.AddRange(from.GetComponents<T>());
+		
+		// Add child components, unless you hit a GuiControl
+		for (int i = 0; i < from.childCount; ++i )
+		{
+			Transform child = from.transform.GetChild(i);
+			if ( child.GetComponent<GuiControl>() )
+				continue;
+			// Recurse
+			GetControlsComponents(child, list);				
+		}
+	}
+
+	// Updates baseline of self based on gui's baseline, and sets sprite render order
+	public void UpdateBaseline()
+	{
+		GuiComponent guiComponent = GuiComponent;
+		if ( guiComponent == null )
+			return;	
+			
+		// Gui baselines are multiplied by 100, and added to control baselines which are multiplied by 1. So each control should sort inside the gui. 		
+		// Sort orders are clamped between +/-32000. So gui values of +/-320 are valid
+		m_baseline = Mathf.Clamp(Baseline,-99,99);
+		int sortOrder = -Mathf.RoundToInt((guiComponent.GetData().Baseline * 100.0f) + (m_baseline*1));
+		
+		// Just doing 1 sprite and text for now. if some end up being made of multiple, could add that later, and use z depth as another 
+		{
+			List<SpriteRenderer> renderers = GetThisControlsComponents<SpriteRenderer>();
+			foreach( SpriteRenderer renderer in renderers )
+				renderer.sortingOrder = sortOrder;
+		}
+		// Just doing 1 text for now. if some end up being made of multiple, could add that later, and use z depth as another 
+		{
+			QuestText renderer = GetComponentInChildren<QuestText>();
+			if ( renderer != null )
+				renderer.OrderInLayer = sortOrder;
+		}
+	}
+
+	#endregion
+	#region Unity Functions
+	
+
+	#endregion	
+	#region Implementing IQuestClickable
+	
+	// TODO: check if there's alignto/fitto components, and handle appropriately
+	public virtual void SetPosition(float x, float y) { Position = new Vector2(x,y); }
+	public virtual Vector2 Position { get{ return transform.position;} set{ transform.position = value.WithZ(transform.position.z); } }
+	public virtual float Baseline 
+	{ 
+		get{ return m_baseline;} 
+		set
+		{
+			m_baseline = value;
+			if ( Application.isPlaying )
+				UpdateBaseline();
+		} 
+	}	
+	public virtual bool Clickable { get { return false; }  set{} }
+	public virtual string Description { get { return null; } set{} }
+	public virtual string Cursor { get { return null; } set{} }
+
+	public eQuestClickableType ClickableType { get {return eQuestClickableType.Gui; } }
+	public MonoBehaviour Instance { get{ return this; } }
+
+	static readonly Regex REGEX_SANITIZE = new Regex(@"(\W|_)+", RegexOptions.Compiled);
+	static readonly string REGEX_REPLACE = "";
+
+	// Use a cleaned up version of the game objects's name as the script name. NB this is probably rather expensive, probably need to change it later
+	public string ScriptName { get 
+	{
+		if ( gameObject == null )
+			return "UninstantiatedGui";
+		return REGEX_SANITIZE.Replace(gameObject.name,REGEX_REPLACE);
+	} }
+	public Vector2 WalkToPoint { get { return Vector2.zero;} set{} }
+	public Vector2 LookAtPoint { get { return Vector2.zero;} set{} }
+	public virtual void OnInteraction( eQuestVerb verb ) {}
+	public virtual void OnCancelInteraction( eQuestVerb verb ) {}
+
+	// Return gui's script
+	public QuestScript GetScript() { return GuiData?.GetScript(); } 
+	public IQuestScriptable GetScriptable() { return this; }
+	
+	#endregion
+	#region Implementing IQuestScriptable
+
+	// Doesn't use all functions
+	public string GetScriptName() { return gameObject.name; }
+	public string GetScriptClassName() { return gameObject.name; }
+	public void HotLoadScript(System.Reflection.Assembly assembly) { /*No-op*/ }
+	
+	public void EditorRename(string name)
+	{
+		//m_scriptName = name;
+		gameObject.name = name;
+	}
+
+	#endregion
+}
+
+
+}

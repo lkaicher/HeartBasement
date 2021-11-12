@@ -308,18 +308,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: 
-    m_position: {x: 0, y: 0}
     m_baseline: 0
     m_visible: 0
-    m_clickable: 0
+    m_visibleInCutscenes: 1
     m_modal: 0
     m_pauseGame: 0
+    m_hideObscuredGuis: 0
+    m_hideSpecificGuis: []
+    m_description: 
     m_cursor: 
     m_allowInventoryCursor: 0
-    m_hideGuisWhenActive: []
+    m_position: {x: 0, y: 0}
     m_scriptName: DisplayBox
     m_scriptClass: GuiDisplayBox
+  m_animations: []
+  m_sprites: []
+  m_controlComponents: []
 --- !u!1 &1677263128809502
 GameObject:
   m_ObjectHideFlags: 0

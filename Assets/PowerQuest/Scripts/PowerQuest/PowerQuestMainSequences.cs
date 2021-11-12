@@ -75,7 +75,7 @@ public partial class PowerQuest
 		m_cameraData.SetCharacterToFollow(GetPlayer());
 
 		//
-		// Setup GUIs
+		// Setup GUIs. TODO: make these stick around between scenes. No need to re-create
 		//
 		foreach ( Gui gui in m_guis ) 
 		{
@@ -87,10 +87,17 @@ public partial class PowerQuest
 
 			}
 			gui.SetInstance(guiInstance.GetComponent<GuiComponent>());
-			guiInstance.SetActive( gui.Visible );
-			if ( m_canvas != null )
-				guiInstance.transform.SetParent(m_canvas.transform, false);
-
+			guiInstance.SetActive( gui.Visible && gui.VisibleInCutscenes );
+			if ( guiInstance.GetComponent<RectTransform>() )
+			{
+				if ( m_canvas != null )
+					guiInstance.transform.SetParent(m_canvas.transform, false);
+			}
+			else if( guiCamObj != null )
+			{
+				guiInstance.transform.SetParent(guiCamObj.transform,false);
+				guiInstance.transform.position = guiInstance.transform.position.WithZ(0);
+			}
 		}
 
 		// 
@@ -252,7 +259,6 @@ public partial class PowerQuest
 
 		m_coroutineMainLoop = StartCoroutine( MainLoop() );
 	}
-
 
 	#endregion
 	#region Coroutine: Main loop
@@ -462,7 +468,6 @@ public partial class PowerQuest
 			{
 				OnEndCutscene();
 			}
-
 
 			if ( yielded == false && m_currentDialog != null )
 			{

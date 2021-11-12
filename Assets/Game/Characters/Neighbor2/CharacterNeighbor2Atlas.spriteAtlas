@@ -1,0 +1,84 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: CharacterNeighbor2Atlas
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 0
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings:
+    - serializedVersion: 3
+      m_BuildTarget: DefaultTexturePlatform
+      m_MaxTextureSize: 2048
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: -1
+      m_TextureCompression: 0
+      m_CompressionQuality: 50
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 0
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 1
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: 02f0cb1d8b58b3e40940180cee70d0b6, type: 3}
+    totalSpriteSurfaceArea: 89600
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 319d0f908cce310418946c6d815a43df, type: 3}
+  - {fileID: 21300000, guid: 1f35b0c0fdafd764fa364895bd1fd3d2, type: 3}
+  - {fileID: 21300000, guid: 0dd2d4225d14b0544a461cb2e77f6fb1, type: 3}
+  - {fileID: 21300000, guid: 4100fc72dd5c70840af3f562fb15b790, type: 3}
+  - {fileID: 21300000, guid: 5be8b01470281ae4286c6928d894521e, type: 3}
+  - {fileID: 21300000, guid: 8db592a63a2960c4db96ad700d5217e3, type: 3}
+  - {fileID: 21300000, guid: e28908e636e89f64586e9f1a6522e607, type: 3}
+  - {fileID: 21300000, guid: ebb641370a35e0c41b2ffbc83d18e177, type: 3}
+  - {fileID: 21300000, guid: 06380f090d921aa49b5bb992f5e2e3f6, type: 3}
+  - {fileID: 21300000, guid: bcd8a03a4cb625f43b104daa1b4a7f40, type: 3}
+  - {fileID: 21300000, guid: e02bbf4a85aacfe4e8f074d7e6b1b1a7, type: 3}
+  - {fileID: 21300000, guid: a87b615b90f38f140bd546c7fead839e, type: 3}
+  - {fileID: 21300000, guid: 0c1e90cc6b601f247a055af4ec60637f, type: 3}
+  - {fileID: 21300000, guid: 6aff9d4fc45301846a577b5419a00894, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - TalkD_1
+  - TalkU_0
+  - WalkR_2
+  - TalkR_2
+  - TalkR_0
+  - WalkR_3
+  - IdleR_0
+  - TalkU_1
+  - TalkR_1
+  - WalkR_0
+  - WalkR_1
+  - IdleD_0
+  - IdleU_0
+  - TalkD_0
+  m_RenderDataMap: {}
+  m_Tag: CharacterNeighbor2Atlas
+  m_IsVariant: 0

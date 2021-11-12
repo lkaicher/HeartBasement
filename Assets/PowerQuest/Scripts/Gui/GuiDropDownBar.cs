@@ -1,11 +1,11 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using PowerTools;
 
 namespace PowerTools.Quest
 {
 
-
+[AddComponentMenu("Quest Gui Layout/Dropdown Bar")]
 public class GuiDropDownBar : MonoBehaviour 
 {
 	static readonly float BLEND_TIME = 0.1f;
@@ -29,8 +29,9 @@ public class GuiDropDownBar : MonoBehaviour
 	[Tooltip("Anim curves that play when show/hiding the gui")]
 	[SerializeField] AnimationCurve m_curveIn = new AnimationCurve();
 	[SerializeField] AnimationCurve m_curveOut = new AnimationCurve();
-	[SerializeField] bool m_hideDuringCutscenes = true;
 
+	// obsolete with new gui, since this can just be set in the actual gui component
+	[SerializeField] bool m_hideDuringCutscenes = false;
 
 	[Header("Sounds")]
 	[SerializeField] AudioCue m_soundShow = null;
@@ -39,7 +40,7 @@ public class GuiDropDownBar : MonoBehaviour
 	GuiComponent m_guiComponent = null;
 
 	bool m_shown = false;
-	float m_ratio = 0.5f;
+	float m_ratio = 0.0f;
 	Vector2 m_offset = Vector2.zero;
 	float m_blendTimer = 0;
 	Vector2 m_blendOffset = Vector2.zero;
@@ -73,7 +74,7 @@ public class GuiDropDownBar : MonoBehaviour
 			SystemAudio.Play(m_soundShow);
 
 		m_shown = true;
-		Debug.Log("Show");
+		//Debug.Log("Show");
 		if ( m_guiComponent != null )
 		{
 			m_guiComponent.GetData().Clickable = true;
@@ -99,7 +100,7 @@ public class GuiDropDownBar : MonoBehaviour
 			SystemAudio.Play(m_soundHide);
 
 		m_shown = false;
-		Debug.Log("Hide");
+		//Debug.Log("Hide");
 
 		if ( m_guiComponent != null )
 		{
@@ -126,6 +127,7 @@ public class GuiDropDownBar : MonoBehaviour
 	void Start () 
 	{
 		m_guiComponent = GetComponentInParent<GuiComponent>();
+		Update();
 	}
 
 	void OnDestroy()
@@ -141,15 +143,24 @@ public class GuiDropDownBar : MonoBehaviour
 	// Update is called once per frame
 	void Update () 
 	{	
-		// Show();
 		if ( m_highlightPopupTimer > 0 )
 			m_highlightPopupTimer -= Time.deltaTime;
 
 
+
+		
 		RectTransform rectTransform = GetComponent<RectTransform>();
-		if ( rectTransform == null )
-			return;
-		rectTransform.localPosition -= m_offset.WithZ(0);
+		AlignToScreen guiAlign = GetComponent<AlignToScreen>();
+
+		if ( rectTransform != null )
+			rectTransform.localPosition -= m_offset.WithZ(0);
+		else if ( guiAlign != null )
+			guiAlign.Offset -= m_offset;
+		else
+			transform.Translate(-m_offset);		
+
+		bool underModal = PowerQuest.Get.GetIsGuiObscuredByModal(m_guiComponent.GetData());
+
 		if ( m_shown )
 		{
 			if ( m_ratio < 1.0f && m_curveIn.keys.Length > 0 )
@@ -163,10 +174,10 @@ public class GuiDropDownBar : MonoBehaviour
 			else 
 			{
 				m_offset.y = 0;
-			}
+			}			
 
 			if ( m_forceOff 
-				|| ( PowerQuest.Get.GetBlocked() == false && CalcMouseInBounds(m_mouseEdgeDistanceHide) == false && m_highlightPopupTimer <= 0 ) )
+				|| ( PowerQuest.Get.GetBlocked() == false && (CalcMouseInBounds(m_mouseEdgeDistanceHide) == false || underModal) && m_highlightPopupTimer <= 0 ) )
 			{
 				Hide();
 			}
@@ -187,7 +198,7 @@ public class GuiDropDownBar : MonoBehaviour
 				m_offset.y = m_dropDownDistance;
 			}
 
-			if ( m_delayShow == false && PowerQuest.Get.GetBlocked() == false && (CalcMouseInBounds(m_mouseEdgeDistanceShow) || m_highlightPopupTimer > 0))
+			if ( m_delayShow == false && PowerQuest.Get.GetBlocked() == false && ((CalcMouseInBounds(m_mouseEdgeDistanceShow) && underModal == false) || m_highlightPopupTimer > 0))
 			{
 				Show();
 			}
@@ -204,8 +215,16 @@ public class GuiDropDownBar : MonoBehaviour
 		{
 			m_offset.y += m_dropDownDistance*10.0f;
 		}
-
-		rectTransform.localPosition += m_offset.WithZ(0);
+		
+		if ( rectTransform != null )
+			rectTransform.localPosition += m_offset.WithZ(0);
+		else if ( guiAlign != null )
+		{
+			guiAlign.Offset += m_offset;
+			guiAlign.ForceUpdate();
+		}
+		else
+			transform.Translate(m_offset);		
 		
 		m_delayShow = false; // reset single frame flag
 	}
@@ -214,6 +233,9 @@ public class GuiDropDownBar : MonoBehaviour
 	bool CalcMouseInBounds(Vector2 size)
 	{
 		Camera cam = PowerQuest.Get.GetCameraGui();
+		if ( cam == null )
+			return false; // Only null when testing with gui placed in scene before runningI
+
 		Vector2 mouseScreenPos = ((Vector2)cam.ScreenToViewportPoint(Input.mousePosition)).Clamp(new Vector2(0.01f,0.01f), new Vector2(0.99f,0.99f));
 
 		if ( size.x > 1.0f )

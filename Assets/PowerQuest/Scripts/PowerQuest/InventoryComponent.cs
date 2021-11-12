@@ -45,7 +45,7 @@ public partial class Inventory : IQuestClickable, IQuestScriptable, IInventory
 	//
 	// Default values set in inspector
 	//
-	[TextArea]
+	[TextArea(1,10)]
 	[SerializeField] string m_description = "New Item";
 	[Tooltip("Sprite animation for inventory in GUI")]
 	[SerializeField] string m_animGui = string.Empty;
@@ -58,13 +58,17 @@ public partial class Inventory : IQuestClickable, IQuestScriptable, IInventory
 	[ReadOnly][SerializeField] string m_scriptName = "InventoryNew";
 	[ReadOnly][SerializeField] string m_scriptClass = "InventoryNew";
 
+	// this cursor field is used for hovering over the item in gui's
+	string m_cursor = string.Empty;
+
 	//
 	// Private variables
 	//
 	QuestScript m_script = null;
 	GameObject m_prefab = null;
-	bool m_everCollected = false;
-	//InventoryComponent m_instance = null;
+	bool m_everCollected = false;	
+	int m_useCount = 0;
+	int m_lookCount = 0;
 
 	//
 	//  Properties
@@ -78,6 +82,11 @@ public partial class Inventory : IQuestClickable, IQuestScriptable, IInventory
 	public string ScriptName { get{ return m_scriptName;} }
 	public Inventory Data { get { return this; } }
 
+	public bool FirstUse { get { return UseCount == 0; } } 
+	public bool FirstLook { get { return LookCount == 0; } }
+	public int UseCount { get { return m_useCount - (PowerQuest.Get.GetInteractionInProgress(this,eQuestVerb.Use) ? 1 : 0); } }
+	public int LookCount { get { return m_lookCount - (PowerQuest.Get.GetInteractionInProgress(this,eQuestVerb.Look) ? 1 : 0); } }
+
 	//
 	// Implementing IQuestClickable- Mostly n/a
 	//	
@@ -85,10 +94,18 @@ public partial class Inventory : IQuestClickable, IQuestScriptable, IInventory
 	public Vector2 LookAtPoint  { get{return Vector2.zero;} set{} }
 	public float Baseline  { get{ return 0;} set{} }
 	public bool Clickable { get{return true;} set{} }
-	public string Cursor { get{return null;} set{} } // NB: This is the cursor used when mouse is hovered over item in inventory panel
+	public string Cursor { get{return m_cursor;} set{ m_cursor = value; } } // NB: This is the cursor used when mouse is hovered over item in inventory panel
 	public Vector2 Position { get{return Vector2.zero;} }
-	public void OnInteraction( eQuestVerb verb ){}
-	public void OnCancelInteraction( eQuestVerb verb ){}
+	public void OnInteraction( eQuestVerb verb )
+	{				
+		if ( verb == eQuestVerb.Look ) ++m_lookCount;
+		else if ( verb == eQuestVerb.Use) ++m_useCount;
+	}
+	public void OnCancelInteraction( eQuestVerb verb )
+	{		
+		if ( verb == eQuestVerb.Look ) --m_lookCount;
+		else if ( verb == eQuestVerb.Use) --m_useCount;
+	}
 	public MonoBehaviour Instance { get{ return null; } }
 
 	//
@@ -118,6 +135,7 @@ public partial class Inventory : IQuestClickable, IQuestScriptable, IInventory
 	//
 	// Public Functions
 	//
+	
 
 	/// Gives the inventory item to the current player. Same as C.Player.AddInventory(item)
 	public void Add( int quantity = 1 ) { PowerQuest.Get.GetPlayer().AddInventory(this, quantity); }

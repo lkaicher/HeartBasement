@@ -54,6 +54,8 @@ public class AudioCue : MonoBehaviour
 	public MinMaxRange m_volume =new MinMaxRange(1.0f);
 	[Tooltip("Pitch. Randomly chosen within the specified range")]
 	public MinMaxRange m_pitch =new MinMaxRange(1.0f);
+	[Tooltip("Stereo Pan. 0 is center, -1  is left, 1 is right. Randomly chosen within the specified range")]
+	public MinMaxRange m_pan =new MinMaxRange(0.0f);
 	//public int m_priority = 128;
 	[Header("Playback Settings")]
 	[Tooltip("Trigger another cue when this is played")]

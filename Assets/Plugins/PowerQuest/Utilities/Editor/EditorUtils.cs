@@ -229,10 +229,11 @@ public class MinMaxRangeDrawer : PropertyDrawer
 		SerializedProperty hasMax = prop.FindPropertyRelative("m_hasMax");
 		SerializedProperty hasValue = prop.FindPropertyRelative("m_hasValue");
 			
-		float toWidth = 30;
+		float toWidth = 16;
+		float maxLblWidth = 55;
 		float buttonWidth = 20;
 		
-		float rectWidth = (pos.width-toWidth)*0.4f;		
+		float rectWidth = 0;//(pos.width-toWidth)*0.4f;		
         pos = EditorGUI.PrefixLabel (pos, GUIUtility.GetControlID (FocusType.Passive), label);
 		//EditorGUI.LabelField( new Rect(posX, pos.y,rectWidth, pos.height), prop.name);
 		//posX += rectWidth;
@@ -248,11 +249,11 @@ public class MinMaxRangeDrawer : PropertyDrawer
 			
 			if ( hasMaxVal == false )
 			{
-				rectWidth = pos.width-buttonWidth;
+				rectWidth = pos.width-(maxLblWidth+4+buttonWidth);
 			}
 			else
 			{
-				rectWidth = (pos.width-buttonWidth-toWidth)*0.5f;
+				rectWidth = (pos.width-(toWidth+2+buttonWidth+2))*0.5f;
 			}
 			
 			// EditorGUI.IndentedRect(new Rect(posX, pos.y,rectWidth, pos.height));
@@ -271,7 +272,7 @@ public class MinMaxRangeDrawer : PropertyDrawer
 			if ( hasMaxVal )
 			{
 				
-				posX += rectWidth;
+				posX += rectWidth+2;
 				
 				EditorGUI.LabelField( new Rect(posX, pos.y,toWidth, pos.height), "to");
 				posX += toWidth;
@@ -284,8 +285,14 @@ public class MinMaxRangeDrawer : PropertyDrawer
 					max.floatValue = maxVal;
 					hasValue.boolValue = false;
 				}
-			}			
-			posX += rectWidth;
+				posX += rectWidth+2;
+			}
+			else 
+			{
+				posX += rectWidth+4;
+				EditorGUI.LabelField( new Rect(posX, pos.y,maxLblWidth, pos.height), "Is Range");
+				posX += maxLblWidth;
+			}
 			
 			// button
 			EditorGUI.BeginChangeCheck ();		

@@ -304,18 +304,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: 
-    m_position: {x: 0, y: 0}
     m_baseline: 0
     m_visible: 1
-    m_clickable: 1
+    m_visibleInCutscenes: 1
     m_modal: 0
     m_pauseGame: 0
+    m_hideObscuredGuis: 0
+    m_hideSpecificGuis: []
+    m_description: 
     m_cursor: 
     m_allowInventoryCursor: 1
-    m_hideGuisWhenActive: []
+    m_position: {x: 0, y: 0}
     m_scriptName: Inventory
     m_scriptClass: GuiInventory
+  m_animations: []
+  m_sprites: []
+  m_controlComponents: []
 --- !u!222 &22262920
 CanvasRenderer:
   m_ObjectHideFlags: 0

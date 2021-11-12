@@ -120,7 +120,7 @@ public class QuestMenuManager
 		// Sort guis by baseline
 		guis.Sort( (a,b)=>
 			{ 
-				int result = a.Baseline.CompareTo(b.Baseline);
+				int result = b.Baseline.CompareTo(a.Baseline);
 				if ( result == 0 && a.Instance != null && b.Instance != null )
 					result = a.Instance.GetInstanceID().CompareTo(b.Instance.GetInstanceID());
 				return result;

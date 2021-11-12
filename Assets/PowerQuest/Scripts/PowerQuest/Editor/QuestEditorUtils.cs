@@ -12,9 +12,9 @@ using PowerTools.Quest;
 using PowerTools;
 using UnityEditorInternal;
 using System.Text.RegularExpressions;
-#if UNITY_2018_3_OR_NEWER
 using UnityEditor.Experimental.SceneManagement;
-#endif
+using UnityEngine.U2D;
+using UnityEditor.U2D;
 
 namespace PowerTools.Quest
 {
@@ -35,6 +35,14 @@ public static class QuestEditorExtentionUtils
 	public static GenericMenu AddItemToggle(this GenericMenu self, string name, bool on, GenericMenu.MenuFunction function)
 	{
 		self.AddItem(new GUIContent(name), on, function);
+		return self;
+	}
+
+	// Extention for rect to offset by old width and set new one. Used for editor guis
+	public static Rect SetNextWidth(this Rect self, float nextWidth)
+	{
+		self.x += self.width;
+		self.width = nextWidth;
 		return self;
 	}
 }
@@ -90,11 +98,82 @@ public class QuestEditorUtils
 	#endregion
 	#region Misc Utils
 
-	public static void CreateImporter( string path, string packingTag )
+	public static void CreateImporter( string path, string packingTag, bool refreshAssetDB = true )
 	{
-		PowerSpriteImport importer = PowerSpriteImportEditor.CreateImporter(path);
+		PowerSpriteImport importer = PowerSpriteImportEditor.CreateImporter(path,refreshAssetDB);
 		importer.m_packingTag = packingTag;
 	}
+
+	public static void UpdateAtlasSettings( string path, bool pixel /*, bool isGui*/ )
+	{
+		SpriteAtlas atlas = AssetDatabase.LoadAssetAtPath<SpriteAtlas>(path);
+		if ( atlas == null )
+			Debug.LogWarning("Failed to update atlas settings. Atlas not found");
+
+		SpriteAtlasTextureSettings texSettings = atlas.GetTextureSettings();
+		if ( pixel != (texSettings.filterMode==FilterMode.Point) )
+		{
+		
+			TextureImporterPlatformSettings platSettings = atlas.GetPlatformSettings("DefaultTexturePlatform");
+			if ( pixel )
+			{
+				texSettings.filterMode=FilterMode.Point;
+				platSettings.textureCompression = TextureImporterCompression.Uncompressed;
+			}
+			else 
+			{
+				texSettings.filterMode=FilterMode.Bilinear;
+				platSettings.textureCompression = TextureImporterCompression.CompressedHQ;
+			}
+
+			atlas.SetTextureSettings(texSettings);
+			atlas.SetPlatformSettings(platSettings);
+		}
+	}
+
+	// returs true if successful
+	public static bool CreateSpriteAtlas( string path, string spriteFolder, bool pixel, bool isGui, bool refreshAssetDB = true )
+	{
+		SpriteAtlas atlas = new SpriteAtlas();
+
+		if ( File.Exists(path) )
+		{
+			Debug.Log($"Atlas already exists at {path}. Skipping.");
+			return false;
+		}
+
+		AssetDatabase.CreateAsset(atlas, path);
+		
+		// Set packing settings if its a gui one
+		SpriteAtlasPackingSettings packingSettings = atlas.GetPackingSettings();
+		packingSettings.enableTightPacking = !isGui;
+		packingSettings.enableRotation = !isGui;
+		atlas.SetPackingSettings(packingSettings);
+
+		// Set filter and compression for pixel art
+		if ( pixel )
+		{
+			SpriteAtlasTextureSettings texSettings = atlas.GetTextureSettings();
+			texSettings.filterMode=FilterMode.Point;
+			atlas.SetTextureSettings(texSettings);
+			TextureImporterPlatformSettings platSettings = atlas.GetPlatformSettings("DefaultTexturePlatform");
+			platSettings.textureCompression = TextureImporterCompression.Uncompressed;
+			atlas.SetPlatformSettings(platSettings);
+
+		}
+		
+		// Add the sprite folder
+		Object folderObject = AssetDatabase.LoadAssetAtPath(spriteFolder, typeof(DefaultAsset));
+		atlas.Add(new Object[]{folderObject});
+
+		EditorUtility.SetDirty(atlas);
+		AssetDatabase.SaveAssets();
+		if ( refreshAssetDB )
+			AssetDatabase.Refresh();
+
+		return true;
+	}
+	
 	 
 
 	// Set col to null to hide again
@@ -167,23 +246,31 @@ public class QuestEditorUtils
 		
 		#if UNITY_2018_3_OR_NEWER		
 
-			// Get root gameobject
-			GameObject prefabObject = gameObject == null ? null : gameObject.transform.root.gameObject;
-		
-			// If staged, return staged path			
-			PrefabStage prefabStage = PrefabStageUtility.GetPrefabStage(prefabObject);			
-			if ( prefabStage != null )
+			for ( int i = 0; i <= 1; ++i ) // loop so we can try without the root, then with it.
 			{
-				#if UNITY_2020_1_OR_NEWER
-					return prefabStage.assetPath;	
-				#else
-					return prefabStage.prefabAssetPath;
-				#endif														
-			}
+				// Get root gameobject
+				GameObject prefabObject = gameObject;
+				if ( i == 1 )
+					prefabObject = gameObject == null ? null : gameObject.transform.root.gameObject;
+		
+				// If staged, return staged path			
+				PrefabStage prefabStage = PrefabStageUtility.GetPrefabStage(prefabObject);			
+				if ( prefabStage != null )
+				{
+					#if UNITY_2020_1_OR_NEWER
+						return prefabStage.assetPath;	
+					#else
+						return prefabStage.prefabAssetPath;
+					#endif														
+				}
 
-			// Otherwise, find the prefab if exists
-			if ( PrefabUtility.GetPrefabInstanceStatus(prefabObject) == PrefabInstanceStatus.Connected || PrefabUtility.GetPrefabInstanceStatus(prefabObject) == PrefabInstanceStatus.Disconnected )			
-				prefabObject = PrefabUtility.GetCorrespondingObjectFromSource(prefabObject);
+				// Otherwise, find the prefab if exists
+				if ( PrefabUtility.GetPrefabInstanceStatus(prefabObject) == PrefabInstanceStatus.Connected || PrefabUtility.GetPrefabInstanceStatus(prefabObject) == PrefabInstanceStatus.Disconnected )			
+					prefabObject = PrefabUtility.GetCorrespondingObjectFromSource(prefabObject);
+				
+				if ( prefabObject != null )
+					return AssetDatabase.GetAssetPath(prefabObject);
+			}  
 
 		#else
 
@@ -193,11 +280,11 @@ public class QuestEditorUtils
 			// The nice old easy pre-2018.3 way
 			if ( PrefabUtility.GetPrefabType(prefabObject) == PrefabType.PrefabInstance )
 				prefabObject = PrefabUtility.GetPrefabParent(prefabObject);
+			if ( prefabObject != null )
+				return AssetDatabase.GetAssetPath(prefabObject);
 				
 		#endif
 
-		if ( prefabObject != null )
-			return AssetDatabase.GetAssetPath(prefabObject);
 		return null;
 			
 	}
@@ -777,11 +864,44 @@ error.ErrorNumber, error.ErrorText), error.FileName,  error.Line, error.Column }
 public class QuestClickableEditorUtils
 {
 
+	// Draws baseline, returns true if it changed. Offset is applied to the visuals but not the actual baseline
+	static public bool OnSceneGUIBaseline( MonoBehaviour component, IQuestClickable clickable, Vector2 offset )
+	{
+		GUIStyle textStyle = new GUIStyle(EditorStyles.boldLabel);
+		
+		float oldY = clickable.Baseline+offset.y;
+
+		Vector3 position = new Vector3( -15, clickable.Baseline, 0) + (Vector3)offset;
+
+		Handles.color = Color.cyan;
+		GUI.color = Color.cyan;
+		textStyle.normal.textColor = GUI.color;
+
+		EditorGUI.BeginChangeCheck();
+		position = Handles.FreeMoveHandle( position, Quaternion.identity,4.0f,new Vector3(0,1,0),Handles.DotHandleCap);
+
+		Handles.Label(position + new Vector3(5,0,0), "Baseline", textStyle);
+		Handles.color = Color.cyan.WithAlpha(0.5f);
+		Handles.DrawLine( position + (Vector3.left * 500), position + (Vector3.right * 500) );
+
+		if ( EditorGUI.EndChangeCheck() ) 
+		{
+			Undo.RecordObject(component,"Changed Baseline");
+			clickable.Baseline = Utils.Snap(position.y - offset.y,PowerQuestEditor.SnapAmount);
+			EditorUtility.SetDirty(component);
+			return true;
+		}	
+		
+
+		return false;
+	}
+
 	static public void OnSceneGUI( MonoBehaviour component, IQuestClickable clickable )
 	{
 		GUIStyle textStyle = new GUIStyle(EditorStyles.boldLabel);
-
+		
 		Transform transform = component.transform;
+		/*
 		{
 			float oldY = transform.position.y + clickable.Baseline;
 			Vector3 position = transform.position + new Vector3( -15, clickable.Baseline, 0);
@@ -810,6 +930,14 @@ public class QuestClickableEditorUtils
 				{
 					renderer.sortingOrder = -Mathf.RoundToInt((transform.position.y + clickable.Baseline)*10.0f);
 				}
+			}
+		}*/
+		if ( OnSceneGUIBaseline(component, clickable, transform.position) )
+		{
+			SpriteRenderer renderer = transform.GetComponentInChildren<SpriteRenderer>();
+			if ( renderer != null )
+			{
+				renderer.sortingOrder = -Mathf.RoundToInt((transform.position.y + clickable.Baseline)*10.0f);
 			}
 		}
 

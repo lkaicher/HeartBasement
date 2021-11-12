@@ -262,7 +262,7 @@ public class PropComponent : MonoBehaviour
 	#endregion
 	#region Component: Functions: Private
 
-	// Plays directional anim and handles flipping (false if clip not found
+	// Plays anim. Returns false if clip not found
 	bool PlayAnimInternal(string animName, bool fromStart = true)
 	{
 		m_stopOverrideAnimDelay = 0;
@@ -307,16 +307,16 @@ public class PropComponent : MonoBehaviour
 	{
 		SystemAudio.Play(sound);	    
 	}
-
-	// Listen for QuestAnimTrigger tags so can pass them up to room
+	
+	// Listen for QuestAnimTrigger tags so can pass them up to Gui
+	QuestAnimationTriggers m_animTriggerComponent = null;
 	void _Anim(string function)
 	{
-		QuestAnimationTriggers triggers = transform.GetComponent<QuestAnimationTriggers>();
-		if ( triggers == null )
+		if ( m_animTriggerComponent == null )
 		{
-			triggers = transform.gameObject.AddComponent<QuestAnimationTriggers>();
-			//if ( triggers != null )		
-			//	triggers.SendMessage("_Anim", function, SendMessageOptions.RequireReceiver );
+			m_animTriggerComponent = transform.GetComponent<QuestAnimationTriggers>();
+			if ( m_animTriggerComponent == null )
+				m_animTriggerComponent = transform.gameObject.AddComponent<QuestAnimationTriggers>();
 		}
 	}
 
@@ -340,7 +340,7 @@ public partial class Prop : IQuestClickable, IProp, IQuestScriptable
 	//
 	
 	[Header("Mouse-over Defaults")]
-	[TextArea]
+	[TextArea(1,10)]
 	[SerializeField] string m_description = "New Prop";
 	[Tooltip("If set, changes the name of the cursor when moused over")]
 	[SerializeField] string m_cursor = null;

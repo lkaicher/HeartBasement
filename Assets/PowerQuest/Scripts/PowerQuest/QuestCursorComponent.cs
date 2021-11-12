@@ -1,12 +1,10 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using PowerTools;
 
 namespace PowerTools.Quest
 {
-
-
 
 #region Class: Quest Cursor 
 [System.Serializable] 
@@ -35,11 +33,7 @@ public partial class QuestCursor : ICursor
 
 	GameObject m_prefab = null;
 	QuestCursorComponent m_instance = null;
-
-	bool m_hasPositionOverride = false;
-	Vector2 m_positionOverride = Vector2.zero;
-
-
+	
 	#endregion
 	#region QuestCursor Public functions/properties
 
@@ -103,13 +97,13 @@ public partial class QuestCursor : ICursor
 
 	public bool NoneCursorActive { get { return m_instance.GetNoneCursorActive(); } }
 	public bool InventoryCursorOverridden { get { return m_instance.GetInventoryCursorOverridden(); } }
-
-	public Vector2 PositionOverride { get { return m_hasPositionOverride ? m_positionOverride : Vector2.zero; } set { SetPositionOverride(value); } }
-	public bool HasPositionOverride { get { return m_hasPositionOverride; } }
-	public void SetPositionOverride(Vector2 position) { m_hasPositionOverride = true; m_positionOverride = position; }
-	public void ClearPositionOverride() { m_hasPositionOverride = false; }
-
-
+	
+	// Accessors to mouse override in PowerQuest
+	public Vector2 PositionOverride { get { return PowerQuest.Get.GetMousePosition(); } set { PowerQuest.Get.SetMousePositionOverride(value); } }
+	public bool HasPositionOverride { get { return PowerQuest.Get.GetHasMousePositionOverride(); } }
+	public void SetPositionOverride(Vector2 position) { PowerQuest.Get.SetMousePositionOverride(position); }
+	public void ClearPositionOverride() {  PowerQuest.Get.ResetMousePositionOverride(); }
+	
 	#endregion
 	#region QuestCursor Initialisation functions
 
@@ -124,9 +118,6 @@ public partial class QuestCursor : ICursor
 	{
 		m_prefab = prefab;
 	}
-
-
-
 }
 
 #endregion
@@ -175,15 +166,16 @@ public class QuestCursorComponent : MonoBehaviour
 		newAnim = null;
 		outlineColor = new Color(1,1,1,0);
 
-		if ( PowerQuest.Get.GetBlocked() && PowerQuest.Get.GetCurrentDialog() == null )
+		if ( PowerQuest.Get.GetBlocked() && PowerQuest.Get.GetCurrentDialog() == null && PowerQuest.Get.GetBlockingGui() == null )
 		{
 			newAnim = m_data.AnimationWait;
 			return;
 		}
 
 		// If dialog is up, only show animation over-gui (should use the "modal" check for this really)
-		if ( PowerQuest.Get.GetModalGuiActive() )
+		if ( PowerQuest.Get.GetCurrentDialog() != null )// PowerQuest.Get.GetModalGuiActive() )
 			newAnim = m_data.AnimationOverGui;
+
 		// Work out which cursor to be showing
 
 		Character player = PowerQuest.Get.GetPlayer();
@@ -192,12 +184,21 @@ public class QuestCursorComponent : MonoBehaviour
 		if ( string.IsNullOrEmpty(newAnim) && clickable != null )
 		{
 			bool overInventoryOverrideCursor = m_inventoryOverrideAnims.Contains(clickable.Cursor); 
+				
 
 			// If over gui
-			if ( clickable.ClickableType == eQuestClickableType.Gui )
+			if ( clickable.ClickableType == eQuestClickableType.Gui || clickable.ClickableType == eQuestClickableType.Inventory )
 			{
-				Gui guiData = clickable as Gui;
-				if ( guiData != null && guiData.AllowInventoryCursor && player.HasActiveInventory )
+				Gui guiData = clickable as Gui;	
+				GuiControl guiControl = clickable as GuiControl;						
+				if ( clickable.ClickableType == eQuestClickableType.Inventory  )
+					guiControl = PowerQuest.Get.GetFocusedGuiControl();
+				
+				if ( guiControl != null )
+					guiData = guiControl.GuiData;				
+
+				// Show inv item cursor, if that's allowed int eh gui, (or if the cursor is set to the string "Inventory"
+				if ( (clickable.Cursor.Equals("Inventory", System.StringComparison.OrdinalIgnoreCase) || (guiData != null && guiData.AllowInventoryCursor)) && player.HasActiveInventory )
 				{	
 					// If gui allows invetnory cursor, use that			
 					if ( string.IsNullOrEmpty(clickable.Description) && string.IsNullOrEmpty(player.ActiveInventory.AnimCursorInactive) == false )
@@ -208,7 +209,7 @@ public class QuestCursorComponent : MonoBehaviour
 
 				// if there's a cursor set on the gui, use that
 				if ( string.IsNullOrEmpty(newAnim) )
-					newAnim = guiData.Cursor;
+					newAnim = clickable.Cursor;
 
 				if ( string.IsNullOrEmpty(newAnim) )
 					newAnim = m_data.AnimationOverGui;
@@ -217,7 +218,7 @@ public class QuestCursorComponent : MonoBehaviour
 			// If there's an inventory item selected use that cursor, otherwise the pointer
 			if ( string.IsNullOrEmpty(newAnim) && player.HasActiveInventory && overInventoryOverrideCursor == false )
 			{		
-				if ( clickable.Cursor != "None" )
+				if ( clickable.Cursor.Equals("None", System.StringComparison.OrdinalIgnoreCase) == false )
 					outlineColor = m_data.InventoryOutlineColor;
 				if ( string.IsNullOrEmpty(player.ActiveInventory.AnimCursor) == false )
 					newAnim = player.ActiveInventory.AnimCursor;
@@ -272,7 +273,7 @@ public class QuestCursorComponent : MonoBehaviour
 		}
 
 
-		bool noneCursor = newAnim == "None" || (clickable != null && clickable.Cursor == "None");
+		bool noneCursor = newAnim.Equals("None", System.StringComparison.OrdinalIgnoreCase) || (clickable != null && clickable.Cursor.Equals("None", System.StringComparison.OrdinalIgnoreCase));
 		if ( noneCursor )
 			outlineColor = new Color(1,1,1,0);
 
@@ -315,12 +316,13 @@ public class QuestCursorComponent : MonoBehaviour
 			SetVisible((!PowerQuest.Get.GetBlocked()) && m_data.Visible);
 		}
 
-		transform.position = PowerQuest.Get.GetMousePosition();
-
+		Camera camMain = Camera.main;
 		Camera cam = PowerQuest.Get.GetCameraGui();
-		if ( cam != null )
-		{				
-			transform.position = cam.ScreenToWorldPoint( Input.mousePosition ).WithZ(0);
+		
+		// translate world pos of mouse pos into gui camera pos
+		if ( camMain != null && cam != null )
+		{
+			transform.position = cam.ScreenToWorldPoint(camMain.WorldToScreenPoint(PowerQuest.Get.GetMousePosition()) ).WithZ(0);
 		}
 
 		IQuestClickable clickable = PowerQuest.Get.GetMouseOverClickable();

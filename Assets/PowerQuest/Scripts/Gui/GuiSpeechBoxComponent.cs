@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using PowerTools;
 
@@ -50,11 +50,13 @@ public class GuiSpeechBoxComponent : GuiComponent
 		// update immediately
 		Update();
 
+		/*
 		// Update Layout
 		foreach( GUIContain contain in GetComponentsInChildren<GUIContain>() )
 			contain.UpdateSize();
 		foreach( ObjectAlign contain in GetComponentsInChildren<ObjectAlign>() )
 			contain.UpdatePos();
+		*/
 
 		gameObject.SetActive(wasActive);
 

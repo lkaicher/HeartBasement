@@ -225,6 +225,7 @@ public partial class PowerQuestEditor
 		GUILayout.Space(5);	
 
 		LayoutVersion();
+				
 	}
 
 	void LayoutVersion()
@@ -301,6 +302,7 @@ public partial class PowerQuestEditor
 			{			
 				QuestEditorUtils.LayoutQuestObjectContextMenu( eQuestObjectType.Room, m_listRooms, itemComponent.GetData().GetScriptName(), itemComponent.gameObject, rect, index, true, (menu,prefab) =>
 				{
+					// Trying out adding scripts to context menu. If useful, add it to other lists.
 					menu.AddSeparator(string.Empty);
 					string path="Scripts/";
 					RoomComponent component = prefab.GetComponent<RoomComponent>();
@@ -311,32 +313,31 @@ public partial class PowerQuestEditor
 					menu.AddItem(path+"Update",true, () => QuestScriptEditor.Open( component, QuestScriptEditor.eType.Room, "Update","", false) );
 					menu.AddItem(path+"On Any Click",true, () => QuestScriptEditor.Open( component, QuestScriptEditor.eType.Room, "OnAnyClick") );
 					menu.AddItem(path+"On Walk To",true, () => QuestScriptEditor.Open( component, QuestScriptEditor.eType.Room, "OnWalkTo") );
-					menu.AddItem(path+"Post-Restore Game",true, () => QuestScriptEditor.Open( component, QuestScriptEditor.eType.Room, "OnPostRestore", " int version ", false) );				
+					menu.AddItem(path+"Post-Restore Game",true, () => QuestScriptEditor.Open( component, QuestScriptEditor.eType.Room, "OnPostRestore", " int version ", false) );					
 				});
 
-				float totalFixedWidth = 60+60+22;
-				float offset = rect.x;
-				EditorGUI.LabelField(new Rect(rect.x, rect.y+2, rect.width-totalFixedWidth, EditorGUIUtility.singleLineHeight), itemComponent.GetData().ScriptName, ((m_filterRooms == false && IsHighlighted(itemComponent))?EditorStyles.whiteLabel:EditorStyles.label) );
-				offset += rect.width - totalFixedWidth;
-				float fixedWidth = 60;
+				float totalFixedWidth = 60+50+22;
+				rect.width -= totalFixedWidth;
 				
-				if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), Application.isPlaying ? "Teleport"  : "Scene", EditorStyles.miniButtonLeft ) )
+				EditorGUI.LabelField(rect, itemComponent.GetData().ScriptName, ((m_filterRooms == false && IsHighlighted(itemComponent))?EditorStyles.whiteLabel:EditorStyles.label) );
+				rect.y += 2;
+				rect = rect.SetNextWidth(60);				
+				if ( GUI.Button(rect, Application.isPlaying ? "Teleport"  : "Scene", EditorStyles.miniButtonLeft ) )
 				{
 					// Load the scene
 					LoadRoomScene(itemComponent);
 				}
-				offset += fixedWidth;
-				fixedWidth = 60;
-				if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "Script", EditorStyles.miniButtonMid ) )
+				rect = rect.SetNextWidth(50);		
+				if ( GUI.Button(rect, "Script", EditorStyles.miniButtonMid ) )
 				{
 					// Open the script
 					QuestScriptEditor.Open(itemComponent);
 				}
-				offset += fixedWidth;
-				fixedWidth = 22;
-				if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "...", EditorStyles.miniButtonRight ) )
+				
+				rect = rect.SetNextWidth(22);		
+				if ( GUI.Button(rect, "...", EditorStyles.miniButtonRight ) )
 					QuestEditorUtils.LayoutQuestObjectContextMenu( eQuestObjectType.Room, m_listRooms, itemComponent.GetData().GetScriptName(), itemComponent.gameObject, rect, index, false );
-				offset += fixedWidth;
+				
 			}
 		}
 	}
@@ -362,60 +363,63 @@ public partial class PowerQuestEditor
 					+ (PowerQuestEditor.GetActionEnabled(eQuestVerb.Use)?1:0)
 					+ (PowerQuestEditor.GetActionEnabled(eQuestVerb.Inventory)?1:0)
 					+ (Application.isPlaying ? 1 : 0);
-				float totalFixedWidth = 60+(34*actionCount)+22;
+				float fixedWidth = 34;
+				float totalFixedWidth = 50+(fixedWidth*actionCount)+22;
 				actionCount += 2;
-				float offset = rect.x;
-				EditorGUI.LabelField(new Rect(rect.x, rect.y+2, rect.width-totalFixedWidth, EditorGUIUtility.singleLineHeight), itemComponent.GetData().GetScriptName(), ((m_filterInventory == false && IsHighlighted(itemComponent))?EditorStyles.whiteLabel:EditorStyles.label) );
-				offset += rect.width - totalFixedWidth;
-				float fixedWidth = 60;
-				if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "Script", EditorStyles.miniButtonLeft ) )
+
+				rect.width -= totalFixedWidth;
+				EditorGUI.LabelField(rect, itemComponent.GetData().GetScriptName(), ((m_filterInventory == false && IsHighlighted(itemComponent))?EditorStyles.whiteLabel:EditorStyles.label) );
+
+				rect.y += 2;
+				rect = rect.SetNextWidth(50);
+				if ( GUI.Button(rect, "Script", EditorStyles.miniButtonLeft ) )
 				{
 					// Open the script
 					QuestScriptEditor.Open( itemComponent );		
 				}
-				offset += fixedWidth;
-				fixedWidth = 34;
+
 				int actionNum = 1; // Start at 1 since there's already a left item
 				if ( PowerQuestEditor.GetActionEnabled(eQuestVerb.Look) )
 				{
-					if (  GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "Look", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
+					rect = rect.SetNextWidth(fixedWidth);
+					if (  GUI.Button(rect, "Look", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
 					{
 						// Lookat
 						QuestScriptEditor.Open( itemComponent, PowerQuest.SCRIPT_FUNCTION_LOOKAT_INVENTORY, PowerQuestEditor.SCRIPT_PARAMS_LOOKAT_INVENTORY);
 					}
-					offset += fixedWidth;
 				}
 				if ( PowerQuestEditor.GetActionEnabled(eQuestVerb.Use) )
 				{
-					if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "Use", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
+					rect = rect.SetNextWidth(fixedWidth);
+					if ( GUI.Button(rect, "Use", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
 					{
 						// Interact
 						QuestScriptEditor.Open(itemComponent, PowerQuest.SCRIPT_FUNCTION_INTERACT_INVENTORY, PowerQuestEditor.SCRIPT_PARAMS_INTERACT_INVENTORY);
 					}
-					offset += fixedWidth;
 				}
 				if ( PowerQuestEditor.GetActionEnabled(eQuestVerb.Inventory) )
 				{
-					if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "Inv", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
+					rect = rect.SetNextWidth(fixedWidth);
+					if ( GUI.Button(rect, "Inv", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
 					{
 						// UseItem
 						QuestScriptEditor.Open( itemComponent, PowerQuest.SCRIPT_FUNCTION_USEINV_INVENTORY, PowerQuestEditor.SCRIPT_PARAMS_USEINV_INVENTORY);
 					}
-					offset += fixedWidth;
 				}
 				if ( Application.isPlaying )
 				{
-					if ( GUI.Button(new Rect(offset, rect.y, fixedWidth+3, EditorGUIUtility.singleLineHeight), "Give", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
+					rect = rect.SetNextWidth(37);
+					if ( GUI.Button(rect, "Give", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
 					{
 						// Debug give item to player
 						itemComponent.GetData().Add();
 					}
-					offset += fixedWidth;
 				}
-				fixedWidth = 22;
-				if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "...", EditorStyles.miniButtonRight ) )
+
+				rect = rect.SetNextWidth(22);
+				if ( GUI.Button(rect, "...", EditorStyles.miniButtonRight ) )
 					QuestEditorUtils.LayoutQuestObjectContextMenu( eQuestObjectType.Inventory, m_listInventory, itemComponent.GetData().GetScriptName(), itemComponent.gameObject, rect, index,false );
-				offset += fixedWidth;
+				
 			}
 		}
 	}
@@ -433,36 +437,36 @@ public partial class PowerQuestEditor
 				QuestEditorUtils.LayoutQuestObjectContextMenu( eQuestObjectType.Dialog, m_listDialogTrees, itemComponent.GetData().GetScriptName(), itemComponent.gameObject, rect, index, true );
 								
 				int actionCount = (Application.isPlaying ? 1 : 0);
-				float totalFixedWidth = 60+(34*actionCount)+22;
+				float totalFixedWidth = 50+(34*actionCount)+22;
 				actionCount+=1;
 
-				float offset = rect.x;
-				EditorGUI.LabelField(new Rect(rect.x, rect.y+2, rect.width-totalFixedWidth, EditorGUIUtility.singleLineHeight), itemComponent.GetData().GetScriptName(), ((m_filterDialogTrees == false && IsHighlighted(itemComponent))?EditorStyles.whiteLabel:EditorStyles.label) );
-				offset += rect.width - totalFixedWidth;
-				float fixedWidth = 60;
-				if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "Script", EditorStyles.miniButtonLeft ) )
+				rect.width -= totalFixedWidth;
+
+				EditorGUI.LabelField(rect, itemComponent.GetData().GetScriptName(), ((m_filterDialogTrees == false && IsHighlighted(itemComponent))?EditorStyles.whiteLabel:EditorStyles.label) );
+				
+				rect.y += 2;
+				rect = rect.SetNextWidth(50);
+				if ( GUI.Button(rect, "Script", EditorStyles.miniButtonLeft ) )
 				{
 					// Open the script
 					QuestScriptEditor.Open( itemComponent );		
 
 				}
-				offset += fixedWidth;
-				fixedWidth = 34;
 
 				if ( Application.isPlaying )
 				{
-					if ( GUI.Button(new Rect(offset, rect.y, fixedWidth+3, EditorGUIUtility.singleLineHeight), "Test", EditorStyles.miniButtonMid ) )
+					rect = rect.SetNextWidth(37);
+					if ( GUI.Button(rect, "Test", EditorStyles.miniButtonMid ) )
 					{
 						// Debug give item to player
 						PowerQuest.Get.StartDialog(itemComponent.GetData().GetScriptName());
 					}
-					offset += fixedWidth;
 				}
 				
-				fixedWidth = 22;
-				if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "...", EditorStyles.miniButtonRight ) )
+				rect = rect.SetNextWidth(22);
+				if ( GUI.Button(rect, "...", EditorStyles.miniButtonRight ) )
 					QuestEditorUtils.LayoutQuestObjectContextMenu( eQuestObjectType.Dialog, m_listDialogTrees, itemComponent.GetData().GetScriptName(), itemComponent.gameObject, rect, index,false );
-				offset += fixedWidth;
+				
 			}
 		}
 	}
@@ -479,23 +483,40 @@ public partial class PowerQuestEditor
 			{
 				QuestEditorUtils.LayoutQuestObjectContextMenu( eQuestObjectType.Gui, m_listGuis, itemComponent.GetData().GetScriptName(), itemComponent.gameObject, rect, index, true );
 
-				float totalFixedWidth = 60+22;//+30;
-				float offset = rect.x;
-				EditorGUI.LabelField(new Rect(rect.x, rect.y+2, rect.width-totalFixedWidth, EditorGUIUtility.singleLineHeight), itemComponent.GetData().GetScriptName() );
-				offset += rect.width - totalFixedWidth;
-				float fixedWidth = 60;
-				if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "Script", EditorStyles.miniButtonLeft ) )
+				float totalFixedWidth = 50+50+22;//+30;
+				
+				rect.width -= totalFixedWidth;
+				rect.height = EditorGUIUtility.singleLineHeight;
+				EditorGUI.LabelField(rect, itemComponent.GetData().GetScriptName() );
+
+				rect.y = rect.y+2;
+
+				rect = rect.SetNextWidth(50);
+				
+				if ( GUI.Button(rect, "Edit", EditorStyles.miniButtonLeft ) )
+				{
+					// Stage the prefab, and switch to Gui tab	
+					Selection.activeObject = itemComponent.gameObject;
+					AssetDatabase.OpenAsset(itemComponent.gameObject);									
+					m_selectedTab = eTab.Gui;
+					GUIUtility.ExitGUI();
+
+				}
+				
+				rect = rect.SetNextWidth(50);
+				
+				if ( GUI.Button(rect, "Script", EditorStyles.miniButtonMid) )
 				{
 					// Open the script
 					QuestScriptEditor.Open( itemComponent );		
 
 				}
-				offset += fixedWidth;
 				
-				fixedWidth = 22;
-				if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "...", EditorStyles.miniButtonRight ) )
+				rect = rect.SetNextWidth(22);
+
+				if ( GUI.Button(rect, "...", EditorStyles.miniButtonRight ) )
 					QuestEditorUtils.LayoutQuestObjectContextMenu( eQuestObjectType.Gui, m_listGuis, itemComponent.GetData().GetScriptName(), itemComponent.gameObject, rect, index,false );
-				offset += fixedWidth;
+				
 			}
 		}
 	}
@@ -515,54 +536,54 @@ public partial class PowerQuestEditor
 				int actionCount = (PowerQuestEditor.GetActionEnabled(eQuestVerb.Look)?1:0)
 					+ (PowerQuestEditor.GetActionEnabled(eQuestVerb.Use)?1:0)
 					+ (PowerQuestEditor.GetActionEnabled(eQuestVerb.Inventory)?1:0);
-				float totalFixedWidth = 60 + (34 *actionCount)+22;
+				float totalFixedWidth = 50 + (34 *actionCount)+22;
 				actionCount+=2;
-
-				float offset = rect.x;
-				EditorGUI.LabelField(new Rect(rect.x, rect.y+2, rect.width-totalFixedWidth, EditorGUIUtility.singleLineHeight), itemComponent.GetData().GetScriptName(), ((m_filterCharacters == false && IsHighlighted(itemComponent))?EditorStyles.whiteLabel:EditorStyles.label) );
-				offset += rect.width - totalFixedWidth;
-				float fixedWidth = 60;
-				if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "Script", EditorStyles.miniButtonLeft ) )
+				
+				rect.width -= totalFixedWidth;
+				EditorGUI.LabelField(rect, itemComponent.GetData().GetScriptName(), ((m_filterCharacters == false && IsHighlighted(itemComponent))?EditorStyles.whiteLabel:EditorStyles.label) );
+				
+				rect.y = rect.y+2;
+				rect = rect.SetNextWidth(50);
+				if ( GUI.Button(rect, "Script", EditorStyles.miniButtonLeft ) )
 				{
 					// Open the script
 					QuestScriptEditor.Open( itemComponent );		
 				}
-				offset += fixedWidth;
-				fixedWidth = 34;
+
 				//GUIStyle nextStyle = EditorStyles.miniButtonLeft;
 				int actionNum = 1; // start at one since there's already a left item
 				if ( PowerQuestEditor.GetActionEnabled(eQuestVerb.Look) )
 				{
-					if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "Look", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
+					rect = rect.SetNextWidth(34);
+					if ( GUI.Button(rect, "Look", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
 					{
 						// Lookat
 						QuestScriptEditor.Open( itemComponent, PowerQuest.SCRIPT_FUNCTION_LOOKAT, PowerQuestEditor.SCRIPT_PARAMS_LOOKAT_CHARACTER);
 					}
-					offset += fixedWidth;
 				}
 				if ( PowerQuestEditor.GetActionEnabled(eQuestVerb.Use) )
 				{
-					if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "Use", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
+					rect = rect.SetNextWidth(34);
+					if ( GUI.Button(rect, "Use", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
 					{
 						// Interact
 						QuestScriptEditor.Open( itemComponent, PowerQuest.SCRIPT_FUNCTION_INTERACT, PowerQuestEditor.SCRIPT_PARAMS_INTERACT_CHARACTER);
 					}
-					offset += fixedWidth;
 				}
 				if ( PowerQuestEditor.GetActionEnabled(eQuestVerb.Inventory) )
-				{					
-					if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "Inv", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
+				{				
+					rect = rect.SetNextWidth(34);	
+					if ( GUI.Button(rect, "Inv", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
 					{
 						// UseItem
 						QuestScriptEditor.Open( itemComponent, PowerQuest.SCRIPT_FUNCTION_USEINV, PowerQuestEditor.SCRIPT_PARAMS_USEINV_CHARACTER);
 					}
-					offset += fixedWidth;
 				}
 				
-				fixedWidth = 22;
-				if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "...", EditorStyles.miniButtonRight ) )
+				rect = rect.SetNextWidth(22);
+				if ( GUI.Button(rect, "...", EditorStyles.miniButtonRight ) )
 					QuestEditorUtils.LayoutQuestObjectContextMenu( eQuestObjectType.Character, m_listCharacters, itemComponent.GetData().GetScriptName(), itemComponent.gameObject, rect, index,false );
-				offset += fixedWidth;
+				
 			}
 		}
 	}
@@ -579,9 +600,10 @@ public partial class PowerQuestEditor
 			MonoBehaviour component = list.list[list.index] as MonoBehaviour;
 			if ( component != null )
 			{
-				// This confusing statement checks that the it's not an instance of a prefab (therefore is found in the project)
-				if ( PrefabUtility.GetPrefabInstanceStatus(component) == PrefabInstanceStatus.NotAPrefab )
-					EditorUtility.FocusProjectWindow();
+				// Was trying 'auto' focuseing project window so you didn't need it open always... it's kinda annoying though
+				//if ( PrefabUtility.GetPrefabInstanceStatus(component) == PrefabInstanceStatus.NotAPrefab )  // This confusing statement checks that the it's not an instance of a prefab (therefore is found in the project)
+				//	EditorUtility.FocusProjectWindow();
+
 				Selection.activeObject = component.gameObject;
 				GUIUtility.ExitGUI();
 			}

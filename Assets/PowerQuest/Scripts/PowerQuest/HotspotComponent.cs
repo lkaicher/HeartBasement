@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using PowerTools;
@@ -18,7 +18,7 @@ public partial class Hotspot : IQuestClickable, IHotspot, IQuestScriptable
 	// Default values set in inspector
 	//	
 	[Header("Mouse-over Defaults")]
-	[TextArea]
+	[TextArea(1,10)]
 	[SerializeField] string m_description = "New Hotspot";
 	[Tooltip("If set, changes the name of the cursor when moused over")]
 	[SerializeField] string m_cursor = "";

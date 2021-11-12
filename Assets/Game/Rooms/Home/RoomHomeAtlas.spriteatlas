@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: RoomHomeAtlas
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 0
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings:
+    - serializedVersion: 3
+      m_BuildTarget: DefaultTexturePlatform
+      m_MaxTextureSize: 2048
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: -1
+      m_TextureCompression: 0
+      m_CompressionQuality: 50
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 0
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 1
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: 45f20a5449443c542a8e594e8de9c5b7, type: 3}
+    totalSpriteSurfaceArea: 3886560
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 1e57463098e48654e9f0e560017f15ad, type: 3}
+  - {fileID: 21300000, guid: 7a785040b5041074f82f5bc8e6000f89, type: 3}
+  - {fileID: 21300000, guid: f91541f0cac0aab4bbc83cdc29dcaf4d, type: 3}
+  - {fileID: 21300000, guid: f3590c32c40d39443bbdde7cb8999ace, type: 3}
+  - {fileID: 21300000, guid: 046d5162a68e5634d945178d28ecd237, type: 3}
+  - {fileID: 3625043607559282579, guid: 0b4014725f189f2439d26198adcea061, type: 3}
+  - {fileID: 21300000, guid: 6a9d21147036e934cad6c2691beae302, type: 3}
+  - {fileID: 21300000, guid: 6c1b7f14280e1b446aa2a03d164a0041, type: 3}
+  - {fileID: 21300000, guid: 92c28a057d747be4fafd0804afd42832, type: 3}
+  - {fileID: 21300000, guid: d30ed55913205934d848d95d3198887a, type: 3}
+  - {fileID: 21300000, guid: fbe2501dec7194b488f544437167acda, type: 3}
+  - {fileID: 21300000, guid: 845e6dad78aa6134aa8a0d045feccd21, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - Back_0 1
+  - BucketSprite
+  - PumpBase
+  - Bucket_0
+  - ForegroundL_0
+  - Isometric Diamond
+  - Well_0
+  - Foreground_0
+  - ForegroundR_0
+  - water
+  - Water_0
+  - Back_0
+  m_RenderDataMap: {}
+  m_Tag: RoomHomeAtlas
+  m_IsVariant: 0

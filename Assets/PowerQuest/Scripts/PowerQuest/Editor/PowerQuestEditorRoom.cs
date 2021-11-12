@@ -28,7 +28,8 @@ public partial class PowerQuestEditor
 
 	#endregion
 	#region Variables: Private
-
+	
+	RoomComponent m_selectedRoom = null;
 
 	ReorderableList m_listHotspots = null;
 	ReorderableList m_listProps = null;
@@ -43,7 +44,7 @@ public partial class PowerQuestEditor
 	#endregion
 	#region Functions: Quest Room
 
-
+	// Called when selecting a room from the main list
 	void SelectRoom(ReorderableList list)
 	{
 		PowerQuestEditor powerQuestEditor = OpenPowerQuestEditor();
@@ -69,9 +70,9 @@ public partial class PowerQuestEditor
 					EditorGUIUtility.PingObject(component.gameObject);
 				}
 				
-				// focus the project window This confusing statement checks that the it's not an instance of a prefab (therefore is found in the project)
-				if ( PrefabUtility.GetPrefabInstanceStatus(component) == PrefabInstanceStatus.NotAPrefab )
-					EditorUtility.FocusProjectWindow();
+				// Was trying 'auto' focuseing project window so you didn't need it open always... it's kinda annoying though
+				//if ( PrefabUtility.GetPrefabInstanceStatus(component) == PrefabInstanceStatus.NotAPrefab )  // This confusing statement checks that the it's not an instance of a prefab (therefore is found in the project)
+				//	EditorUtility.FocusProjectWindow();
 
 				//Selection.activeObject = (instance != null && instance.GetComponent<RoomComponent>() != null ) ? instance : component.gameObject;
 				
@@ -115,14 +116,10 @@ public partial class PowerQuestEditor
 		if ( EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo() == false )
 			return;
 
-		// create directory
+		// create directory		
+		if ( Directory.Exists($"{path}/{name}") == false )
+			AssetDatabase.CreateFolder(path,name);		
 		path += "/" + name;
-		if ( Directory.Exists(path) == false )
-		{
-			Directory.CreateDirectory(path);
-			// This isn't necessary
-			//AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
-		}
 
 		// Create new scene
 		Scene newScene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene);
@@ -134,12 +131,13 @@ public partial class PowerQuestEditor
 
 		// Create SpriteCollection
 		if ( Directory.Exists(path+"/Sprites") == false )
-		{
-			Directory.CreateDirectory(path+"/Sprites");
-			// This isn't necessary
-			//AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
-		}
-		QuestEditorUtils.CreateImporter(path+"/_Import"+name+".asset", string.Empty);//"Room"+name);
+			AssetDatabase.CreateFolder(path,"Sprites");
+
+		// Create importer
+		QuestEditorUtils.CreateImporter(path+"/_Import"+name+".asset", string.Empty);
+
+		// Create atlas
+		QuestEditorUtils.CreateSpriteAtlas($"{path}/Room{name}Atlas.spriteatlas",$"{path}/Sprites",GetPowerQuest().GetSnapToPixel(),false);
 
 		// Create game object
 		GameObject gameObject = new GameObject("Room"+name, typeof(RoomComponent)) as GameObject; 
@@ -154,11 +152,7 @@ public partial class PowerQuestEditor
 		walkableAreaObj.GetComponent<PolygonCollider2D>().isTrigger = true;
 
 		// turn game object into prefab
-		#if UNITY_2018_3_OR_NEWER
 		Object prefab = PrefabUtility.SaveAsPrefabAssetAndConnect(gameObject, path + "/Room"+name+".prefab", InteractionMode.AutomatedAction);		
-		#else
-		Object prefab = PrefabUtility.CreatePrefab(path + "/Room"+name+".prefab", gameObject, ReplacePrefabOptions.ConnectToPrefab);
-		#endif
 
 		// Select the prefab for editing
 		Selection.activeObject = prefab;
@@ -1082,17 +1076,7 @@ public partial class PowerQuestEditor
 				float offset = rect.x;
 				EditorGUI.LabelField(new Rect(rect.x, rect.y+2, rect.width-totalFixedWidth, EditorGUIUtility.singleLineHeight), itemComponent.GetData().GetScriptName(), (IsHighlighted(itemComponent)?EditorStyles.whiteLabel:EditorStyles.label) );
 				offset += rect.width - totalFixedWidth;
-				float fixedWidth = 60;
-				// Don't show script button
-				/*if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "Script", EditorStyles.miniButtonLeft ) )
-				{
-					// Open the script
-					QuestScriptEditor.Open( itemComponent );		
-				}
-				offset += fixedWidth;
-				*/
-				fixedWidth = 34;
-				//GUIStyle nextStyle = EditorStyles.miniButtonLeft;
+				float fixedWidth = 34;
 				int actionNum = 0; // start at one since there's already a left item
 				if ( PowerQuestEditor.GetActionEnabled(eQuestVerb.Look) )
 				{
@@ -1138,7 +1122,7 @@ public partial class PowerQuestEditor
 		// Repaint if mouse moved in scene view
 		if ( Event.current != null && Event.current.isMouse )
 		{
-			if ( m_selectedTab == 1 )
+			if ( m_selectedTab == eTab.Room )
 				PowerQuestEditor.Get.Repaint();
 		}
 
@@ -1171,7 +1155,7 @@ public partial class PowerQuestEditor
 		}
 
 		// Update Room Points
-		if ( m_selectedRoom != null && m_selectedTab == 1 )
+		if ( m_selectedRoom != null && m_selectedTab == eTab.Room )
 		{
 			for ( int i = 0; i < m_selectedRoom.GetData().GetPoints().Count; ++i )
 			{

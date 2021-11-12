@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using PowerTools;
@@ -71,11 +71,20 @@ public class QuestAnimationTriggers : MonoBehaviour
 	// Hijack the _Anim event that PowerSprite uses internally to send custom messages, so can send them to quest scripts
 	void _Anim(string function)
 	{		
-		// Intercepts 
+		/*
+		Note: This will:
+			First, check if there'a  trigger from "WaitForAnimTrigger" calls. The trigger has the "Anim" bit stripped.
+			Then, try to call first the function name, then the function name without the Anim prefix, for:
+				Character Script (if it's a character)
+				Current Room Script
+				Global script
+		*/
+
 		bool sent = false;
 
 		string triggerName = function;
-		if ( triggerName.StartsWith("Anim", System.StringComparison.OrdinalIgnoreCase) )
+		bool hadPrefix = triggerName.StartsWith("Anim", System.StringComparison.OrdinalIgnoreCase);
+		if ( hadPrefix )
 			triggerName = triggerName.Substring(4);
 
 		// Check trigger system for regisered events
@@ -88,11 +97,19 @@ public class QuestAnimationTriggers : MonoBehaviour
 			if ( roomScript != null )
 			{			
 				System.Reflection.MethodInfo method = roomScript.GetType().GetMethod( function, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
-
 				if ( method != null ) 
 				{
 					method.Invoke( roomScript, null );					
 					sent = true;
+				}
+				else if ( hadPrefix )
+				{
+					method = roomScript.GetType().GetMethod( triggerName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
+					if ( method != null ) 
+					{
+						method.Invoke( roomScript, null );					
+						sent = true;
+					}
 				}
 			}
 		}
@@ -110,6 +127,15 @@ public class QuestAnimationTriggers : MonoBehaviour
 					method.Invoke( comp.GetData().GetScript(), null );
 					sent = true;
 				}
+				else if ( hadPrefix )
+				{
+					method = comp.GetData().GetScript().GetType().GetMethod( triggerName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
+					if ( method != null ) 
+					{
+						method.Invoke( comp.GetData().GetScript(), null );
+						sent = true;
+					}
+				}
 			}
 		}
 
@@ -123,6 +149,16 @@ public class QuestAnimationTriggers : MonoBehaviour
 			{
 				method.Invoke( globalScript, null );
 				sent = true;
+			}
+			else if ( hadPrefix )
+			{
+				method = globalScript.GetType().GetMethod( triggerName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
+
+				if ( method != null ) 
+				{
+					method.Invoke( globalScript, null );
+					sent = true;
+				}
 			}
 		}
 

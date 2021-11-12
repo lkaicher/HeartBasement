@@ -89,18 +89,22 @@ public class PowerSpriteImportEditor : Editor
 		AssetDatabase.CreateAsset (asset, assetPathAndName);
 
 		AssetDatabase.SaveAssets ();
-        AssetDatabase.Refresh();
-		EditorUtility.FocusProjectWindow ();
+		AssetDatabase.Refresh();
+		// Was trying 'auto' focuseing project window so you didn't need it open always... it's kinda annoying though
+		//if ( PrefabUtility.GetPrefabInstanceStatus(component) == PrefabInstanceStatus.NotAPrefab )  // This confusing statement checks that the it's not an instance of a prefab (therefore is found in the project)
+		//	EditorUtility.FocusProjectWindow();
 		Selection.activeObject = asset;
+		//GUIUtility.ExitGUI();
 	}
 
-	public static PowerSpriteImport CreateImporter(string path)
+	public static PowerSpriteImport CreateImporter(string path, bool refreshAssetDB = true)
 	{
 		PowerSpriteImport asset = ScriptableObject.CreateInstance<PowerSpriteImport>();
 
 		AssetDatabase.CreateAsset(asset, path);
 		AssetDatabase.SaveAssets();
-	    AssetDatabase.Refresh();
+		if ( refreshAssetDB )
+			AssetDatabase.Refresh();
 		return asset;
 	}
 
@@ -129,7 +133,7 @@ public class PowerSpriteImportEditor : Editor
 		process.Start();
 		// Wait up to 20 seconds for exit
 		process.WaitForExit(20000);
-	    AssetDatabase.Refresh();
+		AssetDatabase.Refresh();
 		EditorUtility.ClearProgressBar();
 	}
 
@@ -147,7 +151,7 @@ public class PowerSpriteImportEditor : Editor
 	#region Functions: Init
 
 	[System.NonSerialized]
-    GUIContent m_openAnimIcon = null;
+	GUIContent m_openAnimIcon = null;
 
 	void OnEnable()
 	{
@@ -402,7 +406,8 @@ public class PowerSpriteImportEditor : Editor
 			m_component.m_pixelsPerUnit = EditorGUILayout.FloatField("Pixels Per Unit", m_component.m_pixelsPerUnit);
 			m_component.m_filterMode = (FilterMode)EditorGUILayout.EnumPopup("Filter Mode", (System.Enum)m_component.m_filterMode);
 			m_component.m_compression = (PowerSpriteImport.eTextureCompression)EditorGUILayout.EnumPopup("Compression", (System.Enum)m_component.m_compression);
-			m_component.m_crunchedCompression = EditorGUILayout.Toggle("Crunched Compression",m_component.m_crunchedCompression);
+			m_component.m_crunchedCompression = EditorGUILayout.Toggle("Crunched Compression", m_component.m_crunchedCompression);
+			m_component.m_trimSprites = EditorGUILayout.Toggle("Trim Sprites (Aseprite only)", m_component.m_trimSprites);
 
 			m_asepritePath = EditorGUILayout.TextField("Aseprite Path", m_asepritePath);
 		}
@@ -836,9 +841,24 @@ public class PowerSpriteImportEditor : Editor
 
 			System.Diagnostics.Process process = new System.Diagnostics.Process();
 			process.StartInfo.FileName = asepritePath;
-			// nb: includes "ignore-layer" argument, any layers named "guide" or "ignore" aren't exported
 			string jsonFile = $"{m_component.m_sourceDirectory}\\AseTagExport.json";
-			process.StartInfo.Arguments = string.Format("-b --ignore-layer \"Guide\" --ignore-layer \"Ignore\" --ignore-layer \"ignore\" \"{0}\" --save-as \"{1}\\{2}_1.png\" --data \"{3}\" --list-tags --format json-array", Path.GetFullPath(m_component.m_sourcePSD), Path.GetFullPath(m_component.m_sourceDirectory), Path.GetFileNameWithoutExtension(m_component.m_sourcePSD),Path.GetFullPath(jsonFile) );
+					
+			// Set up arguments
+			// nb: includes "ignore-layer" argument, any layers named "guide" or "ignore" aren't exported
+			{
+				// Was:
+				// process.StartInfo.Arguments = string.Format("-b --ignore-layer \"Guide\" --ignore-layer \"Ignore\" --ignore-layer \"ignore\" \"{0}\" --save-as \"{1}\\{2}_1.png\" --data \"{3}\" --list-tags --format json-array", Path.GetFullPath(m_component.m_sourcePSD), Path.GetFullPath(m_component.m_sourceDirectory), Path.GetFileNameWithoutExtension(m_component.m_sourcePSD),Path.GetFullPath(jsonFile) );
+				string arguments = "-b";
+				arguments += $" --ignore-layer \"Guide\" --ignore-layer \"Ignore\" --ignore-layer \"ignore\"";
+				if ( m_component.m_trimSprites )
+					arguments += $" -trim";
+				arguments += $" \"{Path.GetFullPath(m_component.m_sourcePSD)}\"";
+				arguments += $" --save-as \"{Path.GetFullPath(m_component.m_sourceDirectory)}\\{Path.GetFileNameWithoutExtension(m_component.m_sourcePSD)}_1.png\"";
+				arguments += $" --data \"{ Path.GetFullPath(jsonFile)}\"";
+
+				process.StartInfo.Arguments = arguments;
+			}
+			
 			process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Minimized;
 			process.Start();
 

@@ -74,6 +74,20 @@ public class Utils
 			return pos;
         return Mathf.Floor(pos / snapTo) * snapTo; // Changed this to floor... will this break something?? Everything??
 	}
+	
+ 	// Snap to a grid value
+	
+	public static Vector2 SnapRound( Vector2 pos, float snapTo = 1 )
+	{	
+		return new Vector2( SnapRound(pos.x, snapTo), SnapRound(pos.y, snapTo) );
+	}
+	
+	public static float SnapRound( float pos, float snapTo = 1)
+	{		
+		if ( snapTo < 0.001f )
+			return pos;
+        return Mathf.Round(pos / snapTo) * snapTo; // Changed this to floor... will this break something?? Everything??
+	}
 
 	public static float Flip( float value, bool flip )
 	{
@@ -99,6 +113,105 @@ public class Utils
 	{
        return ((mask.value & (1 << obj.layer)) > 0);
     }
+
+	public enum eEaseCurve { None, Linear=None, Smooth, Sine, Quad, Cubic, Quart, Quint, Exp, Elastic }
+	public enum eEaseDir { In, Out, InOut }
+
+	public static float Ease( float ratio, eEaseCurve curve, eEaseDir dir )
+	{		
+		if ( ratio <= 0 )
+			return 0;
+		if ( ratio >= 1)
+			return 1;
+			
+		float x = ratio;
+			
+		// I think this is basically a cheap version of the sin wave one. It's what's used for perlin noise
+		if ( curve == eEaseCurve.Smooth )
+		{
+			if ( dir == eEaseDir.In)
+			{
+				ratio *= 0.5f;
+				return (-2.0f*ratio*ratio*ratio + 3.0f*ratio*ratio) * 2.0f;
+			}
+			else if ( dir == eEaseDir.Out )
+			{
+				ratio = ratio * 0.5f + 0.5f;
+				return (-2.0f*ratio*ratio*ratio + 3.0f*ratio*ratio) * 2.0f - 1.0f;
+			}
+			else 
+			{
+				return (-2.0f*ratio*ratio*ratio + 3.0f*ratio*ratio);
+			}
+		}
+
+		if ( curve == eEaseCurve.Sine )
+		{
+			if ( dir == eEaseDir.In)
+			{
+				return 1.0f - Mathf.Cos(ratio*Mathf.PI*0.5f);
+			}
+			else if ( dir == eEaseDir.Out )
+			{
+				return Mathf.Sin((x*Mathf.PI)*0.5f);
+			}
+			else 
+			{
+				return -(Mathf.Cos(x*Mathf.PI)-1)*0.5f;
+			}
+		}
+		
+		if ( curve >= eEaseCurve.Quad && curve <= eEaseCurve.Quint )
+		{
+			float pow = ((float)curve-(float)eEaseCurve.Quad)+2;
+			if ( dir == eEaseDir.In)
+			{
+				return Mathf.Pow(ratio,pow);
+			}
+			else if ( dir == eEaseDir.Out )
+			{
+				return 1.0f - Mathf.Pow(1.0f-ratio, pow);
+			}
+			else 
+			{
+				return x < 0.5f ? Mathf.Pow(2,pow-1f)*Mathf.Pow(x,pow) :  1.0f - Mathf.Pow(-2f*x + 2f, pow) * 0.5f;
+			}
+		}
+		if ( curve == eEaseCurve.Exp )
+		{
+			if ( dir == eEaseDir.In)
+			{
+				return Mathf.Pow(2f,(10*x) - 10f);
+			}
+			else if ( dir == eEaseDir.Out )
+			{
+				return 1.0f - Mathf.Pow(2f,-10f*x);
+			}
+			else 
+			{
+				return x < 0.5f ? Mathf.Pow(2f,(20f*x)-10f) * 0.5f : (2.0f - Mathf.Pow(2f,(-20f*x)+10f))*0.5f;
+			}
+		}
+		if ( curve == eEaseCurve.Elastic)
+		{
+			const float c4 = (2f * Mathf.PI) / 3f;
+			if ( dir == eEaseDir.In)
+			{
+				return -Mathf.Pow(2,10*x-10) * Mathf.Sin((x*10-10.75f)*c4);
+			}
+			else if ( dir == eEaseDir.Out)
+			{
+				return Mathf.Pow(2,-10*x) * Mathf.Sin((x*10-0.75f)*c4)+1;
+			}
+			else 
+			{
+				throw new System.NotImplementedException();
+			}
+		}
+
+		// Linear, etc
+		return ratio;
+	}
 	
 	public static float EaseCubic( float ratio )
 	{
@@ -1421,13 +1534,33 @@ public class BitMaskAttribute : PropertyAttribute
 }
 
 
+[System.Serializable]
+public struct Padding
+{
+	public static readonly Padding zero = new Padding(0,0,0,0);
+	public Padding(float l, float r, float t, float b){left=l;right=r;top=t;bottom=b;}
+
+	public float left;
+	public float right;
+	public float top;
+	public float bottom;
+
+	public float width => left+right;
+	public float height => top+bottom;
+	public Vector2 size => new Vector2(width,height);
+
+}
+
 // A less confusing version of rect that resizes from the center by default
 [System.Serializable]
 public struct RectCentered
 {
+	
 	// PRivate vars
 	[SerializeField] Vector2 m_min;
 	[SerializeField] Vector2 m_max;
+
+	public static readonly RectCentered zero = new RectCentered(0,0,0,0);
 
 	//public RectCentered() { }
 	public RectCentered(float centerX, float centerY, float width, float height) 
@@ -1452,6 +1585,13 @@ public struct RectCentered
 		m_min = min;
 		m_max = max;
 	}
+	public RectCentered( Bounds bounds )
+	{
+		m_min = bounds.min;
+		m_max = bounds.max;
+		//Center =  bounds.center;
+		//Size = bounds.size;
+	}
 
 	public static bool operator ==(RectCentered lhs, RectCentered rhs) { return lhs.m_min == rhs.m_min && lhs.m_max == rhs.m_max; }
 	public static bool operator !=(RectCentered lhs, RectCentered rhs) { return lhs.m_min != rhs.m_min || lhs.m_max != rhs.m_max; }
@@ -1469,6 +1609,28 @@ public struct RectCentered
 			m_max += offset;
 		}
 	}
+	
+	public float CenterX
+	{ 
+		get { return (m_min.x+m_max.x)*0.5f; } 
+		set 
+		{
+			float offset = value - Center.x;
+			m_min.x += offset;
+			m_max.x += offset;
+		}
+	}
+	public float CenterY
+	{ 
+		get { return (m_min.y+m_max.y)*0.5f; } 
+		set 
+		{
+			float offset = value - Center.y;
+			m_min.y += offset;
+			m_max.y += offset;
+		}
+	}
+
 	public Vector2 Size 
 	{ 
 		get { return m_max-m_min; } 
@@ -1549,15 +1711,53 @@ public struct RectCentered
 		m_max.y = Mathf.Max(m_max.y, offset );			
 	}
 
-
-
-
 	public void Encapsulate(RectCentered rect)
 	{
 		m_min.x = Mathf.Min(m_min.x, rect.Min.x);
 		m_min.y = Mathf.Min(m_min.y, rect.Min.y);
 		m_max.x = Mathf.Max(m_max.x, rect.Max.x);
 		m_max.y = Mathf.Max(m_max.y, rect.Max.y);			
+	}
+	public void Encapsulate(Bounds bounds)
+	{
+		m_min.x = Mathf.Min(m_min.x, bounds.min.x);
+		m_min.y = Mathf.Min(m_min.y, bounds.min.y);
+		m_max.x = Mathf.Max(m_max.x, bounds.max.x);
+		m_max.y = Mathf.Max(m_max.y, bounds.max.y);			
+	}
+
+	public void Transform(Transform transform)
+	{
+		// NB: not handling rotation
+		Vector2 scale = transform.lossyScale;
+		m_min.Scale(scale);
+		m_max.Scale(scale);
+		m_min += (Vector2)transform.position;
+		m_max += (Vector2)transform.position;
+	}
+	public void UndoTransform(Transform transform)
+	{
+		// NB: not handling rotation
+		m_min -= (Vector2)transform.position;
+		m_max -= (Vector2)transform.position;
+		Vector2 scale = new Vector2(1.0f/transform.lossyScale.x, 1.0f/transform.lossyScale.y);
+		m_min.Scale(scale);
+		m_max.Scale(scale);
+	}
+
+	public void AddPadding(Padding padding)
+	{
+		m_min.x -= padding.left;
+		m_min.y -= padding.bottom;
+		m_max.x += padding.right;
+		m_max.y += padding.top;
+	}
+	public void RemovePadding(Padding padding)
+	{
+		m_min.x += padding.left;
+		m_min.y += padding.bottom;
+		m_max.x -= padding.right;
+		m_max.y -= padding.top;
 	}
 	
 }

@@ -91,6 +91,9 @@ public partial interface IPowerQuest
 	/// Waits until the current dialog has finished. Useful for waiting to the end of SayBG commands
 	Coroutine WaitForDialog();
 
+	/// Shows gui and waits for it to disappear. Useful for prompts.
+	Coroutine WaitForGui(IGui gui);
+
 	/// Invokes the specified function after the specified time has elapsed (non-blocking). EG: `E.DelayedInvoke(1, ()=/>{ C.Player.FaceLeft(); } );`
 	void DelayedInvoke(float time, System.Action functionToInvoke);
 
@@ -165,45 +168,45 @@ public partial interface IPowerQuest
 
 		Pass time as 0 to disable a currently running timer.
 
-		**NOTE:** the timer will not tick while the game is paused.
+		__NOTE:__ the timer will not tick while the game is paused.
 		
-		**Example:**
+		__Example:__
 
 		    `E.SetTimer("egg",6) );`
 
 		Will set the timer "egg" to expire after 6 seconds.
 
-		**Rolling your own timers:**
+		__Rolling your own timers:__
+
 		AGS users are familiar with the SetTimer() function, which is why it is included. However, it's good to know how to make your own timers, it's a fundamental building block of game coding! 
 
 		This is how most coders would implement a simple timer:
 
-		In your script body or header, add a float variable:
-	        float m_myTimer = 0;
+		In your script body or header, add a float variable: `float m_myTimer = 0;`
 
-		When you want to start a timer, in an interaction script for example:
-		    m_myTimer = 4; // Set to 4 seconds
+		When you want to start a timer, in an interaction script for example: `m_myTimer = 4; // Set to 4 seconds`
 
 		And in your Update function:
-		~~~
-		    if ( m_myTimer > 0) // If the timer is started
-		    {
-		        m_myTimer -= Time.deltaTime; // Subtract the time since last update
-		        if ( m_myTimer <= 0 ) // Check if the timer's elapsed
-		        {
-		            // The timer has elapsed! Do something!
-		        }
-		    }
-		~~~	
+		
+			if ( m_myTimer > 0) // If the timer is started
+			{
+				m_myTimer -= Time.deltaTime; // Subtract the time since last update
+				if ( m_myTimer <= 0 ) // Check if the timer's elapsed
+				{
+					// The timer has elapsed! Do something!
+				}
+			}
+		
 		\sa GetTimerExpired \sa GetTimer
 		
 	*/
 	void SetTimer(string name, float time);
 	/** Checks whether the timer with specified `name` has expired. If the timeout set with SetTimer has elapsed, returns *true*. Otherwise, returns *false*.
 
-		**Note that this function will only return true once** - after that, the timer will always return false until restarted
+		__Note that this function will only return true once__ - after that, the timer will always return false until restarted
 
-		**Example: (in UpdateBlocking)**
+		__Example: (in UpdateBlocking)__
+
 		    if ( E.GetTimerExpired("egg") ) 
                 Display: Egg timer expired
 		
@@ -221,16 +224,20 @@ public partial interface IPowerQuest
 
 	/// Change the current room. Same as calling C.Player.Room = room;
 	void ChangeRoomBG(IRoom room);
-	/// Change the current room. And blocks until after OnEnterAfterFade of the new room finishes. NB: This does NOT currently work in Unity 2019 and later.
+	/// Change the current room. And blocks until after OnEnterAfterFade of the new room finishes.
+	/**
+		__Example:__ Have a player look through a window, show the other room, then change back, in a single script:
+
+			Display: You peer into the window
+			E.ChangeRoom(R.InsideHouse);
+			Dave: Sure looks interesting in there!
+			E.ChangeRoom(R.OutsideHouse);
+			Dave: But I'll stay out here for now
+
+		\sa ChangeRoomBG
+	*/
 	Coroutine ChangeRoom(IRoom room);
-
-	//
-	// Access to Quest Objects (rooms, characters, inventory, dialog, guis)
-	//
-
-	/// Retrieve a quest script by it's type. So you can access your functions/variables in your own scripts. Eg: E.GetScript<RoomKitchen>().m_tapsOn = true;
-	T GetScript<T>() where T : QuestScript;
-
+	
 	/// The room the player's in (R.Current)
 	Room GetCurrentRoom();
 	/// Retrieve a room by it's name
@@ -507,13 +514,16 @@ public partial interface IPowerQuest
 	void AddSaveData(string name, object data, System.Action OnPostRestore = null );
 	/// Advanced save/restore function: For aving data not in a QuestScript. Call this when you've called AddSaveData, but no longer want to save that data.
 	void RemoveSaveData(string name);
-
+	
+	/// PowerQuest internal function: Retrieve a quest script by it's type. So you can access your functions/variables in your own scripts. Eg: E.GetScript<RoomKitchen>().m_tapsOn = true;
+	T GetScript<T>() where T : QuestScript;
 }
 
 #endregion
 #region Characters - eg. C.Bob.FaceLeft();
 
-/** Characters: Contains functions for manipluating Characters - eg. C.Bob.FaceLeft(); - Eg.
+/** Characters: Contains functions for manipluating Characters. Usually accessed with the __C.__ prefix. Eg. `C.Bob.FaceLeft();`
+ * For example:
 	
 			C.Barney.Room = R.Current;
 			C.Player.WalkTo( P.Tree );
@@ -719,12 +729,14 @@ public partial interface ICharacter : IQuestClickableInterface
 	 
 	This is useful for situations when you might want a townsperson to wander onto the screen from one side, take a preset route around it and leave again.
 
-	If 'thenFace' is specified, the character will face that direction once they finish walking
+	If `thenFace` is specified, the character will face that direction once they finish walking
 
-	Example: 
+	__Example:__
+
 		C.Barney.Walk(160, 100);
 		C.Barney.AddWaypoint(50, 150);
 		C.Barney.AddWaypoint(50, 50, eFace.Right);
+
 	Tells character Barney to first of all walk to the centre of the screen normally (obeying walkable areas), then move to the bottom left corner and then top left corner afterwards, then face right.
 	\sa Walk \sa StopWalking
 	 */
@@ -734,12 +746,14 @@ public partial interface ICharacter : IQuestClickableInterface
 
 	This is useful for situations when you might want a townsperson to wander onto the screen from one side, take a preset route around it and leave again.
 
-	If 'thenFace' is specified, the character will face that direction once they finish walking
+	If `thenFace` is specified, the character will face that direction once they finish walking
 
-	Example: 
+	__Example:__
+
 		C.Barney.Walk(Points.Center);
 		C.Barney.AddWaypoint(Points.BotLeft);
 		C.Barney.AddWaypoint(Points.TopLeft, eFace.Right);
+
 	Tells character Barney to first of all walk to the centre of the screen normally (obeying walkable areas), then move to the bottom left corner and then top left corner afterwards, Then face right.
 	\sa Walk \sa StopWalking
 	 */
@@ -751,7 +765,7 @@ public partial interface ICharacter : IQuestClickableInterface
 	
 	This is the same as `WalkTo()`, except that the character won't face the direction they're moving, and won't play their walk animation. In the majority of cases you should use `WalkTo()`
 
-	eg: `C.Dave.MoveTo(12,34);`, C.Dave.MoveTo(Points.IntoSky, true);`.
+	eg: `C.Dave.MoveTo(12,34);`, `C.Dave.MoveTo(Points.IntoSky, true);`.
 	\sa WalkTo() \sa MoveToBG() \sa StopWalking()
 	*/
 	Coroutine MoveTo(float x, float y, bool anywhere = false );
@@ -761,7 +775,7 @@ public partial interface ICharacter : IQuestClickableInterface
 	
 	This is the same as `WalkTo()`, except that the character won't face the direction they're moving, and won't play their walk animation. In the majority of cases you should use `WalkTo()`
 
-	eg: `C.Dave.MoveToBG(12,34);`, C.Dave.MoveToBG(Points.IntoSky, true);`.
+	eg: `C.Dave.MoveToBG(12,34);`, `C.Dave.MoveToBG(Points.IntoSky, true);`.
 	\sa WalkTo() \sa MoveToBG() \sa StopWalking()
 	*/
 	Coroutine MoveTo(Vector2 pos, bool anywhere = false);
@@ -771,14 +785,14 @@ public partial interface ICharacter : IQuestClickableInterface
 	
 	This is the same as `WalkTo()`, except that the character won't face the direction they're moving, and won't play their walk animation. In the majority of cases you should use `WalkTo()`
 
-	eg: `C.Dave.MoveToBG(12,34);`, C.Dave.MoveToBG(Points.IntoSky, true);`.
+	eg: `C.Dave.MoveToBG(12,34);`, `C.Dave.MoveToBG(Points.IntoSky, true);`.
 	\sa WalkTo() \sa MoveToBG() \sa StopWalking()
 	*/
 	Coroutine MoveTo(IQuestClickableInterface clickable, bool anywhere = false );	
 	/// Make the character move to a position in game coords without halting the script. Their Walk animation will NOT be played.
 	/**
 	This is the same as `WalkToBG()`, except that the character won't face the direction they're moving, and won't play their walk animation. In the majority of cases you should use `WalkTo()`
-	eg: `C.Dave.MoveToBG(12,34);`, C.Dave.MoveToBG(Points.IntoSky, true);`
+	eg: `C.Dave.MoveToBG(12,34);`, `C.Dave.MoveToBG(Points.IntoSky, true);`
 	If 'anywhere' is true, the character will ignore walkable areas
 	\sa MoveTo() \sa WalkTo() \sa StopWalking()
 	*/
@@ -798,37 +812,48 @@ public partial interface ICharacter : IQuestClickableInterface
 	*/
 	void MoveToBG(IQuestClickableInterface clickable, bool anywhere = false );	
 
-	/// Moves the character to another room. If the player character is moved, the scene will change to the new room and script will wait until after OnEnterRoomAfterFade finishes. NB: This does NOT currently work in Unity 2019 and later.
+	/// Moves the character to another room. If the player character is moved, the scene will change to the new room and script will wait until after OnEnterRoomAfterFade finishes.
+	/// \sa IPowerQuest.ChangeRoom \sa ChangeRoomBG
 	Coroutine ChangeRoom(IRoom room);
+
 	/// Moves the character to another room. If the player character is moved, the scene will change to the new room.
 	void ChangeRoomBG(IRoom room);
+
 	/// Obsolete: Set's visible & clickable (Same as `Enable(bool clickable)`), and changes them to the current room (if they weren't there already) \sa Hide()	
 	[System.Obsolete("Show(bool clickable) is obsolete. Use Show(), and Clickable property. Note that Show/Hide functions now remember previous state of visible/clickable/solid and restore it.")]
-	void Show( bool clickable );		
+	void Show( bool clickable );
+	
 	/// Shows the character again after a call to Hide(), moving them to current room, and forcing Visible to true.
 	/// You can optionally pass in a position or face direction. If not passed no change will be made.
 	/// The Enable() function is similar, but doesn't set Visible to true, or move them to the current room.
 	/// \sa Hide() \sa Disable() \sa Enable()
 	void Show( Vector2 pos = new Vector2(), eFace facing = eFace.None );	
+
 	/// Shows the character again after a call to Hide(), moving them to current room, and forcing Visible to true.
 	/// You can optionally pass in a position or face direction. If not passed no change will be made.
 	/// The Enable() function is similar, but doesn't set Visible to true, or move them to the current room.
 	/// \sa Hide() \sa Disable() \sa Enable()
 	void Show( float posX, float posy, eFace facing = eFace.None );
+
 	/// Shows the character again after a call to Hide(), moving them to current room, and forcing Visible to true.
 	/// You can optionally pass in a position or face direction. If not passed no change will be made.
 	/// The Enable() function is similar, but doesn't set Visible to true, or move them to the current room.
 	/// \sa Hide() \sa Disable() \sa Enable()
 	void Show( eFace facing );
+
 	/// Hides the character until Show() is called. Saves you setting Visible, Clickable, Solid all to false. (Same as `Disable()`) \sa Show() \sa Disable() \sa Enable()
 	void Hide();
+
 	/// Enables the character again after a call to `Disable()` or `Hide()`. Does NOT move them to the current room, or set Visible like `Show()` does. \sa Disable() \sa Hide() \sa Show()
 	void Enable();
+
 	/// Obsolete: Set's visible & clickable, and changes them to the current room (if they weren't there already)
 	[System.Obsolete("Show(bool clickable) is obsolete. Use Show(), and Clickable property. Note that Show/Hide functions now remember previous state of visible/clickable/solid and restore it.")]
 	void Enable(bool clickable);
+
 	/// Disables the character until Enable() is called. Saves you setting Visible, Clickable, Solid all to false. \sa Show() \sa Hide() \sa Enable()
 	void Disable();
+
 	/// Faces character in a direction. Turning, unless instant is false
 	Coroutine Face( eFace direction, bool instant = false );
 	/// Faces character towards the look-at-point of a clickable (character, prop, hotspot)
@@ -901,6 +926,7 @@ public partial interface ICharacter : IQuestClickableInterface
 	/// <param name="maxWaitTime">The maximum time delay before they'll turn to face the other character. Default 0.4 seconds.</param>
 	/// \sa `StopFacingCharacter();`
 	void StartFacingCharacter(ICharacter character, float minWaitTime = 0.2f, float maxWaitTime = 0.4f);	
+
 	/// Stops the chracter facing another after a call to `StartFacingCharacter()`
 	void StopFacingCharacter();
 
@@ -914,6 +940,7 @@ public partial interface ICharacter : IQuestClickableInterface
 	/// Play an animation on the character. Will return to idle after animation ends. 
 	/// \sa PlayAnimationBG() \sa Animation \sa AnimIdle \sa AnimWalk \sa AnimTalk
 	Coroutine PlayAnimation(string animName);
+
 	/// Play an animation on the character without halting the script. Will return to idle after animation ends, unless pauseAtEnd is true.
 	/**
 		If pauseAtEnd is true, the character will stay on the last frame until StopAnimation() is called. Otherwise they will return to idle once the animation has finished playing
@@ -935,18 +962,32 @@ public partial interface ICharacter : IQuestClickableInterface
 	// Gets/Sets name of the sound used for footsteps for this character. Add "Footstep" event in the anim editor (with "Anim prefix" ticked)
 	string FootstepSound {get;set;}
 
-	/// Advanced/Experimental: Adds a function to be called on an animation event here. Eg: to play a sound or effect on an animation tag. 
+	/// Adds a function to be called on an animation event here. Eg: to play a sound or effect on an animation tag. 
 	/** Usage:
 		Add an event to the anim  called "Trigger" with a string matching the tag you want (eg: "Shoot")
-		Then call C.Player.AddAnimationTrigger( "Shoot", true, ()=>Audio.PlaySound("Gunshot") ); 
+		Then call `C.Player.AddAnimationTrigger( "Shoot", true, ()=>Audio.PlaySound("Gunshot") ); `
+		\sa WaitForAnimationTrigger
 	*/
 	void AddAnimationTrigger(string triggerName, bool removeAfterTriggering, System.Action action);
+
 	/// Removes an existing animation trigger
 	void RemoveAnimationTrigger(string triggerName);
+
 	/// Waits until an Event/Tag in the current animation is reached
-	/** Usage:
-		Add an event to the anim  called "Trigger" with a string matching the tag you want (eg: "Shoot")
-		Then call yield return C.Player.WaitForAnimTrigger("Shoot");
+	/** __Usage:__
+		- Add an event to an animation, eg: 'Shoot'. 
+		- Play the animation in the background
+		- Call `C.Player.WaitForAnimTrigger("Shoot");`. 
+		- The script will pause until that event is hit before continuing
+
+		__Example:__ Using it to play a sound and shake the screen at the time in an animation when the player shoots a gun:
+					
+			C.Dave.PlayAnimationBG("AimAndFireGun");
+			C.Dave.WaitForAnimTrigger("Shoot");
+			Audio.Play("Bang");
+			Camera.Shake();
+			Barney: Ouch!
+		\sa AddAnimationTrigger
 	*/
 	Coroutine WaitForAnimTrigger(string eventName);
 
@@ -1015,7 +1056,7 @@ public partial interface ICharacter : IQuestClickableInterface
 	/// Remove all inventory items from the player
 	void ClearInventory();
 
-	/// Access to the specific quest script for the character. Pass the specific character class as the templated parameter so you can access specific members of the script. Eg: GetScript<CharacterBob>().m_saidHi = true;
+	/// PowerQuest internal function: Access to the specific quest script for the character. Pass the specific character class as the templated parameter so you can access specific members of the script. Eg: GetScript<CharacterBob>().m_saidHi = true;
 	T GetScript<T>() where T : CharacterScript<T>;
 
 	/// Access to the base class with extra functionality used by the PowerQuest
@@ -1088,7 +1129,7 @@ public partial interface IRoom
 	/// Get the room's prop
 	List<Prop> GetProps();
 
-	/// Access to the specific quest script for the room. Use the specific room script as the templated parameter so you can access specific members of the script. Eg: GetScript<RoomKitchen>().m_tapOn = true;
+	/// PowerQuest internal function: Access to the specific quest script for the room. Use the specific room script as the templated parameter so you can access specific members of the script. Eg: GetScript<RoomKitchen>().m_tapOn = true;
 	T GetScript<T>() where T : RoomScript<T>;
 
 	/// Access to the base class with extra functionality used by the PowerQuest
@@ -1328,8 +1369,18 @@ public partial interface IInventory
 	bool Owned { get; set; } 
 	/// Whether the item  has ever been collected
 	bool EverCollected { get; } 
+	
+	/// Returns true the first time the player "uses" the object.
+	bool FirstUse { get; }
+	/// Returns true the first time the player "looked" at the object.
+	bool FirstLook { get; }
+	/// Returns the number of times player has "used" at the object. 0 when it's the first click on the object.
+	int UseCount {get;}
+	/// Returns the number of times player has "looked" at the object. 0 when it's the first click on the object.
+	int LookCount {get;}
 
-	/// Access to the specific quest script for the object. Use the specific item class as the templated parameter so you can access specific members of the script. Eg: GetScript<InventoryKey>().m_inDoor = true;
+
+	/// PowerQuest internal function: Access to the specific quest script for the object. Use the specific item class as the templated parameter so you can access specific members of the script. Eg: GetScript<InventoryKey>().m_inDoor = true;
 	T GetScript<T>() where T : InventoryScript<T>;
 	/// Access to the base class with extra functionality used by the PowerQuest
 	Inventory Data { get; }
@@ -1406,9 +1457,9 @@ public partial interface IDialogTree
 	/// Shortcut access to options eg: `D.MeetSarah["hello"].Off();`. Note that from dialog tree scripts you can access their options with `O.hello` instead
 	DialogOption this[string option] {get;}
 
-	/// Access to the specific quest script for the object. Use the specific dialog class as the templated parameter so you can access specific members of the script. Eg: GetScript<DialogSister>().m_saidHi = true;
+	/// PowerQuest internal function: Access to the specific quest script for the object. Use the specific dialog class as the templated parameter so you can access specific members of the script. Eg: GetScript<DialogSister>().m_saidHi = true;
 	T GetScript<T>() where T : DialogTreeScript<T>;
-	/// Access to the base class with extra functionality used by the PowerQuest
+	/// PowerQuest internal function: Access to the base class with extra functionality used by the PowerQuest
 	DialogTree Data {get;}
 }
 
@@ -1459,30 +1510,6 @@ public partial interface IDialogOption
 	void Off();
 	/// Disables this option so it'll never come back on, even if Show() is called
 	void OffForever();
-}
-
-#endregion
-#region IGui - eg. G.Toolbar.Visible = false
-
-/// Gui: Contains functions for and data manipluating Gui objects.
-public partial interface IGui
-{
-	/// The name used in scripts
-	string ScriptName { get; }
-	/// Access to the actual game object component in the scene
-	MonoBehaviour Instance {get;}
-	/// Access to the base class with extra functionality used by the PowerQuest
-	Gui Data {get;}
-	/// Gets or sets whether the object is visible
-	bool Visible { get;set; }
-	/// Gets or Sets whether clicking on the object triggers an event
-	bool Clickable { get;set; }
-	/// Gets or Sets whether this gui pauses the game below it
-	bool Modal { get;set; }
-	/// The location of the gui
-	Vector2 Position { get;set; }
-	/// Gets or sets the baseline used for sorting
-	float Baseline { get;set; }
 }
 
 
@@ -1602,5 +1629,210 @@ public partial interface ICursor
 
 
 #endregion
+#region IGui - eg. G.Toolbar.Visible = false
 
+/// 
+/** IGui: Contains functions for and data manipluating Gui objects.
+	
+			G.Inventory.Show();
+			G.HoverText.Hide();
+			G.Prompt.Script.Show("Are you sure you want to quit?","Yes","No", ()=>Application.Quit());
+*/
+public partial interface IGui
+{
+	/// The name used in scripts
+	string ScriptName { get; }
+
+	/// Access to the actual game object component in the scene
+	MonoBehaviour Instance {get;}
+	
+	/// Sets a gui visible and clickable
+	void Show();
+	// Sets a gui non-visible, and non-clickable
+	void Hide();
+
+	/// Gets or sets whether the object is visible
+	bool Visible { get;set; }
+	/// Gets or Sets whether clicking on the object triggers an event. Can be set false to have a gui visible but not clickable.
+	bool Clickable { get;set; }
+
+	/// Shows the gui, in front of all others.
+	void ShowAtFront();
+	/// Shows the gui, behind all others.
+	void ShowAtBack();
+	/// Shows the gui, behind a specific other gui.
+	void ShowBehind(IGui gui);
+	/// Shows the gui, in front of a specific other gui.
+	void ShowInfront(IGui gui);
+
+	/// Gets or Sets whether this gui blocks clicks behind it
+	bool Modal { get;set; }
+	/// Whether gameplay is paused while the gui is visible
+	bool PauseGame { get;set; }
+	/// The location of the gui. Note that if gui is aligned to screen, changing this won't have an effect
+	Vector2 Position { get;set; }
+	/// Gets or sets the baseline used for sorting. Just like with hotspots/charcters, LOWER is in-front (eg: -4 is in-front of 6)
+	float Baseline { get;set; }
+	// Sets a cursor to show when hovering over the gui's hotspot (or anywhere if its a modal gui). Can be overriden by specific controls
+	string Cursor { get;set;}
+	
+	/** Retreives a specific IGuiControl from the gui. 
+	 
+		Controls can be cast to Buttons, Labels, etc. Eg:
+	 
+		    IButton button = (IButton)G.Keypad.GetControl("AcceptButton");
+		    button.Color = Color.Red;
+
+		NB: The gui must be instantiated for this to work. It might not work in scene loading scripts.
+	*/
+	GuiControl GetControl(string name );
+	
+	/// PowerQuest internal function: Access to the specific quest script for the room. Use the specific room script as the templated parameter so you can access specific members of the script. Eg: GetScript<GuiPrompt>().Show("Blah");	
+	T GetScript<T>() where T : GuiScript<T>;
+	
+	/// PowerQuest internal function: Access to the base class with extra functionality
+	Gui Data {get;}
+}
+
+
+#endregion
+#region Gui controls
+
+/** All gui controls inherit from IGuiControl. (Buttons, Labels, etc)
+	
+			Label.ErrorMessage.Show();
+			Image.Crosshair.Position = E.MousePosition();
+			Button.Accept.Hide();
+
+	Also see specific gui controls: IButton, IImage, ILabel, IInventoryPanel
+	\sa IButton \sa IImage \sa ILabel \sa IInventoryPanel
+*/	
+public partial interface IGuiControl
+{	
+	/// Access to the actual game object component in the scene. Note that controls themselves can be cast to their component type if known
+	MonoBehaviour Instance {get;}
+
+	/// Sets the control visible invisible the control
+	bool Visible {get;set;}
+	/// Shows the control
+	void Show();
+	/// Hides the control
+	void Hide();
+	/// Sets the position of the control. Note that this will be overridden if using AlignTo or FitTo component
+	void SetPosition(float x, float y);
+	// Gets/Sets the position of the control. Note that this will be overridden if using AlignTo or FitTo component
+	Vector2 Position {get;set;}
+}
+
+/** Gui Button
+	
+			Button.KeypadEnter.Clickable = false;
+			Button.AnimHover = "FlashRed";
+			Button.ColorPress = Color.yellow;
+			Button.Text = "Lets do it";
+			Button.Description = "This button wins the game";
+			
+*/	
+public partial interface IButton : IGuiControl
+{
+	string Description {get;set;}
+	string Cursor {get;set;}	
+	
+	string Text				{get;set;}
+
+	string Anim	           {get;set;}
+	string AnimHover	   {get;set;}
+	string AnimClick	   {get;set;}
+	string AnimOff         {get;set;}
+	
+	Color Color	        {get;set;}
+	Color ColorHover    {get;set;}
+	Color ColorPress    {get;set;}
+	Color ColorInactive {get;set;}
+
+	bool Animating {get;}
+	void PauseAnimation();
+	void ResumeAnimation();
+	void StopAnimation();
+	
+	Coroutine PlayAnimation(string animName);
+	void PlayAnimationBG(string animName) ;
+	void AddAnimationTrigger(string triggerName, bool removeAfterTriggering, System.Action action);
+	void RemoveAnimationTrigger(string triggerName);
+	Coroutine WaitForAnimTrigger(string triggerName);
+	
+}
+/** Gui Label
+	
+			Label.KeypadReadout.Text = "ENTER PASSWORD";
+			Label.ErrorMessage.Show();
+			
+*/	
+public partial interface ILabel : IGuiControl
+{	
+	string Text {get;set;}
+}
+
+/** Gui Image
+	
+			Image.LockedIndicator.Image = "Unlocked";
+			
+*/	
+public partial interface IImage : IGuiControl
+{
+	string Anim {get;set;}
+
+	bool Animating {get;}
+	void PauseAnimation();
+	void ResumeAnimation();
+	void StopAnimation();
+	
+	Coroutine PlayAnimation(string animName);
+	void PlayAnimationBG(string animName) ;
+	void AddAnimationTrigger(string triggerName, bool removeAfterTriggering, System.Action action);
+	void RemoveAnimationTrigger(string triggerName);
+	Coroutine WaitForAnimTrigger(string triggerName);
+}
+/** Gui Inventory Panel
+	
+			InventoryPanel.MainInv.ScrollForward();
+			InventoryPanel.MainInv.TargetCharacter = C.Barney;
+
+*/
+public partial interface IInventoryPanel : IGuiControl
+{
+	ICharacter TargetCharacter {get;set;}
+	
+	bool ScrollForward();
+	bool ScrollBack();
+
+
+	Vector2 ScrollOffset {get;set;}
+	
+	
+	void NextRow();
+	void NextColumn();
+	void PrevRow();
+	void PrevColumn();
+	
+	bool HasNextColumn();
+	bool HasPrevColumn();
+	bool HasNextRow();
+	bool HasPrevRow();
+	
+}
+
+/* Future components
+/// 
+public partial interface IContainer : IGuiControl
+{
+}
+/// 
+public partial interface ITextBox : IGuiControl
+{
+}
+
+*/
+
+#endregion
 }
