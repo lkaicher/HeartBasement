@@ -18,18 +18,18 @@ public class CharacterHardwareClerk : CharacterScript<CharacterHardwareClerk>
 	IEnumerator OnInteract()
 	{
 		 yield return C.Dave.WalkTo(Point("HWCounterPosition"));
-		 
+		yield return C.Dave.Face(eFace.Right);
 		
 		
 		
 		 if (D.DialogWithClerk.GetOption(2).Used) {
 			 D.BuyOptions.Start();
-		 } else if (D.DialogWithClerk.GetOption(1).Used && Globals.m_progressExample == eProgress.None) {
-			 yield return C.HardwareClerk.Say("Good luck.	 ", 0);
+		 } else if (D.DialogWithClerk.GetOption(1).Used && Globals.m_progressExample <= eProgress.UsedBucket) {
+			 yield return C.HardwareClerk.Say("Good luck.", 0);
 		 } else {
 			 D.DialogWithClerk.Start();
-		 } 
-		 
+		 }
+		
 		
 		//D.DialogWithClerk.Start();
 		yield return E.Break;

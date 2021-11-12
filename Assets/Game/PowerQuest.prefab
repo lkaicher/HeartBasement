@@ -125,10 +125,19 @@ MonoBehaviour:
   - {fileID: 4039372558538899296, guid: 8dc06dc05388dd94490858c5da43a77d, type: 3}
   - {fileID: 3021927386199317300, guid: 4e056deb48906394d92086ef652a183e, type: 3}
   m_inventoryAnimations:
-  - {fileID: 7400000, guid: 10856a3a6e09a994f876dd16f8272cce, type: 2}
   - {fileID: 7400000, guid: 96a451a2543d7d44c815093b445695c8, type: 2}
+  - {fileID: 7400000, guid: 10822a91df65a9848bc7a7d939c1897f, type: 2}
   - {fileID: 7400000, guid: 2d57f5d8a52fcd44091ca8e253d946d6, type: 2}
+  - {fileID: 7400000, guid: 69ea24b997f56b245a520f04fdb8c607, type: 2}
+  - {fileID: 7400000, guid: c921d997ef7000f4abeacacf79216460, type: 2}
+  - {fileID: 7400000, guid: 8482ae19c905248409c3d81c98eccfee, type: 2}
   - {fileID: 7400000, guid: 1fff7db4fc20a26438f10dfb103715cc, type: 2}
+  - {fileID: 7400000, guid: a92b28aeb89b5a04386e432b6275dd6a, type: 2}
+  - {fileID: 7400000, guid: ff46fb29106c318498be1d9cd9aa5957, type: 2}
+  - {fileID: 7400000, guid: 3fa6908946af59e408aef4c2c25e740b, type: 2}
+  - {fileID: 7400000, guid: 3c8f45148fb260a4596cbb94a575f6d2, type: 2}
+  - {fileID: 7400000, guid: 1e01d18b78c056746ae8904d1a6b8318, type: 2}
+  - {fileID: 7400000, guid: 29f1260f6e39e2342a915c3f5781592f, type: 2}
   m_preloadedShaders:
   - {fileID: 4800000, guid: be43750faab6d0b40baba2acf00099df, type: 3}
   - {fileID: 4800000, guid: 67fc4aa44467421478679021cc374fc4, type: 3}

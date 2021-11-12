@@ -45,9 +45,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_data:
     m_description: '&18 Small Handle'
-    m_animGui: handle
-    m_animCursor: handle
-    m_animCursorInactive: handle
+    m_animGui: handleS
+    m_animCursor: handleS
+    m_animCursorInactive: handleS
     m_stack: 0
     m_scriptName: SmallHandle
     m_scriptClass: InventorySmallHandle

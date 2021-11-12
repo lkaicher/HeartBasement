@@ -45,9 +45,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_data:
     m_description: '&13 Medium Handle'
-    m_animGui: handle
-    m_animCursor: handle
-    m_animCursorInactive: handle
+    m_animGui: handleM
+    m_animCursor: handleM
+    m_animCursorInactive: handleM
     m_stack: 0
     m_scriptName: MediumHandle
     m_scriptClass: InventoryMediumHandle

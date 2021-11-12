@@ -45,9 +45,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_data:
     m_description: '&20 Beer'
-    m_animGui: beerIcon
-    m_animCursor: beerIcon
-    m_animCursorInactive: beerIcon
+    m_animGui: pizzabeer
+    m_animCursor: pizzabeer
+    m_animCursorInactive: pizzabeer
     m_stack: 0
     m_scriptName: Beer
     m_scriptClass: InventoryBeer

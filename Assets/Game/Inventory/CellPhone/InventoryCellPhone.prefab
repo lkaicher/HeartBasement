@@ -45,9 +45,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_data:
     m_description: '&17 Cell Phone'
-    m_animGui: Bucket
-    m_animCursor: Bucket
-    m_animCursorInactive: Bucket
+    m_animGui: phone
+    m_animCursor: phone
+    m_animCursorInactive: phone
     m_stack: 0
     m_scriptName: CellPhone
     m_scriptClass: InventoryCellPhone

@@ -45,9 +45,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_data:
     m_description: Bucket
-    m_animGui: Bucket
-    m_animCursor: Bucket
-    m_animCursorInactive: Bucket
+    m_animGui: bucket
+    m_animCursor: bucket
+    m_animCursorInactive: bucket
     m_stack: 0
     m_scriptName: Bucket
     m_scriptClass: InventoryBucket
