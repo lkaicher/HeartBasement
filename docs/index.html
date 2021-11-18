@@ -3,13 +3,9 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity WebGL Player | May2021a</title>
-    <link rel="shortcut icon" href="Unity/TemplateData/favicon.ico">
-    <link rel="stylesheet" href="Unity/TemplateData/style.css">
-    <style>
-      #unity-canvas {cursor: none!important;}
-    </style>
-
+    <title>Unity WebGL Player | Heart Basement</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
@@ -26,20 +22,20 @@
       <div id="unity-footer">
         <div id="unity-webgl-logo"></div>
         <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">May2021a</div>
+        <div id="unity-build-title">Heart Basement</div>
       </div>
     </div>
     <script>
-      var buildUrl = "Unity/Build";
+      var buildUrl = "Build";
       var loaderUrl = buildUrl + "/docs.loader.js";
       var config = {
         dataUrl: buildUrl + "/docs.data",
         frameworkUrl: buildUrl + "/docs.framework.js",
         codeUrl: buildUrl + "/docs.wasm",
         streamingAssetsUrl: "StreamingAssets",
-        companyName: "DefaultCompany",
-        productName: "May2021a",
-        productVersion: "1.0",
+        companyName: "TLL",
+        productName: "Heart Basement",
+        productVersion: "0.1",
       };
 
       var container = document.querySelector("#unity-container");
@@ -57,8 +53,8 @@
           mobileWarning.style.display = "none";
         }, 5000);
       } else {
-        canvas.style.width = "960px";
-        canvas.style.height = "600px";
+        canvas.style.width = "1280px";
+        canvas.style.height = "720px";
       }
       loadingBar.style.display = "block";
 

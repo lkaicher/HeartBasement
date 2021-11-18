@@ -44,7 +44,7 @@ SpriteAtlas:
     variantMultiplier: 1
     packables:
     - {fileID: 102900000, guid: 37f6ada2ecf514d43b8058e006148770, type: 3}
-    totalSpriteSurfaceArea: 46192
+    totalSpriteSurfaceArea: 46768
     bindAsDefault: 1
     isAtlasV2: 0
     cachedData: {fileID: 0}
@@ -56,6 +56,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 92271031da468814da0e3096a5a116a5, type: 3}
   - {fileID: 21300000, guid: 004fc181b8727fa4d94f991626b1afd1, type: 3}
   - {fileID: 21300000, guid: 179eed34d3c4b7141a068a013240456f, type: 3}
+  - {fileID: 21300000, guid: 715f2475c5ab93b468836b59ddd3dcb5, type: 3}
   - {fileID: 21300000, guid: 3922c0a8c80dd8f4099e6aaa35b4cde7, type: 3}
   - {fileID: 21300000, guid: 1744e6a839a0a8b4fbb613a7bf51e636, type: 3}
   - {fileID: 21300000, guid: 92d6e8e94d4ba1141954063e34890398, type: 3}
@@ -71,6 +72,7 @@ SpriteAtlas:
   - handleS
   - pizzabeer
   - hose
+  - bucketFull
   - beerIcon
   - handleL
   - handleM

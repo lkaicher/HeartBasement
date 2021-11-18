@@ -128,6 +128,7 @@ MonoBehaviour:
   m_inventoryAnimations:
   - {fileID: 7400000, guid: 96a451a2543d7d44c815093b445695c8, type: 2}
   - {fileID: 7400000, guid: 10822a91df65a9848bc7a7d939c1897f, type: 2}
+  - {fileID: 7400000, guid: fce68055d987bd74689d9a5bf8e2e515, type: 2}
   - {fileID: 7400000, guid: 2d57f5d8a52fcd44091ca8e253d946d6, type: 2}
   - {fileID: 7400000, guid: 69ea24b997f56b245a520f04fdb8c607, type: 2}
   - {fileID: 7400000, guid: c921d997ef7000f4abeacacf79216460, type: 2}
