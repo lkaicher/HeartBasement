@@ -99,6 +99,7 @@ MonoBehaviour:
   - {fileID: 7400000, guid: 8e7cb2f41403bce40b3b10814f46e8f2, type: 2}
   - {fileID: 7400000, guid: afda5bb61eabe8e4cbf0d080e5484992, type: 2}
   - {fileID: 7400000, guid: d843470db05c0414d9a6755e8635619a, type: 2}
+  - {fileID: 7400000, guid: 04b748349ba069343b257f53dd4fb80a, type: 2}
   - {fileID: 7400000, guid: 29a17f734b0fb0b4e999700518a456f3, type: 2}
   - {fileID: 7400000, guid: a413e9f044686174da81f504e8855cd8, type: 2}
 --- !u!1 &1188119584316416
@@ -232,7 +233,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: -2710
-  m_Sprite: {fileID: 21300000, guid: 845e6dad78aa6134aa8a0d045feccd21, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6b57e9d69efd7874b85344820123c333, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

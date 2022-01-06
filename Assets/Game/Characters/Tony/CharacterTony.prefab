@@ -75,9 +75,9 @@ MonoBehaviour:
     m_LipSyncEnabled: 0
     m_footstepSound: 
     m_useSpriteAsHotspot: 0
-    m_baseline: 0
-    m_walkToPoint: {x: 0, y: 0}
-    m_lookAtPoint: {x: 0, y: 0}
+    m_baseline: 35
+    m_walkToPoint: {x: 0, y: 32}
+    m_lookAtPoint: {x: 0, y: 32}
     m_scriptName: Tony
     m_scriptClass: CharacterTony
   m_clickableColliders: []
@@ -166,7 +166,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1890
+  m_SortingOrder: -350
   m_Sprite: {fileID: 21300000, guid: 1bc34435fe43a492caa65cf99c6a7020, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

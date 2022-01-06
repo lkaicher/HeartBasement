@@ -55,15 +55,17 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		Globals.m_progressExample = eProgress.None;
 		// C.Tony.ChangeRoom(R.Home);
 		
-		
 		/*
+		
 		 I.BilgePump.Add();
 		I.MediumHandle.Add();
 		 I.LargeHandle.Add();
 		I.MediumHose.Add();
 		 I.LargeHose.Add();
+		
+		 C.Tony.ChangeRoom(R.Home);
+		
 		*/
-		// C.Tony.ChangeRoom(R.Home);
 	} 
 
 	/// Called after restoring a game. Use this if you need to update any references based on saved data.

@@ -42,7 +42,7 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		//C.Tony.ChangeRoom(R.Hardware);
 		
-		Prop("Water").SetPosition(0, 0 - ((float)Globals.m_progressExample * 30));
+		Prop("Water").SetPosition(0, 0 - ((float)Globals.m_progressExample * 20));
 		
 		if (C.Tony.Room == R.Home) {
 			 C.Tony.SetPosition(new Vector2(Point("HomeDoorPosition")[0] - 100, Point("HomeDoorPosition")[1]));
@@ -65,12 +65,12 @@ public class RoomHome : RoomScript<RoomHome>
 		// Put things here that happen when you enter a room
 		
 		
-		if ( (R.Current.FirstTimeVisited) && (Globals.m_progressExample == eProgress.None) ) // Only run this part the first time you visit
+		if ( (R.Current.FirstTimeVisited) && (Globals.m_progressExample <= eProgress.UsedBucket) ) // Only run this part the first time you visit
 		{
 		Prop("Pump").Disable();
 		Prop("Handle").Disable();
 		C.Dave.SetPosition(Point("StartPosition"));
-		C.Dave.Moveable = false;
+		// C.Dave.Moveable = false;
 		
 		yield return C.Dave.Say("Oh no! My basement is flooded!", 0);
 		yield return C.Dave.Say("Good thing I have my trusty bucket!", 41);
@@ -119,10 +119,13 @@ public class RoomHome : RoomScript<RoomHome>
 			Prop("Water").Clickable = false;
 			if (Globals.tutorialProgress == tutorialStage.selectedBucket) {
 				I.Bucket.AnimCursor = "bucketFull";
+				I.Bucket.AnimCursorInactive = "bucketFull";
+				I.Bucket.AnimGui = "bucketFull";
 				yield return C.Display("You scoop some water up.");
+				Globals.tutorialProgress = tutorialStage.usedBucket;
 				Globals.m_progressExample = eProgress.UsedBucket;
 				lowerWater();
-				I.Bucket.SetActive();
+				// I.Bucket.SetActive();
 			} else {
 				yield return C.Dave.Say(" This bucket ain't gonna cut it...");
 			}
@@ -132,12 +135,17 @@ public class RoomHome : RoomScript<RoomHome>
 		if ( item == I.BilgePump )
 		{
 			Prop("Water").Clickable = false;
-			yield return C.Dave.WalkTo(Point("PumpPosition"));
+			yield return C.Dave.WalkTo(new Vector2(Point("PumpPosition")[0], Point("PumpPosition")[1] + 50));
 			I.BilgePump.Remove();
 			Prop("Pump").Enable();
 			Prop("Handle").Enable();
 			// FaceClicked
 			yield return C.Display("Dave begins to try to pump out the water.", 1);
+			Prop("Pump").Visible = false;
+			Prop("Handle").Visible = false;
+			yield return C.Dave.PlayAnimation("Pumping");
+			Prop("Pump").Visible = true;
+			Prop("Handle").Visible = true;
 			Globals.m_progressExample = eProgress.TriedPump1;
 			lowerWater();
 			// C.Dave.WalkTo(0,-400);
@@ -173,15 +181,15 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator UpdateBlocking()
 	{
-		
+		/*
 		if ( (Globals.tutorialProgress == tutorialStage.usedBucket) && (C.Player.Position != Point("StartPosition") && !C.Player.Walking) )
 		{
 			Globals.tutorialProgress = tutorialStage.complete;
 		
-			yield return C.Display("Walk all the way to the right and click the door to leave your basement.");
+			// Display: Walk all the way to the right and click the door to leave your basement.
 		
 		}
-		
+		*/
 		yield return E.Break;
 	}
 
@@ -323,6 +331,8 @@ public class RoomHome : RoomScript<RoomHome>
 		yield return C.Dave.WalkTo(new Vector2(Point("PumpPosition")[0] - 150, Point("PumpPosition")[1]));
 		yield return C.Dave.Face(eFace.Right);
 		
+		yield return E.Wait(2);
+		
 		yield return C.Tony.Say("Here goes nothing!", 0);
 		Prop("Pump").Visible = false;
 		Prop("Handle").Visible = false;
@@ -404,10 +414,12 @@ public class RoomHome : RoomScript<RoomHome>
 	{
 		if (item == I.Bucket) {
 		
-			if (Globals.tutorialProgress == tutorialStage.selectedBucket) {
+			if (Globals.tutorialProgress == tutorialStage.usedBucket) {
+				I.Bucket.AnimCursor = "bucket";
+				I.Bucket.AnimCursorInactive = "bucket";
+				I.Bucket.AnimGui = "bucket";
 		
-		
-				Globals.tutorialProgress = tutorialStage.usedBucket;
+				Globals.tutorialProgress = tutorialStage.complete;
 				I.Active = null;
 		
 				// ...

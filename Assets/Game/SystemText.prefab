@@ -47,6 +47,12 @@ MonoBehaviour:
   - m_code: EN
     m_description: English
     m_customData: []
+  - m_code: TESTLANG
+    m_description: Test import
+    m_customData: []
+  - m_code: GB
+    m_description: British English
+    m_customData: []
   m_lipSyncExtendedShapes: X
   m_strings:
   - m_character: Dave
@@ -55,7 +61,9 @@ MonoBehaviour:
     m_string: Oh no! My basement is flooded!
     m_sourceFile: Room- Home
     m_sourceFunction: OnEnterRoomAfterFade
-    m_translations: []
+    m_translations:
+    - Oh no! AAHHHHHHHHHHH!!
+    - 'Oi mate by baoisemernts a wee bit flooded '
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -65,7 +73,9 @@ MonoBehaviour:
     m_string: Click on a space in the room to walk to it
     m_sourceFile: Room- Home
     m_sourceFunction: OnEnterRoomAfterFade
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -75,7 +85,9 @@ MonoBehaviour:
     m_string: Good thing I have my trusty bucket!
     m_sourceFile: Room- Home
     m_sourceFunction: OnEnterRoomAfterFade
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -85,7 +97,9 @@ MonoBehaviour:
     m_string: Your bucket is over on the shelf. Click on it to add it to your inventory.
     m_sourceFile: Room- Home
     m_sourceFunction: OnEnterRoomAfterFade
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -95,7 +109,9 @@ MonoBehaviour:
     m_string: ' To access your inventory, move the cursor to the top of the window.'
     m_sourceFile: Room- Home
     m_sourceFunction: OnEnterRoomAfterFade
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -105,7 +121,9 @@ MonoBehaviour:
     m_string: ' There it is! Now I can scoop this water out the window.'
     m_sourceFile: Room- Home
     m_sourceFunction: OnEnterRoomAfterFade
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -115,7 +133,9 @@ MonoBehaviour:
     m_string: ' Click on the bucket icon in your inventory to select  it.'
     m_sourceFile: Room- Home
     m_sourceFunction: OnEnterRoomAfterFade
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -125,7 +145,9 @@ MonoBehaviour:
     m_string: ' Click on the window with the bucket to scoop water out of the basement.'
     m_sourceFile: Room- Home
     m_sourceFunction: OnEnterRoomAfterFade
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -135,7 +157,9 @@ MonoBehaviour:
     m_string: ' It''s a door to the outside.'
     m_sourceFile: Room- Home
     m_sourceFunction: OnLookAtHotspotDoor
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -145,7 +169,9 @@ MonoBehaviour:
     m_string: Ok Here I go...
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractHotspotDoor
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -155,7 +181,9 @@ MonoBehaviour:
     m_string: Dave begins to try to pump out the water.
     m_sourceFile: Room- Home
     m_sourceFunction: OnUseInvPropWater
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -166,7 +194,9 @@ MonoBehaviour:
       has decreased. However, it is not enough...
     m_sourceFile: Room- Home
     m_sourceFunction: OnUseInvPropWater
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -177,7 +207,9 @@ MonoBehaviour:
       of the hose is too small, I need to go back to the hardware store.
     m_sourceFile: Room- Home
     m_sourceFunction: OnUseInvPropWater
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -187,7 +219,9 @@ MonoBehaviour:
     m_string: That's a lot of water!
     m_sourceFile: Room- Home
     m_sourceFunction: OnLookAtPropWater
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -198,7 +232,9 @@ MonoBehaviour:
       decreased.
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractPropPump
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -208,7 +244,9 @@ MonoBehaviour:
     m_string: Still not enough... I could use some extra hands.
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractPropPump
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -218,7 +256,9 @@ MonoBehaviour:
     m_string: ' This isn''t any better. I should try different parts.'
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractPropPump
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -228,7 +268,9 @@ MonoBehaviour:
     m_string: Here goes nothing!
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractCharacterTony
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -238,7 +280,9 @@ MonoBehaviour:
     m_string: ' The recruited muscle has helped bring the water level down.'
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractCharacterTony
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -249,7 +293,9 @@ MonoBehaviour:
       his bucket. Equivalent to using a diuretic.
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractCharacterNeighbor2
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -259,7 +305,9 @@ MonoBehaviour:
     m_string: ' 30 minutes later...'
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractCharacterNeighbor2
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -269,7 +317,9 @@ MonoBehaviour:
     m_string: Phew, I'm exhausted
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractCharacterNeighbor2
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -279,7 +329,9 @@ MonoBehaviour:
     m_string: ' Me too. We could use some extra muscle.'
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractCharacterNeighbor2
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -289,7 +341,9 @@ MonoBehaviour:
     m_string: Bucket added to  your inventory.
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractPropBucket
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -299,7 +353,9 @@ MonoBehaviour:
     m_string: ' There''s my bucket! I can use that to scoop out the water.'
     m_sourceFile: Room- Home
     m_sourceFunction: OnLookAtPropBucket
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -309,7 +365,9 @@ MonoBehaviour:
     m_string: ' You use the bucket to scoop some water out of the window.'
     m_sourceFile: Room- Home
     m_sourceFunction: OnUseInvHotspotWindow
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -319,7 +377,9 @@ MonoBehaviour:
     m_string: Oh man... this is going to take forever.
     m_sourceFile: Room- Home
     m_sourceFunction: OnUseInvHotspotWindow
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -329,7 +389,9 @@ MonoBehaviour:
     m_string: Maybe there's
     m_sourceFile: Room- Home
     m_sourceFunction: OnUseInvHotspotWindow
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -339,7 +401,9 @@ MonoBehaviour:
     m_string: ' The Hardware Store'
     m_sourceFile: Room- Map
     m_sourceFunction: OnLookAtPropHardware
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -349,7 +413,9 @@ MonoBehaviour:
     m_string: ' Home'
     m_sourceFile: Room- Map
     m_sourceFunction: OnLookAtPropHome
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -359,7 +425,9 @@ MonoBehaviour:
     m_string: ' Jim''s House'
     m_sourceFile: Room- Map
     m_sourceFunction: OnLookAtPropNeighbor1
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -369,7 +437,9 @@ MonoBehaviour:
     m_string: ' Bob''s House'
     m_sourceFile: Room- Map
     m_sourceFunction: OnLookAtPropNeighbor2
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -379,7 +449,9 @@ MonoBehaviour:
     m_string: Let's take this back home and see how it works!
     m_sourceFile: Room- Hardware
     m_sourceFunction: OnInteractHotspotDoor
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -389,7 +461,9 @@ MonoBehaviour:
     m_string: I need to buy a pump.
     m_sourceFile: Room- Hardware
     m_sourceFunction: OnInteractHotspotDoor
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -399,7 +473,9 @@ MonoBehaviour:
     m_string: ' Beer has been added to your inventory.'
     m_sourceFile: Room- Hardware
     m_sourceFunction: OnInteractPropBeerPack
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -409,7 +485,9 @@ MonoBehaviour:
     m_string: ' My lucky day...'
     m_sourceFile: Character- Dave
     m_sourceFunction: OnLookAt
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -419,7 +497,9 @@ MonoBehaviour:
     m_string: ' It''s my neighbor Bob. Maybe he can help.'
     m_sourceFile: Character- Tony
     m_sourceFunction: OnLookAt
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -429,7 +509,9 @@ MonoBehaviour:
     m_string: There's the clerk. He looks bored.
     m_sourceFile: Character- HardwareClerk
     m_sourceFunction: OnLookAt
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -439,7 +521,9 @@ MonoBehaviour:
     m_string: "Good luck.\t "
     m_sourceFile: Character- HardwareClerk
     m_sourceFunction: OnInteract
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -449,7 +533,9 @@ MonoBehaviour:
     m_string: ' That''s my friend Jim. '
     m_sourceFile: Character- Neighbor2
     m_sourceFunction: OnLookAt
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -459,7 +545,9 @@ MonoBehaviour:
     m_string: ' Maybe I could call my friend Jim to come help out. '
     m_sourceFile: Item- CellPhone
     m_sourceFunction: OnLookAtInventory
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -469,7 +557,9 @@ MonoBehaviour:
     m_string: ' Thats my cell phone. '
     m_sourceFile: Item- CellPhone
     m_sourceFunction: OnLookAtInventory
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -479,7 +569,9 @@ MonoBehaviour:
     m_string: Sure, I have this bilge pump. It's hand operated.
     m_sourceFile: Dialog- DialogWithClerk
     m_sourceFunction: Option1
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -489,7 +581,9 @@ MonoBehaviour:
     m_string: Is that the only one you have?
     m_sourceFile: Dialog- DialogWithClerk
     m_sourceFunction: Option1
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -499,7 +593,9 @@ MonoBehaviour:
     m_string: Yes
     m_sourceFile: Dialog- DialogWithClerk
     m_sourceFunction: Option1
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -509,7 +605,9 @@ MonoBehaviour:
     m_string: OK, I will take it.
     m_sourceFile: Dialog- DialogWithClerk
     m_sourceFunction: Option1
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -520,7 +618,9 @@ MonoBehaviour:
       inventory (upper right)
     m_sourceFile: Dialog- DialogWithClerk
     m_sourceFunction: Option1
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -530,7 +630,9 @@ MonoBehaviour:
     m_string: ' I am having a hard time pumping the water out of my basement.'
     m_sourceFile: Dialog- DialogWithClerk
     m_sourceFunction: Option2
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -540,7 +642,9 @@ MonoBehaviour:
     m_string: You may want to consider some options for the pump.
     m_sourceFile: Dialog- DialogWithClerk
     m_sourceFunction: Option2
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -550,7 +654,9 @@ MonoBehaviour:
     m_string: We have handles and hoses in stock.
     m_sourceFile: Dialog- DialogWithClerk
     m_sourceFunction: Option2
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -560,7 +666,9 @@ MonoBehaviour:
     m_string: I'll take a medium handle.
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option1
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -570,7 +678,9 @@ MonoBehaviour:
     m_string: Medium Handle added to  your inventory.
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option1
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -580,7 +690,9 @@ MonoBehaviour:
     m_string: Anything else?
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option1
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -590,7 +702,9 @@ MonoBehaviour:
     m_string: I'll take a large handle.
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option2
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -600,7 +714,9 @@ MonoBehaviour:
     m_string: Large Handle added to  your inventory.
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option2
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -610,7 +726,9 @@ MonoBehaviour:
     m_string: Anything else?
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option2
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -620,7 +738,9 @@ MonoBehaviour:
     m_string: I'll take a medium diameter hose.
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option3
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -630,7 +750,9 @@ MonoBehaviour:
     m_string: Medium Hose added to  your inventory.
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option3
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -640,7 +762,9 @@ MonoBehaviour:
     m_string: Anything else?
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option3
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -650,7 +774,9 @@ MonoBehaviour:
     m_string: I'll take a large diameter hose.
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option4
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -660,7 +786,9 @@ MonoBehaviour:
     m_string: Large Hose added to  your inventory.
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option4
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -670,7 +798,9 @@ MonoBehaviour:
     m_string: Anything else?
     m_sourceFile: Dialog- BuyOptions
     m_sourceFunction: Option4
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -680,7 +810,9 @@ MonoBehaviour:
     m_string: Uhh... Now?
     m_sourceFile: Dialog- GetHelpBob
     m_sourceFunction: Option1
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -690,7 +822,9 @@ MonoBehaviour:
     m_string: ' Yeah...'
     m_sourceFile: Dialog- GetHelpBob
     m_sourceFunction: Option1
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -700,7 +834,9 @@ MonoBehaviour:
     m_string: I dunno man...
     m_sourceFile: Dialog- GetHelpBob
     m_sourceFunction: Option1
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -710,7 +846,9 @@ MonoBehaviour:
     m_string: ' I have beer'
     m_sourceFile: Dialog- GetHelpBob
     m_sourceFunction: Option1
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -720,7 +858,9 @@ MonoBehaviour:
     m_string: 'Alright, I''ll see what I can do. '
     m_sourceFile: Dialog- GetHelpBob
     m_sourceFunction: Option1
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -730,7 +870,9 @@ MonoBehaviour:
     m_string: Hi Jim. My basement is flooded, can you come over and help me out?
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option1
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -740,7 +882,9 @@ MonoBehaviour:
     m_string: That doesn't sound good. I'll bring my bucket.
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option1
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -750,7 +894,9 @@ MonoBehaviour:
     m_string: Hi Dave, I'm here to he-
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option1
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -760,7 +906,9 @@ MonoBehaviour:
     m_string: ...
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option1
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -770,7 +918,9 @@ MonoBehaviour:
     m_string: Oh boy.
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option1
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -780,7 +930,9 @@ MonoBehaviour:
     m_string: Hi, I'd like to order a large cheese and pepporini pizza for delivery
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option2
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -790,7 +942,9 @@ MonoBehaviour:
     m_string: ' Okay, what is the address?'
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option2
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -800,7 +954,9 @@ MonoBehaviour:
     m_string: ' 22 Hart Street'
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option2
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -810,7 +966,9 @@ MonoBehaviour:
     m_string: ' Your order will be there in 30 minutes.'
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option2
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -820,7 +978,9 @@ MonoBehaviour:
     m_string: You can't use that
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledInteract
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -830,7 +990,9 @@ MonoBehaviour:
     m_string: That doesn't work
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledInteract
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -840,7 +1002,9 @@ MonoBehaviour:
     m_string: Nothing happened
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledInteract
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -850,7 +1014,9 @@ MonoBehaviour:
     m_string: 'It''s nothing interesting '
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledLookAt
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -860,7 +1026,9 @@ MonoBehaviour:
     m_string: You don't see anything
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledLookAt
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -870,7 +1038,9 @@ MonoBehaviour:
     m_string: The "+ mouseOver.Description.ToLower() + " isn't very interesting
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledLookAt
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -880,7 +1050,9 @@ MonoBehaviour:
     m_string: You can't use those together
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledUseInvInv
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -890,7 +1062,9 @@ MonoBehaviour:
     m_string: You can't use that
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledUseInv
-    m_translations: []
+    m_translations:
+    - 
+    - 
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0

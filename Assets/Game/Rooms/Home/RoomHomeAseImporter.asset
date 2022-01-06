@@ -13,17 +13,20 @@ MonoBehaviour:
   m_Name: RoomHomeAseImporter
   m_EditorClassIdentifier: 
   m_animations:
-  - m_name: Back
+  - m_name: Water Levels
     m_firstFrame: 1
-    m_length: 1
-  - m_name: Water
-    m_firstFrame: 2
-    m_length: 1
+    m_loop: 0
+    m_length: 11
+    m_frameDurations: 6400000064000000640000006400000064000000640000006400000064000000640000006400000064000000
   m_packingTag: RoomForest
   m_pixelsPerUnit: 1
   m_filterMode: 0
-  m_sourcePSD: ../Documents/asesprite/BasementBackgroundSprite_split.ase
-  m_sourceDirectory: ..\Documents\asesprite/Export
+  m_compression: 0
+  m_crunchedCompression: 0
+  m_sourcePSD: ../Documents/HeartBasementAssets/HeartBasementBasementBackground.aseprite
+  m_sourceDirectory: ..\Documents\HeartBasementAssets/Export
   m_deleteImportedPngs: 1
   m_spriteDirectory: Sprites
   m_gui: 0
+  m_isAseprite: 1
+  m_trimSprites: 0
