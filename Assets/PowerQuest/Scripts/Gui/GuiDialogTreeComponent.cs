@@ -14,7 +14,7 @@ namespace PowerTools.Quest
 
 public class GuiDialogTreeComponent : MonoBehaviour 
 {
-	enum eAlignVertical { BottomUp, TopDown }
+	enum eAlignVertical { BottomUp, TopDown }//, Top = TopDown, Center, Bottom = BottomUp }
 
 	[SerializeField, Tooltip("The padding between each option")] float m_itemSpacing = 2;
 	[SerializeField] Color m_colorDefault = Color.white;

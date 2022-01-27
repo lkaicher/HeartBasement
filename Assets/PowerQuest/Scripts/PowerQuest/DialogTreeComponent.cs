@@ -142,6 +142,11 @@ public partial class DialogTree : IQuestScriptable, IDialogTree
 		m_options.ForEach(item=> {if (item.Visible) ++result;} );
 		return result;
 	} }
+	public int NumOptionsUnused { get {
+		int result = 0;
+		m_options.ForEach(item=> {if (item.Used == false) ++result;} );
+		return result;
+	} }
 	
 	public bool FirstTimeShown {get=> m_timesShown <= 1; }
 	public int TimesShown {get => m_timesShown;}

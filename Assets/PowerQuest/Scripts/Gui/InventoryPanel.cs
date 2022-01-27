@@ -8,7 +8,7 @@ namespace PowerTools.QuestGui
 {
 
 [System.Serializable] 
-//[AddComponentMenu("Quest Gui/InventoryPanel")]
+[AddComponentMenu("Quest Gui/InventoryPanel")]
 public partial class InventoryPanel : GuiControl, IInventoryPanel
 {
 	//////////////////////////////////////////////////////////////////////////////////////////
@@ -16,20 +16,21 @@ public partial class InventoryPanel : GuiControl, IInventoryPanel
 	
 	[Tooltip("Name of character to show inventory of. If empty will use the current player")]
 	[SerializeField] string m_targetCharacter = null;
-
+	[SerializeField] bool m_reverseOrder = false;
+	[Tooltip("Sets the cursor to show if hovering over the item")]
+	[SerializeField] string m_itemCursor = null;
 	[SerializeField] InventoryPanelItem m_itemPrefab = null;
 	[SerializeField] Button m_buttonScrollBack = null;
 	[SerializeField] Button m_buttonScrollForward = null;
+	[SerializeField] SpriteMask m_mask = null;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Private vars
 	
 	GridContainer m_grid = null;
 	
-	// Todo: Make these non-static so you can have multiple inventory panels. (or make guis persist across scenes)
-	// holds the last collected item to check if the inventory needs to be scrolled.
-	static Character.CollectedItem m_lastCollectedItem = null;	
-	static Vector2 m_itemOffset = Vector2.zero;	
+	Character.CollectedItem m_lastCollectedItem = null;	
+	Vector2 m_itemOffset = Vector2.zero;	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Functions: IInventoryPanel interface	
@@ -95,7 +96,7 @@ public partial class InventoryPanel : GuiControl, IInventoryPanel
 			GridContainer grid = GetComponent<GridContainer>();
 			if ( grid == null )
 				return RectCentered.zero;
-			return grid.CustomSize;
+			return grid.Rect;
 			
 		} 
 		set
@@ -103,7 +104,7 @@ public partial class InventoryPanel : GuiControl, IInventoryPanel
 			GridContainer grid = GetComponent<GridContainer>();
 			if ( grid == null )
 				return;
-			grid.CustomSize = value;
+			grid.Rect = value;
 		} 
 	}
 	
@@ -185,14 +186,22 @@ public partial class InventoryPanel : GuiControl, IInventoryPanel
 		Character character = TargetCharacter as Character;
 		List<Character.CollectedItem> inventory = character.GetInventory();
 
-		// If last collected item changed, scroll to it automatically
+		// If last collected item changed, scroll to it automatically		
 		if (inventory.Count > 0 && inventory[inventory.Count-1] != m_lastCollectedItem)
 		{			
-			// scroll to end
-			while ( m_grid.HasNextColumn() )
-				m_grid.NextColumn();
-			while ( m_grid.HasNextRow() )
-				m_grid.NextRow();
+			if ( m_reverseOrder )
+			{
+				// Scroll to start
+				m_grid.ScrollOffset = Vector2.zero;
+			}
+			else 
+			{
+				// scroll to end
+				while ( m_grid.HasNextColumn() )
+					m_grid.NextColumn();
+				while ( m_grid.HasNextRow() )
+					m_grid.NextRow();
+			}
 
 			// take note of the last collected item
 			m_lastCollectedItem = inventory[inventory.Count-1];
@@ -206,6 +215,23 @@ public partial class InventoryPanel : GuiControl, IInventoryPanel
 				GetComponentInParent<GuiDropDownBar>()?.Hide();
 			}
 		}
+
+
+		if ( m_mask )
+		{
+			int sortOrder = -Mathf.RoundToInt((GuiData.Baseline * 100.0f) + Baseline);
+			int layer = SortingLayer.NameToID("Gui");
+			//m_mask.sortingLayerName = "Gui";
+			m_mask.backSortingLayerID = layer;
+			m_mask.frontSortingLayerID = layer;
+			m_mask.frontSortingOrder = sortOrder;
+			m_mask.backSortingOrder = sortOrder-1;
+
+			// Size and position mask to match rect
+			m_mask.transform.position = m_grid.Rect.Center.WithZ(0);
+			m_mask.transform.localScale = m_grid.Rect.Size.WithZ(1);
+		}
+
 
 	}
 
@@ -229,7 +255,6 @@ public partial class InventoryPanel : GuiControl, IInventoryPanel
 			box.size = m_grid.ItemSpacing.WithOffset(-2,-2);
 			box.isTrigger = true;
 			obj.GetComponent<SpriteRenderer>().sortingLayerName="Gui";
-			
 		}
 
 		obj.AddComponent<InventoryComponent>();
@@ -242,6 +267,15 @@ public partial class InventoryPanel : GuiControl, IInventoryPanel
 		control.Baseline = Baseline;
 		control.SetGui(GuiData);
 
+		if ( m_mask != null )
+		{
+			SpriteRenderer[] renderers = obj.GetComponentsInChildren<SpriteRenderer>();
+			foreach( SpriteRenderer renderer in renderers)
+			{
+				renderer.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
+			}
+		}
+
 		return obj;
 	}
 
@@ -249,7 +283,6 @@ public partial class InventoryPanel : GuiControl, IInventoryPanel
 	{
 		Character character = TargetCharacter as Character;
 		List<Character.CollectedItem> inventory = character.GetInventory();
-		
 		
 		// add to end if not enough
 		while ( m_grid.Items.Count < inventory.Count )
@@ -274,8 +307,15 @@ public partial class InventoryPanel : GuiControl, IInventoryPanel
 			if ( m_grid.GetItemVisible(i) == false )
 				continue; 
 			
-			Inventory inventoryItem = PowerQuest.Get.GetInventory(inventory[i].m_name);
+			Inventory inventoryItem = PowerQuest.Get.GetInventory( m_reverseOrder ? inventory[inventory.Count-1-i].m_name : inventory[i].m_name );
+			// Set data of the InventoryComponent in the control. So it can be retrieved when you click
 			m_grid.Items[i].GetComponent<InventoryComponent>().SetData(inventoryItem);
+
+			// Override cursor
+			if ( IsString.Set(m_itemCursor) )
+				inventoryItem.Cursor=m_itemCursor;
+			
+			// Set up visuals of the InventoryPanelItem
 			InventoryPanelItem panelItem = m_grid.Items[i].GetComponent<InventoryPanelItem>();
 			if ( panelItem.GetCachedAnimSpriteName() != inventoryItem.AnimGui) 
 			{
@@ -283,7 +323,7 @@ public partial class InventoryPanel : GuiControl, IInventoryPanel
 				if ( clip != null )
 					panelItem.SetInventoryAnim( clip );
 				else if ( clip == null )
-					panelItem.SetInventorySprite( GuiComponent.GetSprite(inventoryItem.AnimGui) );		
+					panelItem.SetInventorySprite( GuiComponent.GetSprite(inventoryItem.AnimGui) );	
 			}
 		}
 
@@ -304,7 +344,7 @@ public partial class InventoryPanel : GuiControl, IInventoryPanel
 				m_buttonScrollBack.Hide();
 		}
 	}
-		
+		/* NB: This was never used
 	void OnSetVisible()
 	{
 		if ( gameObject.activeSelf == false && Visible)
@@ -315,7 +355,7 @@ public partial class InventoryPanel : GuiControl, IInventoryPanel
 		{   
 			renderer.GetComponent<Renderer>().enabled = Visible;
 		}
-	}
+	}*/
 	
 	void OnForwardButton(GuiControl control) { ScrollForward(); }
 	void OnBackButton(GuiControl control) { ScrollBack(); }

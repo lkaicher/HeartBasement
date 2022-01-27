@@ -11,13 +11,116 @@ namespace PowerTools.Quest
 public static class QuestUtils
 {
 
+
+	public static float Ease( float ratio, eEaseCurve curve = eEaseCurve.InOutSmooth )
+	{		
+		if ( ratio <= 0 )
+			return 0;
+		if ( ratio >= 1)
+			return 1;
+			
+		float x = ratio;
+			
+		// I think this is basically a cheap version of the sin wave one. It's what's used for perlin noise
+		switch (curve)
+		{
+			case eEaseCurve.InSmooth:
+			{
+				ratio *= 0.5f;
+				return (-2.0f*ratio*ratio*ratio + 3.0f*ratio*ratio) * 2.0f;
+			} 
+
+			case eEaseCurve.OutSmooth:
+			{
+				ratio = ratio * 0.5f + 0.5f;
+				return (-2.0f*ratio*ratio*ratio + 3.0f*ratio*ratio) * 2.0f - 1.0f;
+			} 
+
+			case eEaseCurve.InOutSmooth:
+			{
+				return (-2.0f*ratio*ratio*ratio + 3.0f*ratio*ratio);
+			} 
+
+			case eEaseCurve.InSine:
+			{
+				return 1.0f - Mathf.Cos(ratio*Mathf.PI*0.5f);
+			} 
+			case eEaseCurve.OutSine:
+			{
+				return Mathf.Sin((x*Mathf.PI)*0.5f);
+			} 
+			case eEaseCurve.InOutSine:
+			{
+				return -(Mathf.Cos(x*Mathf.PI)-1)*0.5f;
+			} 
+			case eEaseCurve.InQuad:
+			case eEaseCurve.OutQuad:
+			case eEaseCurve.InOutQuad:
+			case eEaseCurve.InCubic:
+			case eEaseCurve.OutCubic:
+			case eEaseCurve.InOutCubic:
+			case eEaseCurve.InQuart:
+			case eEaseCurve.OutQuart:
+			case eEaseCurve.InOutQuart:
+			case eEaseCurve.InQuint:
+			case eEaseCurve.OutQuint:
+			case eEaseCurve.InOutQuint:
+			{				
+				float pow = ((float)curve-(float)((int)eEaseCurve.InQuad/3))+2;
+				int dir = (int)curve-(int)eEaseCurve.InQuad%3;
+				if ( dir == 0)
+				{
+					return Mathf.Pow(ratio,pow);
+				}
+				else if ( dir == 1 )
+				{
+					return 1.0f - Mathf.Pow(1.0f-ratio, pow);
+				}
+				else 
+				{
+					return x < 0.5f ? Mathf.Pow(2,pow-1f)*Mathf.Pow(x,pow) :  1.0f - Mathf.Pow(-2f*x + 2f, pow) * 0.5f;
+				}
+			
+			} 
+			case eEaseCurve.InExp:
+			{
+				return Mathf.Pow(2f,(10*x) - 10f);
+			} 
+			case eEaseCurve.OutExp:
+			{
+				return 1.0f - Mathf.Pow(2f,-10f*x);
+			} 
+			case eEaseCurve.InOutExp:
+			{
+				return x < 0.5f ? Mathf.Pow(2f,(20f*x)-10f) * 0.5f : (2.0f - Mathf.Pow(2f,(-20f*x)+10f))*0.5f;
+			} 
+			case eEaseCurve.InElastic:
+			{
+				const float c4 = (2f * Mathf.PI) / 3f;
+				return -Mathf.Pow(2,10*x-10) * Mathf.Sin((x*10-10.75f)*c4);
+			} 
+			case eEaseCurve.OutElastic:
+			{
+				const float c4 = (2f * Mathf.PI) / 3f;
+				return Mathf.Pow(2,-10*x) * Mathf.Sin((x*10-0.75f)*c4)+1;
+			} 
+			case eEaseCurve.InOutElastic:
+			{
+				throw new System.NotImplementedException();
+			} 
+		}		
+
+		// Linear, etc
+		return ratio;
+	}
+
 	//
 	// Reflection doodads
 	//
 
 	static readonly BindingFlags BINDING_FLAGS = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;	// NB: I added 'declared only' not sure if it'll break anything yet!
 
-	// Copies properties and variables from one class to another
+	/// Copies properties and variables from one class to another. NB: This is a shallow copy! Any lists or class references of the object will still point to the original! Copy them manually using CopyListFields(...)!
 	public static void CopyFields<T>(T to, T from)
 	{
 		System.Type type = to.GetType();
@@ -29,6 +132,20 @@ public static class QuestUtils
 		{
 			finfo.SetValue(to, finfo.GetValue(from));
 		}
+	}
+
+	// Deep copies a list of class objects. Used for copying default inventory item data and points data when a character/room is initialised from its prefab
+	public static List<T> CopyListFields<T>(List<T> from) where T : new()
+	{
+		// Deep copy inventory	
+		List<T> result = new List<T>(from.Count);
+		foreach ( T original in from )
+		{
+			T newItem = new T();
+			QuestUtils.CopyFields(newItem, original);
+			result.Add(newItem);	
+		}
+		return result;
 	}
 
 	// Used to copy data when assembly has changed due to hotloading a script

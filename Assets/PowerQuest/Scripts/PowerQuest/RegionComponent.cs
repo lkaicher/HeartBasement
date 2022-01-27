@@ -24,7 +24,9 @@ public partial class Region : IRegion, IQuestScriptable
 	[Tooltip("Whether character can walk over region, if false they'll path around it")]
 	[SerializeField] bool m_walkable = true;
 	[Tooltip("Colour to tint the player when in this area")]
-	[SerializeField] Color m_tint = new Color(1,1,1,0); // TODO: Player tint
+	[SerializeField] Color m_tint = new Color(1,1,1,0);
+	[Tooltip("Distance a character has to move into a region before tint is fully faded in")]
+	[SerializeField] float m_fadeDistance = 0;
 	[Tooltip("Amount to scale the player while in the region (at the top)")]
 	[SerializeField] float m_scaleTop = 1;
 	[Tooltip("Amount to scale the player while in the region (at the bottom)")]
@@ -64,6 +66,7 @@ public partial class Region : IRegion, IQuestScriptable
 		}
 	}
 	public Color Tint { get{ return m_tint;} set{m_tint = value;} }
+	public float FadeDistance { get{ return m_fadeDistance;} set{m_fadeDistance = value;} }
 	public float ScaleTop { get{ return m_scaleTop;}  set{ m_scaleTop = value; }  }
 	public float ScaleBottom { get{ return m_scaleBottom;} set{ m_scaleBottom = value;}  }
 	public bool GetCharacterOnRegion(ICharacter character) { return m_instance == null ? false : m_instance.GetCharacterOnRegion(character.Data); }
@@ -156,7 +159,7 @@ public class RegionComponent : MonoBehaviour
 
 	public bool GetCharacterOnRegion(Character character)
 	{
-		return m_data.GetCharacterOnRegionMask().Get( PowerQuest.Get.GetCharacterId(character) );
+		return m_data?.GetCharacterOnRegionMask()?.Get( PowerQuest.Get.GetCharacterId(character) ) ?? false;
 	}
 
 	// checks if character is in zone. Doesn't check if character is in room, so check that before calling. Returns true if standing on region
@@ -177,6 +180,25 @@ public class RegionComponent : MonoBehaviour
 		if ( GetData().ScaleTop == 1 && GetData().ScaleBottom == 1 )
 			return 1; // Scaling off
 		return Mathf.Lerp( GetData().ScaleBottom, GetData().ScaleTop, Mathf.InverseLerp(m_minColliderY, m_maxColliderY, position.y ));
+	}
+
+	// Note: Only call if point is inside region
+	public float GetDistanceIntoRegion(Vector2 point)
+	{
+		if ( m_polygonCollider == null )
+			return 0;
+		return RegionPolyUtil.CalcDistToEdge(m_polygonCollider.points, point);
+	}
+	
+	// Note: Only call if point is inside region
+	public float GetFadeRatio(Vector2 point)
+	{
+		if ( GetData().FadeDistance <= 0)
+			return 1;
+		if ( m_polygonCollider == null )
+			return 1;
+       
+        return Mathf.Clamp01(GetDistanceIntoRegion(point)/GetData().FadeDistance);
 	}
 
 	// Updates and returns whether the character entered/exited/stayed in the region. this is used in non-blocking situations
@@ -245,6 +267,119 @@ public class RegionComponent : MonoBehaviour
 
 	}
 	*/
+	
+	// From https://stackoverflow.com/questions/19048122/how-to-get-the-nearest-point-outside-a-polygon-from-a-point-inside-a-polygon
+	public class RegionPolyUtil
+	{
+		public static float CalcDistToEdge(Vector2[] poly, Vector2 point)
+		{			
+			float minDist = float.MaxValue;
+			Vector2 pointA = poly[poly.Length-1];
+			for ( int i = 0; i < poly.Length; ++i )
+			{
+				Vector2 pointB =  poly[i];
+				float dist = (NearestPointOnLine(pointA,pointB,point)-point).sqrMagnitude;
+				if ( dist < minDist )
+					minDist = dist;
+				pointA = pointB;
+			}
+			return Mathf.Sqrt(minDist);
+		}
+
+		// Gets the closed point that isn't inside the polygon... Note- doesn't work if points are too far
+		public static Vector2 CalcClosestPointOnEdge(Vector2[] poly, Vector2 point)
+		{
+			//return GetClosestPointInSegment(ClosestSegment(poly, point), point);
+			Vector2[] closestSeg = ClosestSegment(poly, point); 
+			//return NewPointFromCollision(closestSeg[0], closestSeg[1], point);
+			return NearestPointOnLine(closestSeg[0], closestSeg[1], point); // Get nearest point on the closest segment
+		}
+		
+		static Vector2 NearestPointOnLine( Vector2 a, Vector2 b, Vector2 p )//float ax, float ay, float bx, float by, float px, float py)
+		{
+			// https://stackoverflow.com/questions/1459368/snap-point-to-a-line-java
+			float apx = p.x - a.x;
+			float apy = p.y - a.y;
+			float abx = b.x - a.x;
+			float aby = b.y - a.y;
+
+			float ab2 = abx * abx + aby * aby;
+			float ap_ab = apx * abx + apy * aby;
+			float t = ap_ab / ab2;
+			if (t < 0)
+			{
+				t = 0;
+			}
+			else if (t > 1)
+			{
+				t = 1;
+			}
+			return new Vector2((float)(a.x + (abx * t)), (float)(a.y + aby * t));
+		}
+
+		static Vector2[] ClosestSegment(Vector2[] points, Vector2 point)
+		{
+
+			Vector2[] returns = new Vector2[2];
+
+			int index = ClosestPointIndex(points, point);
+
+			returns[0] = points[index];
+
+			Vector2[] neighbors = new Vector2[] {
+				points[(index+1+points.Length)%points.Length],
+				points[(index-1+points.Length)%points.Length]
+			};
+
+			float[] neighborAngles = new float[] {
+				GetAngle(new Vector2[] {point, returns[0], neighbors[0]}),
+				GetAngle(new Vector2[] {point, returns[0], neighbors[1]})
+			};
+			// The neighbor with the lower angle is the one to use
+			if (neighborAngles[0] < neighborAngles[1])
+			{
+				returns[1] = neighbors[0];
+			}
+			else
+			{
+				returns[1] = neighbors[1];
+			}
+
+			return returns;
+
+		}
+
+		static float GetAngle(Vector2[] abc)
+		{
+			// https://stackoverflow.com/questions/1211212/how-to-calculate-an-angle-from-three-points
+			// atan2(P2.y - P1.y, P2.x - P1.x) - atan2(P3.y - P1.y, P3.x - P1.x)        
+			return Mathf.Atan2(abc[2].x - abc[0].y, abc[2].x - abc[0].x) - Mathf.Atan2(abc[1].y - abc[0].y, abc[1].x - abc[0].x);
+		}
+
+		static int ClosestPointIndex(Vector2[] points, Vector2 point)
+		{
+			int leastDistanceIndex = 0;
+			float leastDistance = float.MaxValue;
+
+			for (int i = 0; i < points.Length; i++)
+			{
+				float dist = (points[i]-point).sqrMagnitude;
+				if (dist < leastDistance)
+				{
+					leastDistanceIndex = i;
+					leastDistance = dist;
+				}
+			}
+
+			return leastDistanceIndex;
+		}
+
+
+		static float GetThing(Vector2[] points, Vector2 point)
+		{
+			return 0;
+		}
+	}
 }
 
 }

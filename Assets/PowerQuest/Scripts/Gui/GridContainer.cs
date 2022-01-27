@@ -27,9 +27,12 @@ public class GridContainer : MonoBehaviour
 	//////////////////////////////////////////////////////////////////////////////////////////
 	// Editor vars	
 
-	[UnityEngine.Serialization.FormerlySerializedAs("m_cellSize")]
+
+    [Tooltip("If true, child objects of the container are automatically added to the container")]
+    [SerializeField] bool m_autoLayoutChildren = false;
+
 	[SerializeField] Vector2 m_itemSpacing = new Vector2(16,16);
-	
+		
 	[Tooltip("How many items are displayed on a row before wrapping to the next one. If zero, it never wraps")]	
 	[Min(0)]
 	[SerializeField] int m_columnsPerRow = 0;
@@ -44,8 +47,20 @@ public class GridContainer : MonoBehaviour
 	[Tooltip("Number of rows visible before scrolling. If zero, it's treated as infinite rows")]
 	[Min(0)]
 	[SerializeField] int m_scrollRows = 0;	
+
+	[Tooltip("How many pixels outside the size to continue drawing objects. Useful for smooth scrolling with a sprite-mask")]
+	[SerializeField] Vector2 m_overdraw = Vector2.zero;
+
+	//[Tooltip("Whether to leave a space where a Disabled/Hidden item is in the list. If true, other items will fill in the gap")]
+	//[SerializeField] bool m_removeDisabledItems = true;
 	
 	[SerializeField] List<Transform> m_items = new List<Transform>();
+	
+
+	//[SerializeField, HideInInspector] RectCentered m_customSize = RectCentered.zero;
+	// Size in world pos
+	[SerializeField, HideInInspector] Vector2 m_size = Vector2.zero;//RectCentered.zero;
+
 
 	// Maybe should start assuming these don't change
 	
@@ -62,46 +77,65 @@ public class GridContainer : MonoBehaviour
 	// Private vars
 
 	Vector2 m_offset = Vector2.zero;	
+    int m_numChildrenCached = -1;
 	
 	//////////////////////////////////////////////////////////////////////////////////////////
 	// Public functions
 
+	// Set custom size based on the current position, grid size, and number of grid columns and rows. This doesn't happen automatically when setting number or rows/columns
+	public void SetSizeFromGrid() 
+	{
+		m_size = new Vector2(WidthInColumns * m_itemSpacing.x,HeightInRows * m_itemSpacing.y);
+	}
+
+	public RectCentered FilledRect { get 
+	{
+		Vector2 size = new Vector2(FilledColumns * m_itemSpacing.x, FilledRows * m_itemSpacing.y);
+		RectCentered result = new RectCentered();
+		result.Size = size;
+
+		// Grid pivot is center of first item. To ge tthe center, we do pos + (width - itemspacing)*0.5f.  Note that y on the offset is flipped (because down is negative)
+		result.Center = (Vector2)transform.position + (result.Size - ItemSpacing).WithFlippedY()*0.5f;
+		return result;
+	}}
+
 	// The size in world coords of the grid. Setting this will change the columns per row, and scroll rows, etc to fit items in the grid
-	public RectCentered CustomSize
+	public RectCentered Rect
 	{ 
 		get
 		{
-			RectCentered result = new RectCentered(transform.position.x, transform.position.y, ItemSpacing.x, ItemSpacing.y);
-			result.Width = ItemSpacing.x * Mathf.Max(1,GridColumns);
-			result.Height= ItemSpacing.y * Mathf.Max(1,GridRows);
+			if ( m_size == Vector2.zero )
+				SetSizeFromGrid();
+			
+			RectCentered result = new RectCentered();
+			result.Size = m_size;
 
 			// Grid pivot is center of first item. To ge tthe center, we do pos + (width - itemspacing)*0.5f.  Note that y on the offset is flipped (because down is negative)
 			result.Center = (Vector2)transform.position + (result.Size - ItemSpacing).WithFlippedY()*0.5f;
-
 			return result;
-			
 		} 
 		set
 		{
-			GridContainer grid = GetComponent<GridContainer>();
-			if ( grid == null )
-				return;
-			int rows = Mathf.Max(1,Mathf.FloorToInt(value.Height / grid.ItemSpacing.y));
-			int columns = Mathf.Max(1,Mathf.FloorToInt(value.Width / grid.ItemSpacing.x));
+			int rows = Mathf.Max(1,Mathf.FloorToInt(value.Height / ItemSpacing.y));
+			int columns = Mathf.Max(1,Mathf.FloorToInt(value.Width / ItemSpacing.x));
 			if ( rows > 1 )
 			{
-				grid.ColumnsPerRow = columns;
-				grid.ScrollColumns = 0;
+				ColumnsPerRow = columns;
+				ScrollColumns = 0;
 			}
 			else 
 			{
-				grid.ColumnsPerRow = 0;
-				grid.ScrollColumns = columns;	
+				ColumnsPerRow = 0;
+				ScrollColumns = columns;	
 			}
-			grid.ScrollRows = rows;
-			
+			ScrollRows = rows;			
+
 			// Basically reverse of "get"
-			transform.position = (value.Center - (value.Size - grid.ItemSpacing).WithFlippedY()*0.5f).WithZ(transform.position.z);
+			transform.position = (value.Center - (value.Size - ItemSpacing).WithFlippedY()*0.5f).WithZ(transform.position.z);
+			
+			m_size = value.Size;
+
+			DoLayout();
 		} 
 	}
 
@@ -110,8 +144,13 @@ public class GridContainer : MonoBehaviour
 		get=>m_itemSpacing;
 		set
 		{
-			m_itemSpacing = value;
-			DoLayout();
+			Vector2 newSpacing = new Vector2(Mathf.Max(1,value.x), Mathf.Max(1,value.y));
+			if ( newSpacing != m_itemSpacing )
+			{
+				m_itemSpacing = newSpacing;
+				SetSizeFromGrid();
+				DoLayout();
+			}
 		}
 	}
 
@@ -120,9 +159,16 @@ public class GridContainer : MonoBehaviour
 		m_items.Add(item);
 		DoLayout();
 	}
+
 	public void RemoveItem( Transform item )
 	{
 		m_items.Remove(item);
+		DoLayout();
+	}
+	
+	public void RemoveAt(int index) 
+	{
+		m_items.RemoveAt(index);
 		DoLayout();
 	}
 
@@ -132,19 +178,20 @@ public class GridContainer : MonoBehaviour
 	public bool GetItemVisible(int index)
 	{
 		Vector2 pos = GetItemPos(index);
-
+		
+		Vector2 visibleSize = FilledSize;
 		pos -= ScrollOffset;
-		bool visible = pos.x >= 0 && pos.y <= 0 ;
-		Vector2 visibleSize = VisibleSize;
+		bool visible = pos.x >= -m_overdraw.x && pos.y <= m_overdraw.y ;
 		if ( visibleSize.x > 0 )
-			visible &= pos.x < visibleSize.x;
+			visible &= pos.x < visibleSize.x+m_overdraw.x;
 		if ( visibleSize.y > 0 )
-			visible &= pos.y > -visibleSize.y;
+			visible &= pos.y > -(visibleSize.y+m_overdraw.y);
 		return visible;	
 	}
 
 	public Vector2 GetItemPos(int index)
 	{		
+		index = ItemIndex(index);
 		Vector2 pos = Vector2.zero;				
 		pos.x = IndexToColumn(index) * (float)m_itemSpacing.x;
 		pos.y = -IndexToRow(index) * (float)m_itemSpacing.y;
@@ -162,31 +209,30 @@ public class GridContainer : MonoBehaviour
 
 	/// Columns before scrolling. 0 if no limit
 	public int ScrollColumns { get => m_scrollColumns; set { m_scrollColumns = Mathf.Max(0,value); DoLayout(); } }
-
+	
 	/// Rows before scrolling. 0 if no limit
 	public int ScrollRows { get => m_scrollRows; set { m_scrollRows = Mathf.Max(0,value); DoLayout(); } }
 
-	// The number of columns of items (filled columns, not the max columns)
-	public int VisibleColumns => Constrain(m_items.Count,m_columnsPerRow,m_scrollColumns);
+	/// The number of columns of items (filled columns, not the max columns)
+	public int FilledColumns => Constrain(ItemCount,m_columnsPerRow,m_scrollColumns);
 	
-	// The number of rows of items (ie: not the max)
-	public int VisibleRows => Constrain(FilledRows, GridRows);
+	/// The number of rows of items (ie: not the max)
+	public int FilledRows => Constrain(LastFilledRow, HeightInRows);
 	
-	// Gives the column for an item index	
+	/// Gives the column for an item index	
 	public int IndexToColumn(int index) => (index <= 0 ? 0 : m_columnsPerRow <= 0 ? index : (index % m_columnsPerRow) );
 
-	// Gives the row for an item index
+	/// Gives the row for an item index
 	public int IndexToRow(int index) => ( (m_columnsPerRow <= 0 || index <= 0) ? 0 : (index / m_columnsPerRow) );
 
-	// The last column with an item in it, even if outside bounds
-	public int FilledColumns => Constrain(m_items.Count,m_columnsPerRow);  // if wrapping enabled, and ahve warpped, return wrap width, else return number of items
-	//public int FilledColumns => (m_columnsPerRow > 0 || m_items.Count > m_columnsPerRow ) ? m_columnsPerRow : m_items.Count;  // if wrapping enabled, and ahve warpped, return wrap width, else return number of items
-		
-	// The last row with an item in it, even if outside bounds
-	public int FilledRows => IndexToRow(m_items.Count-1)+1; // Return the row of the last item (plus 1, because we want the total num, not last index)
+	/// The last column with an item in it, even if outside bounds
+	public int LastFilledColumn => Constrain(ItemCount,m_columnsPerRow);  // if wrapping enabled, and ahve warpped, return wrap width, else return number of items
+			
+	/// The last row with an item in it, even if outside bounds
+	public int LastFilledRow => IndexToRow(ItemCount-1)+1; // Return the row of the last item (plus 1, because we want the total num, not last index)
 
-	// Returns the number of columns of the gridContainer, before scrolling or wrapping. Basically the "width" of the grid in columns.
-	public int GridColumns { get {
+	/// Returns the number of columns of the gridContainer, before scrolling or wrapping. Basically the "width" of the grid in columns.
+	public int WidthInColumns { get {
 		
 		if ( m_scrollColumns > 0 && (m_columnsPerRow <= 0 || m_columnsPerRow > m_scrollColumns ) )
 			return m_scrollColumns; // If columns num is set, and row width isn't (or is bigger than columns)
@@ -198,33 +244,17 @@ public class GridContainer : MonoBehaviour
 		
 	} }
 
-	// Returns the max number of columns that can be shown, or 0 if infinite
-	public int GridRows => m_scrollRows;
+	/// Returns the max number of columns that can be shown, or 0 if infinite
+	public int HeightInRows => m_scrollRows;
 	
-	// Grid size (world units) is the size before scrolling. If no max is set, returns 0 for that axis
-	public Vector2 GridSize => new Vector2(GridColumns * m_itemSpacing.x,GridRows * m_itemSpacing.y);
+	/// Grid size (world units) is the size before scrolling. If no max is set, returns 0 for that axis
+	//public Vector2 GridSize => new Vector2(WidthInColumns * m_itemSpacing.x,HeightInRows * m_itemSpacing.y);
 
-	// Actual size of container's current visible contents (world units) 
-	public Vector2 VisibleSize  => new Vector2( VisibleColumns * m_itemSpacing.x, VisibleRows * m_itemSpacing.y );
+	/// Actual size of container's current visible contents (world units) 
+	public Vector2 FilledSize  => new Vector2( FilledColumns * m_itemSpacing.x, FilledRows * m_itemSpacing.y );
 
-	// Returns size in world units. If a grid size is specified, that's used. Otherwise, it's the size of the items
-	public Vector2 Size { get
-	{	
-		Vector2 size = Vector2.zero;		
-		// First find rows/columns visible			
-		if ( GridSize.x > 0 )  // Columns have limit, set that as the size
-			size.x = GridSize.x;
-		else  // no columns, therefore infinite size, so set size to actual size?				
-			size.x = VisibleSize.x;
-
-		if ( GridSize.y > 0 ) // Rows have limit, set that as the size
-			size.y = GridSize.y;
-		else  // No row limit. Set to actual size
-			size.y = VisibleSize.y;
-		return size;		
-	}}
 	 
-	// Scroll offset in world coordinates
+	/// Scroll offset in world coordinates
 	public Vector2 ScrollOffset
 	{
 		get { return m_offset; }
@@ -245,9 +275,9 @@ public class GridContainer : MonoBehaviour
 	public void PrevRow()    { ScrollOffset = ScrollOffset + new Vector2(0,m_itemSpacing.y); }
 	public void PrevColumn() { ScrollOffset = ScrollOffset - new Vector2(m_itemSpacing.x,0); }
 		
-	public bool HasNextColumn() { return GridColumns <= 0 ? false : ColumnOffset + GridColumns < FilledColumns; }
+	public bool HasNextColumn() { return WidthInColumns <= 0 ? false : ColumnOffset + WidthInColumns < LastFilledColumn; }
 	public bool HasPrevColumn() { return ColumnOffset > 0; }
-	public bool HasNextRow() { return m_columnsPerRow <= 0 || GridRows <= 0 ? false : RowOffset + GridRows < FilledRows; }	// don't scroll if there's no wrapping, or no row constraints
+	public bool HasNextRow() { return m_columnsPerRow <= 0 || HeightInRows <= 0 ? false : RowOffset + HeightInRows < LastFilledRow; }	// don't scroll if there's no wrapping, or no row constraints
 	public bool HasPrevRow() { return RowOffset > 0; }
 
 	public int RowOffset 
@@ -265,20 +295,15 @@ public class GridContainer : MonoBehaviour
 
 	//////////////////////////////////////////////////////////////////////////////////////////
 	// Unity functions
-	 
-    // Start is called before the first frame update
-    void Start()
+
+	// Start is called before the first frame update
+	void Start()
     {     
 		DoLayout();   
     }
-	/*
-    // Update is called once per frame
-    void Update()
-    {        
-    }
-	*/
+
 	void LateUpdate()
-	{
+	{		
 		//if ( Application.isPlaying == false )
 			DoLayout();
 	}
@@ -287,16 +312,44 @@ public class GridContainer : MonoBehaviour
 	//////////////////////////////////////////////////////////////////////////////////////////
 	// Private Funcs
 	
+	int ItemIndex(int itemId)
+	{
+		/*if ( m_removeDisabledItems )
+		{		
+			int result = 0;	
+			for (int i= 0; i < itemId; ++i)
+			{
+				if ( m_items[i].gameObject.activeSelf)
+					++result;
+			}			
+			return result;
+		}*/
+		return itemId;
+	}
+
+	int ItemCount { get 
+	{		
+		/*if ( m_removeDisabledItems )
+		{			
+			int result = 0; 
+			m_items.ForEach(item=> {if ( item.gameObject.activeSelf ) ++result;} );
+			return result;
+		}*/
+		return m_items.Count;
+	} }
 
 	void DoLayout()
-	{
+	{		
+
+		UpdateLayoutChildren();
+
 		for ( int i = 0; i < m_items.Count; ++i )
 		{
-
 			Vector2 pos = GetItemPos(i) - ScrollOffset;//new Vector2(-ScrollOffset.x,ScrollOffset.y);
 			Transform item = m_items[i];
 			if ( m_items[i] == null )
 				return;
+
 			if ( GetItemVisible(i) )
 			{
 				item.gameObject.SetActive(true);
@@ -309,6 +362,31 @@ public class GridContainer : MonoBehaviour
 		}
 
 	}
+
+	// Sets grid items to child objects, if m_containChildren is true
+    void UpdateLayoutChildren()
+    {   
+        if ( m_autoLayoutChildren == false || transform.childCount == m_numChildrenCached )
+            return;
+
+        int numChildren = transform.childCount;
+
+        // Remove excess items
+        while ( m_items.Count > numChildren )
+            m_items.RemoveAt(m_items.Count-1);
+
+        // Update child items
+        for ( int i = 0; i < numChildren; ++i )
+        {
+            if ( i < m_items.Count )
+                m_items[i]=transform.GetChild(i);
+			else 
+				m_items.Add(transform.GetChild(i));
+        }
+
+        m_numChildrenCached = numChildren;
+
+    }
 	
 	// Constrains the value, unless the constraint is zero, then it's ignored. Can optionally set 2 consraints. 
 	// Useful because the wrapping, and scroll limits are all ignored if zero.

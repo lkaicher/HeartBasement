@@ -29,7 +29,7 @@ public class ImageEditor : ControlEditorBase
 		//
 		// Manual size
 		//		
-		if ( (m_stretchComponent == null || m_stretchComponent.enabled==false) && m_spriteComponent != null && m_spriteComponent.drawMode == SpriteDrawMode.Sliced )
+		if ( (m_stretchComponent == null || m_stretchComponent.enabled==false) && m_spriteComponent != null && m_spriteComponent.drawMode != SpriteDrawMode.Simple )
 		{			
 			// show manual image sizer
 			SerializedObject serializedObj = new SerializedObject(component);
@@ -84,7 +84,7 @@ public class ImageEditor : ControlEditorBase
 		// Custom size control (if image is split)
 		Image component = (Image)target;
 		OnSceneDrawPivot(component.transform);
-		if ( (m_stretchComponent == null || m_stretchComponent.enabled==false) && m_spriteComponent != null && m_spriteComponent.drawMode == SpriteDrawMode.Sliced )
+		if ( (m_stretchComponent == null || m_stretchComponent.enabled==false) && m_spriteComponent != null && m_spriteComponent.drawMode != SpriteDrawMode.Simple )
 		{
 			RectCentered oldBounds = RectCentered.zero;
 			oldBounds.Size = m_spriteComponent.size;
@@ -94,9 +94,12 @@ public class ImageEditor : ControlEditorBase
 			{
 				m_spriteComponent.size = bounds.Size;
 				m_spriteComponent.transform.localPosition = bounds.Center;
-
 				EditorUtility.SetDirty(target);
 			}
+
+			// update bounds displayed in inspector
+			if ( bounds != component.CustomSize )
+				component.CustomSize = bounds;
 		}
 		else if ( m_spriteComponent != null )
 		{	

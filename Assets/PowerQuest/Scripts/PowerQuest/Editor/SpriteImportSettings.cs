@@ -48,40 +48,6 @@ class PowerQuestAssetPostProcessor : AssetPostprocessor
 		if (pixelSnap)
 			importer.filterMode = FilterMode.Point;
 
-		/* Old packing tags /
-		 
-		// Add Packing tag depending on directory
-		if ( assetPath.Contains("/Characters/") )
-		{
-			// Find character directory
-			Match match = Regex.Match(assetPath,@"/Characters/(\w*)/");
-			if ( match.Success && match.Groups.Count > 1 )
-				importer.spritePackingTag = "Character"+match.Groups[1].Value;
-		}
-		else if ( assetPath.Contains("/Rooms/") )
-		{
-			// Find character directory
-			Match match = Regex.Match(assetPath,@"/Rooms/(\w*)/");
-			if ( match.Success && match.Groups.Count > 1 )
-				importer.spritePackingTag = "Rooms"+match.Groups[1].Value;
-		}
-		else if ( assetPath.Contains("/Inventory/") )
-		{
-			importer.spritePackingTag = "Inventory";
-		}
-		else if ( assetPath.Contains("/GUI/") )
-		{
-			importer.spritePackingTag = "[RECT]GUI";
-		}
-		else if ( assetPath.Contains("/Cursor/") )
-		{
-			importer.spritePackingTag = "[RECT]Cursor";
-		}
-		if ( assetPath.Contains("/Effects/") )
-		{
-			importer.spritePackingTag = "Effects";
-		}
-		*/
 	}
 
 

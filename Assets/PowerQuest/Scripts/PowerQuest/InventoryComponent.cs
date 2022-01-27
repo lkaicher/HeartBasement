@@ -69,6 +69,13 @@ public partial class Inventory : IQuestClickable, IQuestScriptable, IInventory
 	bool m_everCollected = false;	
 	int m_useCount = 0;
 	int m_lookCount = 0;
+	
+	//
+	// Partial functions for extentions
+	//
+	
+	partial void ExOnInteraction(eQuestVerb verb);
+	partial void ExOnCancelInteraction(eQuestVerb verb);
 
 	//
 	//  Properties
@@ -96,15 +103,19 @@ public partial class Inventory : IQuestClickable, IQuestScriptable, IInventory
 	public bool Clickable { get{return true;} set{} }
 	public string Cursor { get{return m_cursor;} set{ m_cursor = value; } } // NB: This is the cursor used when mouse is hovered over item in inventory panel
 	public Vector2 Position { get{return Vector2.zero;} }
+	
+
 	public void OnInteraction( eQuestVerb verb )
 	{				
 		if ( verb == eQuestVerb.Look ) ++m_lookCount;
 		else if ( verb == eQuestVerb.Use) ++m_useCount;
+		ExOnInteraction(verb);
 	}
 	public void OnCancelInteraction( eQuestVerb verb )
 	{		
 		if ( verb == eQuestVerb.Look ) --m_lookCount;
 		else if ( verb == eQuestVerb.Use) --m_useCount;
+		ExOnCancelInteraction(verb);
 	}
 	public MonoBehaviour Instance { get{ return null; } }
 

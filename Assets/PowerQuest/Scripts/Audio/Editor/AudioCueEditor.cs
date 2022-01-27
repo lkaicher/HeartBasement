@@ -40,6 +40,10 @@ public class AudioCueEditor : Editor {
 	
 	override public void OnInspectorGUI() 
 	{		
+		m_object = (AudioCue)target;
+		m_items = m_object.m_sounds;
+		m_targetObject = new SerializedObject( target );
+		m_listProperty = m_targetObject.FindProperty("m_sounds");
 		
 		EditorGUILayout.BeginHorizontal();
 		
@@ -147,8 +151,8 @@ public class AudioCueEditor : Editor {
 				AutoImportCuesGUI();
 			}
 		}
-				
-		if (GUI.changed)
+		
+		if ( GUI.changed )
 		{
 			m_object.GetShuffledIndex().SetWeights( m_object.m_sounds, (item)=>item.m_weight );		
 			
@@ -191,6 +195,8 @@ public class AudioCueEditor : Editor {
 				}
 				
 				Event.current.Use();
+				EditorUtility.SetDirty(target);
+
 			}
 		} break;
 		}

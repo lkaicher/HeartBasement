@@ -46,8 +46,8 @@ Shader "Powerhoof/Pixel Text Shader" {
 			{
 				v2f o;
 				o.vertex = mul(unity_ObjectToWorld, v.vertex);
-				o.vertex.x = floor(o.vertex.x);
-				o.vertex.y = floor(o.vertex.y);
+				o.vertex.x = floor(o.vertex.x+0.0001);
+				o.vertex.y = floor(o.vertex.y+0.0001);
 				o.vertex = mul(UNITY_MATRIX_VP, o.vertex + _Offset);
 				o.color = v.color * _Color;
 				o.texcoord = TRANSFORM_TEX(v.texcoord,_MainTex);

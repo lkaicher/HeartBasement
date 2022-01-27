@@ -59,7 +59,7 @@ MonoBehaviour:
   m_color: {r: 0.22352943, g: 0.4156863, b: 0.7803922, a: 1}
   m_colorHover: {r: 0.22352943, g: 0.4156863, b: 0.7803922, a: 1}
   m_colorClick: {r: 1, g: 1, b: 1, a: 1}
-  m_colorOff: {r: 0.38823533, g: 0.60784316, b: 1, a: 1}
+  m_colorOff: {r: 0.22352943, g: 0.4156863, b: 0.7803922, a: 1}
   m_hotspotPadding:
     left: 0
     right: 0
@@ -82,7 +82,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.5, y: -0.010000229}
+  m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -93,7 +93,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 61, y: 11}
+  m_Size: {x: 8, y: 2}
   m_EdgeRadius: 0
 --- !u!1 &3600884075240493001
 GameObject:
@@ -124,7 +124,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3600884075240493001}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 7883405053413171984}
@@ -175,7 +175,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 61, y: 13}
+  m_Size: {x: 8, y: 2}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -241,6 +241,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9395546e72d3908469b182762ab9ed31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_fitWhat: 1
   m_fitWidth:
   - {fileID: 8846689668417078757}
   m_fitHeight:
@@ -334,7 +335,7 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8846689668417078757}
-  m_Text: Lorus Ipsum
+  m_Text: New Button
   m_OffsetZ: 0
   m_CharacterSize: 10
   m_LineSpacing: 1
@@ -360,7 +361,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99f5801e9ab1722449b271233da6c14c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_text: Lorus Ipsum
+  m_text: New Button
   m_localize: 0
   m_sortingLayer: Gui
   m_orderInLayer: 35670
@@ -374,5 +375,5 @@ MonoBehaviour:
     m_directions: 0
     m_width: 1
     m_color: {r: 0.9333334, g: 0.76470596, b: 0.6039216, a: 1}
-  m_unlocalizedText: Lorus Ipsum
+  m_unlocalizedText: New Button
   m_outlineMeshes: []

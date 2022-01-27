@@ -8,7 +8,7 @@ namespace PowerTools.QuestGui
 {
 
 [System.Serializable] 
-//[AddComponentMenu("Quest Gui/Label")]
+[AddComponentMenu("Quest Gui/Label")]
 public partial class Label : GuiControl, ILabel
 {
 
@@ -21,23 +21,23 @@ public partial class Label : GuiControl, ILabel
 
 	#region Functions: ILabel interface	
 	
+	public QuestText TextComponent	{ get 
+	{
+		if ( m_questText == null )
+			m_questText = GetComponentInChildren<QuestText>();
+		return m_questText;
+	} }
+
 	public string Text 
 	{
-		get
-		{
-			if ( m_questText == null )
-				m_questText = GetComponentInChildren<QuestText>();
-			if ( m_questText != null )
-				return m_questText.text;
-			return string.Empty;
-		}
-		set
-		{
-			if ( m_questText == null )
-				m_questText = GetComponentInChildren<QuestText>();
-			if ( m_questText != null )
-				m_questText.text = value;
-		}
+		get { return TextComponent != null ? TextComponent.text : null; }
+		set { if ( TextComponent != null ) TextComponent.text = value; }
+	}
+	
+	public Color Color 
+	{
+		get { return TextComponent != null ? TextComponent.color : Color.white; }
+		set { if ( TextComponent != null ) TextComponent.color = value; }
 	}
 
 	public IQuestClickable IClickable { get{ return this; } }
@@ -79,7 +79,7 @@ public partial class Label : GuiControl, ILabel
 
 	#endregion
 	#region Funcs: Private Internal
-		
+		/* NB: This was never used
 	void OnSetVisible()
 	{
 		if ( gameObject.activeSelf == false && Visible)
@@ -90,7 +90,7 @@ public partial class Label : GuiControl, ILabel
 		{   
 			renderer.GetComponent<Renderer>().enabled = Visible;
 		}
-	}
+	}*/
 
 	// Handles setting up defaults incase items have been added or removed since last loading a save file
 	/*[System.Runtime.Serialization.OnDeserializing]

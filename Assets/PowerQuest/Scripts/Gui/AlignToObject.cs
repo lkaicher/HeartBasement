@@ -41,25 +41,31 @@ public class AlignToObject : MonoBehaviour
 		// After we've 'definitely called it this frame, reset the 'calls this frame'
 		m_callsThisFrame = 0;
 	}
-	static int big = 0;
+	
+	static int s_debugCalls = 0;
+
 	public void UpdatePos()
 	{		
 		if (m_object == null )
 			return;
-
-		++m_callsThisFrame;
-		if ( m_callsThisFrame > big )
+						
+		// Don't update if already updated this frame?
+		if ( gameObject.activeInHierarchy )
 		{
-			big = m_callsThisFrame;
-			if ( big > 2 )
-				Debug.Log("Calls: "+m_callsThisFrame);
-		}		
-		// TODO: don't update if already updated this frame?
+			++m_callsThisFrame;
+			if ( m_callsThisFrame > s_debugCalls )
+			{
+				s_debugCalls = m_callsThisFrame;
+				if ( s_debugCalls > 2 )
+					Debug.Log($"Detected {m_callsThisFrame} Recursive AlignToObject calls in: {gameObject.name}");
+			}		
+		}
 
-		if ( m_objectControl == null )
+		// Cache control and renderer objects
+		if ( m_objectControl == null || m_objectControl.transform != m_object )
 			m_objectControl = m_object.GetComponent<GuiControl>();
 		
-		if ( m_objectControl == null && m_objectRenderer == null )
+		if ( m_objectControl == null && (m_objectRenderer == null || m_objectRenderer.transform != m_object) )
 			m_objectRenderer = m_object.GetComponent<Renderer>();
 			
 		bool foundObjectBounds = false;

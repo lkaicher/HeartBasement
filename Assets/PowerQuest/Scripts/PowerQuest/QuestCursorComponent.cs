@@ -34,6 +34,8 @@ public partial class QuestCursor : ICursor
 	GameObject m_prefab = null;
 	QuestCursorComponent m_instance = null;
 	
+	string m_animationOverride = null;
+
 	#endregion
 	#region QuestCursor Public functions/properties
 
@@ -48,42 +50,53 @@ public partial class QuestCursor : ICursor
 		}
 	}
 
+	public void PlayAnimation(string animation) { if ( m_instance != null ) m_instance.PlayAnimation(animation); }
+	public void StopAnimation() { if ( m_instance != null ) m_instance.StopAnimation(); }
+
+	public string AnimationOverride
+	{		
+		get{ return m_animationOverride; } 
+		set{ m_animationOverride = value; OnChangeAnimation(); }
+	}
+	
+	/// Disables any AnimationOverride, returning to default behaviour
+	public void ResetAnimationOverride() { m_animationOverride = null; OnChangeAnimation(); }
 
 	public string AnimationClickable 
 	{ 
 		get{ return m_animationClickable; } 
-		set{ m_animationClickable = value; }
+		set{ m_animationClickable = value; OnChangeAnimation(); }
 	}
 
 	public string AnimationNonClickable 
 	{ 
 		get{ return m_animationNonClickable; } 
-		set{ m_animationNonClickable = value; }
+		set{ m_animationNonClickable = value; OnChangeAnimation(); }
 	}
 
 	public string AnimationUseInv
 	{ 
 		get{ return m_animationUseInv; } 
-		set{ m_animationUseInv = value; }
+		set{ m_animationUseInv = value; OnChangeAnimation(); }
 	}
 
 	public string AnimationOverGui 
 	{ 
 		get{ return m_animationOverGui; } 
-		set{ m_animationOverGui = value; }
+		set{ m_animationOverGui = value; OnChangeAnimation(); }
 	}
 	public string AnimationWait
 	{ 
 		get{ return m_animationWait; } 
-		set{ m_animationWait = value; }
+		set{ m_animationWait = value; OnChangeAnimation(); }
 	}
 
-	public bool HideWhenBlocking { get {return m_hideWhenBlocking; } set{m_hideWhenBlocking = value;} }
+	public bool HideWhenBlocking { get {return m_hideWhenBlocking; } set{m_hideWhenBlocking = value; OnChangeAnimation(); } }
 
 	public Color InventoryOutlineColor
 	{
 		get{ return m_inventoryOutlineColor; }
-		set{ m_inventoryOutlineColor = value; }
+		set{ m_inventoryOutlineColor = value; OnChangeAnimation(); }
 	}
 
 
@@ -118,12 +131,14 @@ public partial class QuestCursor : ICursor
 	{
 		m_prefab = prefab;
 	}
+
+	void OnChangeAnimation() { if ( m_instance) m_instance.OnChangeAnimation(); }
 }
 
 #endregion
 #region Cursor Monobehaviour
 
-public class QuestCursorComponent : MonoBehaviour 
+public partial class QuestCursorComponent : MonoBehaviour 
 {
 
 	#endregion
@@ -133,6 +148,7 @@ public class QuestCursorComponent : MonoBehaviour
 	[Tooltip("List of animations that cursor will use even if an inv item is selected")]
 	[SerializeField] List<string> m_inventoryOverrideAnims = new List<string>();
 	[SerializeField, ReadOnly] List<AnimationClip> m_animations =  new List<AnimationClip>();
+	[SerializeField, ReadOnly] List<Sprite> m_sprites =  new List<Sprite>();
 
 	#endregion
 	#region Component Private Variables
@@ -142,6 +158,8 @@ public class QuestCursorComponent : MonoBehaviour
 	bool m_noneCursor = false; // Flag that's set when "none" cursor is used
 	bool m_inventoryOverride = false; // Flag that's set when inventoryOverride anim active
 	PowerSprite m_powerSprite = null;
+
+	string m_playingAnim = null;
 
 	#endregion
 	#region Component Public functions
@@ -159,6 +177,27 @@ public class QuestCursorComponent : MonoBehaviour
 	}
 
 	public List<AnimationClip> GetAnimations() { return m_animations; }
+	public List<Sprite> GetSprites() { return m_sprites; }
+	
+	public string CurrentAnim { get => m_currAnim; }
+	public SpriteRenderer SpriteRenderer { get => m_sprite; }
+
+	public AnimationClip GetAnimation(string animName) 
+	{	
+		AnimationClip clip = GetAnimations().Find( item=>string.Equals(animName, item.name, System.StringComparison.OrdinalIgnoreCase) );
+		// If not found in own list of anims, try in the inventory
+		if ( clip == null )
+			clip = PowerQuest.Get.GetInventoryAnimation(animName);			
+		return clip;
+	}
+	public Sprite GetSprite(string animName) 
+	{ 
+		Sprite sprite = PowerQuest.FindSpriteInList(m_sprites, animName);
+		// If not found in own list of anims, try in the inventory
+		if ( sprite == null )
+			sprite = PowerQuest.Get.GetInventorySprite(animName);
+		return sprite;
+	}
 
 	// Finds the clip and outline colour the cursor should have for the specified clickable
 	public void CalcCursorVisuals(IQuestClickable clickable, out string newAnim, out Color outlineColor)
@@ -166,14 +205,28 @@ public class QuestCursorComponent : MonoBehaviour
 		newAnim = null;
 		outlineColor = new Color(1,1,1,0);
 
+		// Handle PlayAnimation()
+		if ( Utils.HasText(m_playingAnim) )
+		{
+			newAnim = m_playingAnim;
+			return;
+		}
+
+		// Handle AnimationOverride
+		if ( Utils.HasText(m_data.AnimationOverride) )
+		{
+			newAnim = m_data.AnimationOverride;
+			return;
+		}
+
 		if ( PowerQuest.Get.GetBlocked() && PowerQuest.Get.GetCurrentDialog() == null && PowerQuest.Get.GetBlockingGui() == null )
 		{
 			newAnim = m_data.AnimationWait;
 			return;
 		}
 
-		// If dialog is up, only show animation over-gui (should use the "modal" check for this really)
-		if ( PowerQuest.Get.GetCurrentDialog() != null )// PowerQuest.Get.GetModalGuiActive() )
+		// Back-compatibility with dialog trees
+		if ( PowerQuest.Get.GetCurrentDialog() != null && PowerQuest.Get.DialogTreeGui == "DialogTree")
 			newAnim = m_data.AnimationOverGui;
 
 		// Work out which cursor to be showing
@@ -181,7 +234,7 @@ public class QuestCursorComponent : MonoBehaviour
 		Character player = PowerQuest.Get.GetPlayer();
 
 		// Clickable
-		if ( string.IsNullOrEmpty(newAnim) && clickable != null )
+		if ( Utils.IsEmpty(newAnim) && clickable != null )
 		{
 			bool overInventoryOverrideCursor = m_inventoryOverrideAnims.Contains(clickable.Cursor); 
 				
@@ -197,55 +250,59 @@ public class QuestCursorComponent : MonoBehaviour
 				if ( guiControl != null )
 					guiData = guiControl.GuiData;				
 
-				// Show inv item cursor, if that's allowed int eh gui, (or if the cursor is set to the string "Inventory"
-				if ( (clickable.Cursor.Equals("Inventory", System.StringComparison.OrdinalIgnoreCase) || (guiData != null && guiData.AllowInventoryCursor)) && player.HasActiveInventory )
+				// Show inv item cursor, if that's allowed in the gui, (or if the cursor is set to the string "Inventory", or some legacy support)
+				if ( player.HasActiveInventory && ( // If inventory active, and 
+					    clickable.Cursor.Equals("Inventory", System.StringComparison.OrdinalIgnoreCase) // gui's cursor set to 'Inventory'
+					|| (guiData != null && guiData.AllowInventoryCursor) // or guis cursor 'allowInventoryCursor' set to true
+					|| (guiData==null && clickable.ClickableType == eQuestClickableType.Inventory) // or its a legacy inventory gui (guiData is null), and clickable is an inventory item
+				))
 				{	
 					// If gui allows invetnory cursor, use that			
-					if ( string.IsNullOrEmpty(clickable.Description) && string.IsNullOrEmpty(player.ActiveInventory.AnimCursorInactive) == false )
+					if ( Utils.IsEmpty(clickable.Description) && Utils.IsEmpty(player.ActiveInventory.AnimCursorInactive) == false )
 						newAnim = player.ActiveInventory.AnimCursorInactive;
 					else 
 						newAnim = player.ActiveInventory.AnimCursor;					
 				}
 
 				// if there's a cursor set on the gui, use that
-				if ( string.IsNullOrEmpty(newAnim) )
+				if ( Utils.IsEmpty(newAnim) )
 					newAnim = clickable.Cursor;
 
-				if ( string.IsNullOrEmpty(newAnim) )
+				if ( Utils.IsEmpty(newAnim) )
 					newAnim = m_data.AnimationOverGui;
 			}
 
 			// If there's an inventory item selected use that cursor, otherwise the pointer
-			if ( string.IsNullOrEmpty(newAnim) && player.HasActiveInventory && overInventoryOverrideCursor == false )
+			if ( Utils.IsEmpty(newAnim) && player.HasActiveInventory && overInventoryOverrideCursor == false )
 			{		
 				if ( clickable.Cursor.Equals("None", System.StringComparison.OrdinalIgnoreCase) == false )
 					outlineColor = m_data.InventoryOutlineColor;
-				if ( string.IsNullOrEmpty(player.ActiveInventory.AnimCursor) == false )
+				if ( Utils.IsEmpty(player.ActiveInventory.AnimCursor) == false )
 					newAnim = player.ActiveInventory.AnimCursor;
 				else  
 					newAnim = m_data.AnimationUseInv;
 			}
 
 			// Find function override on clickable
-			if ( string.IsNullOrEmpty(newAnim) )
+			if ( Utils.IsEmpty(newAnim) )
 			{
 				string cursorFunc = PowerQuest.SCRIPT_FUNCTION_GETCURSOR;
 				if ( clickable.ClickableType != eQuestClickableType.Character )
 					cursorFunc += clickable.ClickableType.ToString() + clickable.ScriptName;
 				string overrideFromFunction = GetCursorScriptOverride(clickable.GetScript(),  cursorFunc );
-				if ( string.IsNullOrEmpty(overrideFromFunction) == false )
+				if ( Utils.IsEmpty(overrideFromFunction) == false )
 					newAnim = overrideFromFunction;
 			}
 
 			// If cursor anim is overriden
-			if ( string.IsNullOrEmpty(newAnim) && string.IsNullOrEmpty(clickable.Cursor) == false )	
+			if ( Utils.IsEmpty(newAnim) && Utils.IsEmpty(clickable.Cursor) == false )	
 			{				
 				if ( player.HasActiveInventory == false || overInventoryOverrideCursor )
 					newAnim = clickable.Cursor;
 			}
 
 			// Clickable
-			if ( string.IsNullOrEmpty(newAnim) )
+			if ( Utils.IsEmpty(newAnim) )
 			{
 				newAnim = m_data.AnimationClickable;
 			}
@@ -254,24 +311,23 @@ public class QuestCursorComponent : MonoBehaviour
 		}
 
 		// Not clickable -  If ther'es an inventory item selected show that
-		if ( string.IsNullOrEmpty(newAnim) && player.HasActiveInventory 
+		if ( Utils.IsEmpty(newAnim) && player.HasActiveInventory 
 			&& PowerQuest.Get.Paused == false  ) // Temporary Hack for dialog system) 
 		{
 			// Fall back to pointer anim if there's no inventory one, as a default
-			if ( string.IsNullOrEmpty(player.ActiveInventory.AnimCursorInactive) == false )
+			if ( Utils.IsEmpty(player.ActiveInventory.AnimCursorInactive) == false )
 				newAnim = player.ActiveInventory.AnimCursorInactive;
-			else if ( string.IsNullOrEmpty(player.ActiveInventory.AnimCursor) == false )
+			else if ( Utils.IsEmpty(player.ActiveInventory.AnimCursor) == false )
 				newAnim = player.ActiveInventory.AnimCursor;
 			else
 				newAnim = m_data.AnimationUseInv;				
 		}
 
 		// not clickable, and no inventory
-		if ( string.IsNullOrEmpty(newAnim) ) 
+		if ( Utils.IsEmpty(newAnim) ) 
 		{
 			newAnim = m_data.AnimationNonClickable;
 		}
-
 
 		bool noneCursor = newAnim.Equals("None", System.StringComparison.OrdinalIgnoreCase) || (clickable != null && clickable.Cursor.Equals("None", System.StringComparison.OrdinalIgnoreCase));
 		if ( noneCursor )
@@ -297,17 +353,27 @@ public class QuestCursorComponent : MonoBehaviour
 		m_spriteAnimator.Play( GetAnimations().Find( item=>string.Equals(m_data.AnimationClickable, item.name, System.StringComparison.OrdinalIgnoreCase) ) );
 	}
 
-	public AnimationClip FindCursorAnimation(string name)
+	
+	public void PlayAnimation(string animation) 
 	{
-		AnimationClip clip = GetAnimations().Find( item=>string.Equals(name, item.name, System.StringComparison.OrdinalIgnoreCase) );
-
-		if ( clip == null )
-		{
-			// HACK- try in the inventory animation library. Not sure how best to handle things being in different librarys. hmm. Could create map of every animation to it's collection like Inventory.Spanner, or CharacterJon.Walk
-			clip = PowerQuest.Get.GetInventoryAnimation( name );
-		}
-		return clip;
+		m_playingAnim=animation;
+		m_spriteAnimator.Play( GetAnimation(animation) );
 	}
+	public void StopAnimation() 
+	{ 		
+		if ( Utils.IsEmpty(m_playingAnim) )
+			return;
+		
+		m_playingAnim = null;
+		if ( m_spriteAnimator.IsPlaying(m_playingAnim) )
+			m_spriteAnimator.Stop();		
+		OnChangeAnimation(); 
+	}
+
+	// Called from data when some anim changed
+	public void OnChangeAnimation() { Update(); }
+
+	string m_currAnim = null;
 
 	void Update()
 	{
@@ -333,17 +399,31 @@ public class QuestCursorComponent : MonoBehaviour
 		CalcCursorVisuals(clickable, out newAnim, out outlineColor);
 
 		// Play the anim if it's changed
-		string currAnim = m_spriteAnimator.ClipName;
-		if ( currAnim != newAnim )
+		if ( m_currAnim != newAnim )
 		{
-			AnimationClip clip = FindCursorAnimation(newAnim);
-			m_spriteAnimator.Play(clip);
-		}
+			m_currAnim = newAnim;
 
-		m_noneCursor = currAnim == "None" || (clickable != null && clickable.Cursor == "None");
+			AnimationClip clip = GetAnimation(newAnim);
+			if ( clip != null )
+			{
+				m_spriteAnimator.Play(clip);
+			}
+			else 
+			{
+				Sprite sprite = GetSprite(newAnim);
+				if ( sprite != null )
+				{
+					m_spriteAnimator.Stop();
+					m_sprite.GetComponent<SpriteRenderer>().sprite=sprite;
+				}
+			}
+		}		
+				
+		m_noneCursor = m_currAnim == "None" || (clickable != null && clickable.Cursor == "None" && Utils.IsEmpty(m_data.AnimationOverGui) && Utils.IsEmpty(m_playingAnim) );
+
 		if ( m_noneCursor )
 			outlineColor = new Color(1,1,1,0);
-		m_inventoryOverride = m_inventoryOverrideAnims.Contains(currAnim);
+		m_inventoryOverride = m_inventoryOverrideAnims.Contains(m_currAnim);
 
 		if ( m_powerSprite != null )
 			m_powerSprite.Outline = outlineColor;

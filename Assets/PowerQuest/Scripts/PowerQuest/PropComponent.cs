@@ -42,6 +42,11 @@ public class PropComponent : MonoBehaviour
 
 	Vector2 m_snapOffset = Vector2.zero;
 
+	ParticleSystem m_particle = null;
+	Renderer[] m_renderers = null;
+	SpriteRenderer[] m_sprites = null; 
+	QuestText[] m_questTexts = null; 
+	
 	#endregion
 	#region Component: Functions: Public
 
@@ -49,6 +54,8 @@ public class PropComponent : MonoBehaviour
 	public void SetData(Prop data) 
 	{ 
 		m_data = data; 
+		// Set initial position
+		transform.position = m_data.Position.WithZ(transform.position.z);
 		OnAnimationChanged();
 		OnSetVisible();
 	}
@@ -112,19 +119,30 @@ public class PropComponent : MonoBehaviour
 	// Use this for initialization
 	void Awake() 
 	{	
-		if ( m_sprite == null )
-			m_sprite = GetComponentInChildren<SpriteRenderer>(true);
-		m_spriteAnimator = m_sprite.GetComponent<SpriteAnim>();
+		SetupComponents();
+	}
 
-		/* Parallax2d disabled for now
-		if  ( m_parallaxDepth != 0 && m_parallaxDepth2.sqrMagnitude < Mathf.Epsilon )
-			m_parallaxDepth2 = new Vector2(m_parallaxDepth, m_parallaxDepth);
-		*/
+	public void SetupComponents()
+	{
+		if ( m_sprites != null && m_renderers != null )
+			return;
+		m_sprites = GetComponentsInChildren<SpriteRenderer>(true);		
+		m_questTexts = GetComponentsInChildren<QuestText>(true);
+		m_renderers = GetComponentsInChildren<Renderer>(true);		
+		m_sprite = GetComponentInChildren<SpriteRenderer>(true);
+		m_particle = GetComponentInChildren<ParticleSystem>();
 
+		if ( m_sprite != null )
+			m_spriteAnimator = m_sprite.GetComponent<SpriteAnim>();
+					
 		#if ( UNITY_SWITCH == false )
 		m_video = GetComponentInChildren<VideoPlayer>(true);
 		#endif
 	}
+
+	public SpriteRenderer[] Sprites => m_sprites;
+	public QuestText[] QuestTexts => m_questTexts;
+
 
 	void Start()
 	{
@@ -144,26 +162,26 @@ public class PropComponent : MonoBehaviour
 		if ( gameObject.activeSelf == false && GetData().Visible)
 			gameObject.SetActive(true);
 		
-		if ( GetSprite() )
-			GetSprite().GetComponent<Renderer>().enabled = GetData().Visible;
+		SetupComponents();
 
-		Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
-		foreach( Renderer renderer in renderers )
-		{   
+		foreach( Renderer renderer in m_renderers )
 			renderer.GetComponent<Renderer>().enabled = GetData().Visible;
-		}
 
-		ParticleSystem particle = GetComponentInChildren<ParticleSystem>();
-		if ( particle != null )
+		if ( GetData().Visible )
 		{
-			ParticleSystem.EmissionModule emission = particle.emission;
+			UpdateBaseline();
+			UpdateAlpha();
+		}
+		
+		if ( m_particle != null )
+		{
+			ParticleSystem.EmissionModule emission = m_particle.emission;
 			emission.enabled = GetData().Visible;
-			if ( GetData().Visible && particle.isPlaying == false )
+			if ( GetData().Visible && m_particle.isPlaying == false )
 			{
-				particle.Play();
+				m_particle.Play();
 			}
-			particle.GetComponent<Renderer>().sortingLayerName = "Default";
-			particle.GetComponent<Renderer>().sortingOrder = -Mathf.RoundToInt((m_data.Position.y + m_data.Baseline)*10.0f);
+			m_particle.GetComponent<Renderer>().sortingLayerName = "Default";
 		}
 	}
 
@@ -171,6 +189,28 @@ public class PropComponent : MonoBehaviour
 	{
 		transform.position = m_data.Position.WithZ(transform.position.z);
 		UpdateParallax();
+		UpdateBaseline();
+	}
+		
+	public void UpdateBaseline()
+	{
+		int sortOrder = GetData().SortOrder;
+		
+		if ( m_sprites != null )
+			System.Array.ForEach( m_sprites, sprite => { if ( sprite != null ) sprite.sortingOrder = sortOrder; });
+		if ( m_questTexts != null )
+			System.Array.ForEach( m_questTexts, text => { if ( text != null ) text.OrderInLayer = sortOrder; });			
+		if ( m_particle != null )
+			m_particle.GetComponent<Renderer>().sortingOrder = GetData().SortOrder;
+	}
+
+	public void UpdateAlpha()
+	{
+		float alpha = GetData().Alpha;
+		if ( m_sprites != null )
+			System.Array.ForEach( m_sprites, sprite => { if ( sprite != null ) sprite.color = sprite.color.WithAlpha( alpha ); });
+		if ( m_questTexts != null )
+			System.Array.ForEach( m_questTexts, text => { if ( text != null ) text.color = text.color.WithAlpha( alpha ); });
 	}
 
 	// Called once room and everything in it has been created and PowerQuest has initialised references. After Start, Before OnEnterRoom.
@@ -184,12 +224,6 @@ public class PropComponent : MonoBehaviour
 
 	void Update()
 	{
-		if ( m_sprite == null )
-			m_sprite = GetComponentInChildren<SpriteRenderer>();
-		if ( m_sprite != null )
-		{
-			m_sprite.sortingOrder = -Mathf.RoundToInt((m_data.Position.y + m_data.Baseline)*10.0f);
-		}
 		if ( m_overrideAnimPlaying  && PowerQuest.Get.GetSkippingCutscene() && m_spriteAnimator.GetCurrentAnimation().isLooping == false ) 
 			StopAnimation();
 
@@ -221,15 +255,15 @@ public class PropComponent : MonoBehaviour
 		if (m_parallaxDepth != 0 )
 		{			
 			float snapAmount = 0;// PowerQuest.Get.SnapAmount;
-			RectCentered maxOffset = PowerQuest.Get.GetCamera().GetInstance().CalcOffsetLimits();
+			RectCentered maxOffset = PowerQuest.Get.GetCamera().GetInstance().GetParallaxOffsetLimits();
 			Vector2 parallaxCameraOffset = Utils.Snap(new Vector2(
 				maxOffset.Center.x + (m_parallaxAlignment.x * maxOffset.Width*0.5f),
 				maxOffset.Center.y + (m_parallaxAlignment.y * maxOffset.Height*0.5f)), snapAmount);
 			
-			if ( PowerQuest.Get.UseFancyParalaxSnapping && PowerQuest.Get.GetSnapToPixel() )
+			if ( PowerQuest.Get.UseFancyParalaxSnapping && PowerQuest.Get.GetSnapToPixel() && PowerQuest.Get.Camera.GetHasZoomOrTransition() == false )
 			{
 				// Do some fancy stuff with a "SnapOffset" so the prop will land on a snapped to pixel position, but will smoothly transition from previous position
-				Vector2 snapOffsetTarget = m_data.Position + ((PowerQuest.Get.GetCamera().GetTargetPosition() - parallaxCameraOffset)*m_parallaxDepth); // Target parallax position
+				Vector2 snapOffsetTarget = m_data.Position + ((PowerQuest.Get.GetCamera().GetInstance().GetParallaxTargetPosition() - parallaxCameraOffset)*m_parallaxDepth); // Target parallax position
 				snapOffsetTarget = Utils.Snap(snapOffsetTarget) - snapOffsetTarget;	// Difference between target parallax pos, and current pos
 				if ( PowerQuest.Get.GetCamera().GetSnappedLastUpdate() )
 				{
@@ -251,7 +285,7 @@ public class PropComponent : MonoBehaviour
 			}
 
 			// Calc parallax offset
-			Vector2 parallaxOffset = ((PowerQuest.Get.GetCamera().GetPosition() - parallaxCameraOffset)*m_parallaxDepth);
+			Vector2 parallaxOffset = ((PowerQuest.Get.GetCamera().GetInstance().GetPositionForParallax() - parallaxCameraOffset)*m_parallaxDepth);
 
 			// Apply position, with parallax offset and snapped offset
 			transform.position = (m_data.Position + parallaxOffset + m_snapOffset).WithZ(transform.position.z);
@@ -261,10 +295,15 @@ public class PropComponent : MonoBehaviour
 
 	#endregion
 	#region Component: Functions: Private
+	
 
 	// Plays anim. Returns false if clip not found
 	bool PlayAnimInternal(string animName, bool fromStart = true)
 	{
+		// Must be active to set animation
+		if ( gameObject.activeSelf == false )
+			gameObject.SetActive(true);
+
 		m_stopOverrideAnimDelay = 0;
 
 		if ( string.IsNullOrEmpty( animName ) )
@@ -287,10 +326,22 @@ public class PropComponent : MonoBehaviour
 				m_spriteAnimator.Play(clip);
 				m_spriteAnimator.Time = animTime;
 			}
+			return true;
+		}		
+		else 
+		{
+			// If no anim found, try sprite
+			Sprite sprite = PowerQuest.Get.GetCurrentRoom().GetInstance().GetSprite(animName);
+			if ( sprite != null && m_sprite != null )
+			{
+				m_spriteAnimator.Stop();
+				m_sprite.sprite = sprite;
+			}			
 		}
 
-		return clip != null;
+		return false;
 	}
+	
 
 	#endregion
 	#region Functions: Anim Events
@@ -351,10 +402,12 @@ public partial class Prop : IQuestClickable, IProp, IQuestScriptable
 	[SerializeField] bool m_clickable = true;
 	//[SerializeField] bool m_collidable = false;
 	[SerializeField] string m_animation = null;	
+	[SerializeField] float m_alpha = 1;
 	[Header("Editable in Scene")]
 	[Tooltip("Move the transform around to change this (unlike characters!)")]
 	[ReadOnly][SerializeField] Vector2 m_position = Vector2.zero; // This is taken from the instance position in the scene first time it's
-	[SerializeField] float m_baseline = 0;
+	[SerializeField] float m_baseline = 0;	
+    [SerializeField, Tooltip("If true, the baseline will be in world position, instead of local to the object. So y position of the sortable is ignored")] bool m_baselineFixed = false;
 	[SerializeField] Vector2 m_walkToPoint = Vector2.zero;
 	[SerializeField] Vector2 m_lookAtPoint = Vector2.zero;	
 	[HideInInspector,SerializeField] string m_scriptName = "PropNew";
@@ -365,6 +418,7 @@ public partial class Prop : IQuestClickable, IProp, IQuestScriptable
 	PropComponent m_instance = null;
 	int m_useCount = 0;
 	int m_lookCount = 0;
+	
 
 	#endregion
 	#region Prop: Properties
@@ -396,11 +450,25 @@ public partial class Prop : IQuestClickable, IProp, IQuestScriptable
 	}
 	/// Set's invisible & non-clickable
 	public void Disable() { Visible = false; Clickable = false; }
-	public Vector2 Position { get{ return m_position;} set{ m_position = value; if ( m_instance != null ) { m_instance.OnSetPosition(); } } }
+	public Vector2 Position { get{ return m_position;} set
+	{ 
+		float oldY = m_position.y;
+		m_position = value; 
+		if ( m_instance != null ) 
+		{ 
+			m_instance.OnSetPosition(); 
+			if ( m_baselineFixed == false && oldY != value.y )
+				m_instance.UpdateBaseline();
+		} 
+	} }
 	public void SetPosition(float x, float y) { Position = new Vector2(x,y); }
-	public float Baseline { get{ return m_baseline;} set{m_baseline = value;} }
+	public float Baseline { get{ return m_baseline;} set{m_baseline = value; if ( m_instance != null ) m_instance.UpdateBaseline(); } }
+	public bool BaselineFixed { get { return m_baselineFixed; } set { m_baselineFixed=false; if ( m_instance != null ) m_instance.UpdateBaseline(); } }
+	public int SortOrder => -Mathf.RoundToInt(((m_baselineFixed ? 0.0f: Position.y) + Baseline)*10.0f);
+
 	public Vector2 WalkToPoint { get{ return m_walkToPoint;} set{m_walkToPoint = value;} }
 	public Vector2 LookAtPoint { get{ return m_lookAtPoint;} set{m_lookAtPoint = value;} }
+
 
 	public string Cursor { get { return m_cursor; } set { m_cursor = value; }  }
 	public bool FirstUse { get { return UseCount == 0; } } 
@@ -423,6 +491,12 @@ public partial class Prop : IQuestClickable, IProp, IQuestScriptable
 	}
 
 	#endregion
+	#region Partial functions for extentions
+	
+	partial void ExOnInteraction(eQuestVerb verb);
+	partial void ExOnCancelInteraction(eQuestVerb verb);
+
+	#endregion
 	#region Prop: Functions: Public 
 	//
 	// Getters/Setters - These are used by the engine. Scripts mainly use the properties
@@ -440,16 +514,20 @@ public partial class Prop : IQuestClickable, IProp, IQuestScriptable
 	//
 	// Public Functions
 	//
-
+	
 	public void OnInteraction( eQuestVerb verb )
 	{		
 		if ( verb == eQuestVerb.Look ) ++m_lookCount;
 		else if ( verb == eQuestVerb.Use) ++m_useCount;
+
+		ExOnInteraction(verb);
 	}
 	public void OnCancelInteraction( eQuestVerb verb )
 	{		
 		if ( verb == eQuestVerb.Look ) --m_lookCount;
 		else if ( verb == eQuestVerb.Use) --m_useCount;
+
+		ExOnCancelInteraction(verb);
 	}
 	public void IsCollidingWith() {throw new System.NotImplementedException();} // TODO: object collision
 
@@ -488,9 +566,9 @@ public partial class Prop : IQuestClickable, IProp, IQuestScriptable
 	public Coroutine WaitForAnimTrigger(string triggerName) { return PowerQuest.Get.StartCoroutine(CoroutineWaitForAnimTrigger(triggerName)); }
 
 	// NB: These don't save/load correctly, or handle changing room, etc. They should store their state ("TargetPosition" and "Speed") and handle movement in update.
-	public Coroutine MoveTo(float x, float y, float speed) {  return MoveTo(new Vector2(x,y),speed); }
-	public Coroutine MoveTo(Vector2 toPos, float speed) {  return PowerQuest.Get.StartQuestCoroutine(CoroutineMoveTo(toPos,speed)); }
-	public void MoveToBG(Vector2 toPos, float speed) {  PowerQuest.Get.StartQuestCoroutine(CoroutineMoveTo(toPos,speed)); }
+	public Coroutine MoveTo(float x, float y, float speed, eEaseCurve curve = eEaseCurve.None) {  return MoveTo(new Vector2(x,y),speed, curve); }
+	public Coroutine MoveTo(Vector2 toPos, float speed, eEaseCurve curve = eEaseCurve.None) {  return PowerQuest.Get.StartQuestCoroutine(CoroutineMoveTo(toPos,speed, curve)); }
+	public void MoveToBG(Vector2 toPos, float speed, eEaseCurve curve = eEaseCurve.None) {  PowerQuest.Get.StartQuestCoroutine(CoroutineMoveTo(toPos,speed, curve)); }
 
 	#if ( UNITY_SWITCH == false )
 
@@ -541,9 +619,19 @@ public partial class Prop : IQuestClickable, IProp, IQuestScriptable
 	}
 		
 	/// Fade the sprite's alpha
-	public Coroutine Fade(float start, float end, float duration ) { return PowerQuest.Get.StartCoroutine(CoroutineFade(start, end, duration)); }
+	public Coroutine Fade(float start, float end, float duration, eEaseCurve curve = eEaseCurve.Smooth ) { return PowerQuest.Get.StartCoroutine(CoroutineFade(start, end, duration, curve)); }
 	/// Fade the sprite's alpha (non-blocking)
-	public void FadeBG(float start, float end, float duration ) { PowerQuest.Get.StartCoroutine(CoroutineFade(start, end, duration)); }
+	public void FadeBG(float start, float end, float duration, eEaseCurve curve = eEaseCurve.Smooth ) { PowerQuest.Get.StartCoroutine(CoroutineFade(start, end, duration, curve)); }
+	
+	public float Alpha { 
+		get { return m_alpha; } 
+		set 
+		{ 
+			m_alpha = value; 			
+			if (m_instance != null )
+				m_instance.UpdateAlpha();
+		} 
+	}
 
 	#endregion
 	#region Prop: Coroutines
@@ -600,48 +688,45 @@ public partial class Prop : IQuestClickable, IProp, IQuestScriptable
 	}
 	#endif
 
-	IEnumerator CoroutineMoveTo(Vector2 toPos, float speed)
+	IEnumerator CoroutineMoveTo(Vector2 toPos, float speed, eEaseCurve curve = eEaseCurve.None)
 	{
-		Vector2 propPos = Position;
-		while((propPos - toPos).sqrMagnitude > float.Epsilon && PowerQuest.Get.GetSkippingCutscene() == false)
+		Debug.Assert(speed>0,"Prop move speed must be greater than zero");
+
+		Vector2 startPos = Position;
+		float time = Vector2.Distance(startPos,toPos)/speed;
+		float currTime = 0;
+		while ( currTime < time && PowerQuest.Get.GetSkippingCutscene() == false )
 		{			
 			if ( SystemTime.Paused == false )			
-				propPos = Vector2.MoveTowards(propPos, toPos, speed * Time.deltaTime);
-			Position = propPos;
+			{
+				currTime += Time.deltaTime;
+			}
+			Position = Vector2.Lerp(startPos,toPos, QuestUtils.Ease(currTime/time,curve) );
+			
 			yield return new WaitForEndOfFrame();
 		}
 		Position = toPos;
 	}
 
-	IEnumerator CoroutineFade(float start, float end, float duration )
+	
+
+	IEnumerator CoroutineFade(float start, float end, float duration, eEaseCurve curve = eEaseCurve.Smooth )
 	{
 		if ( Instance == null )
 			yield break;
 
-		SpriteRenderer[] sprites = Instance.GetComponentsInChildren<SpriteRenderer>();
-		TextMesh[] texts = Instance.GetComponentsInChildren<TextMesh>();
-
 		float time = 0;
-		float alpha = start;
-		System.Array.ForEach( sprites, sprite => { sprite.color = sprite.color.WithAlpha( alpha ); });
-		System.Array.ForEach( texts, text => { text.color = text.color.WithAlpha( alpha ); });
+		
+		Alpha = start;
 		while ( time < duration && PowerQuest.Get.GetSkippingCutscene() == false )
 		{
 			yield return new WaitForEndOfFrame();
 					
 			if ( SystemTime.Paused == false )
-			time += Time.deltaTime;
-			float ratio = time/duration;
-			ratio = Utils.EaseOutCubic(ratio);
-			alpha = Mathf.Lerp(start,end, ratio);
-			System.Array.ForEach( sprites, sprite => { if ( sprite != null ) sprite.color = sprite.color.WithAlpha( alpha ); });
-			System.Array.ForEach( texts, text => { if ( text != null ) text.color = text.color.WithAlpha( alpha ); });
+				time += Time.deltaTime;
+			Alpha = Mathf.Lerp(start,end, QuestUtils.Ease(time/duration,curve));
 		}
-
-		alpha = end;
-		System.Array.ForEach( sprites, sprite => { if ( sprite != null ) sprite.color = sprite.color.WithAlpha( alpha ); });
-		System.Array.ForEach( texts, text => { if ( text != null ) text.color = text.color.WithAlpha( alpha ); });
-
+		Alpha = end;
 	}
 
 	IEnumerator CoroutineWaitForAnimTrigger(string triggerName)

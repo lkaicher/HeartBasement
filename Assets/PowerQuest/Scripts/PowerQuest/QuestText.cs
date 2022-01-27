@@ -56,18 +56,7 @@ public class QuestText : MonoBehaviour
 		Vector3.down + Vector3.left,
 		Vector3.down + Vector3.right,
 	};
-
-
-
-	//[System.Serializable]
-	//public class PlatformSpriteData
-	//{
-	//	public Sprite m_sprite = null;
-	//	[BitMask(typeof(ePlatform))]
-	//	public ePlatform m_platforms = (ePlatform)~0;	
-	//	public bool m_includePCKeyboard = true;	
-	//}
-
+	
 	[System.Serializable]
 	public class TextSpriteData
 	{ 
@@ -82,10 +71,10 @@ public class QuestText : MonoBehaviour
 	[Multiline]
 	[SerializeField] string m_text = "";
 	[SerializeField] bool m_localize = false;
-	[Header("Sorting")]
+	//[Header("Sorting")]
 	[SerializeField] string m_sortingLayer = "Default";
 	[SerializeField] int m_orderInLayer = 0;
-	[Header("Wrap/Truncate Settings")]
+	//[Header("Wrap/Truncate Settings")]
 	[Tooltip("Width in game units to wrap text (0 = disabled)")]
 	[SerializeField, Delayed] float m_wrapWidth = 0.0f;
 	[Tooltip("Whether to cut the text (adding ellipsis) instead of wrapping it")]
@@ -96,7 +85,7 @@ public class QuestText : MonoBehaviour
 	[SerializeField, Delayed] float m_wrapWidthMin = 0.0f;
 	[Tooltip("Ensures the dialog is on screen when created (eg. offscreen character dialog)")]
 	[SerializeField] bool m_keepOnScreen = false;
-	[Header("Appearance")]
+	//[Header("Appearance")]
 	[SerializeField] Shader m_shaderOverride = null;
 	[SerializeField] TextOutline m_outline = null;	
 
@@ -107,8 +96,10 @@ public class QuestText : MonoBehaviour
 	TextWrapper m_textWrapper = null;
 	MeshRenderer m_meshRenderer = null;
 
-	Vector2 m_attachWorldPos = Vector2.zero; // Used to attach to a world pos but show on a gui camera
-	Vector2 m_attachOffset = Vector2.zero;
+	Transform m_attachObject = null;          // If set, text will follow this object
+	Vector2 m_attachObjOffset = Vector2.zero; // If m_attachObject is set, this will be offset from that transform. Different than "offset" which is the camera-space offset.
+	Vector2 m_attachWorldPos = Vector2.zero;  // Used to attach to a world pos but show on a gui camera. 
+	Vector2 m_attachOffset = Vector2.zero;    // Offset from the "camera space", to make text map smoothly from pixel to non-pixel cameras.
 
 	bool m_editorRefresh = false; // Required, since can't delete outline text in OnValidate. Maybe better not to delete, just to hide (unless not in editor)
 
@@ -116,8 +107,8 @@ public class QuestText : MonoBehaviour
 	[SerializeField, HideInInspector] string m_unlocalizedText = null;
 
 	[SerializeField, HideInInspector] List<TextMesh> m_outlineMeshes = null;
-
 	
+	Vector2 m_rectSize = Vector2.zero;
 
 	public string text { get { return m_text; } set { SetText(value); } }
 	public Color color { get { return CheckTextMesh() ? m_mesh.color : Color.white; } set { if ( CheckTextMesh() ) { m_mesh.color = value; } } }
@@ -141,7 +132,7 @@ public class QuestText : MonoBehaviour
 	public void SetWrapWidth(float width)
 	{ 
 		m_wrapWidth = width; 		
-		SetText(m_text);
+		RefreshText();
 	}
 
 	public TextOutline GetOutline() { return m_outline; }
@@ -163,30 +154,34 @@ public class QuestText : MonoBehaviour
 			m_outlineMeshes.Clear();
 		}
 		m_outline = outline;
-		SetText(m_text);
+		RefreshText();
 	}
 
-	public string GetUnlocalizedText() { return string.IsNullOrEmpty(m_unlocalizedText) ? m_text : m_unlocalizedText; }
+	public string GetUnlocalizedText() { return (m_localize == false || string.IsNullOrEmpty(m_unlocalizedText)) ? m_text : m_unlocalizedText; }
 
 
 	// Use this for initialization
-	void Start () 
+	void Start() 
 	{
 		if ( CheckTextMesh() )
 		{
 			CheckMaterial();
-			string text = m_text;
-			SetText(text);
+			RefreshText();
 		}
 	}
 
+
+	public void OnLanguageChange()
+	{
+		RefreshText();
+	}
 
 	public void SetText(string text)
 	{
 		// Don't bother if text is the same
 		if (text == null) 
 			text = string.Empty;
-		m_unlocalizedText = text;
+		m_unlocalizedText = text;		
 		text = SystemText.Localize( text );		
 		text = ParseImages(text);
 		m_text = text;
@@ -288,6 +283,9 @@ public class QuestText : MonoBehaviour
 						}
 					}
 
+					
+					m_rectSize = bounds.size;
+
 				}
 			}
 
@@ -359,24 +357,53 @@ public class QuestText : MonoBehaviour
 	}
 
 	public void AttachTo(Vector2 worldPosition)
-	{
+	{	
 		m_attachOffset = Vector2.zero;
 		m_attachWorldPos = worldPosition;
+		m_attachObject = null;	
+		m_attachObjOffset = Vector2.zero;
 		LateUpdate();
 	}
 
+
+	public void AttachTo(Transform obj, Vector2 worldPosition)
+	{
+		if (obj == null)
+		{
+			AttachTo(worldPosition);
+			return;
+		}
+		m_attachOffset = Vector2.zero;	
+		m_attachWorldPos = worldPosition;
+
+		m_attachObject = obj;	
+		m_attachObjOffset = worldPosition-(Vector2)obj.transform.position;
+		LateUpdate();
+	}
+	
 	void OnValidate()
 	{
 		// TODO: this is touched on unity save, can potentially cause slow downs
 		if ( gameObject.activeInHierarchy )
 		{
-			m_editorRefresh = true;
+			m_editorRefresh = true;			
 		}
+	}
+	
+	void RefreshText() 
+	{ 
+		SetText(GetUnlocalizedText());	
+	}
+
+	// Message sent to quest text when editor has changed the text
+	void EditorUpdate()
+	{ 
+		SetText(m_text);
 	}
 
 	void Update()
 	{
-		if ( gameObject.activeInHierarchy && Application.isEditor && Application.isPlaying == false && m_editorRefresh )
+		if ( m_editorRefresh && gameObject.activeInHierarchy && Application.isEditor && Application.isPlaying == false )
 		{
 			if ( m_outline != null && m_outlineMeshes != null )
 			{
@@ -388,24 +415,30 @@ public class QuestText : MonoBehaviour
 				}
 				m_outlineMeshes.Clear();
 			}
-			SetText(m_text);
+			EditorUpdate();
 			m_editorRefresh = false;
 		}
 	}
 
 	void LateUpdate()
 	{
-		if ( m_attachWorldPos != Vector2.zero )
+		if ( m_attachObject != null || m_attachWorldPos != Vector2.zero )
 		{
 			if ( PowerQuest.GetValid() == false || PowerQuest.Get.GetCamera() == null || PowerQuest.Get.GetCameraGui() == null )
 				return;
 			QuestCamera questCam = PowerQuest.Get.GetCamera();
 			Camera cam = questCam.GetInstance().GetComponent<Camera>();
 			Camera guiCam = PowerQuest.Get.GetCameraGui();
+			
+			if ( m_attachObject != null )
+				m_attachWorldPos = m_attachObjOffset + Utils.Snap((Vector2)m_attachObject.position, PowerQuest.Get.SnapAmount);
 
 			// Need to add the difference between camera offset and actual position to account for the amount the camera has snapped.
 			Vector2 camSnapOffset = ((Vector2)cam.transform.position - questCam.GetPosition());
-			Vector2 guiSpacePosition = guiCam.ViewportToWorldPoint( cam.WorldToViewportPoint(m_attachWorldPos) ) + (Vector3)m_attachOffset + (Vector3)camSnapOffset;
+			Vector2 guiSpacePosition = (Vector2)guiCam.ViewportToWorldPoint( cam.WorldToViewportPoint(m_attachWorldPos) ) + m_attachOffset + camSnapOffset;
+			
+			// Keep gametext on-screen
+			guiSpacePosition = GetOnScreenPosition(guiSpacePosition);			
 
 			#if FONT_SNAPPING
 
@@ -427,9 +460,38 @@ public class QuestText : MonoBehaviour
 
 			#else
 			transform.position = guiSpacePosition;
+
 			#endif
 			
 		}
+	}
+	
+	// Calcs offset to keep text on screen, applied in LateUpdate
+	Vector2 GetOnScreenPosition(Vector2 position)
+	{
+		if ( Application.isPlaying == false || m_rectSize.x <= 0 )
+			return position;
+
+		Camera camera = PowerQuest.Get.GetCameraGui();
+
+		RectCentered bounds = new RectCentered(position.x,  position.y, m_rectSize.x, m_rectSize.y );
+
+		Rect cameraBounds = new Rect(camera.transform.position.x, camera.transform.position.y, camera.orthographicSize * 2.0f * camera.aspect - SCREEN_PADDING.x, camera.orthographicSize * 2.0f - SCREEN_PADDING.y);
+		cameraBounds.x -= cameraBounds.width*0.5f;
+		cameraBounds.y -= cameraBounds.height*0.5f;
+
+		// Get the text height from the textwrapper
+		Vector2 offset = Vector2.zero;
+		if ( bounds.MinX < cameraBounds.xMin )
+			offset.x += cameraBounds.xMin - bounds.MinX;
+		if ( bounds.MaxX > cameraBounds.xMax )
+			offset.x += cameraBounds.xMax - bounds.MaxX;
+		if ( bounds.MinY < cameraBounds.yMin )
+			offset.y += cameraBounds.yMin - bounds.MinY;
+		if ( bounds.MaxY > cameraBounds.yMax )
+			offset.y += cameraBounds.yMax - bounds.MaxY;
+
+		return position+offset;
 	}
 
 	bool CheckTextMesh() 
@@ -441,7 +503,7 @@ public class QuestText : MonoBehaviour
 
 	bool CheckMaterial()
 	{		
-		if ( m_materialSet )
+		if ( m_materialSet && Application.isPlaying )
 			return true;
 
 		if ( m_mesh == null )
@@ -452,29 +514,33 @@ public class QuestText : MonoBehaviour
 
 		if ( m_mesh == null || m_meshRenderer == null )
 			return false;
-
-		if ( Application.isPlaying == false )
-			return true;
+			
+		bool snap = true;
+		if ( Application.isPlaying )
+			snap = PowerQuest.Get.GetSnapToPixel();
 
 		if ( s_shader == null )
-			s_shader = Shader.Find(PowerQuest.Get.GetSnapToPixel() ? STR_SHADER_PIXEL : STR_SHADER);		
+			s_shader = Shader.Find(snap ? STR_SHADER_PIXEL : STR_SHADER);		
 		
 		if ( s_shader == null )
 			return false;
-
-		if ( m_shaderOverride != null && m_meshRenderer.material != null && m_meshRenderer.material.shader != m_shaderOverride )
+		
+		Material mat = Application.isPlaying ? m_meshRenderer.material : m_meshRenderer.sharedMaterial;
+		
+		if ( m_shaderOverride != null && mat != null && mat.shader != m_shaderOverride )
 		{
-			Material mat = m_meshRenderer.material;
 			if ( mat.shader != m_shaderOverride )
 			{
 				mat = new Material(mat);
 				mat.shader = m_shaderOverride;
-				mat.mainTexture.filterMode = PowerQuest.Get.GetSnapToPixel() ? FilterMode.Point : FilterMode.Bilinear;
-				mat.mainTexture. anisoLevel = PowerQuest.Get.GetSnapToPixel() ? 0 : 1;
-				m_meshRenderer.material = mat;
+				mat.mainTexture.filterMode = snap ? FilterMode.Point : FilterMode.Bilinear;
+				mat.mainTexture. anisoLevel = snap ? 0 : 1;
+				if ( Application.isPlaying )
+					m_meshRenderer.material = mat;
 
 			}
-			m_materialSet = mat != null;
+			if ( Application.isPlaying == false )
+				m_materialSet = mat != null;
 			return m_materialSet;
 		}
 		else 
@@ -482,13 +548,14 @@ public class QuestText : MonoBehaviour
 			
 			#if SET_ALL_FONTS
 				// Set all fonts to use the shader
-				if ( m_mesh.font.material.shader != s_shader )
-				{
+				if ( m_mesh.font.material.shader != s_shader || Application.isPlaying == false )
+				{					
 					m_mesh.font.material.shader = s_shader;
-					m_mesh.font.material.mainTexture.filterMode = PowerQuest.Get.GetSnapToPixel() ? FilterMode.Point : FilterMode.Bilinear;
-					m_mesh.font.material.mainTexture.anisoLevel = PowerQuest.Get.GetSnapToPixel() ? 0 : 1;
+					m_mesh.font.material.mainTexture.filterMode = snap ? FilterMode.Point : FilterMode.Bilinear;
+					m_mesh.font.material.mainTexture.anisoLevel = snap ? 0 : 1;
 				}
-			m_materialSet = true;
+				if ( Application.isPlaying == false )
+					m_materialSet = true;
 			return true;
 			#else			
 				Material mat = m_meshRenderer.sharedMaterial;
@@ -496,12 +563,13 @@ public class QuestText : MonoBehaviour
 				{
 					mat = new Material(mat);
 					mat.shader = s_shader;
-					mat.mainTexture.filterMode = PowerQuest.Get.GetSnapToPixel() ? FilterMode.Point : FilterMode.Bilinear;
-					mat.mainTexture. anisoLevel = PowerQuest.Get.GetSnapToPixel() ? 0 : 1;
+					mat.mainTexture.filterMode = snap ? FilterMode.Point : FilterMode.Bilinear;
+					mat.mainTexture. anisoLevel = snap ? 0 : 1;
 					m_meshRenderer.sharedMaterial = mat;
 					
-				}
-				m_materialSet = mat != null;
+				}			
+				if ( Application.isPlaying == false )
+					m_materialSet = mat != null;
 				return m_materialSet;
 			#endif
 		}

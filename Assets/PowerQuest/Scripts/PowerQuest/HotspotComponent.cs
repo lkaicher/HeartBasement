@@ -82,6 +82,12 @@ public partial class Hotspot : IQuestClickable, IHotspot, IQuestScriptable
 
 	// Hotspots don't have a position, but IQuestClickable requires access to one, just reutrn zero
 	public Vector2 Position { get{ return Vector2.zero; } }
+		
+	#endregion
+	#region Partial functions for extentions
+	
+	partial void ExOnInteraction(eQuestVerb verb);
+	partial void ExOnCancelInteraction(eQuestVerb verb);
 
 	//
 	// Public Functions
@@ -93,11 +99,13 @@ public partial class Hotspot : IQuestClickable, IHotspot, IQuestScriptable
 	{				
 		if ( verb == eQuestVerb.Look ) ++m_lookCount;
 		else if ( verb == eQuestVerb.Use) ++m_useCount;
+		ExOnInteraction(verb);
 	}
 	public void OnCancelInteraction( eQuestVerb verb )
 	{		
 		if ( verb == eQuestVerb.Look ) --m_lookCount;
 		else if ( verb == eQuestVerb.Use) --m_useCount;
+		ExOnCancelInteraction(verb);
 	}
 
 	public void EditorInitialise( string name )

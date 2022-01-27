@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 namespace PowerTools
@@ -185,7 +185,7 @@ public class Pathfinder
 		}
 		else 
 		{
-			Debug.Log("Failed to find path");
+			// Debug.Log("Failed to find path");
 		}
 
 		RemoveNode(nodeStart);

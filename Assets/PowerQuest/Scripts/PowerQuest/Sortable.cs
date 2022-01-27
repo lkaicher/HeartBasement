@@ -5,7 +5,7 @@ using UnityEngine;
 public class Sortable : MonoBehaviour
 {
     [SerializeField] float m_baseline = 0;    
-    [SerializeField, Tooltip("If true, baseline is taken a World position, and sortable's y pos is ignored")] bool m_fixed = false;
+    [SerializeField, Tooltip("If true, the baseline will be in world position, instead of local to the object. So y position of the sortable is ignored")] bool m_fixed = false;
     [SerializeField, Tooltip("If true, renderers are cached on Start for efficiency (rather than retrieved on update)")] bool m_cacheRenderers = true;
     
     public float Baseline {get=>m_baseline; set=>m_baseline=value;}

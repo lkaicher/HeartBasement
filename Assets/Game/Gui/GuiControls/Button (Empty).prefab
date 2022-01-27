@@ -55,11 +55,11 @@ MonoBehaviour:
   m_animHover: 
   m_animClick: 
   m_animOff: 
-  m_colorWhat: 1
-  m_color: {r: 0.22352943, g: 0.4156863, b: 0.7803922, a: 1}
+  m_colorWhat: 0
+  m_color: {r: 1, g: 1, b: 1, a: 1}
   m_colorHover: {r: 1, g: 1, b: 1, a: 1}
   m_colorClick: {r: 1, g: 1, b: 1, a: 1}
-  m_colorOff: {r: 0.38823533, g: 0.60784316, b: 1, a: 1}
+  m_colorOff: {r: 1, g: 1, b: 1, a: 1}
   m_hotspotPadding:
     left: 0
     right: 0

@@ -58,7 +58,7 @@ public static class GuiUtils
 		if ( spriteRenderer == null || sprite == null )
 			return bounds;
 			
-		if ( spriteRenderer.drawMode == SpriteDrawMode.Sliced )
+		if ( spriteRenderer.drawMode != SpriteDrawMode.Simple )
 		{
 			// Sliced sprites
 			bounds.Center = spriteRenderer.bounds.center - transform.position;
@@ -148,6 +148,27 @@ public static class GuiUtils
 		//bounds.Center = bounds.Center - (Vector2)transform.position;
 
 		return bounds;
+	}
+
+	public static Camera FindGuiCamera()
+	{
+		Camera[] cameras = new Camera[10];
+			
+		int count = Camera.GetAllCameras(cameras);
+
+		// Take a guess at which is a gui camera			
+		for ( int i = 0; i < count && i < cameras.Length; ++i )
+		{
+			Camera cam = cameras[i];
+			if ( cam.gameObject.layer == 5 || cam.gameObject.name.Contains("GUI") )
+				return cam;
+		}
+
+		// Fall back to first camera
+		if ( cameras.Length > 0 )
+			return cameras[0];
+
+		return null;
 	}
 }
 

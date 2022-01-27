@@ -27,7 +27,10 @@ public class PowerSpriteImportEditor : Editor
 	static readonly string LIST_PROPERTY_NAME = "m_animations";
 	static readonly string REGEX_PNG = @"(?<name>.*)_(?<id>\d+)\.png";
 	static readonly string[] ASEPRITE_PATHS = { @"C:\Program Files (x86)\Steam\SteamApps\common\Aseprite\Aseprite.exe",  @"C:\Program Files\Aseprite\Aseprite.exe", @"C:\Program Files (x86)\Aseprite\Aseprite.exe" };
+	
+	static readonly string PATH_POSTFIX_FULLRECT = "-FullRect";
 
+	string m_console = string.Empty;
 
 	// Data structure for importing aseprite json data
 	[System.Serializable]
@@ -36,7 +39,7 @@ public class PowerSpriteImportEditor : Editor
 		[System.Serializable]
 		public class Frame
 		{
-				public int duration = 0;
+			public int duration = 0;
 		}
 		[System.Serializable]
 		public class MetaData
@@ -90,11 +93,7 @@ public class PowerSpriteImportEditor : Editor
 
 		AssetDatabase.SaveAssets ();
 		AssetDatabase.Refresh();
-		// Was trying 'auto' focuseing project window so you didn't need it open always... it's kinda annoying though
-		//if ( PrefabUtility.GetPrefabInstanceStatus(component) == PrefabInstanceStatus.NotAPrefab )  // This confusing statement checks that the it's not an instance of a prefab (therefore is found in the project)
-		//	EditorUtility.FocusProjectWindow();
 		Selection.activeObject = asset;
-		//GUIUtility.ExitGUI();
 	}
 
 	public static PowerSpriteImport CreateImporter(string path, bool refreshAssetDB = true)
@@ -392,6 +391,11 @@ public class PowerSpriteImportEditor : Editor
 		bool importPNGs = GUILayout.Button( "Import Sprites" );
 		bool createAnimations = GUILayout.Button( "Create Animations" );
 		EditorGUILayout.EndHorizontal();
+		if ( GUILayout.Button( "Import Sprites + Create Animations" ) )
+		{
+			importPNGs = true; 
+			createAnimations = true;
+		}
 
 		//	EditorGUILayout.HelpBox("NB: If animation is shortened, the extra sprites won't be deleted automatically. Delete them manually.", MessageType.None);
 
@@ -401,20 +405,29 @@ public class PowerSpriteImportEditor : Editor
 		{
 			importTags |= GUILayout.Button( "Import Aseprite Tags" );
 			m_component.m_spriteDirectory = EditorGUILayout.TextField("Sprite Folder", m_component.m_spriteDirectory );
-			m_component.m_gui = EditorGUILayout.Toggle("GUI Sprite", m_component.m_gui);
-			m_component.m_packingTag = EditorGUILayout.TextField("Packing Tag", m_component.m_packingTag);
+			m_component.m_createSingleSpriteAnims = EditorGUILayout.Toggle("Create single sprite animations", m_component.m_createSingleSpriteAnims);
+			m_component.m_trimSprites = EditorGUILayout.Toggle("Trim Sprites (Aseprite only)", m_component.m_trimSprites);
+			m_component.m_gui = EditorGUILayout.Toggle("Unity UI Sprite", m_component.m_gui);
+			m_component.m_spriteMeshType = (SpriteMeshType)EditorGUILayout.EnumPopup("Mesh Type", (System.Enum)m_component.m_spriteMeshType);
 			m_component.m_pixelsPerUnit = EditorGUILayout.FloatField("Pixels Per Unit", m_component.m_pixelsPerUnit);
 			m_component.m_filterMode = (FilterMode)EditorGUILayout.EnumPopup("Filter Mode", (System.Enum)m_component.m_filterMode);
 			m_component.m_compression = (PowerSpriteImport.eTextureCompression)EditorGUILayout.EnumPopup("Compression", (System.Enum)m_component.m_compression);
 			m_component.m_crunchedCompression = EditorGUILayout.Toggle("Crunched Compression", m_component.m_crunchedCompression);
-			m_component.m_trimSprites = EditorGUILayout.Toggle("Trim Sprites (Aseprite only)", m_component.m_trimSprites);
 
 			m_asepritePath = EditorGUILayout.TextField("Aseprite Path", m_asepritePath);
 		}
 
 		GUILayout.Space(20);
+		
+		if ( string.IsNullOrEmpty( m_console) == false )
+		{					
+			EditorGUILayout.LabelField("Result:", EditorStyles.boldLabel);
+			EditorGUILayout.HelpBox(m_console, MessageType.None);
+		}
+		else 
+		{
 
-		EditorGUILayout.HelpBox(@"TO USE:
+			EditorGUILayout.HelpBox(@"TO USE:
      1) Duplicate this asset into the target folder.
      2) Choose your source PSD/Aseprite file.
      3) Add the names you want imported anim(s) to have.
@@ -423,13 +436,15 @@ public class PowerSpriteImportEditor : Editor
 			MessageType.None);
 
 
-		EditorGUILayout.HelpBox(@"OR JUST IGNORE THIS PREFAB AND:
+			EditorGUILayout.HelpBox(@"OR JUST IGNORE THIS PREFAB AND:
      1) Open photoshop file you want to import sprites from.
      2) Right click target folder -> Import Sprites from Photoshop
      3) Select sprites, right click -> Create -> Anim from Sprites",
 			MessageType.None);
+		}
 
 		GUILayout.Space(20);
+
 
 		serializedObject.ApplyModifiedProperties();
 
@@ -439,17 +454,17 @@ public class PowerSpriteImportEditor : Editor
 			ImportPNGs();
 			importPNGs = false;
 		}
-		else if ( createAnimations )
+		if ( createAnimations )
 		{
 			CreateAnimations();
 			createAnimations = false;
 		}
-		else if (importTags)
+		if (importTags)
 		{
 			ImportJsonTags();
 			importTags = false;
 		}
-		else if (GUI.changed)
+		if (GUI.changed)
 		{
 			EditorUtility.SetDirty(target);
 		}
@@ -491,6 +506,7 @@ public class PowerSpriteImportEditor : Editor
 			menu.AddDisabledItem(new GUIContent(data.m_name),false);
 			
 			menu.AddItemToggle("Loop",data.m_loop,()=>ToggleLooping(data));
+			menu.AddItemToggle("Full Rect",data.m_fullRect,()=>ToggleFullRect(data));
 			menu.AddSeparator("");
 
 			menu.AddItem("Open", animFound, ()=> OpenAnim(data) );
@@ -501,7 +517,7 @@ public class PowerSpriteImportEditor : Editor
 			menu.AddSeparator("");
 			
 			if ( spriteFound == false )
-				menu.AddItem("Import and Build", true, ()=>{ImportSprites(index);BuildAnimation(index);} );
+				menu.AddItem("Import and Build", true, ()=>{ ImportSprites(index); BuildAnimation(index); } );
 			/*else 
 				menu.AddItem("Reimport and Rebuild", true, ()=>{ImportSprites(index);BuildAnimation(index);} );			
 			*/
@@ -582,6 +598,10 @@ public class PowerSpriteImportEditor : Editor
 		}
 
 	}
+	void ToggleFullRect(AnimImportData data)
+	{
+		data.m_fullRect = !data.m_fullRect;
+	}
 	void OpenAnim(AnimImportData data)
 	{
 		string componentPath = Path.GetDirectoryName(AssetDatabase.GetAssetPath(m_component));
@@ -648,7 +668,8 @@ public class PowerSpriteImportEditor : Editor
 		// Refresh asset database
 		AssetDatabase.Refresh();
 
-		EditorUtility.DisplayDialog("Deleted...",resultString,"OK");
+		m_console = "Deleted...\n\n"+resultString;
+		//EditorUtility.DisplayDialog("Deleted...",resultString,"OK");
 	}
 
 	void Rename(AnimImportData data, int index, string newName)
@@ -696,9 +717,11 @@ public class PowerSpriteImportEditor : Editor
 		// Refresh asset database
 		AssetDatabase.Refresh();
 		
-		EditorUtility.DisplayDialog("Renamed...",resultString,"OK");
+		m_console = "Renamed:\n\n"+resultString;
+		//EditorUtility.DisplayDialog("Renamed...",resultString,"OK");
 
 	}
+
 
 	void ImportSprites(int index)
 	{
@@ -708,7 +731,7 @@ public class PowerSpriteImportEditor : Editor
 	{
 		string componentPath = Path.GetDirectoryName(AssetDatabase.GetAssetPath(m_component));
 		string spritePath = GetSubdirectory(m_component.m_spriteDirectory);
-		CreateAnimation(spritePath, componentPath, index, true);
+		CreateAnimation(spritePath, componentPath, index, true, true);
 		AssetDatabase.SaveAssets();
 		// Refresh asset database
 		AssetDatabase.Refresh();
@@ -722,8 +745,8 @@ public class PowerSpriteImportEditor : Editor
 		if ( string.IsNullOrEmpty(asepritePath) )
 			return;
 
-		System.Diagnostics.Process process = new System.Diagnostics.Process();
-		string jsonFile = $"{m_component.m_sourceDirectory}\\AseTagExport.json";
+		System.Diagnostics.Process process = new System.Diagnostics.Process();		
+		string jsonFile = Path.Combine(m_component.m_sourceDirectory, "AseTagExport.json");
 		process.StartInfo.FileName = asepritePath;
 		// nb: includes "ignore-layer" argument, any layers named "guide" or "ignore" aren't exported
 		process.StartInfo.Arguments = $"-b \"{Path.GetFullPath(m_component.m_sourcePSD)}\" --data \"{Path.GetFullPath(jsonFile)}\" --list-tags --format json-array";
@@ -841,7 +864,7 @@ public class PowerSpriteImportEditor : Editor
 
 			System.Diagnostics.Process process = new System.Diagnostics.Process();
 			process.StartInfo.FileName = asepritePath;
-			string jsonFile = $"{m_component.m_sourceDirectory}\\AseTagExport.json";
+			string jsonFile = Path.Combine(m_component.m_sourceDirectory, "AseTagExport.json");
 					
 			// Set up arguments
 			// nb: includes "ignore-layer" argument, any layers named "guide" or "ignore" aren't exported
@@ -854,7 +877,7 @@ public class PowerSpriteImportEditor : Editor
 					arguments += $" -trim";
 				arguments += $" \"{Path.GetFullPath(m_component.m_sourcePSD)}\"";
 				arguments += $" --save-as \"{Path.GetFullPath(m_component.m_sourceDirectory)}\\{Path.GetFileNameWithoutExtension(m_component.m_sourcePSD)}_1.png\"";
-				arguments += $" --data \"{ Path.GetFullPath(jsonFile)}\"";
+				arguments += $" --data \"{ Path.GetFullPath(jsonFile)}\" --list-tags --format json-array";
 
 				process.StartInfo.Arguments = arguments;
 			}
@@ -957,6 +980,7 @@ public class PowerSpriteImportEditor : Editor
 		}
 
 		string ourPath = GetSubdirectory(m_component.m_spriteDirectory);
+		string ourPathFullRect = m_items.Exists(item=>item.m_fullRect) ? GetSubdirectory(m_component.m_spriteDirectory+PATH_POSTFIX_FULLRECT) : null; // Creates -FullRect dir, if necessary
 
 		string[] sourceFileNames = Directory.GetFiles(m_component.m_sourceDirectory,"*_*.png");
 		int[] sourceFileIds = new int[sourceFileNames.Length];
@@ -981,7 +1005,7 @@ public class PowerSpriteImportEditor : Editor
 				//lastFrame = 10000;
 			string failString = null;
 			int copiedCount = 0;
-
+			bool fullRect = m_items[i].m_fullRect;
 
 			for ( int spriteId = firstFrame; spriteId < lastFrame; ++spriteId )
 			{
@@ -1003,7 +1027,7 @@ public class PowerSpriteImportEditor : Editor
 				{
 
 					string fileName = m_items[i].m_name + "_"+(spriteId-firstFrame).ToString()+".png";
-					string targetPath = ourPath + fileName;
+					string targetPath = (fullRect ? ourPathFullRect : ourPath) + fileName;
 					//Debug.Log("source: "+sourcePath+", targetPath = " + targetPath);
 
 					// Copy the file
@@ -1019,7 +1043,16 @@ public class PowerSpriteImportEditor : Editor
 								AssetDatabase.ImportAsset(relativeTargetPath, ImportAssetOptions.ForceUpdate); // If importer didn't already exist import the asset first before changing settings
 
 							importer = TextureImporter.GetAtPath(relativeTargetPath) as TextureImporter;
-							importer.spritePixelsPerUnit = m_component.m_pixelsPerUnit;
+							importer.spritePixelsPerUnit = m_component.m_pixelsPerUnit;							
+							
+							if ( m_component.m_spriteMeshType != SpriteMeshType.Tight || fullRect )
+							{
+								TextureImporterSettings settings = new TextureImporterSettings();
+								importer.ReadTextureSettings(settings);
+								settings.spriteMeshType = fullRect ? SpriteMeshType.FullRect : m_component.m_spriteMeshType;
+								importer.SetTextureSettings(settings);
+							}
+							
 							switch ( m_component.m_compression )
 							{
 								case PowerSpriteImport.eTextureCompression.None:  importer.textureCompression = TextureImporterCompression.Uncompressed; break;
@@ -1030,12 +1063,6 @@ public class PowerSpriteImportEditor : Editor
 							importer.crunchedCompression = m_component.m_crunchedCompression;
 							importer.filterMode = m_component.m_filterMode;
 							importer.mipmapEnabled = false;
-
-							//importer.textureFormat = TextureImporterFormat.AutomaticTruecolor;
-							if ( m_component.m_gui && string.IsNullOrEmpty(m_component.m_packingTag) == false)
-								importer.spritePackingTag = "[RECT]"+m_component.m_packingTag;
-							else if ( string.IsNullOrEmpty(m_component.m_packingTag) == false )
-								importer.spritePackingTag = m_component.m_packingTag;
 
 							#if UNITY_2017_1_OR_NEWER
 							// This isn't necessary in 5.6, but seems to be in 2018, not sure about 2017
@@ -1079,7 +1106,7 @@ public class PowerSpriteImportEditor : Editor
 				{
 					found = false;
 					string fileName = m_items[i].m_name + "_"+frameId.ToString()+".png";
-					string targetPath = ourPath + fileName;
+					string targetPath = (fullRect ? ourPathFullRect : ourPath) + fileName;
 					if ( File.Exists(targetPath))
 					{
 						found = true;
@@ -1126,17 +1153,17 @@ public class PowerSpriteImportEditor : Editor
 
 		if ( string.IsNullOrEmpty(resultString) == false )
 		{
-			EditorUtility.DisplayDialog("Import Result",resultString,"OK");
+			m_console = resultString;
+			//EditorUtility.DisplayDialog("Import Result",resultString,"OK");
 		}
 		else
 		{
-
-			EditorUtility.DisplayDialog("Import Result","No sprites were found in "+m_component.m_sourceDirectory,"OK");
+			m_console = "No sprites were found in "+m_component.m_sourceDirectory;
+			//EditorUtility.DisplayDialog("Import Result","No sprites were found in "+m_component.m_sourceDirectory,"OK");
 		}
-
-		AssetDatabase.Refresh();
-
 	}
+
+	
 
 	void CreateAnimations()
 	{
@@ -1147,7 +1174,7 @@ public class PowerSpriteImportEditor : Editor
 		// Add new stuff/make edits
 		for ( int i = 0; i < m_items.Count; ++i )
 		{
-			CreateAnimation(spritePath, componentPath, i, false);
+			CreateAnimation(spritePath, componentPath, i, false, false);
 		}
 
 		AssetDatabase.SaveAssets();
@@ -1156,9 +1183,12 @@ public class PowerSpriteImportEditor : Editor
 		AssetDatabase.Refresh();
 	}
 
-	void CreateAnimation(string spritePath, string componentPath, int index, bool overwrite )
+	void CreateAnimation(string spritePath, string componentPath, int index, bool overwrite, bool forceSingleSpriteAnims )
 	{
 		AnimImportData data = m_items[index];
+
+		if ( data.m_fullRect )
+			spritePath = spritePath.Insert(spritePath.Length-1,PATH_POSTFIX_FULLRECT);
 
 		// Skip anims with no name
 		if ( string.IsNullOrEmpty(data.m_name) )
@@ -1198,6 +1228,10 @@ public class PowerSpriteImportEditor : Editor
 			return;
 
 		int numFrames = lastFrame - firstFrame;
+
+		// Skip single frame anims if that option's set. (unless forceSingleSpriteAnims is true)
+		if ( isNew && forceSingleSpriteAnims == false && numFrames <= 1 && m_component.m_createSingleSpriteAnims == false )
+			return;
 
 		EditorCurveBinding curveBinding = new EditorCurveBinding();
 

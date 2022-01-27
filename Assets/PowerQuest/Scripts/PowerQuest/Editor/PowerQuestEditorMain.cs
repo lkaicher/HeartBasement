@@ -22,10 +22,10 @@ public partial class PowerQuestEditor
 	#region Variables: Serialized
 
 	// Reference to the prefab list, or a filtered list of the prefabs, used by Reorderable lists
-	[SerializeField] List<RoomComponent> m_listRoomPrefabs = null;
-	[SerializeField] List<CharacterComponent> m_listCharacterPrefabs = null;
-	[SerializeField] List<InventoryComponent> m_listInventoryPrefabs = null;
-	[SerializeField] List<DialogTreeComponent> m_listDialogTreePrefabs = null;	
+	/*[SerializeField] */List<RoomComponent> m_listRoomPrefabs = null; // NB: commented out the 'serializefield' bit to see if that's what was causing invisible fields
+	/*[SerializeField] */List<CharacterComponent> m_listCharacterPrefabs = null;
+	/*[SerializeField] */List<InventoryComponent> m_listInventoryPrefabs = null;
+	/*[SerializeField] */List<DialogTreeComponent> m_listDialogTreePrefabs = null;	
 
 	// Whether to show filtered list of prefabs, or the whole thing
 	[SerializeField] bool m_filterRooms = false;

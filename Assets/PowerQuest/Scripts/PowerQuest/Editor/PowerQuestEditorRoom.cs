@@ -134,7 +134,8 @@ public partial class PowerQuestEditor
 			AssetDatabase.CreateFolder(path,"Sprites");
 
 		// Create importer
-		QuestEditorUtils.CreateImporter(path+"/_Import"+name+".asset", string.Empty);
+		PowerSpriteImport importer = PowerSpriteImportEditor.CreateImporter(path+"/_Import"+name+".asset");
+		importer.m_createSingleSpriteAnims = true; // Rooms can work with single sprite anims
 
 		// Create atlas
 		QuestEditorUtils.CreateSpriteAtlas($"{path}/Room{name}Atlas.spriteatlas",$"{path}/Sprites",GetPowerQuest().GetSnapToPixel(),false);
@@ -172,6 +173,9 @@ public partial class PowerQuestEditor
 
 		// Add scene to editor build settings
 		PowerQuestEditor.AddSceneToBuildSettings(scenePath);
+
+		powerQuestEditor.CallbackOnCreateRoom?.Invoke(path, name);
+		powerQuestEditor.CallbackOnCreateObject?.Invoke(eQuestObjectType.Room, path, name);
 		
 		powerQuestEditor.RequestAssetRefresh();
 
@@ -210,7 +214,12 @@ public partial class PowerQuestEditor
 		powerQuestEditor.m_selectedRoom.EditorUpdateChildComponents();
 		powerQuestEditor.UpdateRoomObjectOrder(false);
 		QuestEditorUtils.ReplacePrefab(powerQuestEditor.m_selectedRoom.gameObject);
+		
+		powerQuestEditor.CallbackOnCreateObject?.Invoke(eQuestObjectType.Hotspot, null, name);
+
 		powerQuestEditor.Repaint();
+		
+		QuestScriptEditor.UpdateAutoComplete(QuestScriptEditor.eAutoCompleteContext.Hotspots);
 
 	}
 
@@ -288,7 +297,7 @@ public partial class PowerQuestEditor
 		gameObject.GetComponent<SpriteRenderer>().sortingOrder = powerQuestEditor.m_selectedRoom.GetPropComponents().Count;
 
 		// Set sprite if one exists already
-		UpdateDefaultSprite( propComponent, propComponent.GetData().Animation, powerQuestEditor.m_selectedRoom.GetAnimations() );
+		UpdateDefaultSprite( propComponent, propComponent.GetData().Animation, powerQuestEditor.m_selectedRoom.GetAnimations(), null, powerQuestEditor.m_selectedRoom.GetSprites() );
 
 		Selection.activeObject = gameObject;
 
@@ -297,7 +306,12 @@ public partial class PowerQuestEditor
 		powerQuestEditor.m_selectedRoom.EditorUpdateChildComponents();
 		powerQuestEditor.UpdateRoomObjectOrder(false);
 		QuestEditorUtils.ReplacePrefab(powerQuestEditor.m_selectedRoom.gameObject);
+				
+		powerQuestEditor.CallbackOnCreateObject?.Invoke(eQuestObjectType.Prop, null, name);
+
 		powerQuestEditor.Repaint(); 
+		
+		QuestScriptEditor.UpdateAutoComplete(QuestScriptEditor.eAutoCompleteContext.Props);
 
 	}
 
@@ -374,7 +388,12 @@ public partial class PowerQuestEditor
 		powerQuestEditor.m_selectedRoom.EditorUpdateChildComponents();
 		powerQuestEditor.UpdateRoomObjectOrder(false);
 		QuestEditorUtils.ReplacePrefab(powerQuestEditor.m_selectedRoom.gameObject);
+		
+		powerQuestEditor.CallbackOnCreateObject?.Invoke(eQuestObjectType.Region, null, name);
 		powerQuestEditor.Repaint();
+		
+						
+		QuestScriptEditor.UpdateAutoComplete(QuestScriptEditor.eAutoCompleteContext.Regions);
 
 	}
 	void DeleteRegion(int index = -1) 
@@ -443,7 +462,7 @@ public partial class PowerQuestEditor
 		// Add to the selected room
 		powerQuestEditor.m_selectedRoom.EditorUpdateChildComponents();
 		powerQuestEditor.UpdateRoomObjectOrder(false);
-		QuestEditorUtils.ReplacePrefab(powerQuestEditor.m_selectedRoom.gameObject);
+		QuestEditorUtils.ReplacePrefab(powerQuestEditor.m_selectedRoom.gameObject);		
 		powerQuestEditor.Repaint();
 
 	}
@@ -1194,8 +1213,8 @@ public partial class PowerQuestEditor
 					Handles.color = Color.yellow;
 					Handles.DrawLine( position + (Vector3.left * 2), position + (Vector3.right * 2) );
 					Handles.DrawLine( position + (Vector3.up * 2), position + (Vector3.down * 2) );
-
-					if ( Event.current != null && Event.current.type == EventType.MouseDown && Event.current.button == 0 )
+					
+					if ( Event.current != null && Event.current.type == EventType.MouseDown && Event.current.button == 0 && Tools.current != Tool.Custom )
 					{
 						if ( (m_mousePos - (Vector2)position).sqrMagnitude < 6 )
 						{

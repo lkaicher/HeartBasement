@@ -9,7 +9,7 @@ namespace PowerTools.QuestGui
 
 //
 [System.Serializable] 
-//[AddComponentMenu("Quest Gui/Button")]
+[AddComponentMenu("Quest Gui/Button")]
 public partial class Button : GuiControl, IButton
 {
 
@@ -22,7 +22,7 @@ public partial class Button : GuiControl, IButton
 		Image,	      // Hotspot size taken from image. No change to image. No stretch component
 		FitText,         // Image set up to contain gui text.  No stretch component
 	}	
-	public enum eColorUse { None, Text, Image }
+	public enum eColorUse { None, Text, Image, Both }
 
 	#region Vars: Editor
 	
@@ -76,8 +76,6 @@ public partial class Button : GuiControl, IButton
 	bool m_overrideAnimPlaying = false;
 	int m_stopOverrideAnimDelay = -1;
 	
-
-
 	#endregion
 	#region Funcs: IButton interface
 	
@@ -109,8 +107,8 @@ public partial class Button : GuiControl, IButton
 	
 	public Color Color	        { get{return m_color;} set { m_color = value; OnColorChanged(); } }
 	public Color ColorHover    { get{return m_colorHover;} set { m_colorHover = value; OnColorChanged(); } }
-	public Color ColorPress    { get{return m_colorClick;} set { m_colorClick = value; OnColorChanged(); } }
-	public Color ColorInactive { get{return m_colorOff;} set { m_colorOff = value; OnColorChanged(); } }
+	public Color ColorClick    { get{return m_colorClick;} set { m_colorClick = value; OnColorChanged(); } }
+	public Color ColorOff { get{return m_colorOff;} set { m_colorOff = value; OnColorChanged(); } }
 
 	public eColorUse ColorWhat => m_colorWhat;
 
@@ -171,12 +169,6 @@ public partial class Button : GuiControl, IButton
 
 	public Coroutine WaitForAnimTrigger(string triggerName) { return PowerQuest.Get.StartCoroutine(CoroutineWaitForAnimTrigger(triggerName)); }
 	
-		
-	/// Fade the sprite's alpha
-	public Coroutine Fade(float start, float end, float duration ) { return PowerQuest.Get.StartCoroutine(CoroutineFade(start, end, duration)); }
-	/// Fade the sprite's alpha (non-blocking)
-	public void FadeBG(float start, float end, float duration ) { PowerQuest.Get.StartCoroutine(CoroutineFade(start, end, duration)); }
-	
 	#endregion
 	#region Functions: Public (Non interface)
 
@@ -197,11 +189,7 @@ public partial class Button : GuiControl, IButton
 		}
 		if ( m_boxCollider2D != null )
 		{			
-			if ( m_sprite == null )
-				m_sprite = GetComponentInChildren<SpriteRenderer>();
-			if ( m_questText == null )
-				m_questText = GetComponentInChildren<QuestText>();							
-			
+			InitComponentReferences();
 
 			RectCentered bounds = GuiUtils.CalculateGuiRectInternal( transform, false, m_sprite, m_questText == null ? null : m_questText.GetComponent<MeshRenderer>() );
 			bounds.AddPadding(m_hotspotPadding);
@@ -253,15 +241,17 @@ public partial class Button : GuiControl, IButton
 	void Awake() 
 	{	
 		InitComponentReferences();
+		ExAwake();
 	}
 
 	void InitComponentReferences()
 	{
 		if ( m_sprite == null )
 			m_sprite = GetComponentInChildren<SpriteRenderer>(true);
-		if ( m_sprite != null )
+		if ( m_sprite != null && m_spriteAnimator == null )
 			m_spriteAnimator = m_sprite.GetComponent<SpriteAnim>();
-		m_questText = GetComponentInChildren<QuestText>();
+		if ( m_questText == null )
+			m_questText = GetComponentInChildren<QuestText>();
 	}
 
 
@@ -273,7 +263,7 @@ public partial class Button : GuiControl, IButton
 		SetState(Clickable ? eState.Default : eState.Off);
 
 		StartStateAnimation();
-		OnSetVisible();
+		//OnSetVisible();
 
 		if ( m_sizeSetting == eSizeSetting.FitText )
 		{
@@ -337,6 +327,8 @@ public partial class Button : GuiControl, IButton
 			// Handle right clicking when focused
 			PowerQuest.Get.ProcessGuiClick(GuiData, this);
 		}
+		
+		ExUpdate();
 	}
 
 	void SetState(eState newState)
@@ -382,9 +374,9 @@ public partial class Button : GuiControl, IButton
 			case eState.Click: color = m_colorClick; break;
 			case eState.Off: color = m_colorOff; break;
 		}			
-		if ( m_questText != null && m_colorWhat == eColorUse.Text )
+		if ( m_questText != null && (m_colorWhat == eColorUse.Text || m_colorWhat == eColorUse.Both) )
 			m_questText.color = color;
-		else if ( m_sprite != null && m_colorWhat == eColorUse.Image )
+		if ( m_sprite != null && (m_colorWhat == eColorUse.Image || m_colorWhat == eColorUse.Both) )
 			m_sprite.color = color;
 	}
 
@@ -415,6 +407,9 @@ public partial class Button : GuiControl, IButton
 	// Plays anim. Returns false if clip not found	
 	bool PlayAnimInternal(string animName, bool fromStart = true)
 	{
+		if ( m_spriteAnimator == null )
+			return true;
+
 		m_stopOverrideAnimDelay = 0;
 		
 		if ( string.IsNullOrEmpty( animName ) )
@@ -452,6 +447,12 @@ public partial class Button : GuiControl, IButton
 	}
 	
 	
+	#endregion
+	#region Partial Functions for extentions
+	
+	partial void ExAwake();
+	//partial void ExOnDestroy();
+	partial void ExUpdate();
 	
 	#endregion	
 	#region Implementing IQuestClickable
@@ -486,36 +487,6 @@ public partial class Button : GuiControl, IButton
 		yield break;
 	}
 	
-	IEnumerator CoroutineFade(float start, float end, float duration )
-	{
-		if ( Instance == null )
-			yield break;
-
-		SpriteRenderer[] sprites = Instance.GetComponentsInChildren<SpriteRenderer>();
-		TextMesh[] texts = Instance.GetComponentsInChildren<TextMesh>();
-
-		float time = 0;
-		float alpha = start;
-		System.Array.ForEach( sprites, sprite => { sprite.color = sprite.color.WithAlpha( alpha ); });
-		System.Array.ForEach( texts, text => { text.color = text.color.WithAlpha( alpha ); });
-		while ( time < duration && PowerQuest.Get.GetSkippingCutscene() == false )
-		{
-			yield return new WaitForEndOfFrame();
-					
-			if ( SystemTime.Paused == false )
-			time += Time.deltaTime;
-			float ratio = time/duration;
-			ratio = Utils.EaseOutCubic(ratio);
-			alpha = Mathf.Lerp(start,end, ratio);
-			System.Array.ForEach( sprites, sprite => { if ( sprite != null ) sprite.color = sprite.color.WithAlpha( alpha ); });
-			System.Array.ForEach( texts, text => { if ( text != null ) text.color = text.color.WithAlpha( alpha ); });
-		}
-
-		alpha = end;
-		System.Array.ForEach( sprites, sprite => { if ( sprite != null ) sprite.color = sprite.color.WithAlpha( alpha ); });
-		System.Array.ForEach( texts, text => { if ( text != null ) text.color = text.color.WithAlpha( alpha ); });
-
-	}
 
 	IEnumerator CoroutineWaitForAnimTrigger(string triggerName)
 	{
@@ -568,7 +539,7 @@ public partial class Button : GuiControl, IButton
 	{
 		return m_overrideAnimPlaying && m_spriteAnimator.Playing;
 	}
-
+	/* NB: This was never used
 	void OnSetVisible()
 	{
 		if ( gameObject.activeSelf == false && Visible)
@@ -582,7 +553,7 @@ public partial class Button : GuiControl, IButton
 		{   
 			renderer.GetComponent<Renderer>().enabled = Visible;
 		}
-	}
+	}*/
 
 	// Handles setting up defaults incase items have been added or removed since last loading a save file
 	/*[System.Runtime.Serialization.OnDeserializing]

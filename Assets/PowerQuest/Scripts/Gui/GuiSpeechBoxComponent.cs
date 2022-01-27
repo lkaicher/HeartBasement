@@ -6,7 +6,7 @@ namespace PowerTools.Quest
 {
 
 
-public class GuiSpeechBoxComponent : GuiComponent
+public class GuiSpeechBoxComponent : GuiComponent, ISpeechGui
 {
 	[SerializeField] bool m_usePlayerTextColour = true;
 
@@ -17,15 +17,16 @@ public class GuiSpeechBoxComponent : GuiComponent
 	Character m_character = null;
 	int m_currLineId = -1;
 
-	public void SetText( Character character, string text, int currLineId )
-	{
+	public void StartSay( Character character, string text, int currLineId, bool background )
+	{		
+		GetData().Show();
+
 		m_character = character;
 		m_currLineId = currLineId;
 
 		m_text.text = text;
 		if ( m_usePlayerTextColour )
 			m_text.color = m_character.TextColour;
-
 
 		CharacterComponent prefabComponent = character.GetPrefab().GetComponent<CharacterComponent>();
 
@@ -49,24 +50,20 @@ public class GuiSpeechBoxComponent : GuiComponent
 
 		// update immediately
 		Update();
-
-		/*
-		// Update Layout
-		foreach( GUIContain contain in GetComponentsInChildren<GUIContain>() )
-			contain.UpdateSize();
-		foreach( ObjectAlign contain in GetComponentsInChildren<ObjectAlign>() )
-			contain.UpdatePos();
-		*/
-
+		
 		gameObject.SetActive(wasActive);
+	}
 
+	public void EndSay( Character character )
+	{
+		GetData().Hide();
 	}
 
 	// Use this for initialization
 	void Awake() 
 	{
 		m_text = GetComponentInChildren<QuestText>(true);		
-		m_spriteAnimator = GetComponentInChildren<SpriteAnim>(true);		
+		m_spriteAnimator = GetComponentInChildren<SpriteAnim>(true);
 		m_sprite = m_spriteAnimator.GetComponent<SpriteRenderer>();
 	}
 	

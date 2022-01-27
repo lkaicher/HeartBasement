@@ -1,10 +1,15 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 namespace PowerTools.Quest
 {
 
 
+/// Settings that can be set by players in game.
+/*
+	These are saved seperately to the individual game saves, so a player's preferences are maintained throughout the game
+	You can add data to this partial class, and implement the "ExtentionOnInitialise()" function which is called on launch and after loading the game.
+*/
 [System.Serializable]
 public partial class QuestSettings
 {	
@@ -15,7 +20,6 @@ public partial class QuestSettings
 		SpeechOnly,
 		TextOnly
 	};
-
 
 	/// Gets/sets the master volume (0 to 1)
 	public float Volume 
@@ -61,15 +65,11 @@ public partial class QuestSettings
 		} 
 	}
 
-	public string DisplayBoxGui
-	{ 
-		get { return m_displayBoxGui; }
-		set { m_displayBoxGui = value; }
-	}
-	public string DialogTreeGui
-	{ 
-		get { return m_dialogTreeGui; }
-		set { m_dialogTreeGui = value; }
+	// Gets/Sets the speed of text in the game
+	public float TextSpeedMultiplier
+	{
+		get => m_textSpeedMultiplier;
+		set => m_textSpeedMultiplier=value;
 	}
 
 	/// Gets/sets the dialog display style (0 to 1)
@@ -78,29 +78,19 @@ public partial class QuestSettings
 		get { return m_dialogDisplay; }
 		set { m_dialogDisplay = value; }
 	}
-
-	/// Whether "Display" text is shown regardless of the DialogDisplay setting
-	public bool AlwaysShowDisplayText 
+	
+	public CursorLockMode m_lockCursor = CursorLockMode.Confined;
+	public CursorLockMode LockCursor 
 	{ 
-		get { return m_alwaysShowDisplayText; }
-		set { m_alwaysShowDisplayText = value; }
+		get => m_lockCursor; 
+		set 
+		{
+			m_lockCursor = value;			
+			if ( Application.isEditor == false )
+				UnityEngine.Cursor.lockState = m_lockCursor;
+		} 
 	}
-
-	public eSpeechStyle SpeechStyle 
-	{ 
-		get { return m_speechStyle; }
-		set { m_speechStyle = value; }
-	}
-
-	public eSpeechPortraitLocation SpeechPortraitLocation
-	{ 
-		get { return m_speechPortraitLocation; }
-		set { m_speechPortraitLocation = value; }
-	}
-
-	/// Length of time transition between rooms takes
-	public float TransitionFadeTime { get { return m_transitionFadeTime; } set {m_transitionFadeTime = value; } }
-
+	
 	/// Initialises the system (Called from inside PowerQuest)
 	public void OnInitialise()
 	{
@@ -108,8 +98,12 @@ public partial class QuestSettings
 		SystemAudio.SetVolume(AudioCue.eAudioType.Music, m_musicVolume);
 		SystemAudio.SetVolume(AudioCue.eAudioType.Sound, m_sfxVolume);
 		SystemAudio.SetVolume(AudioCue.eAudioType.Dialog, m_dialogVolume);
-
+		LockCursor = m_lockCursor;
+		Language = m_languageCode;
+		ExOnInitialise();
 	}
+
+	partial void ExOnInitialise();
 
 	/// Initialises the system (Called from inside PowerQuest)
 	public void OnPostRestore( int version )
@@ -123,17 +117,31 @@ public partial class QuestSettings
 		get { return m_languageCode; }
 		set 
 		{ 
-			// Find the language code
-			int languageId = System.Array.FindIndex(SystemText.Get.GetLanguages(), item=> string.Equals( item.m_code, m_languageCode, System.StringComparison.OrdinalIgnoreCase) );
-			if ( languageId < 0 )
-			{
-				Debug.LogWarning("Couldn't find language code: "+value+", The code needs to be added to SystemText");
-				return;
-			}
-			m_languageCode = value; 
-			SystemText.Get.SetLanguage(languageId);
+			if ( SystemText.Get.SetLanguage(value) )
+				m_languageCode = value; 
 		}
 	}
+
+	/// Gets data for the currently selected language
+	public LanguageData LanguageData => Systems.Text.GetLanguageData();
+	
+	/// Gets/Sets the current language by id
+	public int LanguageId
+	{
+		get { return SystemText.Get.GetLanguage(); }
+		set 
+		{ 
+			// Find the language code
+			if ( Systems.Text.GetLanguages().IsIndexValid(value) == false )			
+			{
+				Debug.LogWarning("Couldn't find language id: "+value);
+				return;
+			}
+			m_languageCode = Systems.Text.GetLanguages()[value].m_code; 
+			SystemText.Get.SetLanguage(value);
+		}
+	}
+
 	/// Get's the current language
 	public LanguageData[] GetLanguages() { return SystemText.Get.GetLanguages(); }
 
@@ -144,19 +152,10 @@ public partial class QuestSettings
 	[SerializeField] float m_musicVolume = 1.0f;
 	[SerializeField] float m_sfxVolume = 1.0f;
 	[SerializeField] float m_dialogVolume = 1.0f;
-	[SerializeField] string m_displayBoxGui = "DisplayBox";
-	[SerializeField] string m_dialogTreeGui = "DialogTree";
 	[SerializeField] eDialogDisplay m_dialogDisplay = eDialogDisplay.TextAndSpeech;
-	[Tooltip("How is dialog displayed. Above head (lucasarts style), next to a portrait (sierra style), or as a caption not attached to character position")]
-	[SerializeField] eSpeechStyle m_speechStyle = eSpeechStyle.AboveCharacter;
-	[Tooltip("Which side is portrait located (currently only LEFT is implemented)")]
-	[SerializeField] eSpeechPortraitLocation m_speechPortraitLocation = eSpeechPortraitLocation.Left;
-
-	[SerializeField] float m_transitionFadeTime = 0.3f;
-	[Tooltip("If true, display is shown even when subtitles off")]
-	[SerializeField] bool m_alwaysShowDisplayText = true;
 	[Tooltip("The Default Language. Should match codes set in SystemText")]
 	[SerializeField] string m_languageCode = "EN";
+	[SerializeField] float m_textSpeedMultiplier = 1;
 
 
 }

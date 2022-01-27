@@ -162,6 +162,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9395546e72d3908469b182762ab9ed31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_fitWhat: 1
   m_fitWidth: []
   m_fitHeight: []
   m_padding:

@@ -17,12 +17,14 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	
 	static readonly System.Type TYPE_COMPILERGENERATED = typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute);
 	static readonly string FUNC_UPDATE = "Update";
+	static readonly string FUNC_UPDATE_NOPAUSE = "UpdateNoPause";
+	public static readonly string SPRITE_NUM_POSTFIX_0 = "_0";
 
 	// Class for timers
 	[System.Serializable] class Timer { public string n; public float t; }	
 
 	// Variables in this class are all saved/restored automatically
-	class SavedVarCollection
+	partial class SavedVarCollection
 	{
 		public SourceList m_occurances = new SourceList();
 		public List<string> m_tempDisabledProps = new List<string>();
@@ -34,6 +36,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		public List<string> m_currentInteractionOccurrances = new List<string>();
 		public List<string> m_captureInputSources = new List<string>();
 		public List<Timer> m_timers = new List<Timer>();
+		public bool m_callEnterOnRestore = false; // when true, restoring a game will call "OnEnterAfterFade, etc again"
 	}
 
 	enum eInventoryClickStyle { SelectInventory, UseInventory, OnMouseClick }
@@ -41,13 +44,13 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	#endregion
 	#region Variables: Inspector
 
-	[Header("Settings")]
+	[Header("Default In-Game Settings")]
 
-	[Tooltip("Defaults for settings that can be changed in game")]
+	[Tooltip("Config Settings (like volume) that are game wide.")]
 	[SerializeField] QuestSettings m_settings = new QuestSettings();
 
-	[Header("Project Setup")]
-
+	
+	[Header("Screen Setup")]
 	[Tooltip("The default vertical resolution of the game. How many pixels high the camera view will be.")]
 	[SerializeField] float m_verticalResolution = 180;
 	[Tooltip("Whether camera and other things snap to pixel. For pixel art games")]
@@ -56,58 +59,83 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	[SerializeField] bool m_pixelCamEnabled = false;
 	[Tooltip("Default pixels per unit that sprites are imported at")]
 	[SerializeField] float m_defaultPixelsPerUnit = 1;
-	[Tooltip("Whether character dialog text requires a click to advance, or dismisses after dialog's spoken/after time")]
-	[SerializeField] bool m_sayTextAutoAdvance = true;
-	[Tooltip("Whether display requires a click to advance, or dismisses after dialog's spoken/after time")]
-	[SerializeField] bool m_displayTextAutoAdvance = false;
+		
+	[Header("Dialog Speech Display Setup")]
+	[Tooltip("How is dialog displayed. Above head (lucasarts style), next to a portrait (sierra style), or as a caption not attached to character position")]
+	[SerializeField] eSpeechStyle m_speechStyle = eSpeechStyle.AboveCharacter;
+	[Tooltip("Which side is portrait located (currently only LEFT is implemented)")]
+	[SerializeField] eSpeechPortraitLocation m_speechPortraitLocation = eSpeechPortraitLocation.Left;
+	
+	[Tooltip("Prefab for displayed above character")]
+	[SerializeField] QuestText m_dialogTextPrefab = null;
+	[Tooltip("Global offset of dialog text (above character sprite)")]
+	[SerializeField] Vector2 m_dialogTextOffset = Vector2.zero;
+	[Tooltip("Set speech style to AboveCharacter to use, and implement ISpeechGui")]
+	[SerializeField] string m_customSpeechGui = "";
+	
+
+
+	[SerializeField] string m_displayBoxGui = "DisplayBox";
+	[SerializeField] string m_dialogTreeGui = "DialogTree";
+
+	[Header("Other Dialog Speech Setup")]
 	[Tooltip("When clicking to skip text, ignore clicks until text has been shown for this time")]
 	[SerializeField] float m_textNoSkipTime = 0.25f;	
 	[Tooltip("Whether charaters stop walking automatically when they start talking")]
 	[SerializeField] bool m_stopWalkingToTalk = true;
+	[Tooltip("Whether character dialog text requires a click to advance, or dismisses after dialog's spoken/after time")]
+	[SerializeField] bool m_sayTextAutoAdvance = true;
+	[Tooltip("Whether display requires a click to advance, or dismisses after dialog's spoken/after time")]
+	[SerializeField] bool m_displayTextAutoAdvance = false;
+	[Tooltip("If true, display is shown even when subtitles off")]
+	[SerializeField] bool m_alwaysShowDisplayText = true;
 
-	[Header("What editor actions are available")]
+	[Header("Project Verb Setup")]
 
 	[SerializeField] bool m_enableUse = true;
 	[SerializeField] bool m_enableLook = true;
 	[SerializeField] bool m_enableInventory = true;
 	[Tooltip("Whether clicking inventory results in 'Selecting' it Broken Sword style, or 'Using' it Lucasarts style, or specified in GlobalScript's OnMouseClick")]
 	[SerializeField] eInventoryClickStyle m_inventoryClickStyle = eInventoryClickStyle.OnMouseClick;		
+	[Tooltip("When true, no editor keyboard shortcuts will be used")]
+	[SerializeField] bool m_customKbShortcuts = false;
 
-	[Header("Other Defaults")]
-
-	[Tooltip("Increase when the data you're saving changes")]
+	[Header("Screen-Fade Setup")]
+	[SerializeField] float m_transitionFadeTime = 0.3f;
+	[SerializeField] QuestMenuManager m_menuManager = null;
+		
+	[Header("Spawnables")]
+	[Tooltip("Add objects here so you can spawn them by name in QuestScripts")]
+	[SerializeField] List<GameObject> m_spawnablePrefabs = new List<GameObject>();
+	
+	
+	[Header("Save Game Settings")]
+	[Tooltip("Height in pixels of screenshot recorded in save-game slot data. Set to 0 to disable saving screenshot with save games")]
+	[SerializeField] int m_saveScreenshotHeight = 180;
+	[Tooltip("Increase when the data you're saving changes, and you need to know if you're loading an old save game")]
 	[SerializeField] int m_saveVersion = 0;
 	[Tooltip("Increase when you can no longer save games of a specific version. After launch you should avoid increasing this if possible or player's save files get invalidated!")]
 	[SerializeField] int m_saveVersionRequired = 0;
-	[SerializeField] QuestMenuManager m_menuManager = null;
-	[SerializeField] QuestCursorComponent m_cursorPrefab = null;
-	[SerializeField] QuestCameraComponent m_cameraPrefab = null;
-	[Tooltip("Prefab for displayed above character")]
-	[SerializeField] QuestText m_dialogTextPrefab = null;
-	[Tooltip("Global offset of dialog text (above character sprite)")]
-	[SerializeField] Vector2 m_dialogTextOffset = Vector2.zero;
 
-	[Header("Spawnables")]
-
-	[SerializeField] List<GameObject> m_spawnablePrefabs = new List<GameObject>();
-
-	[Header("Text Sprite setup")]
+	[Header("Text Sprite Setup")]
 
 	public Material m_textSpriteMaterial = null;
 	[ReorderableArray,NonReorderable]
 	public QuestText.TextSpriteData[] m_textSprites = null;
 
-	[Header("Other systems to create")]
+	[Header("Other Systems To Create")]
 	[SerializeField] List<Component> m_systems = null;
 		
-	[Header("Prefab Lists (Read only, enable debug inspector to edit)")]
-
+	[Header("Prefab Lists (Read only, enable debug inspector to edit)")]	
+	[SerializeField, ReadOnly] QuestCursorComponent m_cursorPrefab = null;
+	[SerializeField, ReadOnly] QuestCameraComponent m_cameraPrefab = null;
 	[SerializeField, ReadOnly, NonReorderable] List<RoomComponent> m_roomPrefabs = new List<RoomComponent>();
 	[SerializeField, ReadOnly, NonReorderable] List<CharacterComponent> m_characterPrefabs = new List<CharacterComponent>();
 	[SerializeField, ReadOnly, NonReorderable] List<GuiComponent> m_guiPrefabs = new List<GuiComponent>();
 	[SerializeField, ReadOnly, NonReorderable] List<DialogTreeComponent> m_dialogTreePrefabs = new List<DialogTreeComponent>();
 	[SerializeField, ReadOnly, NonReorderable] List<InventoryComponent> m_inventoryPrefabs = new List<InventoryComponent>();	
 	[SerializeField, ReadOnly, NonReorderable] List<AnimationClip> m_inventoryAnimations = new List<AnimationClip>();
+	[SerializeField, ReadOnly, NonReorderable] List<Sprite> m_inventorySprites = new List<Sprite>();
 	[SerializeField, ReadOnly, NonReorderable] List<AnimationClip> m_guiAnimations = new List<AnimationClip>();
 	[SerializeField, ReadOnly, NonReorderable] List<Sprite> m_guiSprites = new List<Sprite>();
 
@@ -164,8 +192,12 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	bool m_displayActive = false;		// True when Display dialog is visible or audio is playing (triggered by Display or DisplayBG)
 	bool m_skipCutsceneButtonConsumed = false; // true when skip cutscene button is pressed, and waiting for it to be released (so don't process "held down esc" events)
 	bool m_waitingForBGDialogSkip = false; // Used for "WaitForDialogSkip", which turns any background dialog into foreground dialog. Experimental feature.
-	bool m_restartOnUpdate = false;	// Flag used to restart at start of next update
-	bool m_debugRestartCurrentRoom = false; // Flag used to restart in current room at start of next update
+	bool m_restartOnUpdate = false;	// Flag used to restart at start of next update	
+	
+	static bool s_hasRestarted = false;
+	static string s_restartScene = null;	
+	static string s_restartPlayFromFunction = null;
+	static Assembly s_restartAssembly = null;
 
 	// Extra snapping tweaks
 	bool m_useFancyParallaxSnapping = true;
@@ -178,7 +210,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	bool m_rightClickPrev = false;
 	bool m_overrideMousePos = false;
 	Vector2 m_mousePos = Vector2.zero;
-	float m_textSpeedMultiplier = 1;
+	Vector2 m_mousePosGui = Vector2.zero;
 	float m_timeLastTextShown = 0;
 
 	Coroutine m_currentSequence = null;	// Main active sequence
@@ -233,9 +265,26 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	/// Convenient shortcut to the Cursor
 	public ICursor Cursor { get{ return GetCursor(); } }
 
+
 	/// Restart the game from the first scene
 	public void Restart()
-	{
+	{		
+		s_hasRestarted = true;
+		s_restartScene = null;
+		s_restartPlayFromFunction = null;
+		s_restartAssembly = m_hotLoadAssembly;
+		m_restartOnUpdate = true;
+		// Destroy everything, including powerquest, and load the game scene again
+		StopAllCoroutines();
+	}
+
+	/// Restart the game on a specific scene, optionally with a specific 'playFromFunction'.
+	public void Restart( IRoom room, string playFromFunction= null )
+	{		
+		s_hasRestarted = true;
+		s_restartScene = (room as Room).GetSceneName();
+		s_restartPlayFromFunction = playFromFunction;
+		s_restartAssembly = m_hotLoadAssembly;
 		m_restartOnUpdate = true;
 		// Destroy everything, including powerquest, and load the game scene again
 		StopAllCoroutines();
@@ -270,7 +319,8 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 				// If function is called like this: WaitFor(()=>MyFunction(34); The function name will be dynamic, eg. "<OnInteractDoor>b__20_0" don't think we can auto-load it.				
 				//if ( functionToWaitFor.Method.IsSpecialName == false && functionToWaitFor.Method.Name[0] != '<') // check it's not dynamic lambda expression method. Can't auto-load these.
 				if ( System.Attribute.IsDefined(functionToWaitFor.Method, TYPE_COMPILERGENERATED) == false )
-					SetAutoLoadScript( scriptable, functionToWaitFor.Method.Name, true );
+					SetAutoLoadScript( scriptable, functionToWaitFor.Method.Name, true, true ); // Note that if the calling function hasn't yielded yet, the auto-load script will be set by the calling function AFTER this call :(
+				
 			}	
 		}		
 		return StartQuestCoroutine(functionToWaitFor()); 
@@ -318,8 +368,8 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 
 	public Coroutine FadeIn( float time = 0.2f, bool skippable = true )	{	return StartCoroutine(CoroutineFadeIn(DEFAULT_FADE_SOURCE, time, skippable)); }
 	public Coroutine FadeOut( float time = 0.2f, bool skippable = true )	{	return StartCoroutine(CoroutineFadeOut(DEFAULT_FADE_SOURCE, time, skippable)); }
-	public Coroutine FadeIn( string source, float time = 0.2f, bool skippable = true )	{	return StartCoroutine(CoroutineFadeIn(source, time, skippable)); }
-	public Coroutine FadeOut( string source, float time = 0.2f, bool skippable = true )	{	return StartCoroutine(CoroutineFadeOut(source, time, skippable)); }
+	public Coroutine FadeIn( float time, string source, bool skippable = true )	{	return StartCoroutine(CoroutineFadeIn(source, time, skippable)); }
+	public Coroutine FadeOut( float time, string source, bool skippable = true )	{	return StartCoroutine(CoroutineFadeOut(source, time, skippable)); }
 
 	public void FadeInBG( float time = 0.2f ) {	m_menuManager.FadeIn(time, DEFAULT_FADE_SOURCE);}
 	public void FadeOutBG( float time = 0.2f ){	m_menuManager.FadeOut(time, DEFAULT_FADE_SOURCE);}
@@ -487,6 +537,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	public Character GetCharacter(string scriptName) { return m_characters.Find(item=>string.Equals(item.ScriptName, scriptName, System.StringComparison.OrdinalIgnoreCase )); }
 	/// Shortcut to the current player's active inventory  
 	public IInventory ActiveInventory { get { return m_player.ActiveInventory; } set { m_player.ActiveInventory = value; } }
+	public List<Inventory> GetInventoryItems() { return m_inventoryItems; }
 	public Inventory GetInventory(string scriptName) { return m_inventoryItems.Find(item=>string.Equals(item.ScriptName, scriptName, System.StringComparison.OrdinalIgnoreCase )); }
 	public DialogTree GetCurrentDialog() { return m_currentDialog; }	
 	public DialogTree GetPreviousDialog() { return m_previousDialog; }
@@ -504,6 +555,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	public UnityEngine.Camera GetCameraGui() { return m_cameraGui; }
 	public Canvas GetCanvas() { return m_canvas; }
 	public Vector2 GetMousePosition() { return m_mousePos; }
+	public Vector2 GetMousePositionGui() { return m_mousePosGui; }
 	public bool GetHasMousePositionOverride() { return m_overrideMousePos; }
 	public void SetMousePositionOverride(Vector2 mousePos) { m_overrideMousePos = true; m_mousePos = mousePos; }
 	public void ResetMousePositionOverride() { m_overrideMousePos = false; } 
@@ -548,9 +600,45 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 
 	// Shortcut to access settings
 	public QuestSettings Settings { get { return m_settings; } }
+		
+	public string DisplayBoxGui
+	{ 
+		get { return m_displayBoxGui; }
+		set { m_displayBoxGui = value; }
+	}
+	public string DialogTreeGui
+	{ 
+		get { return m_dialogTreeGui; }
+		set { m_dialogTreeGui = value; }
+	}
 
-	public void SetTextSpeedMultiplier(float multiplier) { m_textSpeedMultiplier = multiplier; }
-	public float GetTextSpeedMultiplier() { return m_textSpeedMultiplier; }
+	public string CustomSpeechGui
+	{
+		get { return m_customSpeechGui; }
+		set { m_customSpeechGui = value; }
+	}
+
+	/// Whether "Display" text is shown regardless of the DialogDisplay setting
+	public bool AlwaysShowDisplayText 
+	{ 
+		get { return m_alwaysShowDisplayText; }
+		set { m_alwaysShowDisplayText = value; }
+	}
+
+	public eSpeechStyle SpeechStyle 
+	{ 
+		get { return m_speechStyle; }
+		set { m_speechStyle = value; }
+	}
+
+	public eSpeechPortraitLocation SpeechPortraitLocation
+	{ 
+		get { return m_speechPortraitLocation; }
+		set { m_speechPortraitLocation = value; }
+	}
+
+	/// Length of time transition between rooms takes
+	public float TransitionFadeTime { get { return m_transitionFadeTime; } set {m_transitionFadeTime = value; } }
 
 	//
 	// Functions for handling mouse clicks on things
@@ -568,9 +656,9 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 
 		bool interactionFound = false;
 
-		GameObject clickedObj = (clickable == null || clickable.Instance == null) ? null : (clickable.Instance.gameObject);
-		
-		
+		if ( gui == null ) // can be null with legacy guis
+			return interactionFound;
+			
 		if ( ( Paused || gui.Modal ) && m_inventoryClickStyle == eInventoryClickStyle.OnMouseClick )
 		{
 			// Call globalscript onmouse click... Mainly because we want to be able to right click when inventory's up and have it clear the active inventory item.				
@@ -597,6 +685,54 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		if (  Input.GetMouseButton(1) == false && control != null ) // Note: we're checking that it's NOT the right mousebutton... dumb. But easier than passing down whether the LeftMouseButton was *lifted* from the button... ugh.
 		{
 			if ( StartScriptInteraction( gui.GetScriptable(), SCRIPT_FUNCTION_CLICKGUI+control.ScriptName, new object[] {control}, false, true ) )
+			{		
+				m_queuedScriptInteractions.Add(m_currentSequence);
+				interactionFound = true;
+			}
+		}
+
+		return interactionFound;
+	}
+
+	// Similar to ProcessGuiClick, but any event name can be passed in, and it'll call it on the script, with the control name appended. Event name maybe something like "onDrag" or "onHover" I guess...
+	public bool ProcessGuiEvent(string eventName, Gui gui, GuiControl control = null )
+	{
+		// If control is null it means the gui itself was clicked
+		IQuestClickable clickable = (control == null) ? (gui as IQuestClickable) : (control as IQuestClickable);
+		
+		if ( control != null )
+			gui = control.GuiData;
+
+		bool interactionFound = false;
+
+		/*
+		if ( ( Paused || gui.Modal ) && m_inventoryClickStyle == eInventoryClickStyle.OnMouseClick )
+		{
+			// Call globalscript onmouse click... Mainly because we want to be able to right click when inventory's up and have it clear the active inventory item.				
+			System.Reflection.MethodInfo method = null;
+			if ( m_globalScript != null )
+			{
+				method = m_globalScript.GetType().GetMethod( "OnMouseClick", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
+				if ( method != null ) 
+					method.Invoke(m_globalScript, new object[]{Input.GetMouseButton(0), Input.GetMouseButton(1)});
+
+				// If any script interactions were queued, return 'true' to unpause the inventory
+				if ( m_queuedScriptInteractions.Count > 0 )
+					interactionFound = true;
+			}		
+		}
+		*/
+
+		// Call gui's function, passing in the control. If this is blocking, the main button interaction will still be called
+		if ( StartScriptInteraction(gui.GetScriptable(), eventName, new object[] {control}, false, true ) )
+		{		
+			m_queuedScriptInteractions.Add(m_currentSequence);
+			interactionFound = true;
+		}
+
+		if ( control != null )
+		{
+			if ( StartScriptInteraction( gui.GetScriptable(), eventName+control.ScriptName, new object[] {control}, false, true ) )
 			{		
 				m_queuedScriptInteractions.Add(m_currentSequence);
 				interactionFound = true;
@@ -828,8 +964,12 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		}
 		if ( CallbackOnProcessClick != null )
 			CallbackOnProcessClick.Invoke(interactionFound);
+
+		ExProcessClick(verb,clickable,mousePosition,interactionFound);
+
 		return interactionFound;
 	}
+
 
 	//
 	// Functions that let scripts call other scripts interaction functions
@@ -944,8 +1084,9 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 			// Rollback sequence "used" and "Clicked" and "Occurrances"
 			for ( int i = 0; i < m_currentInteractionClickables.Count; ++i)
 				m_currentInteractionClickables[i]?.OnCancelInteraction(m_currentInteractionVerbs[i]);
-			m_currentInteractionVerbs.Clear();
+				
 			m_currentInteractionClickables.Clear();
+			m_currentInteractionVerbs.Clear();
 			
 			SV.m_currentInteractionOccurrances.ForEach(occurance=>SV.m_occurances.Remove(occurance));
 			SV.m_currentInteractionOccurrances.Clear();	
@@ -1113,7 +1254,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		}
 
 		m_currentDialog = dialogTree;
-		GetGui(Settings.DialogTreeGui).Visible = true;
+		GetGui(DialogTreeGui).Visible = true;
 		bool hideCursor = GetCursor().HideWhenBlocking;
 		GetCursor().HideWhenBlocking = false;
 		GetCursor().Visible = true;
@@ -1214,9 +1355,9 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		if ( m_cutscene )
 		{
 			SystemAudio.Play("SkipCutscene");
-			FadeOutBG(0, "CUTSCENE");
+			FadeOutBG(0,"CUTSCENE");
 
-			// Todo: Needs to skip background stuff, like if a walktobackground is halfway through completing, it needs to be completed.
+			// Todo: Skip background stuff, like if a WalkToBG is halfway through completing, it needs to be completed.
 			foreach ( Character character in m_characters )
 			{
 				if ( character.Instance != null ) (character.Instance as CharacterComponent).OnSkipCutscene();
@@ -1279,7 +1420,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	public void SetMouseOverDescriptionOverride( string description ) { m_mouseOverDescriptionOverride = description; }
 	public void ResetMouseOverDescriptionOverride() { m_mouseOverDescriptionOverride = null; }
 
-	public float GetTextDisplayTime(string text)	{ return Mathf.Max(TEXT_DISPLAY_TIME_MIN, text.Length * TEXT_DISPLAY_TIME_CHARACTER) * m_textSpeedMultiplier; }
+	public float GetTextDisplayTime(string text)	{ return Mathf.Max(TEXT_DISPLAY_TIME_MIN, text.Length * TEXT_DISPLAY_TIME_CHARACTER) * Settings.TextSpeedMultiplier; }
 
 	public QuestScript GetGlobalScript() { return m_globalScript; }
 
@@ -1289,6 +1430,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	// Start the transition to a new room
 	public void StartRoomTransition( Room room, bool force = false )
 	{		
+
 		if ( m_levelLoadedCalled == false )
 		{
 			Debug.LogError("Attempted to change rooms while already changing rooms!");
@@ -1299,6 +1441,10 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 			return;
 
 		m_levelLoadedCalled = false;
+		
+		// When changing room, need to cancel background interactions, so they can't be set back to the "current" later. This fixes the case where you click a hotspot, player walks towards it, and enters region which changes the room.
+		CancelCurrentInteraction();
+		m_backgroundSequence = null; // This effectively kills any background interaction so it can't be reset back to current
 
 		if ( room != null && (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != room.GetSceneName() || force ))
 		{	
@@ -1331,7 +1477,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 			StartScriptInteraction(m_currentDialog, SCRIPT_FUNCTION_DIALOG_STOP, null, false );
 			m_currentDialog = null;
 		}
-		GetGui(Settings.DialogTreeGui).Visible = false;
+		GetGui(DialogTreeGui).Visible = false;
 	}
 
 
@@ -1355,7 +1501,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		{
 			m_inlineDialogResult = option.InlineId;
 			option.Used = true;
-			GetGui(Settings.DialogTreeGui).Visible = false;
+			GetGui(DialogTreeGui).Visible = false;
 			StopDialog();
 			return true;
 		}
@@ -1366,7 +1512,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 			{
 				option.Used = true;
 				option.TimesUsed++;
-				GetGui(Settings.DialogTreeGui).Visible = false;
+				GetGui(DialogTreeGui).Visible = false;
 				return true;
 			}
 		}
@@ -1573,7 +1719,8 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		m_queuedScriptInteractions.Add(result);
 		return result;
 	}
-	
+
+	public bool UseCustomKBShortcuts => m_customKbShortcuts;
 	public static bool GetDebugKeyHeld() { return Debug.isDebugBuild && (Input.GetKey(KeyCode.BackQuote) || Input.GetKey(KeyCode.Backslash)); }
 
 	#endregion
@@ -1607,10 +1754,25 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	public QuestText GetDialogTextPrefabEditor() { return m_dialogTextPrefab; }
 	public List<AnimationClip> GetInventoryAnimations() { return m_inventoryAnimations; }
 	public AnimationClip GetInventoryAnimation(string animName) { return m_inventoryAnimations.Find(item=> item == null ? false : string.Equals(item.name, animName, System.StringComparison.OrdinalIgnoreCase));  }	
+	public List<Sprite> GetInventorySprites() { return m_inventorySprites; }
+	public Sprite GetInventorySprite(string animName) { return FindSpriteInList( m_inventorySprites, animName); }
 	public List<AnimationClip> GetGuiAnimations() { return m_guiAnimations; }
 	public AnimationClip GetGuiAnimation(string animName) { return m_guiAnimations.Find(item=> item == null ? false : string.Equals(item.name, animName, System.StringComparison.OrdinalIgnoreCase));  }	
 	public List<Sprite> GetGuiSprites() { return m_guiSprites; }
-	public Sprite GetGuiSprite(string animName) { return m_guiSprites.Find(item=> item == null ? false : string.Equals(item.name, animName, System.StringComparison.OrdinalIgnoreCase));  }
+	
+	public Sprite GetGuiSprite(string animName) { return FindSpriteInList(m_guiSprites, animName); }
+	
+	// Searches a list of sprites for either the animation name, or the animation name with the post-fix _0. So that searching for "Tree" will still find sprite imported as "Tree_0.png"
+	public static Sprite FindSpriteInList(List<Sprite> list, string animName)
+	{
+		if ( list == null )
+			return null;
+		string animName_0 = animName+PowerQuest.SPRITE_NUM_POSTFIX_0; // search for sprites with _0 on the end too- so when using importer to import single frame sprites it only imports the one.
+		return list.Find( item=>item != null 
+			&& (string.Equals(animName, item.name, System.StringComparison.OrdinalIgnoreCase)
+				|| string.Equals(animName_0, item.name, System.StringComparison.OrdinalIgnoreCase)) );  
+	}
+	
 	
 	public List<IQuestScriptable> GetAllScriptables()
 	{
@@ -1636,7 +1798,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		Gui result = null;
 		foreach( Gui item in m_guis )
 		{
-			if ( item.Modal && item.Visible && (result == null || item.Baseline > result.Baseline) )
+			if ( item.Modal && item.Visible && (result == null || item.Baseline < result.Baseline) )
 				result = item;
 		}
 		return result;
@@ -1698,11 +1860,11 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 			if ( Application.isEditor == false )
 			{			
 				UnityEngine.Cursor.visible = false;
-				UnityEngine.Cursor.lockState = CursorLockMode.Confined;
+				//UnityEngine.Cursor.lockState = CursorLockMode.Confined; // I wonder if this is necessary
 			}
 			else 
 			{
-				UnityEngine.Cursor.lockState = CursorLockMode.None;
+				//UnityEngine.Cursor.lockState = CursorLockMode.None;
 			}
 		}
 		else 
@@ -1769,9 +1931,10 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 			m_cursor = new QuestCursor();
 			QuestUtils.CopyFields(m_cursor, m_cursorPrefab.GetData());
 			m_cursor.Initialise( m_cursorPrefab.gameObject );
-
+			
 			UnityEngine.Cursor.visible = false;
-			UnityEngine.Cursor.lockState = CursorLockMode.Confined;
+			if ( Application.isEditor == false )
+				UnityEngine.Cursor.lockState = CursorLockMode.Confined;
 		}
 
 		// Initialise Camera
@@ -1840,9 +2003,14 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		//
 		// Init settings
 		//
+		RestoreSettings();
 		m_settings.OnInitialise();
 
-		ExtentionOnGameStart();
+		// Test hack for save/restoring menu manager.. wasn't working though, maybe try again later
+		//m_saveManager.AddSaveData("MenuMan",m_menuManager);
+
+		ExOnGameStart();
+		ExtentionOnGameStart(); // For back compatability
 
 		//
 		// Call OnGameStart
@@ -1867,21 +2035,18 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 			m_levelLoadedCalled = true;
 			string sceneName = SceneManager.GetActiveScene().name;
 			FadeOutBG(0,"ENTER");		
-		
-			if ( m_debugRestartCurrentRoom )
-			{				
-				// Debug Restart (pressing ~+f9)- hotload scripts again
-				if ( Application.isEditor && m_hotLoadAssembly != null )
-				{			
-					//NB: this doesn't work :(			
-					List<IQuestScriptable> scriptables = GetAllScriptables();
-					foreach ( IQuestScriptable scriptable in scriptables )
-					{
-						scriptable.HotLoadScript(m_hotLoadAssembly);
-					}
+				
+			// Debug Restart (pressing ~+f9)- hotload scripts again
+			if ( Application.isEditor && s_restartAssembly != null )
+			{			
+				m_hotLoadAssembly = s_restartAssembly;
+				s_restartAssembly = null;
+				List<IQuestScriptable> scriptables = GetAllScriptables();
+				foreach ( IQuestScriptable scriptable in scriptables )
+				{
+					scriptable.HotLoadScript(m_hotLoadAssembly);
 				}
-				m_debugRestartCurrentRoom = false;
-			}
+			}			
 
 			m_coroutineMainLoop = StartCoroutine(LoadRoomSequence(sceneName));
 
@@ -1903,7 +2068,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		}
 
 		// Call partial update fucntion for extentions 
-		ExtentionUpdate();
+		ExUpdate();
 
 		//
 		// Update region collision (tinting, etc)
@@ -1932,6 +2097,8 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 				m_mousePos = mainCamera.ScreenToWorldPoint( Input.mousePosition.WithZ(0) );
 			}
 		}
+		if ( mainCamera != null )
+			m_mousePosGui = m_cameraGui.ScreenToWorldPoint(mainCamera.WorldToScreenPoint(m_mousePos));
 
 		Gui prevFocusedGui = m_focusedGui;
 		GuiControl prevFocusedControl = m_focusedControl;
@@ -1977,9 +2144,8 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	 		{
 				// Check if mouse is over gui/inv first (in UI layer)
 				if ( m_cameraGui != null )
-				{			
-					Vector2 guiMousePos = m_cameraGui.ScreenToWorldPoint( Input.mousePosition.WithZ(0) );
-					m_mouseOverClickable = GetObjectAt(guiMousePos, (1<<LAYER_UI), out pickedGameObject ); // Find object under mouse in gui layer
+				{
+					m_mouseOverClickable = GetObjectAt(m_mousePosGui, (1<<LAYER_UI), out pickedGameObject ); // Find object under mouse in gui layer
 				}
 
 				if ( m_mouseOverClickable == null && GetModalGuiActive() == false ) // if not null, the mouse is over a clickable gui
@@ -2075,17 +2241,26 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 			UnityEngine.Cursor.visible = mousePos.x < 0.0f || mousePos.x > 1.0f || mousePos.y < 0.0f || mousePos.y > 1.0f;
 		}
 
-		// TODO: these should be customisable
-		if ( Input.GetMouseButtonDown(0) )
-			SkipDialog(true); // Skip dialog with click if it's been up for long enough
-		else if ( Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Space) )
-			SkipDialog(false); // Alternate skip buttons don't have the delay built in
-		else if (Input.GetKey(KeyCode.Escape) && m_skipCutsceneButtonConsumed == false)
-			SkipDialog(false); // Skip dialog while esc's held, as long as it wasn't consumed by the skip cutscene
+		if ( m_customKbShortcuts == false )
+		{
+			if ( Input.GetMouseButtonDown(0) )
+				SkipDialog(true); // Skip dialog with click if it's been up for long enough
+			else if ( Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Space) )
+				SkipDialog(false); // Alternate skip buttons don't have the delay built in
+			else if (Input.GetKey(KeyCode.Escape) && m_skipCutsceneButtonConsumed == false)
+				SkipDialog(false); // Skip dialog while esc's held, as long as it wasn't consumed by the skip cutscene
 
-		if ( Input.GetKey(KeyCode.Escape) == false )
-			m_skipCutsceneButtonConsumed = false;
+			if ( Input.GetKey(KeyCode.Escape) == false )
+				m_skipCutsceneButtonConsumed = false;
+		}
 		
+			
+		if ( m_globalScript != null )
+		{
+			System.Reflection.MethodInfo method = m_globalScript.GetType().GetMethod( FUNC_UPDATE_NOPAUSE, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
+			if ( method != null ) method.Invoke(m_globalScript,null);
+		}
+
 		if ( SystemTime.Paused == false )
 		{
 
@@ -2095,12 +2270,11 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 				SV.m_timers[i].t -= Time.deltaTime;
 			}
 
-			if ( m_cutscene && Input.GetKeyDown(KeyCode.Escape) && SystemTime.Paused == false )
+			if ( m_customKbShortcuts == false && m_cutscene && Input.GetKeyDown(KeyCode.Escape) )
 			{
 				SkipCutscene();
 				m_skipCutsceneButtonConsumed = true;
-			}
-			
+			}			
 			
 			if ( m_roomLoopStarted || m_transitioning == false ) // Don't call update between the RoomChange and OnEnter (so only if the loops started, or no longer transitioning)
 			{
@@ -2176,9 +2350,13 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		{
 			StopAllCoroutines();
 			m_restartOnUpdate = false;
-			GameObject.DestroyImmediate(gameObject);			
-			if ( m_debugRestartCurrentRoom )			
-				SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+			GameObject.DestroyImmediate(m_cameraGui.gameObject);
+			GameObject.DestroyImmediate(gameObject);
+			if ( string.IsNullOrEmpty(s_restartScene) == false )
+			{				
+				SceneManager.LoadScene(s_restartScene);
+				s_restartScene = null;
+			}
 			else 			
 				SceneManager.LoadScene(0); 
 		}
@@ -2187,26 +2365,24 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 
 	void UpdateDebugKeys()
 	{
-		
-		if ( Input.GetKey(KeyCode.LeftControl) == false && Input.GetKeyDown(KeyCode.F5) && GetBlocked() == false  )
+		if ( m_customKbShortcuts )
+			return;
+		if ( Input.GetKey(KeyCode.LeftControl) == false && Input.GetKeyDown(KeyCode.F5) && GetBlocked() == false )
 		{
 			// Save slot 1
 			Save(1, "QuickSave");
 		}
-		if (  Input.GetKeyDown(KeyCode.F7) && GetBlocked() == false  )
-		{
-			// Quickload
-			if ( GetDebugKeyHeld() )
-				RestoreSave(10); // If holding shift- load the "debug" save at the start of the scene
-			else 			
-				RestoreSave(1);
-		}
+		// Quickload	
+		if (  Input.GetKeyDown(KeyCode.F7) && GetBlocked() == false  )	
+			RestoreSave(1);
 
 		if ( Input.GetKeyDown(KeyCode.F9) && GetBlocked() == false )
 		{
-			// Restart			
-			m_debugRestartCurrentRoom = Debug.isDebugBuild && Input.GetKey(KeyCode.BackQuote); // Holding ~ + F9 sets flag to restart at current room
-			Restart();
+			// Restart
+			if ( GetDebugKeyHeld() ) // Holding ~ + F9 sets flag to restart at current room
+				Restart( m_currentRoom, m_currentRoom.Instance.m_debugStartFunction );
+			else
+				Restart();
 		}
 
 		if ( GetDebugKeyHeld() )
@@ -2226,7 +2402,8 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 			{
 				foreach (Inventory item in m_inventoryItems)
 				{
-					m_player.AddInventory(item);
+					if ( m_player.HasInventory(item) == false )
+						m_player.AddInventory(item);
 				}
 			}
 		}
@@ -2234,15 +2411,26 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	
 	#endregion
 	#region Functions: Partial for extending functionality
+
 	// Partial function to implement for a hook on Start, just before "OnGameStart" is called in global script
-	partial void ExtentionOnGameStart();
+	partial void ExOnGameStart();
 	// Partial function to implement for a hook on Update
-	partial void ExtentionUpdate();
+	partial void ExUpdate();
 	// Partial function to implement for a hook in the main blocking loop. After queued sequences are resumed, but before interactions are processed, etc.
-	partial void ExtentionOnMainLoop();	
+	partial void ExOnMainLoop();		
+	partial void ExHandleSkipDialogKeyPressed();
+	partial void ExBlock();
+	partial void ExUnblock();	
+	partial void ExProcessClick(eQuestVerb verb, IQuestClickable clickable, Vector2 mousePosition, bool interactionFound);
+	partial void ExOnEndCutscene();
+
+	
+	partial void ExtentionOnGameStart(); // back compatability
+	partial void ExtentionOnMainLoop(); // back compatability
 
 	#endregion
 	#region Functions: Private functions
+
 
 	bool HandleSkipDialogKeyPressed()
 	{
@@ -2253,7 +2441,8 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		m_rightClickPrev = true;
 		if ( CallbackOnDialogSkipped != null )
 			CallbackOnDialogSkipped.Invoke();
-			
+		ExHandleSkipDialogKeyPressed();			
+
 		return result;		
 	}
 
@@ -2261,18 +2450,19 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	{
 		m_blocking = true;
 		CallbackOnBlock?.Invoke();
+		ExBlock();
 	}
 	void Unblock()
 	{
-		m_blocking = false;
-		
+		m_blocking = false;		
 		CallbackOnUnblock?.Invoke();
+		ExUnblock();
 	}
 
 	// Show display box
 	void StartDisplay(string text, int id)
 	{
-		Gui gui = GetGui(Settings.DisplayBoxGui);
+		Gui gui = GetGui(DisplayBoxGui);
 		if ( gui == null || gui.GetInstance() == null )
 			return;
 
@@ -2284,7 +2474,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		SystemAudio.Stop(m_dialogAudioSource);
 		m_dialogAudioSource = SystemText.PlayAudio(id, "Narr");
 
-		if ( PowerQuest.Get.Settings.DialogDisplay != QuestSettings.eDialogDisplay.SpeechOnly || PowerQuest.Get.Settings.AlwaysShowDisplayText )
+		if ( PowerQuest.Get.Settings.DialogDisplay != QuestSettings.eDialogDisplay.SpeechOnly || PowerQuest.Get.AlwaysShowDisplayText )
 		{
 			QuestText guiText = gui.GetInstance().GetComponentInChildren<QuestText>(true);
 			if ( guiText != null )
@@ -2295,13 +2485,12 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		}
 	}
 
-
 	// hide display box
 	void EndDisplay()
 	{
 		SystemAudio.Stop(m_dialogAudioSource);
 
-		Gui gui = GetGui(Settings.DisplayBoxGui);
+		Gui gui = GetGui(DisplayBoxGui);
 		if ( gui == null || gui.GetInstance() == null )
 			return;
 		gui.Visible = false;
@@ -2334,10 +2523,23 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 							float tmpScale = regionComponent.GetScaleAt(characterPos);
 							if ( tmpScale != 1 )
 								scale = tmpScale;
-						}
-						if ( character.UseRegionTinting )
+						}						
+						if ( character.UseRegionTinting)
 						{
-							tint = regionComponent.GetData().Tint;
+							if ( regionComponent.GetData().Tint.a > 0 )
+							{
+								float ratio = regionComponent.GetFadeRatio(characterPos);
+								if ( tint.a <= 0 )
+								{
+									tint = regionComponent.GetData().Tint;
+									tint.a *= ratio;
+								}
+								else 
+								{
+									Color newCol = regionComponent.GetData().Tint;
+									tint = Color.Lerp(tint, newCol, ratio);
+								}
+							}
 						}
 					}
 				}
@@ -2375,6 +2577,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 
 			if ( CallbackOnEndCutscene != null )
 				CallbackOnEndCutscene.Invoke();
+			ExOnEndCutscene();
 			
 			m_menuManager.FadeSkip();
 
@@ -2534,7 +2737,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	// Used by clickables to check if usecount should show as incremented yet (makes more sense for it to be 0 until interaction is finished)
 	public bool GetInteractionInProgress( IQuestClickable clickable, eQuestVerb verb )
 	{
-		if ( clickable == null )
+		if ( clickable == null || (m_backgroundSequence == null && m_blocking == false) )
 			return false;
 		// note: it's a list to cope with interactions that call 'HandleInteract()'
 		for ( int i = 0; i < m_currentInteractionClickables.Count; ++i ) 
@@ -2544,7 +2747,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		}
 		return false;
 	}
-
+	
 	// Called when player interaction starts (ie: player clicked something)
 	void OnInteraction( IQuestClickable clickable, eQuestVerb verb )
 	{
@@ -2617,7 +2820,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 			}
 
 			// update the script to auto-load (ignored when not in editor)
-			SetAutoLoadScript( scriptable, methodName, result != null );
+			SetAutoLoadScript( scriptable, methodName, result != null, false );
 		}
 		catch
 		{
@@ -2638,7 +2841,8 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 				if ( stopPlayerMoving )
 					m_player.StopWalking();	
 
-				// Start sequence				
+				// Start sequence	
+				m_autoLoadFunc = methodName;
 				IEnumerator currentSequenceEnumerator = method.Invoke(scriptClass,parameters) as IEnumerator;					
 				if ( currentSequenceEnumerator != null )
 				{	
@@ -2691,10 +2895,33 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		return result;
 	}
 
-	void SetAutoLoadScript( IQuestScriptable questScriptable, string functionName, bool functionBlocked )
+	bool m_ignoreAutoLoadFunc = false;
+	string m_autoLoadFunc = string.Empty;
+
+	void SetAutoLoadScript( IQuestScriptable questScriptable, string functionName, bool functionBlocked, bool isWaitForFunction )
 	{
 		if ( Application.isEditor == false )
 			return;
+		
+		// Hacky fix for "WaitFor" functions have their calling functions "auto-load" after them due to order of ops.
+		{
+			if ( isWaitForFunction )
+			{
+				m_ignoreAutoLoadFunc = true; // Set ot ignore the next auto-loaded function (if it's the one called before the "WaitFor" function)
+			}
+			else if ( m_autoLoadFunc == functionName && m_ignoreAutoLoadFunc)
+			{
+				m_autoLoadFunc = string.Empty;
+				m_ignoreAutoLoadFunc = false;
+				return;
+			}
+			else 
+			{
+				m_autoLoadFunc = string.Empty;
+				m_ignoreAutoLoadFunc = false;
+			}
+		}
+
 		bool unhandled = functionName.StartsWith(STR_UNHANDLED);
 		if ( functionBlocked )
 		{
@@ -2812,17 +3039,19 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 
 	IEnumerator CoroutineFadeIn( string source, float time, bool skippable = false )
 	{
-		m_menuManager.FadeIn(time, source);
+		m_menuManager.FadeIn(time, source);		
 		yield return skippable ? WaitSkip(time) : Wait(time);
-		m_menuManager.FadeSkip();
+		if ( skippable )
+			m_menuManager.FadeSkip();
 	}
+
 	IEnumerator CoroutineFadeOut( string source, float time, bool skippable = false )
 	{
 		m_menuManager.FadeOut(time, source);
 		yield return skippable ? WaitSkip(time) : Wait(time);
-		m_menuManager.FadeSkip();
+		if ( skippable )
+			m_menuManager.FadeSkip();
 	}
-
 
 	IEnumerator CoroutineRoomTransition( Room room, bool instant )
 	{
@@ -2865,13 +3094,16 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		
 		string sceneName = room.GetSceneName();
 		m_transitioning = true;
+		if ( m_restoring == false )
+			SV.m_callEnterOnRestore = true;
+
 		if ( instant )
 		{
 			FadeOutBG(0,"ROOMINSTANT");
 		}
 		else 
 		{
-			yield return FadeOut("ROOMTRANS",m_settings.TransitionFadeTime/2.0f);
+			yield return FadeOut(TransitionFadeTime/2.0f, "ROOMTRANS");
 		}
 
 		if ( m_coroutineMainLoop != null )
@@ -2885,14 +3117,14 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		{
 			// Call OnExitRoom functions
 			Coroutine onExit = StartScriptInteractionCoroutine(GetScript(), "OnExitRoom", new object[] { m_currentRoom, room } );
-			SetAutoLoadScript( this, "OnExitRoom", onExit != null );
+			SetAutoLoadScript( this, "OnExitRoom", onExit != null, false );
 			if ( onExit != null )
 				yield return onExit;
 
 			if ( m_currentRoom != null && m_currentRoom.GetScript() != null )
 			{
 				onExit = StartScriptInteractionCoroutine(m_currentRoom.GetScript(), "OnExitRoom", new object[] { m_currentRoom, room } );
-				SetAutoLoadScript( m_currentRoom, "OnExitRoom", onExit != null );
+				SetAutoLoadScript( m_currentRoom, "OnExitRoom", onExit != null, false );
 				if ( onExit != null )
 					yield return onExit;
 			}

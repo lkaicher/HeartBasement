@@ -385,6 +385,7 @@ public class CreateNewLine : EditorWindow
 		EditorGUIUtility.systemCopyBuffer = System.Environment.NewLine;
 		EditorWindow.focusedWindow.SendEvent(EditorGUIUtility.CommandEvent("Paste"));
 	}
+
 }
 
 [CustomPropertyDrawer(typeof(ReadOnlyAttribute))]

@@ -14,12 +14,13 @@ namespace PowerTools.Quest
 public class GuiScript<T> : QuestScript where T : QuestScript 
 {	
 	/// Access with Data property. \sa Data
-	Gui m_gui = null;
+	protected Gui m_gui = null;
 	
 	/// Get the IGui associated with this script. 
 	/// eg. `Data.Hide()` 
 	/// \sa PowerTools.Quest.IGui
-	public Gui Data { get{return m_gui;} }		
+	public Gui Data { get{return m_gui;} }	
+	public IGui Gui { get{return m_gui;} }	
 	
 	/// Gets an IGuiControl from this script's gui.
 	/// All gui buttons, image, labels, etc are types of Controls. This function returns their base class. Can be used for your own custom Controls too.
@@ -30,7 +31,7 @@ public class GuiScript<T> : QuestScript where T : QuestScript
 
 	/// Gets an IButton from this script's gui.
 	/// eg. `Button.KeypadEnter.Clickable = false;`
-	/// \sa Control \sa Label \sa Image
+	/// \sa Control \sa Label \sa Image \sa Slider \sa InventoryPanel
 	public IButton Button(string name) { return Data?.GetControl(name) as IButton ?? null; }
 
 	/// Gets an ILabel from this script's gui.
@@ -42,11 +43,22 @@ public class GuiScript<T> : QuestScript where T : QuestScript
 	/// eg. `Image.LockedIndicator.Image = "Unlocked";`
 	/// \sa Control \sa Label \sa Button
 	public IImage Image(string name) { return Data?.GetControl(name) as IImage ?? null; }
+	
+	/// Gets an ISlider from this script's gui.
+	/// eg. `Sliders.Volume.Ratio = Settings.Volume";`
+	/// \sa Control \sa Button \sa Image \sa Label
+	public ISlider Slider(string name) { return Data?.GetControl(name) as ISlider ?? null; }
 
 	/// Gets an IInventoryPanel from this script's gui.
 	/// eg. `IInventoryPanel.MyInvPanel.ScrollForward();`
 	/// \sa Control \sa Label \sa Button \sa Image
 	public IInventoryPanel InventoryPanel(string name) { return Data?.GetControl(name) as IInventoryPanel ?? null; }
+
+	
+	/// Gets an IContainer from this script's gui.
+	/// eg. `IContainer.MyList.Grid.ScrollForward();`
+	/// \sa Control \sa Label \sa Button \sa Image
+	public IContainer Container(string name) { return Data?.GetControl(name) as IContainer ?? null; }
 	
 	/// PowerQuest internal function: (Called via reflection)
 	protected void Initialise(Gui gui) { m_gui = gui; }
@@ -85,9 +97,9 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 	[SerializeField] string[] m_hideSpecificGuis = null; // todo: rename "m_hideSpecificGuis"...?
 		
 	[Header("Mouse over")]
-	[SerializeField] string m_description = "Gui New";
+	[SerializeField] string m_description = string.Empty;
 	[Tooltip("If set, changes the name of the cursor when moused over")]
-	[SerializeField] string m_cursor = "";
+	[SerializeField] string m_cursor = string.Empty;
 	[Tooltip("Whether to show the inventory cursor while active")]
 	[SerializeField] bool m_allowInventoryCursor = false;
 
@@ -127,14 +139,13 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 	public Vector2 LookAtPoint { get{return Vector2.zero;} set{} } // No op for gui
 	public string Cursor { get { return m_cursor; } set { m_cursor = value; } }
 
-	public GuiControl GetControl(string name ) 
+	public GuiControl GetControl(string name) 
 	{ 
 		GuiControl result = m_controls.Find(prop=>prop !=null && string.Equals(prop.ScriptName, name, System.StringComparison.OrdinalIgnoreCase ));
 		if ( result == null )
 			Debug.LogError("Gui Control '"+name+"' doesn't exist in " +ScriptName);
 		return result;
 	}
-
 
 	public bool Visible 
 	{ 
@@ -182,13 +193,14 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 			if ( m_baseline != value )
 			{
 				m_baseline = value;
-				m_instance?.OnSetBaseline();				
+				if ( m_instance != null )
+					m_instance.OnSetBaseline();				
 			}
 		} 
 	}
 	public bool AllowInventoryCursor { get { return m_allowInventoryCursor; } }
 	
-	public void Show() { Visible=true; }
+	public void Show() { Visible=true; Clickable=true; }
 	
 	/// Shows the gui, in front of all others.
 	public void ShowAtFront()
@@ -232,6 +244,8 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 		Clickable=false;
 	}
 
+	public bool HasFocus { get { return PowerQuest.Get.GetFocusedGui()== this; } }
+
 	//
 	// Getters/Setters - These are used by the engine. Scripts mainly use the properties
 	//
@@ -268,6 +282,9 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 			control.SetGui(this);
 		}
 		
+		// Check if starting visible, if so, call OnGuiShown now
+		if ( Visible && PowerQuest.Get.GetRestoringGame() == false )
+			PowerQuest.Get.OnGuiShown(this);
 	}
 
 	//
@@ -308,16 +325,16 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 			if ( method != null ) 
 				method.Invoke(m_script, new object[]{Data});		
 		}
-
-		// Pause state might need to change
-		if ( Modal )
+		
+		// Start with gui off
+		if ( m_instance != null )
 		{
-			// HACK- Need a way of detecting if someting changed before/after saving so can set this the same way it's set when visible is changed.
-			if ( m_visible && SystemTime.GetPausedBy(m_scriptName) == false  )
-				PowerQuest.Get.Pause(m_scriptName);
-			else if ( m_visible == false && SystemTime.GetPausedBy(m_scriptName) )
-				PowerQuest.Get.UnPause(m_scriptName);
+			m_instance.gameObject.SetActive(false);		
+			m_instance.OnSetBaseline();
 		}
+
+		// This will turn guis back on (and call OnEnable again)
+		OnVisibilityChanged();
 	}
 
 	public void Initialise( GameObject prefab )
@@ -330,9 +347,9 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 			// Hack to set gui in script
 			System.Reflection.MethodInfo method = m_script.GetType().GetMethod( "Initialise", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy );
 			if ( method != null ) 
-				method.Invoke(m_script, new object[]{Data});		
+				method.Invoke(m_script, new object[]{Data});
+			
 		}
-
 	}
 
 	bool IsActuallyVisible() { return Visible && HiddenBySystem == false; }
@@ -410,22 +427,29 @@ public class GuiComponent : MonoBehaviour
 	}
 	public List<AnimationClip> GetAnimations() { return m_animations; }
 	
-	public Sprite GetSprite(string animName) 
-	{ 
-		Sprite sprite = m_sprites.Find(item=>item != null && string.Equals(animName, item.name, System.StringComparison.OrdinalIgnoreCase));  
 
-		// Tryu in shared gui sprites
+	public Sprite GetSprite(string animName) 
+	{
+		Sprite sprite = PowerQuest.FindSpriteInList(m_sprites, animName);
+
+		// Try in shared gui sprites
 		if ( sprite == null && PowerQuest.Get != null )		
 			sprite = PowerQuest.Get.GetGuiSprite(animName);
+
+		// Try in inventory sprites
+		if ( sprite == null && PowerQuest.Get != null )		
+			sprite = PowerQuest.Get.GetInventorySprite(animName);
 
 		return sprite;
 	}
 	public List<Sprite> GetSprites() { return m_sprites; }
 	
 	public void OnSetBaseline()
-	{		
+	{
 		foreach (GuiControl control in m_controlComponents)
-			control?.UpdateBaseline();
+		{
+			if ( control != null ) control.UpdateBaseline();
+		}
 	}
 
 	void Awake()
@@ -444,25 +468,10 @@ public class GuiComponent : MonoBehaviour
 
 	void OnEnable()
 	{	
-		if ( PowerQuest.Get != null )
+		if ( PowerQuest.Get != null && GetData() != null && GetData().Visible )
 			PowerQuest.Get.OnGuiShown(GetData());
 	}
 
-	/*
-	// Called once room and everything in it has been created and PowerQuest has initialised references. After Start, Before OnEnterRoom.
-	public void OnLoadComplete()
-	{
-	}
-	*/
-
-	/*
-	void OnDestroy()
-	{
-		// Decided not to call this here, until I actually find it's needed at least.
-		if ( CallbackOnDefocus != null && PowerQuest.Get != null && GetData() != null && PowerQuest.Get.GetFocusedGui() == GetData() ) 
-			CallbackOnDefocus.Invoke();
-	}
-	*/
 
 	// Update is called once per frame
 	void Update () 

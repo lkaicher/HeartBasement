@@ -6,12 +6,25 @@ namespace PowerTools.Quest
 {
 
 
-
 //
 // Actual Camera component in the scene
 //
 public partial class QuestCameraComponent : MonoBehaviour 
 {
+	// Seperated state data so we can calc zoomed and unzoomed positions independently and lerp between them
+	public class StateData
+	{
+		public Vector2 position = Vector2.zero;		
+		public Vector2 targetPosition = Vector2.zero; // Position without any smoothing
+
+		// The current amount we're zoomed from the default set in PowerQuest
+		public float zoom = 1;
+		
+		public bool followPlayer = true;
+		public Vector2 playerDragged = Vector2.zero;
+		public Vector2 playerPosCached = Vector2.zero;
+	}
+
 	[SerializeField] QuestCamera m_data = null;
 	[SerializeField] float m_smoothingFactor = 10.0f;
 	[SerializeField] float m_smoothingMinSpeed = 10.0f;
@@ -27,38 +40,46 @@ public partial class QuestCameraComponent : MonoBehaviour
 	[Header("Prefab References")]
 	[SerializeField] GameObject m_prefabPixelCam = null;
 	
+	float m_shakeIntensity = 0;	
+	float m_shakeFalloff = 1;
+	float m_shakeDurationTimer = 0;
+	Vector2 m_screenShakeOffset = Vector2.zero;
 	
-	Vector2 m_playerDragged = Vector2.zero;
-	Vector2 m_playerPosCached = Vector2.zero;
+	bool m_onLerpChange = false;
+	float m_lerpTime = 0;
+	float m_lerpTimer = 0;	
+	bool m_posLerpActive = false;
+	bool m_zoomLerpActive = false;
+
+	bool m_targetPositionChanged = false;
+	Vector2 m_cachedTargetNoPixelSnap = Vector2.zero;
+
+	Camera m_camera = null;
+	GameObject m_pixelCam = null;
+	
+	// Working state data for the camera, and the camera it was transitioning from
+	StateData m_state = new StateData();
+	StateData m_statePrev = new StateData();
+	
+	// Working state data, without the zoom. This is done because changing zoom also changes position, since you can get closer to screen edge
+	StateData m_stateParallax = new StateData();
+	StateData m_stateParallaxPrev = new StateData();	
+			
 	eFace m_playerFaceLast = eFace.Down;
 
 	// Hack to ensure can check if snapped last update
 	bool m_snappedSinceUpdate = true;
 	bool m_snappedLastUpdate = true;
 
-	float m_shakeIntensity = 0;	
-	float m_shakeFalloff = 1;
-	float m_shakeDurationTimer = 0;
-	Vector2 m_screenShakeOffset = Vector2.zero;
-
-	float m_overrideTransitionTimer = 0;
-	float m_overrideTransitionTime = 0;
-
-	float m_zoomTransitionTimer = 0;
-	float m_zoomTransitionTime = 0;
-
-	// The current amount we're zoomed from the default set in PowerQuest
-	float m_zoomMultiplier = 1;
-
-	bool m_targetPositionChanged = false;
-	Vector2 m_cachedTargetNoPixelSnap = Vector2.zero;
-
+	// Cached positions for parallax
+	Vector2 m_parallaxPos = Vector2.zero;
+	Vector2 m_parallaxTargetPos = Vector2.zero;
+	RectCentered m_parallaxOffsetLimits = new RectCentered();
+	
 	public QuestCamera GetData() { return m_data; }
 	public void SetData(QuestCamera data) { m_data = data; }
 
-	Camera m_camera = null;
-	GameObject m_pixelCam = null;
-		
+	public Camera Camera => m_camera;
 
 	public void OnEnterRoom()
 	{
@@ -66,22 +87,20 @@ public partial class QuestCameraComponent : MonoBehaviour
 	}
 
 	public void Snap()
-	{
+	{		
+		ResetPlayerDragPos(m_stateParallax);
+		ResetPlayerDragPos(m_state);
 		UpdatePos(true);
 	}
 
 	public bool GetSnappedLastUpdate() { return m_snappedLastUpdate; }
-
+	
 	public void OnOverridePosition(float transitionTime)
-	{
-		m_overrideTransitionTime = transitionTime;
-		m_overrideTransitionTimer = transitionTime;
-
-		// Update target position before we transition back (by passing true to snap values)
-		if ( m_data.GetHasPositionOverride() == false )
-			GetCameraFollowTargetPosition(true);
+	{	
+		m_lerpTime = transitionTime;
+		m_lerpTimer = transitionTime;
+		m_onLerpChange = true;
 		
-
 		// Snap if there's no transition
 		if ( transitionTime <= 0 )
 			Snap();
@@ -89,96 +108,65 @@ public partial class QuestCameraComponent : MonoBehaviour
 
 	public bool GetHasPositionOverrideOrTransitioning()
 	{
-		return m_data.GetHasPositionOverride() || m_overrideTransitionTimer > 0.0f;
+		return m_data.GetHasPositionOverride() || m_posLerpActive;
 	}
+		
+	public void OnZoom(float transitionTime) { OnOverridePosition(transitionTime); } // Zooms are combined now
 
-	public void OnZoom(float transitionTime)
-	{
-		m_zoomTransitionTime = transitionTime;
-		m_zoomTransitionTimer = transitionTime;
-
-		// Update target position before we transition back (by passing true to snap values)
-		if ( m_data.GetHasZoom() == false )
-			GetCameraFollowTargetPosition(true);
-
-		// Snap if there's no transition
-		if ( transitionTime <= 0 )
-			Snap();
-	}
 	public bool GetHasZoomOrTransitioning()
 	{
-		return m_data.GetHasZoom() || m_zoomTransitionTimer > 0.0f;
+		return m_data.GetHasZoom() || m_zoomLerpActive;
 	}
-
-
-	Vector2 GetHalfCamSize()
+		
+	Vector2 GetHalfCamSize(float zoomMult)
 	{
-		return new Vector2(m_camera.orthographicSize * m_camera.aspect,m_camera.orthographicSize);
+		float orthoSize = PowerQuest.Get.VerticalResolution*0.5f/zoomMult;
+		return new Vector2(orthoSize * m_camera.aspect,orthoSize);
 	}
+
+	public Vector2 GetPositionForParallax() { return m_parallaxPos; }
+	public Vector2 GetParallaxTargetPosition() { return m_parallaxTargetPos; }
+	public RectCentered GetParallaxOffsetLimits() { return m_parallaxOffsetLimits; }	
 
 	// Returns the distance the camera can move before showing screen edges
-	public RectCentered CalcOffsetLimits()
-	{			
-		Vector2 halfCamSize = GetHalfCamSize();
+	RectCentered CalcOffsetLimits(float zoomMult)
+	{	
+		Vector2 halfCamSize = GetHalfCamSize(zoomMult);
 		RectCentered result = PowerQuest.Get.GetCurrentRoom().Bounds;
 		result.Min = result.Min + halfCamSize;
 		result.Max = result.Max - halfCamSize;
 		if ( result.Width < 0 )
-		{
 			result.Width = 0;
-			//result.Center = result.Center.WithX(PowerQuest.Get.GetCurrentRoom().Size.Center.x);
-		}
 		if ( result.Height < 0 )
-		{
 			result.Height = 0;
-			//result.Center = result.Center.WithY(PowerQuest.Get.GetCurrentRoom().Size.Center.y);
-		}
 		return result;
-	}
-
-	/*
-	// Returns the distance the camera can move before showing screen edges
-	public Vector2 CalcMaxOffset()
-	{
-		
-		//	Bounds are where world -halfwidth >= viewport.x 0 && world halfwidth <= viewport.x 1
-
-		Vector2 halfRoomSize = PowerQuest.Get.GetCurrentRoom().Size.size * 0.5f;
-		Vector2 halfCamSize = new Vector2(m_camera.orthographicSize * m_camera.aspect,m_camera.orthographicSize);
-		Vector2 maxOffset = halfRoomSize-halfCamSize;
-		if ( maxOffset.x < 0 )
-			maxOffset.x = 0;
-		if ( maxOffset.y < 0 )
-			maxOffset.y = 0;
-		return maxOffset;
-
-	}*/
+	}	
 
 	// Returns a position where camera won't be outside room bounds
-	public Vector2 ClampPositionToRoomBounds( Vector2 position )
+	public Vector2 ClampPositionToRoomBounds(float zoomMult, Vector2 position )
 	{
 		if ( m_data.IgnoreBounds )
 			return position;
-		RectCentered maxOffset = CalcOffsetLimits();
+		RectCentered maxOffset = CalcOffsetLimits(zoomMult);
 		position.x = Mathf.Clamp( position.x, maxOffset.Min.x, maxOffset.Max.x );
 		position.y = Mathf.Clamp( position.y, maxOffset.Min.y, maxOffset.Max.y );
 		return position;		
 	}
 
-	// Calcuates the target camera position it's following the player (even if it's not currently). 
-	// Quest Scripts can use this to find where the camera would be when overrideing the position.
-	public Vector2 GetCameraFollowTargetPosition( bool snap = true, bool disablePixelSnap = false )
+	void ResetPlayerDragPos(StateData s)
 	{
-		if ( PowerQuest.Get == null || m_data == null )
-			return Vector2.zero;
-		
-		Vector2 position = m_data.GetPosition();
+		Vector2 plrTargetPos = GetCharacterTargetPos(s);
+		s.playerPosCached = plrTargetPos;
+		s.playerDragged = plrTargetPos;		
+	}
 
+	public Vector2 GetCharacterTargetPos(StateData s)
+	{
+		Vector2 characterPos = Vector2.zero;
 		ICharacter character = m_data.GetCharacterToFollow();
 		if ( character != null || PowerQuest.Get.GetCurrentRoom() != character.Room )
 		{
 			// When character is facing left/right, add/change offset from the character so the camera leads in the direction they're facing
-
 			if ( m_playerFaceLast != character.Facing )
 			{					
 				if ( character.Facing == eFace.Left || character.Facing == eFace.Right )
@@ -187,92 +175,100 @@ public partial class QuestCameraComponent : MonoBehaviour
 				}
 			}
 
-			Vector2 characterPos = character.Position + m_data.OffsetFromCharacter;
+			characterPos = character.Position + m_data.OffsetFromCharacter;
 
 			// When facing left/right, offset so that camera leads infront of player
 			if ( character.Walking )
 			{
 				if ( m_playerFaceLast == eFace.Left )
 				{
-					characterPos.x = characterPos.x - (m_characterFacingOffset / m_zoomMultiplier);
+					characterPos.x = characterPos.x - (m_characterFacingOffset / s.zoom);
 				}
 				else if ( m_playerFaceLast == eFace.Right )
 				{
-					characterPos.x = characterPos.x + (m_characterFacingOffset / m_zoomMultiplier);
+					characterPos.x = characterPos.x + (m_characterFacingOffset / s.zoom);
 				}
 			}
+		}
+		return characterPos;
+	}
+
+	// Calcuates the target camera position it's following the player (even if it's not currently). 
+	// Quest Scripts can use this to find where the camera would be when overrideing the position.
+	public Vector2 GetCameraFollowTargetPosition( StateData s, bool disablePixelSnap = false )
+	{
+		if ( PowerQuest.Get == null || m_data == null )
+			return Vector2.zero;
+		
+		Vector2 position = s.position;//m_data.GetPosition(); //Vector2 position = m_data.GetPosition();
+		
+		ICharacter character = m_data.GetCharacterToFollow();
+		if ( character != null || PowerQuest.Get.GetCurrentRoom() != character.Room )
+		{			
+			Vector2 characterPos = GetCharacterTargetPos(s);
 
 			// When player moves back/forth quickly, don't scroll the room
-			if ( snap )
+			Vector2 distFromPlayerBeforeScroll = m_distFromPlayerBeforeScroll / s.zoom;
+
+			if ( characterPos.x > s.playerPosCached.x )
 			{
-				m_playerPosCached = characterPos;
-				m_playerDragged = characterPos;
+				if ( characterPos.x > s.playerDragged.x + distFromPlayerBeforeScroll.x )
+					s.playerDragged.x = characterPos.x - distFromPlayerBeforeScroll.x;
 			}
-			else
-			{				
-				Vector2 distFromPlayerBeforeScroll = m_distFromPlayerBeforeScroll / m_zoomMultiplier;
-
-				if ( characterPos.x > m_playerPosCached.x )
-				{
-					if ( characterPos.x > m_playerDragged.x + distFromPlayerBeforeScroll.x )
-						m_playerDragged.x = characterPos.x - distFromPlayerBeforeScroll.x;
-				}
-				else 
-				{
-					if ( characterPos.x < m_playerDragged.x - distFromPlayerBeforeScroll.x )
-						m_playerDragged.x = characterPos.x + distFromPlayerBeforeScroll.x;			
-				}
-
-				if ( characterPos.y > m_playerPosCached.y )
-				{
-					if ( characterPos.y > m_playerDragged.y + distFromPlayerBeforeScroll.y )
-						m_playerDragged.y = characterPos.y - distFromPlayerBeforeScroll.y;
-				}
-				else 
-				{
-					if ( characterPos.y < m_playerDragged.y - distFromPlayerBeforeScroll.y )
-						m_playerDragged.y = characterPos.y + distFromPlayerBeforeScroll.y;			
-				}
-				m_playerPosCached = characterPos;	
+			else 
+			{
+				if ( characterPos.x < s.playerDragged.x - distFromPlayerBeforeScroll.x )
+					s.playerDragged.x = characterPos.x + distFromPlayerBeforeScroll.x;			
 			}
+
+			if ( characterPos.y > s.playerPosCached.y )
+			{
+				if ( characterPos.y > s.playerDragged.y + distFromPlayerBeforeScroll.y )
+					s.playerDragged.y = characterPos.y - distFromPlayerBeforeScroll.y;
+			}
+			else 
+			{
+				if ( characterPos.y < s.playerDragged.y - distFromPlayerBeforeScroll.y )
+					s.playerDragged.y = characterPos.y + distFromPlayerBeforeScroll.y;			
+			}
+			s.playerPosCached = characterPos;	
+			
 
 			if ( m_camera != null )
-			{
-				{					
-					RectCentered scrollSize = PowerQuest.Get.GetCurrentRoom().ScrollBounds;
-					RectCentered offsetLimits = CalcOffsetLimits();
+			{									
+				RectCentered scrollSize = PowerQuest.Get.GetCurrentRoom().ScrollBounds;
+				RectCentered offsetLimits = CalcOffsetLimits(s.zoom);
 
-					if ( scrollSize.Width <= 0.0f )
-					{
-						position.x = m_playerDragged.x;
-					}
-					else 
-					{
-						if ( GetHasZoomOrTransitioning() ) // When Zoom is applied, scale the scroll limits, otherwise character will probably be 
-						{
-							scrollSize.MinX = offsetLimits.MinX + ((scrollSize.MinX - offsetLimits.MinX) / m_data.GetZoom());
-							scrollSize.MaxX = offsetLimits.MaxX + ((scrollSize.MaxX - offsetLimits.MaxX) / m_data.GetZoom());
-						}
-						position.x = Mathf.Lerp( offsetLimits.Min.x, offsetLimits.Max.x, Mathf.InverseLerp(scrollSize.Min.x, scrollSize.Max.x, m_playerDragged.x) );
-					}
-
-					if ( scrollSize.Height <= 0.0f )
-					{
-						position.y = m_playerDragged.y;
-					}
-					else 
-					{
-						if ( GetHasZoomOrTransitioning() ) // When Zoom is applied, scale the scroll limits, otherwise character will probably be 
-						{
-							scrollSize.MinY = offsetLimits.MinY + ((scrollSize.MinY - offsetLimits.MinY) / m_data.GetZoom());
-							scrollSize.MaxY = offsetLimits.MaxY + ((scrollSize.MaxY - offsetLimits.MaxY) / m_data.GetZoom());
-						}
-						position.y = Mathf.Lerp( offsetLimits.Min.y, offsetLimits.Max.y, Mathf.InverseLerp(scrollSize.Min.y, scrollSize.Max.y, m_playerDragged.y) );
-					}
+				if ( scrollSize.Width <= 0.0f )
+				{
+					position.x = s.playerDragged.x;
 				}
-			}				
+				else 
+				{
+					if ( s.zoom != 1.0f ) // When Zoom is applied, scale the scroll limits, otherwise character will probably be unable to walk around
+					{
+						scrollSize.MinX = offsetLimits.MinX + ((scrollSize.MinX - offsetLimits.MinX) / s.zoom);
+						scrollSize.MaxX = offsetLimits.MaxX + ((scrollSize.MaxX - offsetLimits.MaxX) / s.zoom);
+					}
+					position.x = Mathf.Lerp( offsetLimits.Min.x, offsetLimits.Max.x, Mathf.InverseLerp(scrollSize.Min.x, scrollSize.Max.x, s.playerDragged.x) );
+				}
 
-		}
+				if ( scrollSize.Height <= 0.0f )
+				{
+					position.y = s.playerDragged.y;
+				}
+				else 
+				{
+					if ( s.zoom != 1.0f ) // When Zoom is applied, scale the scroll limits, otherwise character will probably be unable to walk around
+					{
+						scrollSize.MinY = offsetLimits.MinY + ((scrollSize.MinY - offsetLimits.MinY) / s.zoom);
+						scrollSize.MaxY = offsetLimits.MaxY + ((scrollSize.MaxY - offsetLimits.MaxY) /s.zoom);
+					}
+					position.y = Mathf.Lerp( offsetLimits.Min.y, offsetLimits.Max.y, Mathf.InverseLerp(scrollSize.Min.y, scrollSize.Max.y, s.playerDragged.y) );
+				}
+				
+			}				
+		}		
 
 		// Snap target position
 		if ( disablePixelSnap == false )
@@ -281,15 +277,13 @@ public partial class QuestCameraComponent : MonoBehaviour
 		//
 		// Clamp to room bounds
 		//
-		position = ClampPositionToRoomBounds(position);
+		position = ClampPositionToRoomBounds(s.zoom,position);
 
 		return position;
 	}
 
 	public bool GetTargetChangedLastUpdate()  { return m_targetPositionChanged; } 
-
 	
-
 	// Use this for initialization
 	void Awake() 
 	{
@@ -309,6 +303,9 @@ public partial class QuestCameraComponent : MonoBehaviour
 			// Set this camera to only render HighRes stuff
 			m_camera.cullingMask = 1<<layerHighRes;
 		}
+
+		// Start with lerp change true so camera state data gets set up first time
+		m_onLerpChange = true;
 	}
 
 	// Update is called once per frame
@@ -329,6 +326,7 @@ public partial class QuestCameraComponent : MonoBehaviour
 			m_pixelCam.transform.position = Utils.Snap(transform.position).WithZ(m_pixelCam.transform.position.z);
 	}
 
+	
 	void UpdatePos(bool snap)
 	{
 		if ( snap )
@@ -340,73 +338,99 @@ public partial class QuestCameraComponent : MonoBehaviour
 		if ( m_data.Enabled == false )
 			return;
 
-		//
-		// Apply Zoom
-		//
-		float orthoSize = PowerQuest.Get.VerticalResolution;
-
-		if ( GetHasZoomOrTransitioning() )
-		{
-			if ( snap )
-				m_zoomTransitionTimer = 0;
-			if ( m_zoomTransitionTimer > 0 )
-				m_zoomTransitionTimer -= Time.deltaTime;
-			float ratio = m_zoomTransitionTime <= 0 ? 0 : (m_zoomTransitionTimer/m_zoomTransitionTime);
-			if ( m_data.GetHasZoom() ) // If false, then we're transitioning back to original position
-				ratio = 1.0f - ratio;	// Reverse transition			
-			orthoSize /= Mathf.Lerp( m_data.GetZoomPrev(), m_data.GetZoom(), ratio );
-		}
-		m_camera.orthographicSize = orthoSize * 0.5f;
-
-		// Calc zoom multiplier, and adjust smooth and shake amount to account for it, as well as "player leading" and stuff
-		m_zoomMultiplier = PowerQuest.Get.DefaultVerticalResolution / orthoSize;
-
 		Vector2 position = m_data.GetPosition();
 		Vector2 oldPosition = position;
-		Vector2 targetPosition = position;
-		Vector2 targetPositionNoPixelSnap = position;
+		Vector2 targetPosition = position;				
+		Vector2 parallaxTargetPos = position;
+		float zoomMultiplier = 1;
+		float orthoSize = PowerQuest.Get.VerticalResolution*0.5f;
+		
+		m_targetPositionChanged = false; // this gets set true again 
 
-		if ( GetHasPositionOverrideOrTransitioning() )
+		if ( m_onLerpChange )
 		{
-			if ( snap )
-				m_overrideTransitionTimer = 0;
-			if ( m_overrideTransitionTimer > 0 )
-				m_overrideTransitionTimer -= Time.deltaTime;
-			float ratio = m_overrideTransitionTime <= 0 ? 0 : (m_overrideTransitionTimer/m_overrideTransitionTime);
-			if ( m_data.GetHasPositionOverride() ) // If false, then we're transitioning back to original position
-				ratio = 1.0f - ratio;
-			targetPosition = ClampPositionToRoomBounds(m_data.GetPositionOverride());
-			// Snap target position at source
-			//position = Utils.Snap(position, PowerQuest.Get.SnapAmount);
-			Vector2 prevPosition = m_data.GetPositionOverridePrev() == new Vector2(float.MaxValue,float.MaxValue) ? GetCameraFollowTargetPosition(snap) : ClampPositionToRoomBounds(m_data.GetPositionOverridePrev());
-			position = Vector2.Lerp( prevPosition, targetPosition, ratio );
+			m_onLerpChange = false;
 
-			targetPositionNoPixelSnap = targetPosition;
+			// Copy camera current state to 'prev' states
+			QuestUtils.CopyFields(m_stateParallaxPrev,m_stateParallax);
+			QuestUtils.CopyFields(m_statePrev,m_state);
+			
+			m_state.zoom = m_data.GetHasZoom() ? m_data.GetZoom() : 1;
+
+			// Set up new state data			
+			if ( m_data.GetHasPositionOverride() )
+			{
+				m_stateParallax.followPlayer = false;
+				m_stateParallax.position = ClampPositionToRoomBounds(1, m_data.GetPositionOverride());
+				m_stateParallax.targetPosition = m_stateParallax.position;
+				m_state.followPlayer = false;
+				m_state.position = ClampPositionToRoomBounds(m_state.zoom, m_data.GetPositionOverride());;
+				m_state.targetPosition = m_state.position;
+				
+				m_targetPositionChanged = true;
+			}
+			else 
+			{
+				m_stateParallax.followPlayer = true;
+				m_state.followPlayer = true;
+
+				// Reset dragpos when tranitioning back
+				ResetPlayerDragPos(m_stateParallax);
+				ResetPlayerDragPos(m_state);
+			}
+			
+			// Update
+			m_posLerpActive = m_stateParallax.followPlayer != m_stateParallaxPrev.followPlayer || (m_stateParallax.followPlayer == false && m_stateParallax.position != m_stateParallaxPrev.position);
+			m_zoomLerpActive = m_state.zoom != m_statePrev.zoom;
 		}
-		else 
+		
+		// Update lerp ratio
+		float ratio = 1;
+		if ( snap )
+			m_lerpTimer = 0;
+		if ( m_lerpTimer > 0 )
 		{
-			// Following player
-			position = GetCameraFollowTargetPosition(snap);
-			targetPosition = position;
-			targetPositionNoPixelSnap = GetCameraFollowTargetPosition(snap, true);
+			m_lerpTimer -= Time.deltaTime;
 
-		}
+			if ( m_lerpTimer <= 0 )
+			{
+				// Finished transition
+				m_posLerpActive = false;
+				m_zoomLerpActive = false;
+			}
+			else if ( m_lerpTime > 0 )
+			{
+				ratio = Mathf.Clamp01( 1.0f-(m_lerpTimer/m_lerpTime) );
+				ratio = QuestUtils.Ease(ratio);
+			}
+		}		
+		
+		// Update non-zoomed state
+		UpdateCameraState(m_stateParallax,snap,false);
+		if ( m_posLerpActive )			
+			UpdateCameraState(m_stateParallaxPrev,snap,false);
 
-		// Update whether targetposition changed. this ignores snapping, otherwise gives wrong results when checking if it changed last update.
-		m_targetPositionChanged = ( targetPositionNoPixelSnap != m_cachedTargetNoPixelSnap );
-		m_cachedTargetNoPixelSnap = targetPositionNoPixelSnap;
+		// Update zoomed state
+		UpdateCameraState(m_state,snap,true);
+		if ( m_posLerpActive || m_zoomLerpActive )
+			UpdateCameraState(m_statePrev,snap,true);
 
-		//
-		// Smooth camera movement
-		//
-		if ( snap == false )
-		{
-			Vector2 diff = position - oldPosition;
-			float dist = diff.magnitude;
-			float smoothDist = Mathf.Max(m_smoothingMinSpeed, m_smoothingFactor * dist) * Time.deltaTime * m_zoomMultiplier;
-			if ( dist > smoothDist )
-				position = oldPosition + (smoothDist*diff.normalized);
-		}
+		// Lerp for transitions
+		targetPosition = Vector2.Lerp( m_statePrev.targetPosition, m_state.targetPosition, ratio);
+
+		// Change to bounds, so can lerp linearly with zoom		
+		RectCentered boundsFrom =  new RectCentered(m_statePrev.position.x,m_statePrev.position.y,GetHalfCamSize(m_statePrev.zoom).x,GetHalfCamSize(m_statePrev.zoom).y);		
+		RectCentered boundsTo =    new RectCentered(m_state.position.x,m_state.position.y,GetHalfCamSize(m_state.zoom).x,GetHalfCamSize(m_state.zoom).y);		
+		RectCentered boundsFinal = new RectCentered( Vector2.Lerp(boundsFrom.Min,boundsTo.Min,ratio), Vector2.Lerp(boundsFrom.Max,boundsTo.Max,ratio) );		
+		position = boundsFinal.Center;
+		orthoSize = boundsFinal.Height;
+		zoomMultiplier = PowerQuest.Get.VerticalResolution * 0.5f/orthoSize;
+		position = ClampPositionToRoomBounds(zoomMultiplier,position);
+
+		m_parallaxPos = Vector2.Lerp( m_stateParallaxPrev.position, m_stateParallax.position, ratio);
+		m_parallaxTargetPos = Vector2.Lerp( m_stateParallaxPrev.targetPosition, m_stateParallax.targetPosition, ratio);
+		m_parallaxOffsetLimits = CalcOffsetLimits(1);
+		
 
 		//
 		// Screenshake
@@ -415,7 +439,7 @@ public partial class QuestCameraComponent : MonoBehaviour
 		{	
 			if ( m_shakeIntensity > 0 )
 			{
-				m_screenShakeOffset = (((new Vector2( Mathf.PerlinNoise(m_shakeSpeed * Time.time, 0), Mathf.PerlinNoise(1, m_shakeSpeed * Time.time) )) * 2) - Vector2.one) * m_shakeIntensity * m_shakeIntensityMult * m_zoomMultiplier;			
+				m_screenShakeOffset = (((new Vector2( Mathf.PerlinNoise(m_shakeSpeed * Time.time, 0), Mathf.PerlinNoise(1, m_shakeSpeed * Time.time) )) * 2) - Vector2.one) * m_shakeIntensity * m_shakeIntensityMult / zoomMultiplier;			
 				
 				if ( m_shakeDurationTimer > 0 )
 				{
@@ -446,7 +470,44 @@ public partial class QuestCameraComponent : MonoBehaviour
 		//	
 		m_data.SetPosition(position); // Store in data
 		m_data.SetTargetPosition(targetPosition);
-		transform.position = (m_screenShakeOffset +position).WithZ(transform.position.z); 
+		transform.position = (m_screenShakeOffset + position).WithZ(transform.position.z); 		
+		m_camera.orthographicSize = orthoSize;
+	}
+	
+	
+	void UpdateCameraState(StateData s, bool snap, bool allowZoom)
+	{
+		Vector2 oldPosition = s.position;
+		s.targetPosition = oldPosition;
+		Vector2 targetPositionNoPixelSnap = oldPosition;
+		
+		if ( s.followPlayer )
+		{
+			// Following player
+			s.position = GetCameraFollowTargetPosition(s);
+			s.targetPosition = s.position;
+			targetPositionNoPixelSnap = GetCameraFollowTargetPosition(s,true);
+			
+			if ( s == m_stateParallax ) // only do this for the parallax camera
+			{
+				// Update whether targetposition changed. this ignores snapping, otherwise gives wrong results when checking if it changed last update.
+				m_targetPositionChanged = ( targetPositionNoPixelSnap != m_cachedTargetNoPixelSnap );
+				m_cachedTargetNoPixelSnap = targetPositionNoPixelSnap;
+			}		
+		}
+
+		//
+		// Smooth camera movement
+		//
+		if ( snap == false && s.followPlayer ) // Only smoothing when following the player
+		{
+			Vector2 diff = s.position - oldPosition;
+			float dist = diff.magnitude;
+			float smoothDist = Mathf.Max(m_smoothingMinSpeed, m_smoothingFactor * dist) * Time.deltaTime * s.zoom;
+			if ( dist > smoothDist ) // don't overshoot
+				s.position = oldPosition + (smoothDist*diff.normalized);
+		}
+		
 	}
 
 	// The current shake intensity. Can be used to add your own
@@ -465,7 +526,6 @@ public partial class QuestCameraComponent : MonoBehaviour
 	void MsgShake( float intensity, float duration ) { Shake(intensity, duration); }
 	void MsgShake( float intensity ) { Shake(intensity); }
 
-
 }
 
 // CameraShakeData lets you have a camera shake set up in the inspector as a single variable rather than passing individual vars to the screenshake
@@ -476,186 +536,5 @@ public class CameraShakeData
 	public float m_duration = 0.1f;
 	public float m_falloff = 0.15f;
 }
-
-
-//
-// Camera Data and functions. Persistant between scenes, as opposed to CameraComponent which lives on a GameObject in a scene.
-//
-[System.Serializable] 
-public partial class QuestCamera : ICamera
-{
-	[Tooltip("Offset from the target character that the camera tries to center on")]
-	[SerializeField] Vector2 m_offsetFromCharacter = new Vector2(0,30);
-	//
-	// Private variables
-	//
-	QuestCameraComponent m_instance = null;
-	string m_characterToFollow = null; // String so it will be saved
-	bool m_hasPositionOverride = false; // Flag is necessary to be reversable mid-transition
-	Vector2 m_positionOverride = new Vector2(float.MaxValue,float.MaxValue);
-	Vector2 m_positionOverridePrev = new Vector2(float.MaxValue,float.MaxValue);
-	float m_zoom = 1.0f;
-	float m_zoomPrev = 1.0f;
-	bool m_hasZoom = false; // Flag is necessary to be reversable mid-transition
-	Vector2 m_position = Vector2.zero;
-	Vector2 m_targetPosition = Vector2.zero;
-	bool m_enabled = true;
-	bool m_ignoreBounds = false;
-
-	//
-	//  Properties
-	//
-
-	/// Sets whether PowerQuest controls the camera, set to false if you want to control the camera yourself (eg. animate it)
-	public bool Enabled 
-	{ 
-		get { return m_enabled; }
-		set 
-		{ 
-			bool didEnable = m_enabled == false && value == true;
-			m_enabled = value;
-			if ( m_instance != null )
-			{
-				m_instance.enabled = value;
-				if ( didEnable)
-					m_instance.Snap();
-			}
-		}
-	}
-
-
-	/// Sets whether overrides to camera position ignore room bounds. Useful for snapping camera to stuff off to the side of the room in cutscenes
-	public bool IgnoreBounds 
-	{ 
-		get { return m_ignoreBounds; }
-		set 
-		{ 
-			m_ignoreBounds = value; 
-			if ( m_instance != null )
-				m_instance.Snap();
-		}
-	}
-
-	public Vector2 OffsetFromCharacter { 
-		get { return m_offsetFromCharacter; } 
-		set { m_offsetFromCharacter = value; } }
-		
-	/// Returns the current shake intensity. \sa Shake
-	public float ShakeIntensity => (m_instance?.ShakeIntensity ?? 0);
-
-	//
-	// Getters/Setters - These are used by the engine. Scripts mainly use the properties
-	//
-
-	public QuestCameraComponent GetInstance() { return m_instance; }
-	public void SetInstance(QuestCameraComponent instance) 
-	{ 
-		m_instance = instance; 
-		m_instance.SetData(this);
-	}
-	public ICharacter GetCharacterToFollow() { return PowerQuest.Get.GetCharacter(m_characterToFollow); }
-	public bool GetHasPositionOverride() { return m_hasPositionOverride; }
-
-	public Vector2 GetPositionOverride() { return m_positionOverride; }
-	public Vector2 GetPositionOverridePrev() { return m_positionOverridePrev; }
-
-	public bool GetHasPositionOverrideOrTransition() 
-	{ 
-		if ( m_instance != null )
-			return m_instance.GetHasPositionOverrideOrTransitioning(); 
-		return m_hasPositionOverride; 
-	}
-
-	public void SetCharacterToFollow(ICharacter character, float overTime = 0) 
-	{ 
-		m_characterToFollow = character.ScriptName;
-		if ( overTime > 0 ) 
-		{
-			SetPositionOverride(m_position,0); 
-			ResetPositionOverride(0.6f); 
-		}
-		else if ( m_instance != null ) 
-		{
-			m_instance.Snap(); 
-		}
-	}
-	public void SetPositionOverride	(float x, float y = 0, float transitionTime = 0 ) 
-	{ 
-		if ( m_hasPositionOverride )
-			m_positionOverridePrev = m_positionOverride;
-		m_hasPositionOverride = true; 
-		m_positionOverride = new Vector2(x,y);  
-		if ( m_instance != null )
-			m_instance.OnOverridePosition(transitionTime);
-	}
-	public void SetPositionOverride	(Vector2 positionOverride, float transitionTime = 0 ) { SetPositionOverride(positionOverride.x, positionOverride.y, transitionTime); }
-	public void ResetPositionOverride(float transitionTime = 0)
-	{ 
-		m_positionOverridePrev = new Vector2(float.MaxValue,float.MaxValue);
-		m_hasPositionOverride = false;  
-		if ( m_instance != null) 
-			m_instance.OnOverridePosition(transitionTime); 
-	}	
-
-	/// Gets the current camera zoom (mulitplier on default/room vertical height)
-	public float GetZoom() { return m_zoom > 0 ? m_zoom : 1; }
-	/// Returns true if the camera has a zoom override
-	public bool GetHasZoom() { return m_hasZoom; }
-	public float GetZoomPrev() { return m_zoomPrev > 0 ? m_zoomPrev : 1; }
-	/// Returns true if the camera's zoom is overriden, or if it's still transitioning back to default
-	public bool GetHasZoomOrTransition() { return ( m_instance != null ) ? m_instance.GetHasZoomOrTransitioning() : m_hasZoom; }
-	/// Sets a camera zoom (mulitplier on default/room vertical height)
-	public void SetZoom(float zoom, float transitionTime = 0) // TODO: add transitions again
-	{		
-		if ( m_hasZoom )
-			m_zoomPrev = m_zoom;
-		m_hasZoom = true;
-		m_zoom = zoom;
-		if ( m_instance != null ) 
-			m_instance.OnZoom(transitionTime); // TODO: add transitions again
-	}
-	/// Removes any zoom override, returning to the default/room vertical height
-	public void ResetZoom(float transitionTime = 0)
-	{ 
-		m_zoomPrev = 1;
-		m_hasZoom = false;
-		if ( m_instance != null ) 
-			m_instance.OnZoom(transitionTime);
-
-	}
-
-	public void Snap() { m_instance.Snap(); }
-
-	// Returns the actual position of the camera
-	public Vector2 GetPosition() { return m_position; }
-
-	// Set position of camera object, usually you'd use SetPositionOverride to stop tracking a player.
-	public void SetPosition(Vector2 position) { m_position = position; }
-
-	// Returns the target position of the camera
-	public Vector2 GetTargetPosition() { return m_targetPosition; }
-
-	// Set position of camera object, usually you'd use SetPositionOverride to stop tracking a player.
-	public void SetTargetPosition(Vector2 position) { m_targetPosition = position; }
-
-	public bool GetSnappedLastUpdate() { return m_instance == null ? true : m_instance.GetSnappedLastUpdate(); }
-	public bool GetTargetPosChangedLastUpdate() { return m_instance == null ? true : m_instance.GetTargetChangedLastUpdate(); }
-		
-
-	public void Shake(float intensity, float duration = 0.1f, float falloff = 0.15f)
-	{
-		m_instance.Shake(intensity, duration, falloff);
-	}
-	public void Shake(CameraShakeData data)
-	{
-		m_instance.Shake(data.m_intensity, data.m_duration, data.m_falloff);
-	}
-
-
-	//
-	// Internal Functions
-	//
-}
-
 
 }

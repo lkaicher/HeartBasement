@@ -356,6 +356,12 @@ public partial class Room : IQuestScriptable, IRoom
 			QuestUtils.CopyFields(data, regionPrefab.GetData());
 			m_regions.Add(data);	
 		}
+		
+
+		//
+		// Copy data from points
+		//
+		m_points = QuestUtils.CopyListFields(m_points); // the points will have been shallow copied already, but we want a deep copy.
 	}
 
 	#endregion

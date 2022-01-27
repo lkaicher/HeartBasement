@@ -368,7 +368,7 @@ public class SystemTime : Singleton<SystemTime>
 	{
 		UpdateTimeMultipliers();	
 
-		if ( Debug.isDebugBuild )
+		if ( PowerQuest.Get.UseCustomKBShortcuts == false )
 		{
 			if ( PowerQuest.GetDebugKeyHeld() && Input.GetKeyDown(KeyCode.PageDown) )
 			{

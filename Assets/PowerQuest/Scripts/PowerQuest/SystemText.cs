@@ -35,19 +35,24 @@ public class LanguageData
 }
 
 public class SystemText : PowerTools.Singleton<SystemText>
-{ 	
-	
+{ 
+	enum eDefaultTextSource
+	{
+		Script, ImportedText
+	}
 
 	public class CharacterTextDataList : Dictionary< string, List<TextData> > { }
 
 	[SerializeField] LanguageData[] m_languages = {new LanguageData()};
+	
+	[SerializeField] eDefaultTextSource m_defaultTextSource = eDefaultTextSource.Script;
 
 	[Tooltip("Optional extended mouth shapes, eg: GHX")]
 	[SerializeField] string m_lipSyncExtendedShapes = "X";
 
 	// Master list of all strings
 	[SerializeField, HideInInspector] List<TextData> m_strings = new List<TextData>(); 
-
+	
 
 	// Dictionary of character to string for quick lookup
 	CharacterTextDataList m_characterStrings = null;
@@ -61,16 +66,45 @@ public class SystemText : PowerTools.Singleton<SystemText>
 
 	// cache whether the X shape is used for lipsync
 	bool m_lipSyncUsesXShape = false;
+	
 
 	public int GetNumLanguages() { return m_languages.Length; }
+	// Returns the currently selected language id
 	public int GetLanguage() { return m_currLanguage; }
+	// REturns the language id for the specified code, -1 if not found
+	public int GetLanguageId(string languageCode) { return System.Array.FindIndex(GetLanguages(), item=> string.Equals( item.m_code, languageCode, System.StringComparison.OrdinalIgnoreCase) ); }
+	public LanguageData GetLanguageData() { return m_languages[m_currLanguage]; }
+	public LanguageData GetLanguageData(int id) { return m_languages[id]; }
+	public LanguageData GetLanguageData(string languageCode) { return m_languages[GetLanguageId(languageCode)]; }
 	/// NB: You should usually set the language via PowerQuest.Settings so it will be saved.
-	public void SetLanguage(int languageId) { m_currLanguage = languageId; }
+	public void SetLanguage(int languageId) 
+	{
+		m_currLanguage = languageId; 
+
+		// Find any quest text that's localised and update it's text		
+		QuestText[] textObjects = FindObjectsOfType<QuestText>(true);
+		System.Array.ForEach( textObjects, item=>item.OnLanguageChange() );
+	}
+
+	/// NB: You should usually set the language via PowerQuest.Settings so it will be saved. Returns false if languge code not found
+	public bool SetLanguage(string languageCode) 
+	{ 	
+		// Find the language code
+		int languageId = GetLanguageId(languageCode);
+		if ( languageId < 0 )
+		{
+			Debug.LogWarning("Couldn't find language code: "+languageCode+", The code needs to be added to SystemText");
+			return false;
+		}
+		SystemText.Get.SetLanguage(languageId);
+		return true;
+	}
 	public LanguageData[] GetLanguages() { return m_languages; }
 
 	public bool GetLipsyncUsesXShape() { return m_lipSyncUsesXShape; }
 	public string GetLipsyncExtendedMouthShapes()  { return m_lipSyncExtendedShapes; }
 	public void SetLipsyncExtendedMouthShapes(string value)  { m_lipSyncExtendedShapes = value; }
+
 
 	public static string Localize( string defaultText, int id = -1, string characterName = null )
 	{
@@ -125,10 +159,13 @@ public class SystemText : PowerTools.Singleton<SystemText>
 			&& string.IsNullOrEmpty(data.m_translations[languageId]) == false )
 			return data.m_translations[languageId];	
 
+		// Handle option for using SystemText for the default language, rather than leaving what's in the script.
+		if ( m_instance.m_defaultTextSource == eDefaultTextSource.ImportedText && string.IsNullOrEmpty(data.m_string) == false )
+			return data.m_string;
+
 		// For now return the default text always, so it always matches what's in the script
 		return defaultText;
 	}
-
 
 	public static AudioHandle PlayAudio(int id, string characterName = null, Transform emitter = null)
 	{
@@ -261,6 +298,8 @@ public class SystemText : PowerTools.Singleton<SystemText>
 		return newData;
 
 	}
+	
+	public bool EditorGetShouldImportDefaultStringFromCSV() { return m_defaultTextSource == eDefaultTextSource.ImportedText; }
 
 	public List<TextData> EditorGetTextDataOrdered()
 	{
@@ -367,10 +406,11 @@ public class SystemText : PowerTools.Singleton<SystemText>
 				else
 				{
 					List<TextData> textDataList = null;
-					if ( m_characterStrings.TryGetValue(data.m_character == null ? string.Empty : data.m_character, out textDataList)  == false )
+					string characterName = data.m_character == null ? string.Empty : data.m_character;
+					if ( m_characterStrings.TryGetValue(characterName, out textDataList)  == false )
 					{
 						textDataList = new List<TextData>();
-						m_characterStrings.Add(data.m_character,textDataList);
+						m_characterStrings.Add(characterName,textDataList);
 					}
 					textDataList.Add(data);
 				}

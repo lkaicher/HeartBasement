@@ -10,7 +10,13 @@ namespace PowerTools.Quest
 [AddComponentMenu("Quest Gui Layout/Fit To Object")]
 public class FitToObject : MonoBehaviour 
 {
-	[Header("Fit Objects:")]
+
+	[System.Flags]
+	enum eFitWhat { Sprite = 1<<0, Collider = 1<<1, GridContainer = 1<<2 }
+	
+	[SerializeField] eFitWhat m_fitWhat = eFitWhat.Sprite;
+
+	[Header("Around Objects:")]
 	[UnityEngine.Serialization.FormerlySerializedAs("m_containX")]
 	[SerializeField] List<GameObject> m_fitWidth = new List<GameObject>();
 	[UnityEngine.Serialization.FormerlySerializedAs("m_containY")]
@@ -20,20 +26,55 @@ public class FitToObject : MonoBehaviour
 	[Header("Options")]
 	[SerializeField] bool m_snapToPixel = true;
 	[SerializeField, Tooltip("Fit the children of specified objects too?")] bool m_includeChildren = true;
+		
 	
+	
+	// NB: Scaling has been removed, so m_spriteSizeInverted is probably not necessary any more.
 	Vector2 m_spriteSizeInverted = Vector2.one;	
-	SpriteRenderer m_sprite = null;	
+
+	SpriteRenderer m_sprite = null;		
+	BoxCollider2D m_boxCollider = null;
+	GridContainer m_gridContainer = null;
 
 	public void UpdateSize()
 	{
-		if ( m_sprite == null && Application.isPlaying == false )
-			SetupSprite();
+		bool useSprite = (m_fitWhat & eFitWhat.Sprite) != 0;
+		bool useCollider = (m_fitWhat & eFitWhat.Collider) != 0;
+		bool useGrid = (m_fitWhat & eFitWhat.GridContainer) != 0;
 
-		bool sliced = ( m_sprite != null &&  m_sprite.drawMode == SpriteDrawMode.Sliced );
+		if ( Application.isPlaying == false 
+			&& (   (m_sprite == null        && useSprite ) 
+				|| (m_boxCollider == null   && useCollider )
+				|| (m_gridContainer == null && useGrid ) ) )
+		{
+			SetupSprite();
+		}
+		useSprite &= m_sprite != null && m_sprite.drawMode != SpriteDrawMode.Simple;
+		useCollider &= m_boxCollider != null;
+		useGrid &= m_gridContainer != null;
+		
+		//bool sliced = ( m_sprite != null &&  m_sprite.drawMode != SpriteDrawMode.Simple );
 		Vector2 newPos = transform.position;
-		Vector2 newScale = transform.localScale;
-		if ( sliced )	
-		    newScale = m_sprite.size;
+		Vector2 newSize = transform.localScale;
+		if ( useSprite )	
+		{
+		    newSize = m_sprite.size;
+			newPos = m_sprite.transform.position;
+		}
+		else if ( useCollider )
+		{			
+			newPos = (Vector2)m_boxCollider.transform.position + m_boxCollider.offset;
+			newSize = m_boxCollider.size;
+		}
+		else if ( useGrid )
+		{
+			RectCentered custSize = m_gridContainer.Rect;
+			newPos = custSize.Center;
+			newSize = custSize.Size;
+		}
+
+		Vector2 oldPos = newPos;
+		Vector2 oldSize = newSize;
 		
 		if ( m_fitWidth != null &&  m_fitWidth.Count > 0 )
 		{
@@ -80,11 +121,12 @@ public class FitToObject : MonoBehaviour
 				bounds.MaxX = Utils.Snap(bounds.MaxX);
 			}
 
-			if ( sliced )
-				newScale.x = bounds.Width;// + m_padding.width;
+			//if ( useSprite )
+				newSize.x = bounds.Width;// + m_padding.width;
+			/* Disabled changing the "Scale" for now, assume that anything that gets fit will be doing it with sliced sprites.
 			else 
 				newScale.x = bounds.Width * m_spriteSizeInverted.x;// + m_padding.width;		
-
+			*/
 			newPos.x = bounds.Center.x;// + (-m_padding.left + m_padding.right)*0.5f;
 		}
 
@@ -138,22 +180,42 @@ public class FitToObject : MonoBehaviour
 				bounds.MaxY = Utils.Snap(bounds.MaxY);
 			}		
 
-			if ( sliced )
-				newScale.y = bounds.Height;// + m_padding.height;
+			//if ( sliced )
+				newSize.y = bounds.Height;// + m_padding.height;
+			/* Disabled changing the "Scale" for now, assume that anything that gets fit will be doing it with sliced sprites.
 			else 
 				newScale.y = bounds.Height * m_spriteSizeInverted.y;// + m_padding.height;
+			*/
 
 			newPos.y = bounds.Center.y;// + (-m_padding.bottom + m_padding.top)*0.5f;
 		}
 
 
 		//Debug.DrawLine(new Vector3(bounds.min.x,bounds.min.y,0),new Vector3(bounds.max.x,bounds.max.y,-10),Color.cyan);
+		if ( oldSize != newSize || oldPos != newPos )
+		{
+			if ( useSprite )
+			{		
+				//if ( sliced )	
+					m_sprite.size = newSize;
+				/* Disabled changing the "Scale" for now, assume that anything that gets fit will be doing it with sliced sprites.
+				else 
+					transform.localScale = newScale.WithZ(1);
+				*/
+				m_sprite.transform.position = newPos.WithZ(transform.position.z);
+			}
+			if ( useCollider )
+			{
+				m_boxCollider.size = newSize;
+				m_boxCollider.offset = newPos - (Vector2)m_boxCollider.transform.position;
+			}
+			 
+			if ( useGrid )
+			{
+				m_gridContainer.Rect = new RectCentered(newPos.x,newPos.y,newSize.x,newSize.y);
+			}
+		}
 
-		if ( sliced )	
-		    m_sprite.size = newScale;
-		else 
-			transform.localScale = newScale.WithZ(1);
-		transform.position = newPos.WithZ(transform.position.z);
 	}	
 
 	public void FitToObjectWidth(GameObject obj)
@@ -170,9 +232,20 @@ public class FitToObject : MonoBehaviour
 
 	public Padding Padding {get{return m_padding;} set {m_padding = value; UpdateSize(); }}
 
+
 	void SetupSprite()
 	{
-		m_sprite = GetComponentInChildren<SpriteRenderer>();
+		
+		if ( (m_fitWhat & eFitWhat.Sprite) != 0 )
+			m_sprite = GetComponentInChildren<SpriteRenderer>();
+
+		if ( (m_fitWhat & eFitWhat.Collider) != 0 )
+			m_boxCollider = GetComponent<BoxCollider2D>();
+
+		if ( (m_fitWhat & eFitWhat.GridContainer) != 0 )
+			m_gridContainer = GetComponent<GridContainer>();		
+		
+		// NB: Scaling has been removed, so below is probably not necessary any more.
 		Vector2 spriteSize = Vector2.one;
 		if ( m_sprite != null && m_sprite.sharedMaterial != null && m_sprite.sharedMaterial.mainTexture != null )
 		{

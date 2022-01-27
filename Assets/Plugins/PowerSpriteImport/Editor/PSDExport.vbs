@@ -210,7 +210,7 @@ idExpr = photoshop.CharIDToTypeID( "Expr" )
 		rem Start at number 1
         dim idstartNumber
         idstartNumber = photoshop.StringIDToTypeID( "startNumber" )
-        call desc103.PutInteger( idstartNumber, 1 )
+        call desc103.PutInteger( idstartNumber, 0 )
         dim iduseDocumentSize
         iduseDocumentSize = photoshop.StringIDToTypeID( "useDocumentSize" )
         call desc103.PutBoolean( iduseDocumentSize, True )		

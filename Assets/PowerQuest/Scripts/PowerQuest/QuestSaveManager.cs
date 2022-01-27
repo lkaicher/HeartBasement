@@ -1,4 +1,4 @@
-#define LOG_TIME
+//#define LOG_TIME
 
 //#define LOG_DATA
 #if LOG_DATA 
@@ -47,10 +47,10 @@ public class QuestSaveSlotData
 {
 	// The header of each 
 	public int m_slotId = -1;
+	public int m_version = -1;
 	public int m_timestamp = int.MinValue;
-	public string m_description = null;
-	// TODO: Screenshot
-	//public Texture2D m_screenshot = null;
+	public string m_description = null;	
+	public Texture2D m_image = null;
 }
 
 #endregion
@@ -92,7 +92,7 @@ public class QuestSaveManager
 	static readonly string FILE_NAME_WILDCARD = FILE_NAME_START+"*"+FILE_NAME_EXTENTION;
 
 	// Version and version requirement for the save manager. There's a seperate one used for the "game"
-	static readonly int VERSION_CURRENT = 1;
+	static readonly int VERSION_CURRENT = 2;
 	static readonly int VERSION_REQUIRED = 0;
 	
 	#endregion
@@ -171,7 +171,14 @@ public class QuestSaveManager
 		return m_saveSlots.Find(slot=> slot.m_slotId == id);
 	}
 
-	public bool Save(int slot, string displayName, int version, Dictionary<string, object> data)
+	public bool Save(int slot, string displayName, int version, Dictionary<string, object> data, Texture2D image = null)
+	{
+		bool result = Save(FILE_NAME_START+slot+FILE_NAME_EXTENTION, displayName,version,data,image);
+		ReloadSaveSlotData(slot);
+		return result;
+	}
+
+	public bool Save(string fileName, string displayName, int version, Dictionary<string, object> data, Texture2D image = null)
 	{	
 
 		#if UNITY_SWITCH
@@ -194,7 +201,41 @@ public class QuestSaveManager
 
 		try
 		{
-			stream = File.Open(GetSaveDirectory()+FILE_NAME_START+slot+FILE_NAME_EXTENTION, FileMode.Create);
+		
+			#if LOG_TIME
+				QuestUtils.StopwatchStart();
+			#endif		
+
+			stream = File.Open(GetSaveDirectory()+fileName, FileMode.Create);
+			
+			BinaryFormatter bformatter = new BinaryFormatter();
+			bformatter.Binder = new VersionDeserializationBinder(); 						
+
+			// Serialize 'header' (unencrypted version and slot information)
+			bformatter.Serialize(stream, VERSION_CURRENT); 	// QuestSaveManager version
+			bformatter.Serialize(stream, version);			// Game Version
+			bformatter.Serialize(stream, displayName);
+			bformatter.Serialize(stream, Utils.GetUnixTimestamp());			
+			{
+				// Save image				
+				if ( image == null )
+				{
+					bformatter.Serialize(stream, false);	// no image
+				}
+				else 
+				{
+					bformatter.Serialize(stream, true);	// Set flag to show there's an image
+
+					// from https://docs.unity3d.com/ScriptReference/ImageConversion.EncodeToPNG.html
+					{
+						byte[] bytes = image.EncodeToPNG();
+						//bformatter.Serialize(stream,bytes.Length);
+						bformatter.Serialize(stream,bytes);
+					}
+				}
+			}
+
+			// Construct SurrogateSelectors object to serialize unity structs
 			
 			DESCryptoServiceProvider des = new DESCryptoServiceProvider();
 			des.Key = NOTHING_TO_SEE_HERE;
@@ -202,24 +243,9 @@ public class QuestSaveManager
 			
 			cryptoStream = new CryptoStream(stream, des.CreateEncryptor(), CryptoStreamMode.Write);
 
-			BinaryFormatter bformatter = new BinaryFormatter();
-			bformatter.Binder = new VersionDeserializationBinder(); 
-						
-			#if LOG_TIME
-				QuestUtils.StopwatchStart();
-			#endif
-
-			// Construct SurrogateSelectors object to serialize unity structs
-			SurrogateSelector surrogateSelector = new SurrogateSelector();
-					
+			SurrogateSelector surrogateSelector = new SurrogateSelector();					
 			surrogateSelector.ChainSelector( new QuestSaveSurrogateSelector() );
 			bformatter.SurrogateSelector = surrogateSelector;
-
-			// Serialize unencrypted version and slot information
-			bformatter.Serialize(stream, VERSION_CURRENT); 	// QuestSaveManager version
-			bformatter.Serialize(stream, version);			// Game Version
-			bformatter.Serialize(stream, displayName);
-			bformatter.Serialize(stream, Utils.GetUnixTimestamp());			
 
 			// Serialize encrypted data
 			bformatter.Serialize(cryptoStream, data);
@@ -236,7 +262,6 @@ public class QuestSaveManager
 		}
 		finally
 		{
-
 			if ( cryptoStream != null )
 				cryptoStream.Close();
 			if ( stream != null )
@@ -244,7 +269,6 @@ public class QuestSaveManager
 		}
 		TempPrintLog();
 
-		LoadSaveSlotData();
 		return success;
 	}
 
@@ -255,29 +279,44 @@ public class QuestSaveManager
 	// You can use the retrieved version to work out if you need to do specific translation to stuff if things have changed
 	public bool RestoreSave(int slot, int versionRequired, out int version, out Dictionary<string, object> data )
 	{
+		return RestoreSave(FILE_NAME_START+slot+FILE_NAME_EXTENTION, versionRequired, out version, out data, slot);
+	}
+	// Restore save from a file name
+	public bool RestoreSave(string fileName, int versionRequired, out int version, out Dictionary<string, object> data )
+	{
+		return RestoreSave(fileName, versionRequired,out version, out data, -1);
+	}
+
+	bool RestoreSave(string fileName, int versionRequired, out int version, out Dictionary<string, object> data, int slot )
+	{
 		bool success = false;
 		data = null;
 		version = -1;
+		int saveVersion = -1;
 
 		#if UNITY_SWITCH 
 		// TODO: Implement save/load on switch
 		bool isSwitch = true;
 		if ( isSwitch )
-			return success;
+			return false;
 		#endif
-		
+			
 		QuestSaveSurrogateSelector.StartLogLoad();
-
-		// Get the save slot. If it doesn't exist, try to load anyway.
-		QuestSaveSlotData slotData = GetSaveSlot(slot);
-		if ( slotData == null )
-			slotData = new QuestSaveSlotData() { m_slotId = slot };
+		
+		// Get the save slot. If it doesn't exist, try to load anyway (for settings)
+		QuestSaveSlotData slotData = new QuestSaveSlotData();
+		if ( slot >= 0 )
+		{
+			slotData = GetSaveSlot(slot);
+			if ( slotData == null )
+				slotData = new QuestSaveSlotData() { m_slotId = slot };			
+		}
 
 		Stream stream = null;
 		Stream cryptoStream = null;
 		try
 		{
-			stream = File.Open(GetSaveDirectory()+FILE_NAME_START+slot+FILE_NAME_EXTENTION, FileMode.Open);		    
+			stream = File.Open(GetSaveDirectory()+fileName, FileMode.Open);		    
 			
 			DESCryptoServiceProvider des = new DESCryptoServiceProvider();
 			des.Key = NOTHING_TO_SEE_HERE;
@@ -287,29 +326,29 @@ public class QuestSaveManager
 			
 			BinaryFormatter bformatter = new BinaryFormatter();
 			bformatter.Binder = new VersionDeserializationBinder(); 
-			SurrogateSelector ss = new SurrogateSelector();
-			ss.ChainSelector( new QuestSaveSurrogateSelector() );
-			bformatter.SurrogateSelector = ss;
 
 			// Deserialize unencrtypted version and slot information (not encrypted)
-			version = (int)bformatter.Deserialize(stream); // QuestSaveManager version
-			if ( version < VERSION_REQUIRED )
+			saveVersion = (int)bformatter.Deserialize(stream); // QuestSaveManager version
+			if ( saveVersion < VERSION_REQUIRED )
 			{
-				throw new Exception("Incompatible save version. Required: " + VERSION_REQUIRED + ", Found: " + version);
+				throw new Exception("Incompatible save version. Required: " + VERSION_REQUIRED + ", Found: " + saveVersion);
 			}
 
-			version = (int)bformatter.Deserialize(stream); // Game Version
+			DeserializeSlotData(slotData, bformatter, stream, saveVersion);
+			
+			version = slotData.m_version;
 			if ( version < versionRequired )
 			{
 				throw new Exception("Incompatible game save version. Required: " + versionRequired + ", Found: " + version);
 			}
-				
-			slotData.m_description = (string)bformatter.Deserialize(stream);
-			slotData.m_timestamp = (int)bformatter.Deserialize(stream);
 
 			#if LOG_TIME
 				QuestUtils.StopwatchStart();
 			#endif
+						
+			SurrogateSelector ss = new SurrogateSelector();
+			ss.ChainSelector( new QuestSaveSurrogateSelector() );
+			bformatter.SurrogateSelector = ss;
 
 			// deserialize the data
 			data = bformatter.Deserialize(cryptoStream) as Dictionary<string, object>;			
@@ -342,19 +381,52 @@ public class QuestSaveManager
 		}
 		catch( Exception e )
 		{
-			m_log = "Load failed: "+e.ToString ();
+			if ( (e is FileNotFoundException) == false )
+				m_log = "Load failed: "+e.ToString ();
 			success = false;
 		}
 		finally
 		{
-			if ( cryptoStream != null )
-				cryptoStream.Close();
+			try 
+			{
+				if ( cryptoStream != null )
+					cryptoStream.Close();
+			}
+			catch( Exception e )
+			{
+				m_log += "\nLoad failed: "+e.ToString ();
+				success = false;
+			}
+			
 			if ( stream != null )
 				stream.Close();			
 		}
 		TempPrintLog();
 
 		return success;
+	}
+	
+
+	void DeserializeSlotData( QuestSaveSlotData slotData, BinaryFormatter bformatter, Stream stream, int saveVersion )
+	{	
+		if ( slotData == null )
+			return;
+			
+		// Save file metadata- Description, timestamp, image		
+		slotData.m_version = (int)bformatter.Deserialize(stream);		
+		slotData.m_description = (string)bformatter.Deserialize(stream);
+		slotData.m_timestamp = (int)bformatter.Deserialize(stream);
+		bool hasImage = saveVersion >= 2 && (bool)bformatter.Deserialize(stream); // images added in save version 2
+		if ( hasImage )
+		{
+			byte[] bytes = (byte[])bformatter.Deserialize(stream);	// read in texture bytes
+			if ( bytes != null && bytes.Length > 0 )
+			{
+				if ( slotData.m_image == null )
+					slotData.m_image = new Texture2D(2,2);
+				slotData.m_image.LoadImage(bytes,false);
+			}
+		}			
 	}
 
 	//  This function must be called after restoring data, from the caller of RestoreSave
@@ -417,8 +489,11 @@ public class QuestSaveManager
 			m_log = "Delete failed: "+e.ToString ();	
 			result = false;
 		}
+
+		// Remove the save slot
+		m_saveSlots.RemoveAll(item=>item.m_slotId == slot);
+
 		TempPrintLog();
-		LoadSaveSlotData();
 		return result;
 	}
 
@@ -426,9 +501,80 @@ public class QuestSaveManager
 	#endregion
 	#region Private Functions
 
+	bool LoadHeader(QuestSaveSlotData slotData)
+	{
+	
+		#if UNITY_SWITCH 
+		// TODO: Implement save/load on switch
+		bool isSwitch = true;
+		if ( isSwitch )
+			return;
+		#endif
+
+		bool result = false;
+
+		if ( slotData == null )
+			return false;
+		int slotId = slotData.m_slotId;
+
+		string path = GetSaveDirectory()+FILE_NAME_START+slotId+FILE_NAME_EXTENTION;
+		Stream stream = null;
+		try
+		{
+			stream = File.Open(path, FileMode.Open);		    
+
+			BinaryFormatter bformatter = new BinaryFormatter();
+			bformatter.Binder = new VersionDeserializationBinder();
+
+			int saveVersion = (int)bformatter.Deserialize(stream);	// NB: save version not encrypted
+			if ( saveVersion >= VERSION_REQUIRED )
+			{
+				DeserializeSlotData(slotData,bformatter,stream,saveVersion);
+				result = true;
+			}
+			else
+			{
+				m_log = "Incompatible save version. Required: " + VERSION_REQUIRED + ", Found: " + saveVersion;
+			}
+		}
+		catch( Exception e )
+		{
+			m_log = "Load failed: "+e.ToString ();
+		}
+		finally
+		{
+			if ( stream != null )
+			{
+				stream.Close();
+			}
+		}
+		return result;
+	}
+
+	void ReloadSaveSlotData(int slotId)
+	{
+		if ( m_loadedSaveSlots == false )
+		{
+			LoadSaveSlotData();
+			return;
+		}
+
+		QuestSaveSlotData slotData = GetSaveSlot(slotId);
+		bool newSlot = slotData == null;
+		if ( newSlot )
+			slotData = new QuestSaveSlotData(){m_slotId=slotId};
+		bool success = LoadHeader(slotData);
+		
+		if ( newSlot && success )
+			m_saveSlots.Add(slotData);
+		if ( newSlot == false && success == false ) 
+			m_saveSlots.Remove(slotData); // Remove slot since it didn't reload
+	}
+
 	// Loads first bit of each save
 	// Searches for file names of format save*.sav
 	// Creates slot, and reads in displayname, timestamp, version information
+	// If zero or greater is passed as specificSlotOnly, only that slot will be loaded
 	void LoadSaveSlotData()
 	{	
 		#if UNITY_SWITCH 
@@ -437,15 +583,15 @@ public class QuestSaveManager
 		if ( isSwitch )
 			return;
 		#endif
+	
+		if ( m_loadedSaveSlots )
+			Debug.LogWarning("Save slots should only be loaded once. Use ReloadSaveSlotData()");
 
 		string[] sourceFileNames = Directory.GetFiles(Path.GetFullPath(GetSaveDirectory()),FILE_NAME_WILDCARD);
 		foreach ( string path in sourceFileNames )
 		{
-
-			//bool success = false;
-
 			QuestSaveSlotData slotData = new QuestSaveSlotData();
-
+			
 			string idString = Path.GetFileNameWithoutExtension(path).Substring(4);
 			if ( int.TryParse(idString, out  slotData.m_slotId ) == false )
 			{
@@ -453,44 +599,9 @@ public class QuestSaveManager
 			}
 			else 
 			{
-				//m_data = new SaveData ();
-				Stream stream = null;
-				try
-				{
-					stream = File.Open(path, FileMode.Open);		    
-										
-					BinaryFormatter bformatter = new BinaryFormatter();
-					bformatter.Binder = new VersionDeserializationBinder();
-					
-					int version = (int)bformatter.Deserialize(stream);	// NB: save version not encrypted
-					if ( version >= VERSION_REQUIRED )
-					{
-						/*int gameVersion = (int)*/bformatter.Deserialize(stream);
-						slotData.m_description = (string)bformatter.Deserialize(stream);
-						slotData.m_timestamp = (int)bformatter.Deserialize(stream);
-						m_saveSlots.Add(slotData);
-						//success = true;
-					}	    
-					else
-					{
-						m_log = "Incompatible save version. Required: " + VERSION_REQUIRED + ", Found: " + version;
-					}
-				}
-				catch( Exception e )
-				{
-					m_log = "Load failed: "+e.ToString ();
-					//success = false;
-				}
-				finally
-				{
-					if ( stream != null )
-					{
-						stream.Close();
-					}
-				}
+				if ( LoadHeader(slotData) )
+					m_saveSlots.Add(slotData);
 			}
-
-			TempPrintLog();
 		}
 
 		m_loadedSaveSlots = true;

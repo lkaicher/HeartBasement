@@ -46,6 +46,8 @@ namespace PowerScript
 		public static IGui Inventory		{ get{return PowerQuest.Get.GetGui("Inventory"); } }
 		public static IGui DialogTree		{ get{return PowerQuest.Get.GetGui("DialogTree"); } }
 		public static IGui SpeechBox		{ get{return PowerQuest.Get.GetGui("SpeechBox"); } }
+		public static IGui Options        { get { return PowerQuest.Get.GetGui("Options"); } }
+		public static IGui Save           { get { return PowerQuest.Get.GetGui("Save"); } }
 		// #GUI# - Do not edit this line, it's used by the system to insert rooms for easy access
 	}
 

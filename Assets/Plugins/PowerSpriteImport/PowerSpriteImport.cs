@@ -23,7 +23,7 @@ namespace PowerTools
 		- Then edit them in PowerSpriteAnimator!!
 	- Leave the importers where they are so you can re-import later
 */
-public class PowerSpriteImport : ScriptableObject
+public partial class PowerSpriteImport : ScriptableObject
 {
 	[System.Serializable]
 	public class AnimImportData
@@ -33,6 +33,9 @@ public class PowerSpriteImport : ScriptableObject
 
 		public bool m_loop = false;
 
+		// When full rect is set, sprites will be imported directly into 
+		public bool m_fullRect = false;
+
 		// length is only used for aiding with calculating first frames when editing list. First frame is whats actually used
 		public int m_length = 1;
 		public int[] m_frameDurations = null; // Frame duration in MS imported from aseprite data
@@ -40,11 +43,11 @@ public class PowerSpriteImport : ScriptableObject
 	public List<AnimImportData> m_animations = new List<AnimImportData>();
 
 
-	public string m_packingTag = string.Empty;
 	public float m_pixelsPerUnit = 1;
 	public FilterMode m_filterMode = FilterMode.Point;
 	public enum eTextureCompression {None,Low,Normal,High}
 	public eTextureCompression m_compression = eTextureCompression.None;
+	public SpriteMeshType m_spriteMeshType = SpriteMeshType.Tight;
 	public bool m_crunchedCompression = false;
 	public string m_sourcePSD = string.Empty;
 	public string m_sourceDirectory = string.Empty;
@@ -53,6 +56,7 @@ public class PowerSpriteImport : ScriptableObject
 	public bool m_gui = false;
 	public bool m_isAseprite = false;
 	public bool m_trimSprites = false;
+	public bool m_createSingleSpriteAnims = true;
 
 
 }

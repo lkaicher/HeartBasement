@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
 using System.IO;
@@ -256,7 +256,7 @@ public class PropComponentEditor : Editor
 	public void OnSceneGUI()
 	{		
 		PropComponent component = (PropComponent)target;
-		QuestClickableEditorUtils.OnSceneGUI( component, component.GetData() );
+		QuestClickableEditorUtils.OnSceneGUI( component, component.GetData(), component.GetData().BaselineFixed );
 	}
 }
 
@@ -313,7 +313,7 @@ public class HotspotComponentEditor : Editor
 	public void OnSceneGUI()
 	{		
 		HotspotComponent component = (HotspotComponent)target;
-		QuestClickableEditorUtils.OnSceneGUI( component, component.GetData() );
+		QuestClickableEditorUtils.OnSceneGUI( component, component.GetData(), true );
 	}
 }
 

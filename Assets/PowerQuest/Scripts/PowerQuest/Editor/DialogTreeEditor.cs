@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
 using System.Text.RegularExpressions;
@@ -57,7 +57,11 @@ public class DialogTreeComponentEditor : Editor
 		GUILayout.Space(10);
 		EditorGUILayout.LabelField("Options", EditorStyles.boldLabel);
 		serializedObject.Update();
-		if ( m_listOptions != null ) m_listOptions.DoLayoutList();
+		if ( m_listOptions != null )
+		{
+			m_listOptions.list = component.GetData().Options; // Had to add this, list was getting detatched from the component somehow.
+			m_listOptions.DoLayoutList();
+		}
 				
 		GUILayout.Label( "Debug", EditorStyles.boldLabel);				
 		EditorGUI.BeginDisabledGroup( Application.isPlaying == false || PowerQuest.Exists == false );
@@ -95,6 +99,8 @@ public class DialogTreeComponentEditor : Editor
 		component.GetData().Options.Insert(index,option);
 
 		EditorUtility.SetDirty(target);
+		
+		QuestScriptEditor.UpdateAutoComplete(QuestScriptEditor.eAutoCompleteContext.DialogOptions);
 	}
 
 	void DrawOptionHeader(Rect rect)
@@ -157,7 +163,8 @@ public class DialogTreeComponentEditor : Editor
 			else 
 			{
 				option.Name = newName;
-			}
+				QuestScriptEditor.UpdateAutoComplete(QuestScriptEditor.eAutoCompleteContext.DialogOptions);
+			}			
 		}
 
 		offset += 82;

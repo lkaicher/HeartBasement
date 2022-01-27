@@ -6,7 +6,7 @@ namespace PowerTools
 {
 
 [RequireComponent(typeof(SpriteRenderer))]
-[AddComponentMenu("PowerTools/Sprite")]
+[AddComponentMenu("PowerTools/PowerSprite")]
 public class PowerSprite : MonoBehaviour 
 {
 	#region Definitions
@@ -132,7 +132,8 @@ public class PowerSprite : MonoBehaviour
 	{
 		CheckMaterial();
 		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
-		m_offset = Snap(m_offset,1.0f/renderer.sprite.pixelsPerUnit);
+		if ( renderer.sprite != null )
+			m_offset = Snap(m_offset,1.0f/renderer.sprite.pixelsPerUnit);
 		UpdateOffset();
 	}
 
@@ -202,7 +203,7 @@ public class PowerSprite : MonoBehaviour
 		if ( s_shader == null )
 			return false;
 		
-		if ( m_materialCached != null && shouldApplyOutline == false )
+		if ( m_materialCached != null && shouldApplyOutline == false && m_shaderOverride == null )
 			return true;
 
 		Shader shader = m_shaderOverride != null ? m_shaderOverride : shouldApplyOutline ? s_shaderOutline : s_shader;

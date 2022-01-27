@@ -98,12 +98,6 @@ public class QuestEditorUtils
 	#endregion
 	#region Misc Utils
 
-	public static void CreateImporter( string path, string packingTag, bool refreshAssetDB = true )
-	{
-		PowerSpriteImport importer = PowerSpriteImportEditor.CreateImporter(path,refreshAssetDB);
-		importer.m_packingTag = packingTag;
-	}
-
 	public static void UpdateAtlasSettings( string path, bool pixel /*, bool isGui*/ )
 	{
 		SpriteAtlas atlas = AssetDatabase.LoadAssetAtPath<SpriteAtlas>(path);
@@ -175,23 +169,31 @@ public class QuestEditorUtils
 	}
 	
 	 
+	static bool s_shownPolygonEditor = false;
 
 	// Set col to null to hide again
 	public static void HidePolygonEditor()
 	{
-		UnityEditorInternal.EditMode.ChangeEditMode(UnityEditorInternal.EditMode.SceneViewEditMode.None, new Bounds(), null);						
-		#if UNITY_2019_3_OR_NEWER
-		UnityEditor.EditorTools.ToolManager.SetActiveTool((UnityEditor.EditorTools.EditorTool)null);
-		#endif
+		if ( Tools.current == Tool.Custom && s_shownPolygonEditor )
+		{
+			UnityEditorInternal.EditMode.ChangeEditMode(UnityEditorInternal.EditMode.SceneViewEditMode.None, new Bounds(), null);						
+			#if UNITY_2019_3_OR_NEWER
+			UnityEditor.EditorTools.ToolManager.SetActiveTool((UnityEditor.EditorTools.EditorTool)null);		
+			#endif
+		}
 	}
-    public static void ShowPolygonEditor( Collider2D col )
+
+
+	public static void ShowPolygonEditor( Collider2D col )
 	{
 		if ( !col )		
 		{
 			HidePolygonEditor();
 			return;
 		}
-			
+		
+		s_shownPolygonEditor = true;
+
 		System.Type colliderEditorBase = System.Type.GetType("UnityEditor.ColliderEditorBase,UnityEditor.dll");
 		Editor[] colliderEditors = Resources.FindObjectsOfTypeAll(colliderEditorBase) as Editor[];
 
@@ -199,6 +201,7 @@ public class QuestEditorUtils
 			return;
 
 		UnityEditorInternal.EditMode.ChangeEditMode(UnityEditorInternal.EditMode.SceneViewEditMode.Collider, col.bounds, colliderEditors[0]);
+		
 				
 		//Debug.Log("EditMode: " + UnityEditorInternal.EditMode.editMode);
 
@@ -207,15 +210,15 @@ public class QuestEditorUtils
 		try
 		{
 			Selection.activeGameObject = col.gameObject;
-		var assemblies = System.AppDomain.CurrentDomain.GetAssemblies();
-		foreach (var assembly in assemblies) 
-		{
-			if (assembly.GetType("UnityEditor.PolygonCollider2DTool") != null) 
+			var assemblies = System.AppDomain.CurrentDomain.GetAssemblies();
+			foreach (var assembly in assemblies) 
 			{
-						// This fails when the selection was changed this frame
-				UnityEditor.EditorTools.ToolManager.SetActiveTool(assembly.GetType("UnityEditor.PolygonCollider2DTool"));
+				if (assembly.GetType("UnityEditor.PolygonCollider2DTool") != null) 
+				{
+					// This fails when the selection was changed this frame
+					UnityEditor.EditorTools.ToolManager.SetActiveTool(assembly.GetType("UnityEditor.PolygonCollider2DTool"));
+				}
 			}
-		}
 		}
 		catch
 		{}
@@ -742,15 +745,15 @@ public class QuestEditorUtils
 		
 		EditorUtility.DisplayProgressBar("Compiling","Loading files",0.2f);
 
-		// string[] ignoreAssemblies = {"ARModule","ClothModule","AIModule","Terrain","Web","VRModule","Vehicles","Wind","XR","Google",".VR",".OSX","Linux"}; - don't think this makes a difference
+		string[] ignoreAssemblies = {"ARModule","ClothModule","AIModule","Terrain","Web","VRModule","Vehicles","Wind","XR","Google",".VR",".OSX","Linux","Plastic","Newtonsoft"}; // - don't think this makes a difference
 
 		// Add ALL of the assembly references (except dynamic ones, they crash)
 		foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
 		{
 			try 
 			{
-				//bool contains = System.Array.Exists(ignoreAssemblies, item=>assembly.FullName.Contains(item)); // don't think this optimisastion makes any difference
-				//if ( contains == false )					
+				bool contains = System.Array.Exists(ignoreAssemblies, item=>assembly.FullName.Contains(item)); // don't think this optimisastion makes any difference
+				if ( contains == false )					
 				param.ReferencedAssemblies.Add(assembly.Location);
 				
 			}
@@ -802,8 +805,9 @@ public class QuestEditorUtils
 			{
 				// Log error on unity log
 				MethodBase mUnityLog = typeof(UnityEngine.Debug).GetMethod("LogPlayerBuildError", BindingFlags.NonPublic | BindingFlags.Static);
-				mUnityLog.Invoke(null, new object[] { string.Format("{0}({1},{2}): error {3}: {4}", error.FileName, error.Line, error.Column,
-error.ErrorNumber, error.ErrorText), error.FileName,  error.Line, error.Column });
+				mUnityLog.Invoke(null, new object[] { 
+					string.Format("{0}({1},{2}): error {3}: {4}", error.FileName, error.Line, error.Column, error.ErrorNumber, error.ErrorText), 
+					error.FileName,  error.Line, error.Column });
 
 				// Also pass error in exception
 				msg.AppendFormat("{0}({1},{2}): error {3}: {4}\n",					
@@ -896,48 +900,19 @@ public class QuestClickableEditorUtils
 		return false;
 	}
 
-	static public void OnSceneGUI( MonoBehaviour component, IQuestClickable clickable )
+	static public void OnSceneGUI( MonoBehaviour component, IQuestClickable clickable, bool fixedBaseline )
 	{
 		GUIStyle textStyle = new GUIStyle(EditorStyles.boldLabel);
 		
 		Transform transform = component.transform;
-		/*
+		if ( OnSceneGUIBaseline(component, clickable, fixedBaseline? Vector3.zero : transform.position) )
 		{
-			float oldY = transform.position.y + clickable.Baseline;
-			Vector3 position = transform.position + new Vector3( -15, clickable.Baseline, 0);
-
-			Handles.color = Color.cyan;
-			GUI.color = Color.cyan;
-			textStyle.normal.textColor = GUI.color;
-
-			EditorGUI.BeginChangeCheck();
-			position = Handles.FreeMoveHandle( position, Quaternion.identity,4.0f,new Vector3(0,1,0),Handles.DotHandleCap);
-
-			Handles.Label(position + new Vector3(5,0,0), "Baseline", textStyle);
-			Handles.color = Color.cyan.WithAlpha(0.5f);
-			Handles.DrawLine( position + (Vector3.left * 500), position + (Vector3.right * 500) );
-
-			if ( EditorGUI.EndChangeCheck() ) 
+			int sortOrder = -Mathf.RoundToInt(((fixedBaseline?0:transform.position.y) + clickable.Baseline)*10.0f);
+			Renderer[] renderers = transform.GetComponentsInChildren<Renderer>();
+			foreach ( Renderer renderer in renderers )
 			{
-				Undo.RecordObject(component,"Changed Baseline");
-				clickable.Baseline = Utils.Snap(position.y - transform.position.y,PowerQuestEditor.SnapAmount);				
-			}			
-
-			if ( transform.position.y + clickable.Baseline != oldY )
-			{
-				SpriteRenderer renderer = transform.GetComponentInChildren<SpriteRenderer>();
 				if ( renderer != null )
-				{
-					renderer.sortingOrder = -Mathf.RoundToInt((transform.position.y + clickable.Baseline)*10.0f);
-				}
-			}
-		}*/
-		if ( OnSceneGUIBaseline(component, clickable, transform.position) )
-		{
-			SpriteRenderer renderer = transform.GetComponentInChildren<SpriteRenderer>();
-			if ( renderer != null )
-			{
-				renderer.sortingOrder = -Mathf.RoundToInt((transform.position.y + clickable.Baseline)*10.0f);
+					renderer.sortingOrder = sortOrder;
 			}
 		}
 
@@ -955,8 +930,6 @@ public class QuestClickableEditorUtils
 				Undo.RecordObject(component,"Changed Walk To Point");									
 				clickable.WalkToPoint = Utils.Snap((Vector2)(position - transform.position),PowerQuestEditor.SnapAmount);
 			}
-
-
 		}
 
 		{

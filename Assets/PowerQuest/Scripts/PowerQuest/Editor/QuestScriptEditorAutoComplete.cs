@@ -22,8 +22,8 @@ public partial class QuestScriptEditor
 	static readonly string[] AC_KEYWORDS = 
 		{ 
 			"E", "R", "C", "I", "D", "G", "Plr",
-			"P","H",/*"Hotspots", "Props",*/ "Regions", "Points","Buttons","Labels","Images","Controls",
-			"Globals","Audio","Camera","Settings",
+			"P","H",/*"Hotspots", "Props",*/ "Regions", "Points","Buttons","Labels","Images","Sliders","Controls",
+			"Globals","Audio","Camera","Settings","Cursor",
 			"FaceClicked","WalkToClicked", "End", "Return", "Consume",
 			"Display: ", "DisplayBG: ","Section: ",
 			"bool","int","float","string","Vector2","enum","true","false","if","else","while","for","switch","case","default","break","continue","new","public",
@@ -32,9 +32,9 @@ public partial class QuestScriptEditor
 	static readonly string[] AC_KEYWORDS_C = { "Display(","DisplayBG(","Player","Plr" };
 	static readonly string[] AC_KEYWORDS_I = { "Active", "Current" };
 	static readonly string[] AC_KEYWORDS_D = { "Current", "Previous" };
-	//static readonly string[] AC_KEYWORDS_G = { "Data", "Previous" };
+	//static readonly string[] AC_KEYWORDS_G = { "Data", "Gui" };
 
-	enum eAutoCompleteContext
+	public enum eAutoCompleteContext
 	{
 		Ignored, 	  // No longer matching current word (eg: after Display: )
 		None, 		  // Searches for Charcter names (after 3 characters), keywords (walktoclicked, etc) or for E., C., or for Prop( Hotspot( or Point(, etc
@@ -52,6 +52,7 @@ public partial class QuestScriptEditor
 		Buttons,      // Controls. -> list items
 		Images,		  // Controls. -> list items
 		Labels,		  // Controls. -> list items
+		Sliders,      // Controls. -> list items
 		IEngine,	  // E. -> Engine Funcs
 		ICharacter,   // C.???. -> Char funcs
 		IRoom,		  // R.???. -> Room funcs
@@ -66,9 +67,11 @@ public partial class QuestScriptEditor
 		IButton,
 		IImage,
 		ILabel,
+		ISlider,
 		Globals,	  // Global script
 		Audio,		  // Audio System
 		ICamera,	  // QuestCamera
+		ICursor,      // ICursor
 		Settings,	  // Settings
 		EnumItem,	  // e???. -> enum contents eg eStateWindow.Open
 		ObjectScript, // C.Dave.Script. or R.Kitchen.Script. or I.Bucket.Script
@@ -101,13 +104,14 @@ public partial class QuestScriptEditor
 		new Regex( @"^Buttons\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 	// eg: Buttons.??
 		new Regex( @"^Images\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ),   // eg: Images.??
 		new Regex( @"^Labels\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ),   // eg: Labels.??
+		new Regex( @"^Sliders\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ),   // eg: Sliders.??
 		new Regex( @"^E\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 		// eg: E.??
 		new Regex( @"^(?:C\.\w+|Plr)\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 		// eg: C.Dave.?? or Plr.??
 		new Regex( @"^R\.\w+\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 		// eg: R.Kitchen.??
 		new Regex( @"^(?:I\.\w+|item)\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 		// eg: item. or I.Spanner.??
 		new Regex( @"^(?:D\.\w+)\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 		// eg: D.TalkSister.??
 		new Regex( @"^(?:O\.\w+|option)\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 		// eg: O.AskAboutHats.??
-		new Regex( @"^(?:G\.\w+)\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 		// eg: G.InfoBar.??
+		new Regex( @"^(?:G\.\w+|Gui|Data)\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 		// eg: G.InfoBar.?? or Gui.
 		new Regex( @"^(?:H\.\w+|hotspot)\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ),  // eg: hotspot. or Hotspot.Door.??
 		new Regex( @"^(?:P\.\w+|prop)\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 	// eg: prop. or Prop.Door.??
 		new Regex( @"^(?:Regions\.\w+|region)\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ),  // eg: region. or Region.Door.??
@@ -115,9 +119,11 @@ public partial class QuestScriptEditor
 		new Regex( @"^(?:Buttons\.\w+|button)\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 	// eg: button. or Buttons.blah.??
 		new Regex( @"^(?:Images\.\w+)\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 	// eg: Images.blah.??
 		new Regex( @"^(?:Labels\.\w+)\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 	// eg: Labels.blah.??
+		new Regex( @"^(?:Sliders\.\w+)\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 	// eg: Sliders.blah.??
 		new Regex( @"^Globals\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 		// eg: Globals.??
 		new Regex( @"^Audio\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 		// eg: Audio.??
 		new Regex( @"^Camera\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 		// eg: Camera.??
+		new Regex( @"^Cursor\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 		// eg: Cursor.??
 		new Regex( @"^Settings\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 	// eg: Settings.??
 		new Regex( @"^e[A-Z]\w*\.(\w*)$", RegexOptions.Compiled ), 	// eg: eStateWindow.??
 		new Regex( @"^[CRIG]\.\w+\.Script\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 		// eg: C.Fred.Script. // eg: R.Kitchen.Script. // eg: I.Bucket.Script. // eg: G.Prompt.Script.
@@ -146,6 +152,7 @@ public partial class QuestScriptEditor
 		false,	// Buttons,		
 		false,	// Images,		
 		false,	// Labels,		
+		false,	// Sliders,		
 		true,	// IEngine,	
 		true,	// ICharacter, 
 		true,	// IRoom,		
@@ -160,9 +167,11 @@ public partial class QuestScriptEditor
 		true, 	// IButton,	
 		true, 	// IImage,	
 		true, 	// ILabel,	
+		true, 	// ISlider,	
 		true,	// Globals,	
 		true,	// Audio,		
 		true,	// ICamera,	
+		true,   // ICursor
 		true,	// Settings,	
 		false,	// eStateBlah.
 		true,	// ObjectScript		
@@ -196,7 +205,7 @@ public partial class QuestScriptEditor
 	#endregion
 	#region Functions: 
 
-	public void BuildAutoCompleteLists(bool onRoomChange = false)
+	public void BuildAutoCompleteLists(bool onRoomChange = false, eAutoCompleteContext specificContext = eAutoCompleteContext.Ignored )
 	{
 		if ( PowerQuestEditor.IsReady() == false )
 			return;
@@ -239,6 +248,8 @@ public partial class QuestScriptEditor
 
 		for ( ; context < eAutoCompleteContext.Count; ++context )
 		{
+			if ( specificContext != eAutoCompleteContext.Ignored && specificContext != context )
+				continue; // Sometimes a specific type is specified (eg: audio/animation lists)
 
 			if ( onRoomChange && context != eAutoCompleteContext.Hotspots && context != eAutoCompleteContext.Props && context != eAutoCompleteContext.Regions && context != eAutoCompleteContext.Points && context != eAutoCompleteContext.None )
 				continue; // When changing rooms, only update list of room items (and in future, the script)
@@ -309,6 +320,7 @@ public partial class QuestScriptEditor
 					if ( m_scriptType == eType.Gui )
 					{
 						contextList.Add("Data");
+						contextList.Add("Gui");
 						contextList.Add("control");
 					}
 
@@ -347,8 +359,9 @@ public partial class QuestScriptEditor
 						dialogTree.Options.ForEach( item=> contextList.Add(item.Name));
 				} break;
 			case eAutoCompleteContext.Guis:
-				{
-					PowerQuestEditor.GetPowerQuest().GetGuiPrefabs().ForEach( item=> contextList.Add(item.GetData().ScriptName) );
+				{				
+					//contextList.AddRange( AC_KEYWORDS_G );
+					PowerQuestEditor.GetPowerQuest().GetGuiPrefabs().ForEach( item=> {if ( item != null )contextList.Add(item.GetData().ScriptName);} );
 				} break;
 			case eAutoCompleteContext.Hotspots:
 				{ 
@@ -371,21 +384,10 @@ public partial class QuestScriptEditor
 						room.GetData().GetPoints().ForEach( item=> contextList.Add(item.m_name) );
 				} break;
 			case eAutoCompleteContext.Controls:
-				{ 
-					if ( gui != null ) 
-						gui.GetControlComponents().ForEach( item=> contextList.Add(item.ScriptName) );
-				} break;
 			case eAutoCompleteContext.Buttons:
-				{ 
-					if ( gui != null ) 
-						gui.GetControlComponents().ForEach( item=> contextList.Add(item.ScriptName) );
-				} break;
 			case eAutoCompleteContext.Images:
-				{ 
-					if ( gui != null ) 
-						gui.GetControlComponents().ForEach( item=> contextList.Add(item.ScriptName) );
-				} break;
 			case eAutoCompleteContext.Labels:
+			case eAutoCompleteContext.Sliders:
 				{ 
 					if ( gui != null ) 
 						gui.GetControlComponents().ForEach( item=> contextList.Add(item.ScriptName) );
@@ -473,23 +475,30 @@ public partial class QuestScriptEditor
 				} break;
 			case eAutoCompleteContext.IButton:
 				{
-					System.Array.ForEach(typeof(IButton).GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance),
+					System.Array.ForEach(typeof(IButton).GetMethods(BindingFlags.Public | BindingFlags.Instance),
 						item => {if (item.IsSpecialName == false && item.Name[0] !='<') contextList.Add(item.Name + "(" + (item.GetParameters().Length > 0 ? string.Empty : ")"));} );
-					System.Array.ForEach(typeof(IButton).GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance),
+					System.Array.ForEach(typeof(IButton).GetProperties(BindingFlags.Public | BindingFlags.Instance),
 						item => contextList.Add(item.Name) );
 				} break;
 			case eAutoCompleteContext.IImage:
 				{
-					System.Array.ForEach(typeof(IImage).GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance),
+					System.Array.ForEach(typeof(IImage).GetMethods(BindingFlags.Public | BindingFlags.Instance),
 						item => {if (item.IsSpecialName == false && item.Name[0] !='<') contextList.Add(item.Name + "(" + (item.GetParameters().Length > 0 ? string.Empty : ")"));} );
-					System.Array.ForEach(typeof(IImage).GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance),
+					System.Array.ForEach(typeof(IImage).GetProperties(BindingFlags.Public | BindingFlags.Instance),
 						item => contextList.Add(item.Name) );
 				} break;
 			case eAutoCompleteContext.ILabel:
 				{
-					System.Array.ForEach(typeof(ILabel).GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance),
+					System.Array.ForEach(typeof(ILabel).GetMethods(BindingFlags.Public | BindingFlags.Instance),
 						item => {if (item.IsSpecialName == false && item.Name[0] !='<') contextList.Add(item.Name + "(" + (item.GetParameters().Length > 0 ? string.Empty : ")"));} );
-					System.Array.ForEach(typeof(ILabel).GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance),
+					System.Array.ForEach(typeof(ILabel).GetProperties(BindingFlags.Public | BindingFlags.Instance),
+						item => contextList.Add(item.Name) );
+				} break;
+			case eAutoCompleteContext.ISlider:
+				{
+					System.Array.ForEach(typeof(ISlider).GetMethods( BindingFlags.Public | BindingFlags.Instance),
+						item => {if (item.IsSpecialName == false && item.Name[0] !='<') contextList.Add(item.Name + "(" + (item.GetParameters().Length > 0 ? string.Empty : ")"));} );
+					System.Array.ForEach(typeof(ISlider).GetProperties( BindingFlags.Public | BindingFlags.Instance),
 						item => contextList.Add(item.Name) );
 				} break;
 			case eAutoCompleteContext.Globals:
@@ -516,6 +525,13 @@ public partial class QuestScriptEditor
 					System.Array.ForEach(typeof(ICamera).GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance),
 						item => contextList.Add(item.Name) );
 				} break;
+			case eAutoCompleteContext.ICursor:
+				{					
+					System.Array.ForEach(typeof(ICursor).GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance ),
+						item => {if (item.IsSpecialName == false && item.Name[0] !='<') contextList.Add(item.Name + "(" + (item.GetParameters().Length > 0 ? string.Empty : ")"));} );
+					System.Array.ForEach(typeof(ICursor).GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance),
+						item => contextList.Add(item.Name) );
+				} break;
 			case eAutoCompleteContext.Settings:
 				{
 					System.Array.ForEach(typeof(QuestSettings).GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance),
@@ -528,11 +544,15 @@ public partial class QuestScriptEditor
 			case eAutoCompleteContext.AnimProp:
 				{						
 					if ( room != null )
+					{
 						room.GetAnimations().ForEach( item=>  { if ( item != null ) contextList.Add($"\"{item.name}\""); } );
+						// TODO: I guess now we should add animation names too... but only if there's no anim for it?
+						// room.GetSprites().ForEach( item=>  { if ( item != null ) contextList.Add($"\"{item.name}\""); } );
+					}
 				} break;
 			case eAutoCompleteContext.Sound:
 				{
-					PowerQuestEditor.Get.GetSystemAudio().EditorGetAudioCues().ForEach( item=>  { if ( item != null ) contextList.Add($"\"{item.name}\""); } );					
+					PowerQuestEditor.Get.GetSystemAudio().EditorGetAudioCues().ForEach( item=>  { if ( item != null ) contextList.Add($"\"{item.name}\""); } );
 				} break;
 			}
 			contextList = contextList.Distinct().ToList();
@@ -542,7 +562,7 @@ public partial class QuestScriptEditor
 	}
 
 
-	void UpdateAutoComplete(bool force = false)
+	void UpdateAutoComplete(bool force)
 	{
 
 		// Work back until whitespace
@@ -865,6 +885,7 @@ public partial class QuestScriptEditor
 			case eAutoCompleteContext.Globals: type = typeof(GlobalScript); break;	
 			case eAutoCompleteContext.Audio: type = typeof(SystemAudio); break;	
 			case eAutoCompleteContext.ICamera: type = typeof(ICamera); break;	
+			case eAutoCompleteContext.ICursor: type = typeof(ICursor); break;	
 			case eAutoCompleteContext.Settings: type = typeof(QuestSettings); break;	
 			case eAutoCompleteContext.ObjectScript: type = m_lastObjectScriptType;  break;
 		}

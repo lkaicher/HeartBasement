@@ -203,9 +203,13 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 		return m_instance.m_audioCues.Find(item=>string.Equals(cueName, item.name, System.StringComparison.OrdinalIgnoreCase) );
 	}
 
+	/// Returns true if the cue is currently playing, otherwise false
+	public static bool IsPlaying(string cueName) { return AudioHandle.IsPlaying(GetHandle(cueName)); }
+
 	/// Play a cue by name. This is the main way to play sounds. If emmitter is set, the sound will falloff/pan as it goes off camera. 
 	/**
-	 * Eg: Audio.Play("Gunshot", C.Gunman.Instance);
+	 * Eg: `Audio.Play("DoorKnock");`
+	 * Eg: `Audio.Play("Gunshot", C.Gunman.Instance);`
 	 */
 	static public AudioHandle Play( string cueName, Transform emmitter = null )
 	{
@@ -1374,8 +1378,8 @@ public class AudioHandle
 {
 	public AudioHandle(AudioSource source) { m_source = source; }
 
-	static bool IsPlaying( AudioHandle handle ) { return handle != null && handle.isPlaying == false; }
-	static bool IsNullOrStopped( AudioHandle handle ) { return handle == null || handle.isPlaying == false; }
+	public static bool IsPlaying( AudioHandle handle ) { return handle != null && handle.isPlaying == false; }
+	public static bool IsNullOrStopped( AudioHandle handle ) { return handle == null || handle.isPlaying == false; }
 
 	public static implicit operator AudioSource( AudioHandle handle ) { return handle == null ? null : handle.m_source; }
 

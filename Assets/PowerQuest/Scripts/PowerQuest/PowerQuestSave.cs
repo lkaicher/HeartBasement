@@ -15,6 +15,10 @@ namespace PowerTools.Quest
 
 public partial class PowerQuest
 {
+	public static readonly string SAV_SETTINGS = "Settings";
+	public static readonly string SAV_SETTINGS_FILE = "Settings.sav";
+	public static readonly int SAV_SETTINGS_VER = 0;
+	public static readonly int SAV_SETTINGS_VER_REQ = 0;
 
 	#region Variables: Private
 
@@ -22,14 +26,56 @@ public partial class PowerQuest
 
 	#endregion
 	#region Functions: Save/Load public functions
+	
+
+	public bool SaveSettings()
+	{
+		Dictionary<string, object> data = new Dictionary<string, object>();
+		data.Add(SAV_SETTINGS,m_settings );
+		return m_saveManager.Save(SAV_SETTINGS_FILE, SAV_SETTINGS, SAV_SETTINGS_VER, data);
+	}
+
+	// Settings are automatically restored on game start and reset.
+	public bool RestoreSettings()
+	{
+		Dictionary<string, object> data = null;
+		int restoredVersion = -1;
+		bool result = m_saveManager.RestoreSave(SAV_SETTINGS_FILE, SAV_SETTINGS_VER_REQ, out restoredVersion, out data);		
+		if ( result )
+		{
+			if ( data.ContainsKey(SAV_SETTINGS) )
+				m_settings = data[SAV_SETTINGS] as QuestSettings;		
+			
+			m_settings.OnPostRestore(restoredVersion);			
+		}
+
+		return result;
+	}
 
 	public List<QuestSaveSlotData> GetSaveSlotData() { return m_saveManager.GetSaveSlotData(); }
 	public QuestSaveSlotData GetSaveSlotData( int slot ) { return m_saveManager.GetSaveSlot(slot); }
-	public bool Save(int slot, string description)
-	{
-		Dictionary<string, object> data = new Dictionary<string, object>();
-		// TODO: add anything we want to save to the data
+	public QuestSaveSlotData GetLastSaveSlotData() 
+	{ 
+		QuestSaveSlotData lastData = null;
+		foreach( QuestSaveSlotData data in GetSaveSlotData())
+		{
+			if ( lastData == null || data.m_timestamp > lastData.m_timestamp )
+				lastData = data;
+		}
+		return lastData;
+	}
 
+	public bool Save(int slot, string description, Texture2D imageOverride = null)
+	{
+		// Check we're not currently saving a game. This could happen if "Save" is called in OnEnter (since that'll be called again when you restore)
+		if ( GetRestoringGame() )
+			return false;
+
+		// Save settings when regular game is saved whynot
+		SaveSettings();
+
+		Dictionary<string, object> data = new Dictionary<string, object>();
+		
 		foreach( Character value in m_characters )
 		{
 			data.Add( "Char"+value.GetScriptName(), value );
@@ -54,7 +100,8 @@ public partial class PowerQuest
 		data.Add("Global",m_globalScript );
 		data.Add("Camera", m_cameraData );
 		data.Add("Cursor", m_cursor );
-		data.Add("Settings",m_settings );
+		data.Add("Audio", SystemAudio.Get.GetSaveData());
+		//data.Add("Settings",m_settings );
 		data.Add("SV", m_savedVars);
 		data.Add("Extra", 
 			new ExtraSaveData() 
@@ -62,19 +109,64 @@ public partial class PowerQuest
 				//m_paused = Paused,
 				m_player = m_player.ScriptName,
 				m_currentDialog = m_currentDialog != null ? m_currentDialog.ScriptName : string.Empty,
+				m_displayBoxGui = this.m_displayBoxGui,
+				m_dialogTreeGui = this.m_dialogTreeGui,
+				m_customSpeechGui = this.m_customSpeechGui,
+				m_speechStyle = this.m_speechStyle,
+				m_speechPortraitLocation = this.m_speechPortraitLocation,
+				m_transitionFadeTime = this.m_transitionFadeTime,
 			});
-		data.Add("Audio", SystemAudio.Get.GetSaveData());
 
-		return m_saveManager.Save(slot, description, m_saveVersion, data);
+		Texture2D image = imageOverride;
+		Camera cam = m_cameraData?.Camera;		
+		if ( image == null && cam != null && m_saveScreenshotHeight > 0 )
+		{
+			int imageHeight = m_saveScreenshotHeight;			
+			int imageWidth = Mathf.CeilToInt(imageHeight * cam.aspect);
+
+			// Take screenshot for image
+			RenderTexture currentRT = RenderTexture.active;				
+			RenderTexture.active = new RenderTexture(imageWidth,imageHeight,16, RenderTextureFormat.ARGB32,0);
+			
+			RenderTexture currCamTex = cam.targetTexture;
+			cam.targetTexture = RenderTexture.active;
+
+			Texture2D tex = new Texture2D(imageWidth, imageHeight, TextureFormat.ARGB32, false);
+			cam.Render(); 
+			image = new Texture2D(cam.targetTexture.width, cam.targetTexture.height);
+			image.ReadPixels(new Rect(0, 0, cam.targetTexture.width, cam.targetTexture.height), 0, 0);
+			image.Apply();
+			RenderTexture.active = currentRT;
+			cam.targetTexture = currCamTex;
+			
+			/*	Test code to preview screenshot as file /
+			var Bytes = image.EncodeToPNG(); 
+			System.IO.File.WriteAllBytes(Application.dataPath + "test.png", Bytes);
+			/**/
+		}
+
+		return m_saveManager.Save(slot, description, m_saveVersion, data, image);
+	}
+
+	public bool RestoreLastSave()
+	{
+		// Restores the most recently saved game, based on timestamp
+		QuestSaveSlotData lastData = GetLastSaveSlotData();
+		if ( lastData == null )
+			return false;
+		return RestoreSave(lastData.m_slotId);
 	}
 
 	public bool RestoreSave(int slot)
 	{
+		if ( GetSaveSlotData(slot) == null )
+			return false;
+
 		Dictionary<string, object> data = null;
 		int restoredVersion = -1;
 
 		// Stop all coroutines
-		StopAllCoroutines();				
+		StopAllCoroutines();
 		GetMenuManager().ResetFade(); // Reset fade, so if faded out when restored the game doesn't start faded out. Note that this means you might want to do another 'FadeOutBG(0)' after this function is called, if you want a slower fadein.
 		m_consumedInteraction = null;
 		m_coroutineMainLoop = null;
@@ -113,9 +205,14 @@ public partial class PowerQuest
 			for( int i = 0; i < m_guis.Count; ++i )
 			{
 				Gui value = m_guis[i];
+				MonoBehaviour guiInstance = value.Instance;
 				string name = "Gui"+value.GetScriptName();
-				if ( data.ContainsKey(name ) )
+				if ( data.ContainsKey(name) )
+				{
 					m_guis[i] = data[name] as Gui;
+					if ( guiInstance != null )
+						m_guis[i].SetInstance(guiInstance as GuiComponent);
+				}
 			}
 			for( int i = 0; i < m_inventoryItems.Count; ++i )
 			{
@@ -145,12 +242,18 @@ public partial class PowerQuest
 				string name = "Cursor";
 				if ( data.ContainsKey(name) )
 					m_cursor = data[name] as QuestCursor;
-			}
+			}			
 			{
+				string name = "Audio";
+				if ( data.ContainsKey(name) )
+					SystemAudio.Get.RestoreSaveData(data[name]);
+			}
+			// Settings moved to its own save
+			/*{
 				string name = "Settings";
 				if ( data.ContainsKey(name) )
 					m_settings = data[name] as QuestSettings;
-			}
+			}*/
 			{
 				string name = "SV";
 				if ( data.ContainsKey(name) )
@@ -164,13 +267,15 @@ public partial class PowerQuest
 					ExtraSaveData extraSaveData = data[name] as ExtraSaveData;
 					SetPlayer( GetCharacter(extraSaveData.m_player) );
 					m_currentDialog = GetDialogTree(extraSaveData.m_currentDialog);
-					//Paussed = extraSaveData.m_paused;
+					
+					m_displayBoxGui = extraSaveData.m_displayBoxGui;
+					m_dialogTreeGui = extraSaveData.m_dialogTreeGui;
+					m_customSpeechGui = extraSaveData.m_customSpeechGui;
+					m_speechStyle = extraSaveData.m_speechStyle;
+					m_speechPortraitLocation = extraSaveData.m_speechPortraitLocation;
+					m_transitionFadeTime = extraSaveData.m_transitionFadeTime;
+					// Paused = extraSaveData.m_paused;
 				}
-			}
-			{
-				string name = "Audio";
-				if ( data.ContainsKey(name) )
-					SystemAudio.Get.RestoreSaveData(data[name]);
 			}
 
 			//
@@ -213,7 +318,8 @@ public partial class PowerQuest
 
 				m_cursor.OnPostRestore(restoredVersion, m_cursorPrefab.gameObject);				
 
-				m_settings.OnPostRestore(restoredVersion/*, m_cursorPrefab.gameObject*/);
+				// Settings moved
+				//m_settings.OnPostRestore(restoredVersion/*, m_cursorPrefab.gameObject*/);
 
 				// update region collision to initial state
 				{

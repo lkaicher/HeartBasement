@@ -22,7 +22,7 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 	public static readonly Vector2[] FACE_DIRECTIONS = { Vector2.left, Vector2.right, Vector2.down, Vector2.up, new Vector2(-1,-1).normalized, new Vector2(1,-1).normalized, new Vector2(-1,1).normalized, Vector2.one.normalized }; 
 
 	[System.Serializable]
-	public class CollectedItem
+	public partial class CollectedItem
 	{
 		public string m_name = string.Empty; // String rather than reference to make saving/loading easy
 		public float m_quantity = 1; // Why a float? Well, maybe you have half a cup of water, I don't know!
@@ -77,6 +77,7 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 
 	[Header("Movement Defaults")]
 	[SerializeField] Vector2 m_walkSpeed = new Vector2(50,50);
+	Vector2 m_defaultWalkSpeed = -Vector2.one; // Default walkspeed starts at zero, 
 	[SerializeField] bool m_moveable = true;    // Whether character can walk
 	[Tooltip("If true, this character will walk around other characters marked as solid (Using their Solid Size)")]
 	[SerializeField] bool m_solid = false;
@@ -94,8 +95,10 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 	[SerializeField] string m_animWalk = "Walk";
 	[SerializeField] string m_animTalk = "Talk";
 	[SerializeField] string m_animMouth = string.Empty;
+	[SerializeField] string m_animShadow = "";
 	[SerializeField] bool m_useRegionTinting = true;
-	[SerializeField] bool m_useRegionScaling = true;
+	[SerializeField] bool m_useRegionScaling = true;	
+	[SerializeField, Tooltip("Dialog text offset from the top of the sprite, added to the global one set in PowerQuest settings")] Vector2 m_textOffset = Vector2.zero;
 	[SerializeField, Tooltip("To use, talk anims should be frames ABCDEFX in that order from https://github.com/DanielSWolf/rhubarb-lip-sync. Rhubarb must be downloaded to Project/Rhubarb/Rhubarb.exe")] 
 	bool m_LipSyncEnabled = false;
 
@@ -160,16 +163,19 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 	bool m_clickableWhenEnabled = true;
 	bool m_solidWhenEnabled = false;
 
-	string m_animOverride = null; // Used when Animation property is set	
+	string m_animPrefix = null;    // When playing an animation, try to find one with this prefix first
+	string m_animOverride = null;  // Used when Animation property is set	
 	bool m_pauseAnimAtEnd = false; // If true, animation (from PlayAnimation()) will pause on last frame and not return to Idle (Until StopAnimation is called).
-	float m_animationTime = -1; // Normalised time of current animation, cached here for save/loading from/to animations
-	float m_loopStartTime = -1; // whether a loop tag was hit, and at what time
-	float m_loopEndTime = -1;   // whether a loop end tag was hit, and at what time
+	float m_animationTime = -1;    // Normalised time of current animation, cached here for save/loading from/to animations
+	float m_loopStartTime = -1;    // whether a loop tag was hit, and at what time
+	float m_loopEndTime = -1;      // whether a loop end tag was hit, and at what time
 	
 	List<Vector2> m_waypoints = new List<Vector2>();
 
 	// Variables for facing characters
 	FaceCharacterData m_faceChar = null;
+	
+	bool m_shadowOn = true;
 	
 	// Hack for data inside the character that we explicitly don't want to save
 	[QuestSave] // this actually means the class is saved but, any fields inside without [QuestSave] will be ommitted
@@ -178,6 +184,7 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 		public Room m_roomCached = null;
 	}
 	NonSavedData m_nonSavedData = new NonSavedData();
+	
 
 	#endregion 
 	#region Properties
@@ -198,8 +205,11 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 		get 
 		{ 
 			// Ugly caching for efficiency
-			if ( m_nonSavedData.m_roomCached == null || m_room != m_nonSavedData.m_roomCached.ScriptName )
+			if ( string.IsNullOrEmpty(m_room) )
+				m_nonSavedData.m_roomCached = null;				
+			else if ( m_nonSavedData.m_roomCached == null || m_room != m_nonSavedData.m_roomCached.ScriptName )
 				m_nonSavedData.m_roomCached = PowerQuest.Get.GetRoom(m_room);
+
 			return m_nonSavedData.m_roomCached; 
 		} 
 		set
@@ -271,7 +281,17 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 	public List<Vector2> Waypoints { get { return m_waypoints; } }
 
 	public float Baseline { get{return m_baseline;} set{m_baseline = value;} }
-	public Vector2 WalkSpeed { get{ return m_walkSpeed; } set { m_walkSpeed = value; } }
+	public Vector2 WalkSpeed 
+	{
+		get{ return m_walkSpeed; } 
+		set 
+		{  
+			if ( m_defaultWalkSpeed.x < 0 )
+				m_defaultWalkSpeed = m_walkSpeed;
+			m_walkSpeed = value; 
+		} 
+	}
+	public void ResetWalkSpeed() { if ( m_defaultWalkSpeed.x > 0 )  WalkSpeed = m_defaultWalkSpeed; }
 	public bool TurnBeforeWalking { get{ return m_turnBeforeWalking; } set { m_turnBeforeWalking = value; } }
 	public bool TurnBeforeFacing { get{ return m_turnBeforeFacing; } set { m_turnBeforeFacing = value; } }
 	public float TurnSpeedFPS { get{ return m_turnSpeedFPS; } set { m_turnSpeedFPS = value; } }
@@ -521,6 +541,17 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 			if ( m_instance != null && changed ) m_instance.OnAnimationChanged( eState.Talk );
 		}
 	}
+	public string AnimPrefix
+	{
+		get { return m_animPrefix; }
+		set
+		{
+			bool changed = m_animPrefix != value;
+			m_animPrefix = value;
+			if ( m_instance != null && changed ) m_instance.OnAnimationChanged( eState.None );
+
+		}
+	}
 
 	public bool LipSyncEnabled
 	{
@@ -562,8 +593,19 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 	public Vector2 WalkToPoint { get{ return m_walkToPoint;} set{m_walkToPoint = value;} }
 	public Vector2 LookAtPoint { get{ return m_lookAtPoint;} set{m_lookAtPoint = value;} }
 	//public bool WalkToSymmetrical { get{ return m_walkToSymmetrical ;} set{m_walkToSymmetrical = value;} }
-
+		
+	public Vector2 TextPositionOffset { get { return m_textOffset; } set { m_textOffset = value; } }
 	public Vector2 TextPositionOverride { get{ return m_textPositionOverride; } set { m_textPositionOverride = value; } }
+	
+	public void SetTextPosition(Vector2 worldPosition) { TextPositionOverride = worldPosition; }
+	public void SetTextPosition(float worldPosX, float worldPosY)  { TextPositionOverride = new Vector2(worldPosX,worldPosY); }
+	public void LockTextPosition()
+	{ 
+		if ( m_instance != null )
+			TextPositionOverride = m_instance.GetTextPosition();
+		TextPositionOverride = Position;
+	}
+	public void ResetTextPosition() { TextPositionOverride = Vector2.zero; }
 	
 	public void StartFacingCharacter(ICharacter character, float minWaitTime = 0.2f, float maxWaitTime = 0.4f) 
 	{ 
@@ -667,10 +709,6 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 		if ( invItem == null ) 
 			return;
 
-		invItem.OnCollected();
-		if ( PowerQuest.Get.CallbackOnInventoryCollected != null )
-			PowerQuest.Get.CallbackOnInventoryCollected.Invoke(Data,invItem);
-
 		if ( invItem.Stack )
 		{
 			// Find existing and increment quantity
@@ -696,6 +734,10 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 			if ( m_inventoryAllTime.Contains(itemName) == false )
 				m_inventoryAllTime.Add(itemName);
 		}
+
+		invItem.OnCollected();
+		if ( PowerQuest.Get.CallbackOnInventoryCollected != null )
+			PowerQuest.Get.CallbackOnInventoryCollected.Invoke(Data,invItem);
 
 	}
 	
@@ -745,6 +787,22 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 	public bool GetEverHadInventory(IInventory item) { return GetEverHadInventory(item?.ScriptName); }
 	public void AddInventory(IInventory item, float quantity = 1) { AddInventory( item?.ScriptName,quantity ); }
 	public void RemoveInventory( IInventory item, float quantity = 1 ) { RemoveInventory( item?.ScriptName,quantity ); }
+	
+	/// Replaces an inventory item with another (keeping the same slot position)
+	public void ReplaceInventory(IInventory oldItem, IInventory newItem)
+	{	
+		// Add new item to the end
+		AddInventory(newItem);
+		
+		// Find the index of the one we're replacing
+		int oldIndex = GetInventory().FindIndex(item=>item.m_name==oldItem.ScriptName);
+		if ( oldIndex >= 0 )
+		{
+			// If found, swap positions, and remove the old inventory item
+			GetInventory().Swap(oldIndex,GetInventory().Count-1);
+			RemoveInventory(oldItem);
+		}
+	}
 
 	public AudioSource GetDialogAudioSource() { return m_dialogAudioSource; }
 		
@@ -782,7 +840,7 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 		m_prefab = prefab;
 		if ( m_script == null ) // script could be null if it didn't exist in old save game, but does now.
 			m_script = QuestUtils.ConstructByName<QuestScript>(m_scriptClass);
-
+			
 		/*	NB: The below doesn't work because instance won't have loaded yet.
 		
 		// Set the clickable collider to enable the correct collision after restoring
@@ -801,10 +859,8 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 		// Construct the script
 		m_script = QuestUtils.ConstructByName<QuestScript>(m_scriptClass);
 
-		// Deep copy inventory
-		List<CollectedItem> defaultInventory = m_inventory;
-		m_inventory = new List<CollectedItem>();
-		QuestUtils.CopyFields(m_inventory, defaultInventory);
+		// Deep copy inventory	
+		m_inventory = QuestUtils.CopyListFields(m_inventory);  // The points will have been shallow copied already, but we want a deep copy.
 
 		// Add starting inventory to m_inventoryAllTime
 		m_inventoryAllTime.Clear();
@@ -813,6 +869,9 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 			if ( m_inventoryAllTime.Contains(item.m_name) == false )
 				m_inventoryAllTime.Add(item.m_name);
 		}
+
+		// Hack to reset non-saved data stuff. We don't want to use the cached one from the prefab.
+		m_nonSavedData = new NonSavedData();
 	}
 
 
@@ -993,7 +1052,9 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 
 	// Face enum direction
 	public Coroutine Face( eFace direction, bool instant = false )
-	{
+	{		
+		if ( direction == eFace.None )
+			return null;
 		if ( PowerQuest.Get.GetRoomLoading() || PowerQuest.Get.GetSkippingCutscene() || m_instance == null || Visible == false )
 			instant = true;		
 		if ( Walking && m_turnBeforeWalking == false )
@@ -1001,6 +1062,7 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 		if ( Walking == false && m_turnBeforeFacing == false )
 			instant = true;
 		
+		eFace oldFacingVerticalFallback = m_facingVerticalFallback;
 		m_targetFaceDirection = direction;
 		if ( direction != eFace.Up && direction != eFace.Down )
 			m_facingVerticalFallback = CharacterComponent.ToCardinal(direction);
@@ -1014,7 +1076,7 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 		}
 
 		// Check for animation- if so, snap direction immediately
-		if ( m_instance.StartTurnAnimation())
+		if ( m_instance.StartTurnAnimation(oldFacingVerticalFallback))
 		{
 			m_faceDirection = direction; // set this to snap to target
 			if ( m_instance != null ) 
@@ -1186,6 +1248,11 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 		if ( m_instance != null ) m_instance.StopAnimation();
 	}
 
+	public void SkipTransition()
+	{
+		if ( m_instance != null ) m_instance.SkipTransition();
+	}
+
 
 	public void AddAnimationTrigger(string triggerName, bool removeAfterTriggering, System.Action action )
 	{
@@ -1231,6 +1298,33 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 			FaceBG(PowerQuest.Get.GetCharacter(m_faceChar.m_character) as IQuestClickable);
 		}
 	}
+
+	public string AnimShadow 
+	{
+		get { return m_animShadow; }
+		set 
+		{
+			if ( m_animShadow == value)
+				return;
+			m_animShadow = value;
+			if ( m_instance )
+				m_instance.UpdateShadow();
+		}
+	}
+	public bool ShadowEnabled 
+	{
+		get { return m_shadowOn; } 
+		set
+		{
+			if ( m_shadowOn == value )
+				return;
+			m_shadowOn = value;
+			if ( m_instance != null )
+				m_instance.UpdateShadow();
+		}
+	}
+	public void ShadowOn() { ShadowEnabled = true; }
+	public void ShadowOff(){ ShadowEnabled = false; }
 
 	#endregion
 	#region Funcs: Private
@@ -1384,47 +1478,55 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 	void StartSay(string line, int id = -1, bool background = false )
 	{		
 		//Debug.Log(Description() + ": " + line);	
+		
+		PowerQuest powerQuest = PowerQuest.Get;
 
 		// Get translated string
 		line = SystemText.GetDisplayText(line, id, m_scriptName, IsPlayer);
 
 		// Start audio (if enabled)
 		SystemAudio.Stop(m_dialogAudioSource);
-		if ( PowerQuest.Get.Settings.DialogDisplay != QuestSettings.eDialogDisplay.TextOnly )
+		if ( powerQuest.Settings.DialogDisplay != QuestSettings.eDialogDisplay.TextOnly )
 		{
 			m_dialogAudioSource = SystemText.PlayAudio(id, m_scriptName, (m_instance!= null?m_instance.transform:null));
 		}
 
 		// Create or set dialog text active (if enabled). TODO: Check if it's background dialog, which should be shown above head
-		if ( PowerQuest.Get.Settings.SpeechStyle != eSpeechStyle.Portrait )
+		GameObject speechObj = null;
+		eSpeechStyle speechStyle = powerQuest.SpeechStyle;	
+		if ( speechStyle == eSpeechStyle.AboveCharacter || speechStyle == eSpeechStyle.Caption )
 		{
 			// Above character speech (Lucasarts style)
-			bool showText = ( m_dialogAudioSource == null || PowerQuest.Get.Settings.DialogDisplay != QuestSettings.eDialogDisplay.SpeechOnly );
+			bool showText = ( m_dialogAudioSource == null || powerQuest.Settings.DialogDisplay != QuestSettings.eDialogDisplay.SpeechOnly );
 			if ( showText )
 			{
 				if (m_dialogText == null )
 				{
-					GameObject go = GameObject.Instantiate(PowerQuest.Get.GetDialogTextPrefab().gameObject) as GameObject;
+					GameObject go = GameObject.Instantiate(powerQuest.GetDialogTextPrefab().gameObject) as GameObject;
 					m_dialogText = go.GetComponent<QuestText>();
 					go.GetComponent<TextMesh>().color = m_textColour;
 				}
-				else 
+				else
 				{
 					m_dialogText.gameObject.SetActive(true);
 				}
-				
-				// Hack: For customisation, send some messages to the dialog text
-				m_dialogText?.SendMessage("MsgSetCharacter",this, SendMessageOptions.DontRequireReceiver);
-				m_dialogText?.SendMessage("MsgSetText",line, SendMessageOptions.DontRequireReceiver);
-				m_dialogText?.SendMessage("MsgSetDialogId",id, SendMessageOptions.DontRequireReceiver);
-				m_dialogText?.SendMessage("MsgSetBackground",background, SendMessageOptions.DontRequireReceiver);
+				speechObj = m_dialogText.gameObject;
 
 				// Convert position to gui camera space
-				if( PowerQuest.Get.Settings.SpeechStyle != eSpeechStyle.Caption )
+				if( speechStyle != eSpeechStyle.Caption )
 				{
-					Vector3 dialogWorldPos = (( m_instance != null ) ? m_instance.GetTextPosition() : m_position).WithZ(m_dialogText.transform.position.z);					
 					m_dialogText.OrderInLayer = background ? -15 : -10;
-					m_dialogText.AttachTo(dialogWorldPos);					
+					if ( m_instance == null )
+					{
+						//Vector2 dialogWorldPos = m_position.WithZ(m_dialogText.transform.position.z);
+						m_dialogText.AttachTo(m_position);					
+					}
+					else 
+					{
+						// Attach with instance transform so it'll move with it.
+						Vector3 dialogWorldPos = m_instance.GetTextPosition();
+						m_dialogText.AttachTo(m_instance.transform, dialogWorldPos);
+					}
 				}
 			}
 
@@ -1438,18 +1540,20 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 				m_dialogText.SetText(line);
 			}
 		}
-		else // ( PowerQuest.Get.Settings.SpeechStyle == eSpeechStyle.Portrait )
+		
+		else 
 		{
-			// Show next to portrait (Sierra style)
-			// TOOD: work out if should show text // bool showText = ( m_dialogAudioSource == null || PowerQuest.Get.Settings.DialogDisplay != QuestSettings.eDialogDisplay.SpeechOnly );
+			string guiName = (speechStyle == eSpeechStyle.Portrait ) ? "SpeechBox" : powerQuest.CustomSpeechGui;
+			Gui dialogGui =  powerQuest.GetGui(guiName);
+			if ( dialogGui != null && dialogGui.Instance != null )
+				speechObj = dialogGui.Instance.gameObject;
+		}
 
-			Gui gui = PowerQuest.Get.GetGui("SpeechBox");
-			if ( gui == null || gui.GetInstance() == null )
-				return;
-			gui.Visible = true;
-			gui.Instance.GetComponent<GuiSpeechBoxComponent>().SetText(this, line, id);
-			
-
+		if ( speechObj != null )
+		{
+			ISpeechGui iSpeechGui = speechObj.GetComponent<ISpeechGui>();
+			if ( iSpeechGui != null )
+				iSpeechGui.StartSay(this, line, id, background);
 		}
 	}
 
@@ -1467,9 +1571,31 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 		{
 			m_instance.EndSay();
 		}
-		Gui dialogGui = PowerQuest.Get.GetGui("SpeechBox");
-		if ( dialogGui != null )
-			dialogGui.Visible = false;
+		
+		// Get the speech gameobject
+		GameObject speechObj = null;
+		PowerQuest powerQuest = PowerQuest.Get;
+		eSpeechStyle speechStyle = powerQuest.SpeechStyle;
+		if ( speechStyle == eSpeechStyle.AboveCharacter || speechStyle == eSpeechStyle.Caption )
+		{
+			if ( m_dialogText != null )
+				speechObj = m_dialogText.gameObject;
+		}
+		else 
+		{
+			string guiName = (speechStyle == eSpeechStyle.Portrait ) ? "SpeechBox" : powerQuest.CustomSpeechGui;
+			Gui dialogGui =  powerQuest.GetGui(guiName);
+			if ( dialogGui != null && dialogGui.Instance != null )
+				speechObj = dialogGui.Instance.gameObject;
+		}
+		
+		// Call end say on ISpeechGui component, if found
+		if ( speechObj != null )
+		{
+			ISpeechGui iSpeechGui = speechObj.GetComponent<ISpeechGui>();
+			if ( iSpeechGui != null )
+				iSpeechGui.EndSay(this);
+		}
 	}
 
 	IEnumerator CoroutineWaitForAnimTrigger(string triggerName)
@@ -1489,8 +1615,11 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 		m_animOverride = null;
 		m_animationTime = -1;
 		m_pauseAnimAtEnd = false;
+
+		/* // NB: don't want to reset loop stuff, since that would stop transitioning out when "Stopanimtion" is called.
 		m_loopEndTime = -1;
 		m_loopStartTime = -1;
+		*/
 	}
 
 	#endregion

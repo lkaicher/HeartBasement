@@ -44,8 +44,7 @@ public partial interface IPowerQuest
 	//
 	// Yield instructions
 	//
-
-
+	
 	/// yield return this in an empty function (so it doesn't give an error, and doesn't consume an update cycle like a doing "yield break" does)
 	YieldInstruction Break { get; }
 
@@ -97,6 +96,12 @@ public partial interface IPowerQuest
 	/// Invokes the specified function after the specified time has elapsed (non-blocking). EG: `E.DelayedInvoke(1, ()=/>{ C.Player.FaceLeft(); } );`
 	void DelayedInvoke(float time, System.Action functionToInvoke);
 
+	/// Skips the current line of dialog,
+	void SkipDialog(bool preventEarlySkip = true);
+
+	/// Skips a currently active cutscene- Returns true if a cutscene was skipped
+	bool SkipCutscene();
+
 	/// Returns true if there's a blocking script currently running 
 	bool GetBlocked();
 
@@ -130,13 +135,22 @@ public partial interface IPowerQuest
 	//
 
 	/// Fade the screen from the current FadeColor
-	Coroutine FadeIn( float time = 0.2f, bool skippable = true );
+	Coroutine FadeIn( float time = 0.2f, bool skippable = true);
 	/// Fade the screen to the current FadeColor
 	Coroutine FadeOut( float time = 0.2f, bool skippable = true );
 	/// Fade the screen from the current FadeColor (non-blocking)
 	void FadeInBG( float time = 0.2f );
 	/// Fade the screen to the current FadeColor (non-blocking)
 	void FadeOutBG( float time = 0.2f );
+	
+	/// Fade the screen from the current FadeColor, pass a string as the "source" if you want to be able to fade in/out while other fades are happening
+	Coroutine FadeIn( float time, string source, bool skippable = true );
+	/// Fade the screen to the current FadeColor, pass a string as the "source" if you want to be able to fade in/out while other fades are happening
+	Coroutine FadeOut( float time, string source, bool skippable = true );
+	/// Fade the screen from the current FadeColor (non-blocking), pass a string as the "source" if you want to be able to fade in/out while other fades are happening
+	void FadeInBG( float time, string source );
+	/// Fade the screen to the current FadeColor (non-blocking), pass a string as the "source" if you want to be able to fade in/out while other fades are happening
+	void FadeOutBG( float time, string source );
 
 	/// Returns true if a fadeout/in is currently active
 	bool GetFading();
@@ -297,8 +311,10 @@ public partial interface IPowerQuest
 	/// Returns the Gui Canvas
 	Canvas GetCanvas();
 
-	/// Returns the current mouse position
+	/// Returns the current mouse position in world space
 	Vector2 GetMousePosition();
+	/// Returns the current mouse position in gui space
+	Vector2 GetMousePositionGui(); 
 	/// Returns the "clickable object" that the mouse is over (could be a character, hotspot, etc). Returns null of the mouse cursor isn't over anything
 	IQuestClickable GetMouseOverClickable();
 	/// Returns the type of clickable that the mouse is over as an eQuestClickableType (eg, could be a character, hotspot, etc).
@@ -316,18 +332,28 @@ public partial interface IPowerQuest
 	/// Returns the project's vertical resolution set in PowerQuest
 	float DefaultVerticalResolution { get; }
 
+
+
 	//
 	// Settings
 	//
 
 	/// The game settings object
 	QuestSettings Settings {get;}
-
-
-	/// Sets the text speed multiplier, for slowing/speeding up game text
-	void SetTextSpeedMultiplier(float multiplier);
-	/// Gets the text speed multiplier, for slowing/speeding up game text
-	float GetTextSpeedMultiplier();
+	
+	/// Length of time transition between rooms takes
+	float TransitionFadeTime {get;set;}
+	
+	/// The name of the gui used for "Display Text"
+	string DisplayBoxGui {get;set;}
+	/// The name of the gui used for Dialog Trees
+	string DialogTreeGui {get;set;}
+	/// The name of the gui used for Custom Speech
+	string CustomSpeechGui {get;set;}
+	/// Whether "Display" text is shown regardless of the DialogDisplay setting
+	bool AlwaysShowDisplayText {get;set;}
+	/// Controls how game speech captions are displayed.
+	eSpeechStyle SpeechStyle {get;set;}
 
 	//
 	// Functions for handling mouse clicks on things
@@ -415,10 +441,11 @@ public partial interface IPowerQuest
 	 */
 	int GetOccuranceCount(string uniqueString);
 
-
 	/// Restart the game from the first scene
 	void Restart();
 
+	/// Restart the game on a specific scene, optionally with a specific 'playFromFunction'. Useful for testing.
+	void Restart( IRoom room, string playFromFunction= null );
 
 	/// Helper function that temporarily disables all clickables, except those specified. Useful when you want to set only certain props clickable for a short time. Eg: `E.DisableAllClickablesExcept("Ropes","BrokenGlass");`
 	void DisableAllClickablesExcept(params string[] exceptions);
@@ -440,12 +467,35 @@ public partial interface IPowerQuest
 	List<QuestSaveSlotData> GetSaveSlotData();
 	/// Returns save slot data for a particular save game. The data has info about the name, etc of the save file.
 	QuestSaveSlotData GetSaveSlotData( int slot );
-	/// Saves the game to a particular slot with a particular description
-	bool Save(int slot, string description);
+	/// Returns save slot data for the most recenly saved game. The data has info about the name, etc of the save file.
+	QuestSaveSlotData GetLastSaveSlotData();
+	/// Saves game settings (volume, etc). This is a separate file to game saves. It's called already during game save, but can be done when options have changed too (like when leaving options menu)
+	bool SaveSettings();
+	/// Saves the game to a particular slot with a particular description. 
+	/// You may also override the image or provide extra slot data if desired, this will override the "Screenshot" that would otherwise be saved
+	bool Save(int slot, string description, Texture2D imageOverride = null);
 	/// Restores the game from a particular slot
 	bool RestoreSave(int slot);
+	/// Restores the last game saved
+	bool RestoreLastSave();
 	/// Deletes a save game from a particular slot
 	bool DeleteSave(int slot);
+	
+	// Returns true if game is in process of being restored from a save file.
+	/**
+	Useful in OnEnterAfterFade if you're saving games in OnEnter. eg.
+
+		if ( E.GetRestoringGame() == false )
+			Save(1,"AutoSave");
+
+	Or maybe you need to set something up in OnEnterAfterFade when you restore there. eg.
+
+		if ( E.GetRestoringGame() )
+			E.FadeOutBG(0);
+		Display: My eyes adjust to the darkness
+		E.FadeIn(10);
+	*/
+	bool GetRestoringGame();
 
 	/// Advanced save/restore function: For saving data not in a QuestScript...
 	/**
@@ -575,8 +625,11 @@ public partial interface ICharacter : IQuestClickableInterface
 	/// The position of the character's baseline (for sorting)
 	float Baseline { get;set; }
 
-	/// The speed the character walks horizontally and vertically. Eg: `C.Player.WalkSpeed = new Vector2(10,20);`
-	Vector2 WalkSpeed { get;set; }
+	/// The speed the character walks horizontally and vertically. Eg: `C.Player.WalkSpeed = new Vector2(10,20);` \sa ResetWalkSpeed()
+	Vector2 WalkSpeed { get;set; }	
+
+	/// Resets walk speed to original default from the inspector. So you can set the WalkSpeed property, and easily go back to the original. \sa WalkSpeed
+	void ResetWalkSpeed();
 
 	/// Whether character turns before walking
 	bool TurnBeforeWalking { get;set; }
@@ -629,8 +682,19 @@ public partial interface ICharacter : IQuestClickableInterface
 	bool IsPlayer {get;}
 	/// Gets or sets the text colour for the character's speech text
 	Color TextColour  { get;set; }
-	/// Gets or sets the position the player's dialog text will be shown (in world space). If set to zero, the default will be used (Displayed above the character sprite).
+	/// Gets or sets the position the player's dialog text will be shown (in world space). If set to zero, the default will be used (Displayed above the character sprite). \sa ResetTextPosition() \sa LockTextPosition()
 	Vector2 TextPositionOverride { get;set; }
+	/// Sets the character's text position in world space \sa ResetTextPosition() \sa LockTextPosition()
+	void SetTextPosition(Vector2 worldPosition);
+	/// Sets the character's text position in world space \sa ResetTextPosition() \sa LockTextPosition()
+	void SetTextPosition(float worldPosX, float worldPosY);
+	/// Sets the text position to stay in its current position, even if character moves or is hidden.  \sa ResetTextPosition() \sa SetTextPosition()
+	void LockTextPosition();
+	/// Resets the text position again after a call to SetTextPosition or LockTextPosition  \sa SetTextPosition() \sa LockTextPosition() \sa TextPositionOverride
+	void ResetTextPosition();
+	/// Distance that dialog text is offset from the top of the sprite, added to the global one set in PowerQuest settings. Will flip with the character. Defaults is zero.
+	Vector2 TextPositionOffset { get;set; }
+
 	/// Gets or sets the idle animation of the character
 	string AnimIdle { get;set; }
 	/// Gets or sets the walk animation of the character
@@ -639,6 +703,10 @@ public partial interface ICharacter : IQuestClickableInterface
 	string AnimTalk { get;set; }
 	/// Gets or sets the lipsync mouth animation of the character, attached to a node
 	string AnimMouth { get;set; }
+	/// If an AnimPrefix is set, when an animation is played, the system will check if an anim exists with this prefix, before falling back to the regular anim. 
+	// Eg. if prefix is 'Angry', then, when a 'Walk' anim is played, it'll first check if there's an 'AngryWalk' anim.
+	string AnimPrefix{get;set;}
+
 	/// Gets or sets the cursor to show when hovering over the object. If empty, default active cursor will be used
 	string Cursor { get; set; }
 	/// <summary>
@@ -958,6 +1026,8 @@ public partial interface ICharacter : IQuestClickableInterface
 	void ResumeAnimation();
 	// Stops the current animation- returns to Idle animation
 	void StopAnimation();
+	/// Stops any transition or turning animation, skipping to the end
+	void SkipTransition(); 
 
 	// Gets/Sets name of the sound used for footsteps for this character. Add "Footstep" event in the anim editor (with "Anim prefix" ticked)
 	string FootstepSound {get;set;}
@@ -1055,6 +1125,9 @@ public partial interface ICharacter : IQuestClickableInterface
 
 	/// Remove all inventory items from the player
 	void ClearInventory();
+	
+	/// Replaces an inventory item with another (keeping the same slot position)
+	void ReplaceInventory(IInventory oldItem, IInventory newItem);
 
 	/// PowerQuest internal function: Access to the specific quest script for the character. Pass the specific character class as the templated parameter so you can access specific members of the script. Eg: GetScript<CharacterBob>().m_saidHi = true;
 	T GetScript<T>() where T : CharacterScript<T>;
@@ -1168,11 +1241,11 @@ public partial interface IProp : IQuestClickableInterface
 	/// Set the location of the prop
 	void SetPosition(float x, float y);
 	/// Move the prop over time
-	Coroutine MoveTo(float x, float y, float speed);
+	Coroutine MoveTo(float x, float y, float speed, eEaseCurve curve = eEaseCurve.None);
 	/// Move the prop over time
-	Coroutine MoveTo(Vector2 toPos, float speed);
+	Coroutine MoveTo(Vector2 toPos, float speed, eEaseCurve curve = eEaseCurve.None);
 	/// Move the prop over time, non-blocking
-	void MoveToBG(Vector2 toPos, float speed);
+	void MoveToBG(Vector2 toPos, float speed, eEaseCurve curve = eEaseCurve.None);
 	/// Gets or sets the baseline used for sorting
 	float Baseline { get; set; }
 	/// Gets or sets the walk to point
@@ -1244,9 +1317,12 @@ public partial interface IProp : IQuestClickableInterface
 	Coroutine WaitForAnimTrigger(string eventName);
 
 	/// Fade the sprite's alpha
-	Coroutine Fade(float start, float end, float duration );
+	Coroutine Fade(float start, float end, float duration, eEaseCurve curve = eEaseCurve.Smooth );
 	/// Fade the sprite's alpha (non-blocking)
-	void FadeBG(float start, float end, float duration );
+	void FadeBG(float start, float end, float duration, eEaseCurve curve = eEaseCurve.InOutSmooth );
+	
+	/// Gets/Sets the transparency of the prop
+	float Alpha {get;set;}
 
 	/// Access to the base class with extra functionality used by the PowerQuest
 	Prop Data {get;}
@@ -1404,6 +1480,7 @@ public partial interface IDialogTree
 	List<DialogOption> Options {get;}
 	/// Returns the number of enabled dialog options currently available to the player
 	int NumOptionsEnabled {get;}
+	int NumOptionsUnused {get;}
 
 	/// True the first time the dialog tree is shown (or if its never been shown). 
 	bool FirstTimeShown {get;}
@@ -1590,6 +1667,18 @@ public partial interface ICursor
 	/// Shows or hides the mouse cursor
 	bool Visible  {get;set;}
 
+	/// Gets/Sets a cursor animation that overrides any other. (ones set in the prop, etc)
+	string AnimationOverride {get;set;}
+	
+	/// Disables any AnimationOverride, returning to default behaviour
+	void ResetAnimationOverride();
+
+	/// Plays an animation on the cursor, returning to default once the animation ends.
+	void PlayAnimation(string anim);
+
+	/// Stops any playing animation, returning to default behaviour
+	void StopAnimation();
+
 	/// Gets/Sets the default animation that plays when mouse is over a clickable object
 	string AnimationClickable  {get;set;}
 
@@ -1664,6 +1753,8 @@ public partial interface IGui
 	void ShowBehind(IGui gui);
 	/// Shows the gui, in front of a specific other gui.
 	void ShowInfront(IGui gui);
+
+	bool HasFocus {get;}
 
 	/// Gets or Sets whether this gui blocks clicks behind it
 	bool Modal { get;set; }
@@ -1747,8 +1838,10 @@ public partial interface IButton : IGuiControl
 	
 	Color Color	        {get;set;}
 	Color ColorHover    {get;set;}
-	Color ColorPress    {get;set;}
-	Color ColorInactive {get;set;}
+	Color ColorClick    {get;set;}
+	Color ColorOff {get;set;}
+		
+	bool Clickable {get;set;}
 
 	bool Animating {get;}
 	void PauseAnimation();
@@ -1760,6 +1853,11 @@ public partial interface IButton : IGuiControl
 	void AddAnimationTrigger(string triggerName, bool removeAfterTriggering, System.Action action);
 	void RemoveAnimationTrigger(string triggerName);
 	Coroutine WaitForAnimTrigger(string triggerName);
+		
+	/// Fade the sprite's alpha
+	Coroutine Fade(float start, float end, float duration, eEaseCurve curve = eEaseCurve.Smooth );
+	/// Fade the sprite's alpha (non-blocking)
+	void FadeBG(float start, float end, float duration, eEaseCurve curve = eEaseCurve.InOutSmooth );
 	
 }
 /** Gui Label
@@ -1771,6 +1869,13 @@ public partial interface IButton : IGuiControl
 public partial interface ILabel : IGuiControl
 {	
 	string Text {get;set;}
+	Color Color {get;set;}
+	QuestText TextComponent {get;}
+	
+	/// Fade the sprite's alpha
+	Coroutine Fade(float start, float end, float duration, eEaseCurve curve = eEaseCurve.Smooth );
+	/// Fade the sprite's alpha (non-blocking)
+	void FadeBG(float start, float end, float duration, eEaseCurve curve = eEaseCurve.InOutSmooth );
 }
 
 /** Gui Image
@@ -1792,6 +1897,11 @@ public partial interface IImage : IGuiControl
 	void AddAnimationTrigger(string triggerName, bool removeAfterTriggering, System.Action action);
 	void RemoveAnimationTrigger(string triggerName);
 	Coroutine WaitForAnimTrigger(string triggerName);
+	
+	/// Fade the sprite's alpha
+	Coroutine Fade(float start, float end, float duration, eEaseCurve curve = eEaseCurve.Smooth );
+	/// Fade the sprite's alpha (non-blocking)
+	void FadeBG(float start, float end, float duration, eEaseCurve curve = eEaseCurve.InOutSmooth );
 }
 /** Gui Inventory Panel
 	
@@ -1822,11 +1932,56 @@ public partial interface IInventoryPanel : IGuiControl
 	
 }
 
-/* Future components
+/** Gui Slider
+	
+			Slider.Volume.Clickable = false;			
+			Slider.Volume.Text = "Volume";
+			Audio.Volume = Slider.Volume.Ratio;
+			
+*/	
+public partial interface ISlider : IGuiControl
+{
+	string Description {get;set;}
+	string Cursor {get;set;}
+	
+	string Text {get;set;}
+
+	// How far along the bar the handle is. From 0 to 1
+	float Ratio { get; set; }
+
+	string AnimBar	       {get;set;}
+	string AnimBarHover	   {get;set;}
+	string AnimBarClick	   {get;set;}
+	string AnimBarOff      {get;set;}
+
+	string AnimHandle	   {get;set;}
+	string AnimHandleHover {get;set;}
+	string AnimHandleClick {get;set;}
+	string AnimHandleOff   {get;set;}
+	
+	Color Color	        {get;set;}
+	Color ColorHover    {get;set;}
+	Color ColorClick    {get;set;}
+	Color ColorOff {get;set;}
+	
+	bool Clickable {get;set;}
+	
+}
+
 /// 
 public partial interface IContainer : IGuiControl
 {
+	/// Returns he grid container component of the container, if one exists
+	GridContainer Grid { get; }
 }
+
+public partial interface ISpeechGui 
+{
+	void StartSay(Character character, string text, int currLineId, bool backgroundSpeech);
+	void EndSay(Character character);
+}
+
+/* Future components
 /// 
 public partial interface ITextBox : IGuiControl
 {

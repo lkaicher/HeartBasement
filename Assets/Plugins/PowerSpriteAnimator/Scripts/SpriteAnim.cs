@@ -16,7 +16,7 @@ namespace PowerTools
 // A shared animation controller is used, it has a single state which is overridden whenever an animation is played.
 [RequireComponent(typeof(Animator))]
 [DisallowMultipleComponent]
-[AddComponentMenu("PowerTools/Sprite Animation")]
+[AddComponentMenu("PowerTools/PowerSpriteAnimation")]
 public class SpriteAnim : SpriteAnimEventHandler 
 {	
 	#region Definitions
@@ -94,11 +94,17 @@ public class SpriteAnim : SpriteAnimEventHandler
 	{
 		if ( anim == null )
 			return;
+	
+		if ( m_controller == null )
+		{
+			Debug.LogWarning("Attempted to play animation before object was Awake: " + anim.name);
+			Awake();
+		}
 
 		// Reset animation nodes
 		if ( m_nodes != null )
 		    m_nodes.Reset();
-
+			
 		#if UNITY_5_6_OR_NEWER			
 			m_clipPairList[0] = new KeyValuePair<AnimationClip, AnimationClip>(m_clipPairList[0].Key, anim);
 			m_controller.ApplyOverrides(m_clipPairList);		

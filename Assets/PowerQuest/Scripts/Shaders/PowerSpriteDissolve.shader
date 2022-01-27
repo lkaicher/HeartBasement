@@ -55,7 +55,7 @@ Shader "Sprites/PowerSpriteDissolve"
 			{
 				fixed4 c = SampleSpriteTexture (IN.texcoord);
 				c.rgb = lerp(_Tint.rgb, c.rgb* IN.color.rgb, 1.0-_Tint.a);
-				c.a = lerp (0,1, ceil((c.a * IN.color.a*1.1f)-0.1f) );
+				c.a = lerp (0,1, ceil((c.a + (IN.color.a))-1.0) );
 				c.rgb *=  c.a;
 				return c;
 			}

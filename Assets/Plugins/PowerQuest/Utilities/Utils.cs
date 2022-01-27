@@ -72,7 +72,7 @@ public class Utils
 	{		
 		if ( snapTo < 0.001f )
 			return pos;
-        return Mathf.Floor(pos / snapTo) * snapTo; // Changed this to floor... will this break something?? Everything??
+        return Mathf.Floor(pos / snapTo) * snapTo;
 	}
 	
  	// Snap to a grid value
@@ -86,7 +86,7 @@ public class Utils
 	{		
 		if ( snapTo < 0.001f )
 			return pos;
-        return Mathf.Round(pos / snapTo) * snapTo; // Changed this to floor... will this break something?? Everything??
+        return Mathf.Round(pos / snapTo) * snapTo;
 	}
 
 	public static float Flip( float value, bool flip )
@@ -113,106 +113,7 @@ public class Utils
 	{
        return ((mask.value & (1 << obj.layer)) > 0);
     }
-
-	public enum eEaseCurve { None, Linear=None, Smooth, Sine, Quad, Cubic, Quart, Quint, Exp, Elastic }
-	public enum eEaseDir { In, Out, InOut }
-
-	public static float Ease( float ratio, eEaseCurve curve, eEaseDir dir )
-	{		
-		if ( ratio <= 0 )
-			return 0;
-		if ( ratio >= 1)
-			return 1;
-			
-		float x = ratio;
-			
-		// I think this is basically a cheap version of the sin wave one. It's what's used for perlin noise
-		if ( curve == eEaseCurve.Smooth )
-		{
-			if ( dir == eEaseDir.In)
-			{
-				ratio *= 0.5f;
-				return (-2.0f*ratio*ratio*ratio + 3.0f*ratio*ratio) * 2.0f;
-			}
-			else if ( dir == eEaseDir.Out )
-			{
-				ratio = ratio * 0.5f + 0.5f;
-				return (-2.0f*ratio*ratio*ratio + 3.0f*ratio*ratio) * 2.0f - 1.0f;
-			}
-			else 
-			{
-				return (-2.0f*ratio*ratio*ratio + 3.0f*ratio*ratio);
-			}
-		}
-
-		if ( curve == eEaseCurve.Sine )
-		{
-			if ( dir == eEaseDir.In)
-			{
-				return 1.0f - Mathf.Cos(ratio*Mathf.PI*0.5f);
-			}
-			else if ( dir == eEaseDir.Out )
-			{
-				return Mathf.Sin((x*Mathf.PI)*0.5f);
-			}
-			else 
-			{
-				return -(Mathf.Cos(x*Mathf.PI)-1)*0.5f;
-			}
-		}
 		
-		if ( curve >= eEaseCurve.Quad && curve <= eEaseCurve.Quint )
-		{
-			float pow = ((float)curve-(float)eEaseCurve.Quad)+2;
-			if ( dir == eEaseDir.In)
-			{
-				return Mathf.Pow(ratio,pow);
-			}
-			else if ( dir == eEaseDir.Out )
-			{
-				return 1.0f - Mathf.Pow(1.0f-ratio, pow);
-			}
-			else 
-			{
-				return x < 0.5f ? Mathf.Pow(2,pow-1f)*Mathf.Pow(x,pow) :  1.0f - Mathf.Pow(-2f*x + 2f, pow) * 0.5f;
-			}
-		}
-		if ( curve == eEaseCurve.Exp )
-		{
-			if ( dir == eEaseDir.In)
-			{
-				return Mathf.Pow(2f,(10*x) - 10f);
-			}
-			else if ( dir == eEaseDir.Out )
-			{
-				return 1.0f - Mathf.Pow(2f,-10f*x);
-			}
-			else 
-			{
-				return x < 0.5f ? Mathf.Pow(2f,(20f*x)-10f) * 0.5f : (2.0f - Mathf.Pow(2f,(-20f*x)+10f))*0.5f;
-			}
-		}
-		if ( curve == eEaseCurve.Elastic)
-		{
-			const float c4 = (2f * Mathf.PI) / 3f;
-			if ( dir == eEaseDir.In)
-			{
-				return -Mathf.Pow(2,10*x-10) * Mathf.Sin((x*10-10.75f)*c4);
-			}
-			else if ( dir == eEaseDir.Out)
-			{
-				return Mathf.Pow(2,-10*x) * Mathf.Sin((x*10-0.75f)*c4)+1;
-			}
-			else 
-			{
-				throw new System.NotImplementedException();
-			}
-		}
-
-		// Linear, etc
-		return ratio;
-	}
-	
 	public static float EaseCubic( float ratio )
 	{
 		ratio = Mathf.Clamp01(ratio);
@@ -507,6 +408,25 @@ public class Utils
 		float theta = Random.Range(minAngle,maxAngle) * Mathf.Deg2Rad;
 		return new Vector2(r*Mathf.Cos(theta),r*Mathf.Sin(theta));
 	}
+
+	// More readable versions of string.IsNullOrEmpty
+	public static bool IsEmpty(string str) => string.IsNullOrEmpty(str);
+	public static bool IsNotEmpty(string str) => string.IsNullOrEmpty(str) == false;
+	public static bool HasText(string str) => string.IsNullOrEmpty(str) == false;
+}
+
+// More readable versions of string.IsNullOrEmpty
+public static class IsString
+{
+	public static bool Empty(string str) => string.IsNullOrEmpty(str);	
+	// Just throwing shit at a wall to see what sicks
+	public static bool Set(string str) => string.IsNullOrEmpty(str) == false;
+	public static bool NotEmpty(string str) => string.IsNullOrEmpty(str) == false;
+	public static bool NonEmpty(string str) => string.IsNullOrEmpty(str) == false;
+	public static bool Valid(string str) => string.IsNullOrEmpty(str) == false;
+	public static bool There(string str) => string.IsNullOrEmpty(str) == false;
+	public static bool Ok(string str) => string.IsNullOrEmpty(str) == false;
+
 }
 
 public static class ExtentionMethods
@@ -526,7 +446,14 @@ public static class ExtentionMethods
 	}
 	*/
 
-	
+	public static float GetWidth( this Camera cam )
+	{		
+		return cam.orthographicSize * 2.0f * cam.aspect;
+	}
+	public static float GetHeight( this Camera cam )
+	{
+		return cam.orthographicSize * 2.0f;
+	}
 
 	public static Rect Encapsulate( this Rect rect, Rect other )
 	{
@@ -638,6 +565,20 @@ public static class ExtentionMethods
 		return vector;
 	}
 
+     public static Vector2 Rotate(this Vector2 v, float degrees) 
+	 {
+         float radians = degrees * Mathf.Deg2Rad;
+         float sin = Mathf.Sin(radians);
+         float cos = Mathf.Cos(radians);
+         
+         float tx = v.x;
+         float ty = v.y;
+         v.x = (cos * tx) - (sin * ty);
+         v.y = (sin * tx) + (cos * ty);
+         return v;
+     }
+ 
+
 	// Returns the Vector2 rotated 90 counterclockwise
 	public static Vector2 GetTangent( this Vector2 vector )
 	{				
@@ -660,8 +601,16 @@ public static class ExtentionMethods
 	{	
 		return new Vector2( Utils.Snap(pos.x, snapTo), Utils.Snap(pos.y, snapTo) );
 	}
-
-
+	
+	public static Vector3 SnapRound( this Vector3 pos, float snapTo )
+	{	
+		return new Vector3( Utils.SnapRound(pos.x, snapTo), Utils.Snap(pos.y, snapTo), Utils.Snap(pos.z, snapTo) );
+	}	
+	
+	public static Vector2 SnapRound( this Vector2 pos, float snapTo )
+	{	
+		return new Vector2( Utils.SnapRound(pos.x, snapTo), Utils.Snap(pos.y, snapTo) );
+	}
  	// Checks if two vectors are approximately equal
 	public static bool ApproximatelyEquals( this Vector3 pos, Vector3 other )
 	{	
@@ -1592,6 +1541,8 @@ public struct RectCentered
 		//Center =  bounds.center;
 		//Size = bounds.size;
 	}
+	
+	public static implicit operator Rect(RectCentered self) { return new Rect(self.m_min,self.Size); }
 
 	public static bool operator ==(RectCentered lhs, RectCentered rhs) { return lhs.m_min == rhs.m_min && lhs.m_max == rhs.m_max; }
 	public static bool operator !=(RectCentered lhs, RectCentered rhs) { return lhs.m_min != rhs.m_min || lhs.m_max != rhs.m_max; }

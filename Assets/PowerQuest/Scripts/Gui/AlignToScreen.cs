@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-namespace PowerTools
+namespace PowerTools.Quest
 {
 
 
@@ -19,10 +19,7 @@ public class AlignToScreen : MonoBehaviour
 	[SerializeField] Vector2 m_offsetRatio = Vector2.zero;
 	[Header("Optional camera override")]
 	[SerializeField] Camera m_camera = null;
-
-	Camera m_editorCamera = null;
-	public void EditorSetPreviewCamera(Camera cam) { m_editorCamera = cam; }
-
+		
 	public Vector2 Offset { get { return m_offset; } set { m_offset = value; ForceUpdate(); } }
 	public Vector2 OffsetRatio { get { return m_offsetRatio; } set { m_offsetRatio = value; ForceUpdate(); } }
 		
@@ -38,12 +35,12 @@ public class AlignToScreen : MonoBehaviour
 	// Use this for initialization
 	void Start() 
 	{
-		Update();
+		ForceUpdate();
 	}
 
 	void OnEnable()
 	{
-		Update();
+		ForceUpdate();
 	}
 
 
@@ -58,30 +55,9 @@ public class AlignToScreen : MonoBehaviour
 				return;
 			m_timeToUpdate = 0.25f;
 		}
-		
-		if ( m_camera == null && Application.isEditor && Application.isPlaying == false && m_editorCamera != null )
-		{
-			m_camera = m_editorCamera;			
-		}
-		else if (m_camera == null)
-		{
-			Camera[] cameras = new Camera[10];
-			
-			int count = Camera.GetAllCameras(cameras);
-
-			// Take a guess at which is a gui camera
-			for ( int i = 0; i < count && i < cameras.Length; ++i )
-			{
-				Camera cam = cameras[i];
-				if ( cam.gameObject.layer == 5 || cam.gameObject.name.Contains("GUI") || cam.gameObject.name.Contains("Menu") )
-				{
-					m_camera = cam;
-					break;
-				}
-			}
-			if ( m_camera == null && cameras.Length > 0 )
-				m_camera = cameras[0];
-		}
+				
+		if (m_camera == null)
+			m_camera = PowerTools.Quest.GuiUtils.FindGuiCamera();
 
 		if (m_camera == null )
 			return;
@@ -109,7 +85,9 @@ public class AlignToScreen : MonoBehaviour
 		position += (Vector3)offsetRatioFinal;
 		
 		position = m_camera.ScreenToWorldPoint(position);
-		position += (Vector3)m_offset;
+		position += (Vector3)m_offset;		
+		if ( PowerQuest.GetValid() && PowerQuest.Get.GetSnapToPixel() )
+			position = position.Snap(PowerQuest.Get.SnapAmount);
 		position.z = transform.position.z;
 		transform.position = new Vector3( 
 			(m_horizontal == eAlignHorizontal.None) ? transform.position.x :  position.x,

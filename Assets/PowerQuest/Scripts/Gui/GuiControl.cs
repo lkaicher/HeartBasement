@@ -98,15 +98,31 @@ public partial class GuiControl : MonoBehaviour, IQuestClickable, IQuestScriptab
 		Visible = m_visible;
 		// update sort order
 		UpdateBaseline();
+
+		ExStart();
 	}
 
 	public bool Visible 
 	{ 
 		get { return gameObject.activeSelf;} 
-		set	 { gameObject.SetActive(value); }
+		set	
+		{ 
+			bool old = m_visible; 
+			m_visible = value; 
+			gameObject.SetActive(value); 
+
+			if ( old != m_visible )
+			{
+				ExOnVisibilityChange(m_visible);
+				if ( m_visible )
+					ExOnShow();
+				else
+					ExOnHide();
+			}
+		}
 	}
-	public void Show() { gameObject.SetActive(true); }
-	public void Hide() { gameObject.SetActive(false); }
+	public void Show() { Visible = true; }
+	public void Hide() { Visible = false; }
 
 	public void SetGui(Gui gui) { m_gui=gui;}
 	public Gui GuiData => m_gui;
@@ -164,7 +180,7 @@ public partial class GuiControl : MonoBehaviour, IQuestClickable, IQuestScriptab
 	}
 
 	// Updates baseline of self based on gui's baseline, and sets sprite render order
-	public void UpdateBaseline()
+	public virtual void UpdateBaseline()
 	{
 		GuiComponent guiComponent = GuiComponent;
 		if ( guiComponent == null )
@@ -189,9 +205,57 @@ public partial class GuiControl : MonoBehaviour, IQuestClickable, IQuestScriptab
 		}
 	}
 
+	
+	/// Fade the sprite's alpha
+	public Coroutine Fade(float start, float end, float duration, eEaseCurve curve = eEaseCurve.Smooth ) { return PowerQuest.Get.StartCoroutine(CoroutineFade(start, end, duration,curve)); }
+	/// Fade the sprite's alpha (non-blocking)
+	public void FadeBG(float start, float end, float duration, eEaseCurve curve = eEaseCurve.Smooth ) { PowerQuest.Get.StartCoroutine(CoroutineFade(start, end, duration,curve)); }
+		
+	protected IEnumerator CoroutineFade(float start, float end, float duration, eEaseCurve curve = eEaseCurve.Smooth  )
+	{
+		if ( Instance == null )
+			yield break;
+
+		SpriteRenderer[] sprites = Instance.GetComponentsInChildren<SpriteRenderer>(true);
+		TextMesh[] texts = Instance.GetComponentsInChildren<TextMesh>(true);
+
+		float time = 0;
+		float alpha = start;
+		System.Array.ForEach( sprites, sprite => { sprite.color = sprite.color.WithAlpha( alpha ); });
+		System.Array.ForEach( texts, text => { text.color = text.color.WithAlpha( alpha ); });
+		while ( time < duration && PowerQuest.Get.GetSkippingCutscene() == false )
+		{
+			yield return new WaitForEndOfFrame();
+					
+			if ( SystemTime.Paused == false )
+			time += Time.deltaTime;
+			float ratio = time/duration;
+			ratio = QuestUtils.Ease(ratio, curve);
+			alpha = Mathf.Lerp(start,end, ratio);
+			System.Array.ForEach( sprites, sprite => { if ( sprite != null ) sprite.color = sprite.color.WithAlpha( alpha ); });
+			System.Array.ForEach( texts, text => { if ( text != null ) text.color = text.color.WithAlpha( alpha ); });
+		}
+
+		alpha = end;
+		System.Array.ForEach( sprites, sprite => { if ( sprite != null ) sprite.color = sprite.color.WithAlpha( alpha ); });
+		System.Array.ForEach( texts, text => { if ( text != null ) text.color = text.color.WithAlpha( alpha ); });
+
+	}
+
 	#endregion
 	#region Unity Functions
 	
+	
+	#endregion
+	#region Partial Functions for extentions
+	
+	partial void ExStart();
+	//partial void ExAwake();
+	//partial void ExOnDestroy();
+	//partial void ExUpdate();
+	partial void ExOnShow();
+	partial void ExOnHide();
+	partial void ExOnVisibilityChange(bool visible);
 
 	#endregion	
 	#region Implementing IQuestClickable

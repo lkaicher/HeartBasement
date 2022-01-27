@@ -9,7 +9,7 @@ namespace PowerTools.QuestGui
 
 //
 [System.Serializable] 
-//[AddComponentMenu("Quest Gui/Image")]
+[AddComponentMenu("Quest Gui/Image")]
 public partial class Image : GuiControl, IImage
 {
 	#region Vars: Editor
@@ -24,6 +24,14 @@ public partial class Image : GuiControl, IImage
 	SpriteAnim m_spriteAnimator = null;
 	bool m_overrideAnimPlaying = false;
 	int m_stopOverrideAnimDelay = -1;
+	
+	#endregion
+	#region Funcs: Unity
+
+	void Start()
+	{
+		OnAnimationChanged();	
+	}
 
 	#endregion
 	#region Funcs: IImage interface
@@ -97,12 +105,6 @@ public partial class Image : GuiControl, IImage
 
 	public Coroutine WaitForAnimTrigger(string triggerName) { return PowerQuest.Get.StartCoroutine(CoroutineWaitForAnimTrigger(triggerName)); }	
 		
-	/// Fade the sprite's alpha
-	public Coroutine Fade(float start, float end, float duration ) { return PowerQuest.Get.StartCoroutine(CoroutineFade(start, end, duration)); }
-	/// Fade the sprite's alpha (non-blocking)
-	public void FadeBG(float start, float end, float duration ) { PowerQuest.Get.StartCoroutine(CoroutineFade(start, end, duration)); }
-	
-
 	public IQuestClickable IClickable { get{ return this; } }
 
 	#endregion
@@ -148,11 +150,22 @@ public partial class Image : GuiControl, IImage
 			m_sprite = GetComponentInChildren<SpriteRenderer>(true);
 		if ( m_sprite != null )
 			m_spriteAnimator = m_sprite.GetComponent<SpriteAnim>();
+		
+		ExAwake();
 	}
+
+	
+	#endregion
+	#region Partial Functions for extentions
+	
+	partial void ExAwake();
+	//partial void ExOnDestroy();
+	//partial void ExUpdate();
+
 
 	#endregion
 	#region Funcs: Private Internal
-
+	/* NB: This was never used
 	void OnSetVisible()
 	{
 		if ( gameObject.activeSelf == false && Visible)
@@ -166,7 +179,7 @@ public partial class Image : GuiControl, IImage
 		{   
 			renderer.GetComponent<Renderer>().enabled = Visible;
 		}
-	}
+	}*/
 
 	void OnAnimationChanged()
 	{
@@ -203,7 +216,8 @@ public partial class Image : GuiControl, IImage
 			Sprite sprite = GetSprite(animName);
 			if ( sprite != null )
 			{
-				m_spriteAnimator.Stop();
+				if ( m_spriteAnimator != null )
+					m_spriteAnimator.Stop();
 				m_sprite.sprite=sprite;
 				return true;
 			}
@@ -282,36 +296,6 @@ public partial class Image : GuiControl, IImage
 		yield break;
 	}
 	
-	IEnumerator CoroutineFade(float start, float end, float duration )
-	{
-		if ( Instance == null )
-			yield break;
-
-		SpriteRenderer[] sprites = Instance.GetComponentsInChildren<SpriteRenderer>();
-		TextMesh[] texts = Instance.GetComponentsInChildren<TextMesh>();
-
-		float time = 0;
-		float alpha = start;
-		System.Array.ForEach( sprites, sprite => { sprite.color = sprite.color.WithAlpha( alpha ); });
-		System.Array.ForEach( texts, text => { text.color = text.color.WithAlpha( alpha ); });
-		while ( time < duration && PowerQuest.Get.GetSkippingCutscene() == false )
-		{
-			yield return new WaitForEndOfFrame();
-					
-			if ( SystemTime.Paused == false )
-			time += Time.deltaTime;
-			float ratio = time/duration;
-			ratio = Utils.EaseOutCubic(ratio);
-			alpha = Mathf.Lerp(start,end, ratio);
-			System.Array.ForEach( sprites, sprite => { if ( sprite != null ) sprite.color = sprite.color.WithAlpha( alpha ); });
-			System.Array.ForEach( texts, text => { if ( text != null ) text.color = text.color.WithAlpha( alpha ); });
-		}
-
-		alpha = end;
-		System.Array.ForEach( sprites, sprite => { if ( sprite != null ) sprite.color = sprite.color.WithAlpha( alpha ); });
-		System.Array.ForEach( texts, text => { if ( text != null ) text.color = text.color.WithAlpha( alpha ); });
-
-	}
 
 	IEnumerator CoroutineWaitForAnimTrigger(string triggerName)
 	{

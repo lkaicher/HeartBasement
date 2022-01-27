@@ -157,6 +157,8 @@ public class ControlEditorBase : Editor
 	protected bool UpdateSprite( GuiControl button, string anim, SpriteRenderer spriteComponent )
 	{
 		GuiComponent gui = button.GetComponentInParent<GuiComponent>();
+		if ( gui == null )
+			return false;
 		AnimationClip clip = gui.GetAnimation(anim);
 		if ( clip == null )
 			clip = PowerQuestEditor.GetPowerQuest().GetGuiAnimation(anim);		
@@ -324,7 +326,7 @@ public class ButtonEditor : ControlEditorBase
 
 		//GUILayout.Space(5);
 		GUILayout.Label("Script Functions",EditorStyles.boldLabel);
-		if ( PowerQuestEditor.GetActionEnabled(eQuestVerb.Use) && GUILayout.Button("On Click") )
+		if (  GUILayout.Button("On Click") )
 		{
 			QuestScriptEditor.Open( guiComponent, PowerQuest.SCRIPT_FUNCTION_CLICKGUI+component.ScriptName, PowerQuestEditor.SCRIPT_PARAMS_ONCLICK_GUI ); 
 		}
@@ -502,9 +504,9 @@ public class ButtonEditor : ControlEditorBase
 		if ( col != component.Color )
 		{
 			// update default sprite				
-			if ( textComponent != null && component.ColorWhat == Button.eColorUse.Text)
+			if ( textComponent != null && (component.ColorWhat == Button.eColorUse.Text || component.ColorWhat == Button.eColorUse.Both))
 				textComponent.color = component.Color;
-			if ( spriteComponent != null && component.ColorWhat == Button.eColorUse.Image)
+			if ( spriteComponent != null && (component.ColorWhat == Button.eColorUse.Image || component.ColorWhat == Button.eColorUse.Both))
 				spriteComponent.color = component.Color;
 		}
 
@@ -514,6 +516,7 @@ public class ButtonEditor : ControlEditorBase
 		if ( GUILayout.Button("Set hotspot From Contents") )
 		{
 			UpdateCollider();
+			EditorUtility.SetDirty(target);
 		}
 		if ( GUILayout.Button("Rename") )
 		{			

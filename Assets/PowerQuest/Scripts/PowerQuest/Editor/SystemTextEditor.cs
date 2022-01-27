@@ -366,7 +366,8 @@ public class SystemTextEditor : Editor
 				component.GetData().Options.ForEach( item=> 
 					{ 
 						item.Text = AddStringWithEmbeddedId(item.Text); 
-					} );				
+					} );	
+				EditorUtility.SetDirty(component);
 			}
 		}		
 
@@ -389,6 +390,8 @@ public class SystemTextEditor : Editor
 
 				// Look for [QuestLocalizable] attribute in guis. This attribute/function/system could be extended to more random components I guess.
 				//ProcessLocalizableFieldAttributes(component.transform);
+
+				EditorUtility.SetDirty(component);
 			}
 		}
 
@@ -501,7 +504,6 @@ public class SystemTextEditor : Editor
 
 		return result;
 	}
-
 
 	void ProcessQuestText()
 	{
@@ -730,7 +732,7 @@ public class SystemTextEditor : Editor
 	}
 
 	static readonly string CSV_HEADERS = "Character,ID,File,Context";
-	static readonly int CSV_NUM_HEADERS = 4;
+	static readonly int CSV_NUM_HEADERS = 4;	
 	static readonly int CSV_INDEX_LANGUAGES = CSV_NUM_HEADERS;
 
 	public void ExportToCSV( SystemText systemText  )
@@ -764,7 +766,8 @@ public class SystemTextEditor : Editor
 			builder.Append("\",\"");
 			builder.Append(data.m_sourceFunction);
 			builder.Append("\",\"");
-			builder.Append(data.m_string); // this is first language
+			// this is first language
+			builder.Append(data.m_string.Replace("\"","\"\"")); // in CSV, double quotes are escaped by having two of them, so modify that here""
 			builder.Append('"');
 			int languagesRemaining = systemText.GetNumLanguages()-1; // don't include first
 			if ( data.m_translations != null )
@@ -772,7 +775,7 @@ public class SystemTextEditor : Editor
 				foreach( string translation in data.m_translations )
 				{
 					builder.Append(",\"");
-					builder.Append(translation);
+					builder.Append(translation.Replace("\"","\"\"")); // in CSV, double quotes are escaped by having two of them, so modify that here""
 					builder.Append('"');
 					--languagesRemaining;
 				}
@@ -858,13 +861,18 @@ public class SystemTextEditor : Editor
 					{
 						Debug.Log("Failed to import line (not found in text system): "+character+id+": "+defaultText);
 					}
-					else if ( numLanguages > 1 )
+					else
 					{
-						// Import other languages
-						textData.m_translations = new string[numLanguages-1];
-						for ( int i = 1; i < numLanguages && CSV_INDEX_LANGUAGES+i < line.Length; ++i)
+						if ( systemText.EditorGetShouldImportDefaultStringFromCSV() )
+							textData.m_string = line[CSV_INDEX_LANGUAGES];
+						if ( numLanguages > 1 )
 						{
-							textData.m_translations[i-1] = line[CSV_INDEX_LANGUAGES+i];
+							// Import other languages
+							textData.m_translations = new string[numLanguages-1];
+							for ( int i = 1; i < numLanguages && CSV_INDEX_LANGUAGES+i < line.Length; ++i)
+							{
+								textData.m_translations[i-1] = line[CSV_INDEX_LANGUAGES+i];
+							}
 						}
 					}
 
@@ -873,6 +881,7 @@ public class SystemTextEditor : Editor
 				}
 			}
 
+			EditorUtility.SetDirty(systemText);	
 		}
 		catch (System.IO.IOException e )
 		{
@@ -928,10 +937,9 @@ public class SystemTextEditor : Editor
 		}
 
 		// Skip lines that don't have dialog wav
-		string fullFileName = "Voice\\"
-			+ data.m_character
-			+ data.m_id.ToString();			
-		AudioClip clip = Resources.Load(fullFileName) as AudioClip;
+		string fullFileName =  data.m_character	+ data.m_id.ToString();			
+		AudioClip clip = Resources.Load("Voice/"+fullFileName) as AudioClip;
+		
 		if ( clip == null )
 		{
 			return null;
@@ -941,7 +949,27 @@ public class SystemTextEditor : Editor
 
 		System.Diagnostics.Process rhubarbProcess = new System.Diagnostics.Process();
 		rhubarbProcess.StartInfo.FileName = @Path.Combine("Assets", "PowerQuest", "Scripts", "PowerQuest", "Editor", "RunRhubarb.bat");
-		rhubarbProcess.StartInfo.Arguments = @Path.Combine("Assets", "Audio", "Resources" + fullFileName + ".wav"+" "+systemText.GetLipsyncExtendedMouthShapes());
+
+		fullFileName = @Path.Combine("Assets", "Audio", "Resources", "Voice", fullFileName);
+		
+		// Find extention by checking which file exists
+		string extention = null;
+		string[] extentions = {".wav", ".ogg", ".mp3"};
+		for ( int i = 0; i < extentions.Length; ++i ) 
+		{			
+			if ( File.Exists(fullFileName+extentions[i]) )
+			{
+				extention = extentions[i];
+				break;
+			}
+		}
+		if ( extention == null )
+		{
+			Debug.LogWarning("Rhubarb: File not found or unsupported format: "+fullFileName);
+			return null;
+		}
+
+		rhubarbProcess.StartInfo.Arguments = $"{fullFileName}{extention} {systemText.GetLipsyncExtendedMouthShapes()}";
 		rhubarbProcess.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Minimized;
 		rhubarbProcess.Start();
 		return rhubarbProcess;

@@ -5,10 +5,9 @@ using PowerTools;
 using PowerTools.Quest;
 
 // This can be used for more complex inventory items, where you want to choose which sprite is used for the actual Item image
-public class InventoryPanelItem : MonoBehaviour
+public class InventoryPanelItem : MonoBehaviour // Note for future: This could be made to inherit from GuiControl so each item is a gui control itself. That might make it easier to have the active control be the specific item in the gui...
 {
-	[SerializeField]
-	SpriteRenderer m_itemSpriteComponent = null;
+	[SerializeField] SpriteRenderer m_itemSpriteComponent = null;
 
 	SpriteAnim m_animComponent = null;
 	
@@ -22,6 +21,9 @@ public class InventoryPanelItem : MonoBehaviour
 
 	public void SetInventorySprite(Sprite sprite)
 	{
+		if ( sprite == null )
+			return;
+
 		if ( m_itemSpriteComponent == null )
 			m_itemSpriteComponent = GetComponentInChildren<SpriteRenderer>();
 
@@ -36,6 +38,8 @@ public class InventoryPanelItem : MonoBehaviour
 	}	
 	public void SetInventoryAnim(AnimationClip anim)
 	{
+		if ( anim == null )
+			return;
 		if ( m_animComponent == null )
 		{
 			m_itemSpriteComponent = GetComponentInChildren<SpriteRenderer>();

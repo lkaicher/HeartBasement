@@ -45,14 +45,40 @@ public partial class PowerQuest
 		*/
 		bool firstRoomLoad = (m_initialised == false);
 
+		// Set up flag for save/restore during "OnEnter" - Moved to onTransition
+		//if ( m_restoring == false )
+		//	SV.m_savedInOnEnter = true;
+
 		//
 		// Get the camera and canvas
-		//
-		GameObject guiCamObj = GameObject.Find("QuestGuiCamera");
-		Debug.Assert(guiCamObj != null, "Faled to load room- Couldn't find QuestGuiCamera in the scene");
-		m_cameraGui = guiCamObj.GetComponent<Camera>();
-		// Get the canvas
-		m_canvas = guiCamObj.GetComponentInChildren<Canvas>();
+		//		
+		//GameObject guiCamObj = GameObject.Find("QuestGuiCamera");
+		Camera[] cameras = GameObject.FindObjectsOfType<Camera>(false);
+
+		// Destroy duplicate gui camera if		
+		for ( int i = 0; i < cameras.Length; ++i )
+		{
+			Camera cam = cameras[i];
+			if ( cam.gameObject.name == "QuestGuiCamera" )
+			{
+				if ( m_cameraGui == null )
+				{
+					// Set up gui camera (first time)
+					m_cameraGui = cam;
+					// Get the canvas
+					m_canvas = m_cameraGui.GetComponentInChildren<Canvas>();
+					DontDestroyOnLoad(m_cameraGui.gameObject);
+				}	
+				else if ( cam != m_cameraGui )
+				{
+					// Destroy duplicate gui camera in scene
+					DestroyImmediate(cam.gameObject);
+				}
+			}					
+		}
+			
+		Debug.Assert(m_cameraGui != null, "Faled to load room- Couldn't find QuestGuiCamera in the scene");
+		
 
 		//
 		// Set up room object
@@ -75,16 +101,18 @@ public partial class PowerQuest
 		m_cameraData.SetCharacterToFollow(GetPlayer());
 
 		//
-		// Setup GUIs. TODO: make these stick around between scenes. No need to re-create
+		// Setup GUIs (First time only)
 		//
 		foreach ( Gui gui in m_guis ) 
 		{
-			GameObject guiInstance = GameObject.Find(gui.GetPrefab().name);
+			// Dont' recreate guis- NB: we're not checking for duplicates inside a room, which we should do...
+			if ( gui.Instance != null )
+				continue;
 
+			GameObject guiInstance = GameObject.Find(gui.GetPrefab().name);			
 			if ( guiInstance == null )
 			{
 				guiInstance = GameObject.Instantiate(gui.GetPrefab() ) as GameObject;
-
 			}
 			gui.SetInstance(guiInstance.GetComponent<GuiComponent>());
 			guiInstance.SetActive( gui.Visible && gui.VisibleInCutscenes );
@@ -93,11 +121,12 @@ public partial class PowerQuest
 				if ( m_canvas != null )
 					guiInstance.transform.SetParent(m_canvas.transform, false);
 			}
-			else if( guiCamObj != null )
+			else if( m_cameraGui != null )
 			{
-				guiInstance.transform.SetParent(guiCamObj.transform,false);
+				guiInstance.transform.SetParent(m_cameraGui.transform, false);
 				guiInstance.transform.position = guiInstance.transform.position.WithZ(0);
 			}
+			//DontDestroyOnLoad(guiInstance);
 		}
 
 		// 
@@ -142,13 +171,14 @@ public partial class PowerQuest
 
 		if ( room.GetInstance() != null ) room.GetInstance().OnLoadComplete();
 
-		if ( m_restoring )
+		if ( m_restoring && SV.m_callEnterOnRestore == false )
 		{
-			// When restoring a game, the scene is reloaded, but we don't call on enter room, etc.
-			FadeInBG(m_settings.TransitionFadeTime/2.0f, "ENTER");
+			// When restoring a game, the scene is reloaded, but we don't call onEnterRoom, unless we saved FROM onEnterRoom
+			FadeInBG(TransitionFadeTime/2.0f, "ENTER");
 
 			yield return new WaitForSeconds(0.05f);// Wait(0.05f); Game might start paused- dont' do this.
 			m_restoring = false;
+			SV.m_callEnterOnRestore = false;
 			m_transitioning = false;
 		}
 		else 
@@ -157,15 +187,23 @@ public partial class PowerQuest
 			// Check for and call Debug Startup Function.
 			//
 			bool debugSkipEnter = false;
-			if ( firstRoomLoad && Debug.isDebugBuild && room != null && room.GetScript() != null
-				 && string.IsNullOrEmpty( room.GetInstance().m_debugStartFunction ) == false )
+			if ( firstRoomLoad && Debug.isDebugBuild && room != null && room.GetScript() != null )
 			{
-				System.Reflection.MethodInfo debugMethod = room.GetScript().GetType().GetMethod( room.GetInstance().m_debugStartFunction, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
-				if ( debugMethod != null ) 
+				// If 'has restarted' then use the restartPlayFrom function, not the one set in the editor. This is used when the E.Restart function is called with a PlayFrom function
+				string restartFunction = null;
+				if ( s_hasRestarted )
+					restartFunction = s_restartPlayFromFunction;
+				else 
+					restartFunction = room.GetInstance().m_debugStartFunction;
+				if ( string.IsNullOrEmpty(restartFunction ) == false )
 				{
-					var result = debugMethod.Invoke(room.GetScript(),null);
-					if ( result != null && result.Equals(true) )
-						debugSkipEnter = true;
+					System.Reflection.MethodInfo debugMethod = room.GetScript().GetType().GetMethod( restartFunction, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
+					if ( debugMethod != null ) 
+					{
+						var result = debugMethod.Invoke(room.GetScript(),null);
+						if ( result != null && result.Equals(true) )
+							debugSkipEnter = true;
+					}
 				}
 			}
 			
@@ -192,23 +230,23 @@ public partial class PowerQuest
 			{
 				method = room.GetScript().GetType().GetMethod( "OnEnterRoom", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
 				if ( method != null ) method.Invoke(room.GetScript(),null);
-			}			
-
-			/* 5/1/2021 - moved onEnterRoomAfteFade functions before region/camera stuff */
+			}	
+			SV.m_callEnterOnRestore = false;
+			
+			// Start actual fade in
+			FadeInBG(TransitionFadeTime/2.0f, "ENTER");
+			
 			// Now call OnEnterRoomAfterFade functions, but without yielding yet. That way, plrs can be positioned here and camera will still snap to correct position.
 			Coroutine onEnter = StartScriptInteractionCoroutine(GetScript(), "OnEnterRoomAfterFade");
 			Coroutine onEnterRoom = null;
 			if ( room != null && room.GetScript() != null && debugSkipEnter == false )
-				onEnterRoom = StartScriptInteractionCoroutine(room.GetScript(), "OnEnterRoomAfterFade");
-			/**/
+				onEnterRoom = StartScriptInteractionCoroutine(room.GetScript(), "OnEnterRoomAfterFade");			
 
 			// update region collision to initial state (So don't get "OnEnter" on first frame of room)
 			{
 				UpdateRegions();
 				room.GetInstance().GetRegionComponents().ForEach( item=>item.OnRoomLoaded() );
 			}
-
-			//yield return new WaitForEndOfFrame(); // 5/1/2021 moved above OnEnterRoom.  Necessary, incase things haven't completely loaded yet (first time game loads)
 
 			// Moved Camera's OnEnterRoom to after OnEnterRoomAfterFade is called (but before yielding), incase you set plr pos in that.
 			m_cameraData.GetInstance().OnEnterRoom();
@@ -217,34 +255,28 @@ public partial class PowerQuest
 			//	Room transition - yield until complete 
 			//
 
-			// Start actual fade in
-			FadeInBG(m_settings.TransitionFadeTime/2.0f, "ENTER");			
-			// yield return Wait(0.05f); // 5/1/2021 - unsure why this is here, so trying without it, then can just use OnEnterRoomAfterFade, and not bother with OnEnterRoom
+			// Start actual fade in - Moved 2021/26/11
+			//FadeInBG(TransitionFadeTime/2.0f, "ENTER");			
 
 			m_transitioning = false;
+			m_restoring = false;
 
 			//
 			// on enter room after fadein
 			//
 			/* 5/1/2021 - moved onEnterRoomAfteFade functions from here to before region/camera stuff */
-			SetAutoLoadScript( this, "OnEnterRoomAfterFade", onEnter != null );
+			SetAutoLoadScript( this, "OnEnterRoomAfterFade", onEnter != null, false );
 			if ( onEnter != null )
 				yield return onEnter;
 
 			if ( room != null && room.GetScript() != null )
 			{
 				//onEnterRoom = StartScriptInteractionCoroutine(room.GetScript(), "OnEnterRoomAfterFade"); // moved above 
-				SetAutoLoadScript( room, "OnEnterRoomAfterFade", onEnterRoom != null );
+				SetAutoLoadScript( room, "OnEnterRoomAfterFade", onEnterRoom != null, false );
 				if ( onEnterRoom != null )
 					yield return onEnterRoom;
 			}
 			Unblock();
-			
-			//
-			// Debug save, so can restore to that state easily
-			//
-			//if ( Debug.isDebugBuild )
-			//	Save(10,"Debug");
 		}
 
 		//
@@ -286,6 +318,7 @@ public partial class PowerQuest
 					yield return CoroutineWaitForCurrentSequence();
 				}
 
+				ExOnMainLoop();
 				ExtentionOnMainLoop();
 
 				//
@@ -472,7 +505,7 @@ public partial class PowerQuest
 			if ( yielded == false && m_currentDialog != null )
 			{
 				// Show dialog gui again if one active
-				GetGui(Settings.DialogTreeGui).Visible = true;
+				GetGui(DialogTreeGui).Visible = true;
 			}
 
 			// Yield until the next frame

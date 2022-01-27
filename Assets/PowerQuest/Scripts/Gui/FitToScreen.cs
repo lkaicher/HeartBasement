@@ -14,6 +14,7 @@ public class FitToScreen : MonoBehaviour
 	[SerializeField] bool m_fitHeight = false;
 
 	[SerializeField] Padding m_padding = Padding.zero;
+	[SerializeField] bool m_snapToPixel = false;
 	
 	// TODO: Allow you to fit to % of screen size. (eg: 0.5 of screen)
 	// [SerializeField] Padding m_paddingRatio = Padding.zero;
@@ -30,36 +31,27 @@ public class FitToScreen : MonoBehaviour
 		if ( m_sprite == null && Application.isPlaying == false )
 			SetupSprite();
 
-		bool sliced = ( m_sprite != null &&  m_sprite.drawMode == SpriteDrawMode.Sliced );
+		bool sliced = ( m_sprite != null &&  m_sprite.drawMode != SpriteDrawMode.Simple );
 		Vector2 newPos = transform.position;
 		Vector2 newScale = transform.localScale;
 		if ( sliced )	
 		    newScale = m_sprite.size;
 
 		if (m_camera == null)
-		{
-			Camera[] cameras = new Camera[10];
-			int count = Camera.GetAllCameras(cameras);
-
-			// Take a guess at which is a gui camera
-			for ( int i = 0; i < count && i < cameras.Length; ++i )
-			{
-				Camera cam = cameras[i];
-				if ( cam.gameObject.layer == 5 || cam.gameObject.name.Contains("GUI") || cam.gameObject.name.Contains("Menu") )
-				{
-					m_camera = cam;
-					break;
-				}
-			}
-			if ( m_camera == null && cameras.Length > 0 )
-				m_camera = cameras[0];
-		}
+			m_camera = GuiUtils.FindGuiCamera();
 		if (m_camera == null )
 			return;
 
 		RectCentered bounds = new RectCentered( m_camera.pixelRect );
 		bounds.Min = m_camera.ScreenToWorldPoint(bounds.Min);
 		bounds.Max = m_camera.ScreenToWorldPoint(bounds.Max);
+
+		if ( m_snapToPixel )
+		{
+			bounds.MinX = Utils.Snap(bounds.MinX);
+			bounds.MaxX = Utils.Snap(bounds.MaxX);
+		}
+
 		if ( m_fitWidth )
 		{
 			if ( sliced )

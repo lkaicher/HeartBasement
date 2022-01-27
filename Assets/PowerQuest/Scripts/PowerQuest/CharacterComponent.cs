@@ -9,7 +9,7 @@ namespace PowerTools.Quest
 {
 
 [SelectionBase]
-public class CharacterComponent : MonoBehaviour 
+public partial class CharacterComponent : MonoBehaviour 
 {
 	
 	#region Static definitions
@@ -51,6 +51,7 @@ public class CharacterComponent : MonoBehaviour
 		[BitMask(typeof(eFaceMask))]
 		public int toDirection = 0;
 		public string anim = null;
+		public bool m_mirror = true;
 	};
 
 	#endregion
@@ -116,6 +117,9 @@ public class CharacterComponent : MonoBehaviour
 	// used for automatically setting hotspots
 	PolygonCollider2D m_autoHotspotCollider = null;
 	Sprite m_lastHotspotSprite = null;
+
+	GameObject m_shadow = null;
+	SpriteAnim m_shadowAnim = null;
 
 	bool m_walking = false;
 	bool m_talking = false;
@@ -184,23 +188,49 @@ public class CharacterComponent : MonoBehaviour
 			return result.anim;
 		return null;
 	}
-
-	string GetTurnAnim()
+	
+	string GetTurnAnim(eFace oldFacingVerticalFallback)
 	{
+		if ( m_facing == m_data.GetTargetFaceDirection() || string.IsNullOrEmpty(m_currAnimBaseName) )
+			return null;
+		
 		TurnAnim result = System.Array.Find(m_turnAnims, item=> 
 			{
-				return ( BitMask.IsSet(item.fromDirection,(int)(m_facing)) && BitMask.IsSet(item.toDirection,(int)m_data.GetTargetFaceDirection()) &&
-					string.Equals(item.fromAnim, m_currAnimBaseName, System.StringComparison.OrdinalIgnoreCase) );
+				eFace facing = m_facing;
+				
+				if ( item.m_mirror )
+				{
+					// Hackery to allow "down" facing to play the anim if animation is actually the "right" or "downright" anim
+					if ( BitMask.IsSet(item.fromDirection, (int)eFace.Down) && m_facing == eFace.Down)				
+						facing = oldFacingVerticalFallback;
+
+					// More hackery-  When target facing is "down" the previous cardinal will always be the same, so no transition when mirrored
+					if ( m_data.GetTargetFaceDirection() == eFace.Down ) 
+						return false;
+				}
+
+				bool found = ( BitMask.IsSet(item.fromDirection,(int)facing)
+								&& BitMask.IsSet(item.toDirection,(int)m_data.GetTargetFaceDirection()) 
+								&& Regex.IsMatch(m_currAnimBaseName,$"^({item.fromAnim})$",RegexOptions.IgnoreCase) );
+				
+				// Try mirror, but not if facing down
+				if ( found == false && item.m_mirror )
+				{					
+					found = ( BitMask.IsSet(item.toDirection,(int)facing) && BitMask.IsSet(item.fromDirection,(int)m_data.GetTargetFaceDirection()) &&
+						Regex.IsMatch(m_currAnimBaseName,$"^({item.fromAnim})$",RegexOptions.IgnoreCase) );
+				}
+				return found;
 			});
+
 		return result != null ? result.anim : null;
 	}
 
 	string m_playAfterTurnAnim = null;
 	string m_currTurnAnim = null;
 
-	public bool StartTurnAnimation()
+	public bool StartTurnAnimation(eFace oldFacingVerticalFallback)
 	{
-		string turnAnim = GetTurnAnim();
+		string turnAnim = GetTurnAnim(oldFacingVerticalFallback);
 		if ( turnAnim == null )
 			return false;
 		m_playAfterTurnAnim = m_currAnimBaseName;
@@ -333,6 +363,18 @@ public class CharacterComponent : MonoBehaviour
 			}
 		}
 	}
+	
+	public void UpdateShadow()
+	{
+		if ( m_shadow == null )
+			return;
+		m_shadow.SetActive(GetData().ShadowEnabled && m_animShadowOff == false);
+		if ( m_shadowAnim != null && string.IsNullOrEmpty(GetData().AnimShadow) == false )
+		{
+			AnimationClip clip = GetAnimations().Find(item=>string.Equals(GetData().AnimShadow, item == null ? null : item.name, System.StringComparison.OrdinalIgnoreCase));
+			m_shadowAnim.Play( clip );
+		}
+	}
 
 	#endregion
 	#region Start/Awake Functions
@@ -352,19 +394,38 @@ public class CharacterComponent : MonoBehaviour
 		// Subscribe to callbacks when animation resets. To handle resetting anim event states
 		m_spriteAnimator.CallbackOnPlay += OnAnimationReset;
 		m_spriteAnimator.CallbackOnStop += OnAnimationReset;
+		
+		Transform shadowTrns = transform.Find("Shadow");
+		if ( shadowTrns != null )
+		{
+			m_shadow = shadowTrns.gameObject;
+			m_shadowAnim = shadowTrns.GetComponentInChildren<SpriteAnim>();
+		}
+		ExAwake();
 	}
 
 	void Start()
 	{
 		m_firstUpdate = true;
 		m_spriteAnimator.NormalizedTime = m_data.AnimationTime; // moved this to first update
+		ExStart();
 	}
 
 	void OnDestroy()
 	{
 		PowerQuest.Get?.Pathfinder?.RemoveObstacle(transform);
+		ExOnDestroy();
 	}
 	
+
+	#endregion
+	#region Partial Functions for extentions
+
+	partial void ExAwake();
+	partial void ExStart();
+	partial void ExOnDestroy();
+	partial void ExUpdate();
+
 	#endregion
 	#region Update Functions
 	
@@ -423,6 +484,7 @@ public class CharacterComponent : MonoBehaviour
 			OnAnimStateChange();
 			UpdateSolid();
 			UpdateUseSpriteAsHotspot();
+			UpdateShadow();
 			if ( m_animating )
 				m_spriteAnimator.NormalizedTime = m_data.AnimationTime;
 			
@@ -542,7 +604,7 @@ public class CharacterComponent : MonoBehaviour
 			
 			m_lastHotspotSprite = sprite;
 		}
-
+		ExUpdate();
 	}
 
 	void UpdateAnimating()
@@ -675,6 +737,8 @@ public class CharacterComponent : MonoBehaviour
 	void UpdateTurnToFace()
 	{
 		eFace targetDirection = m_data.GetTargetFaceDirection();
+		if ( targetDirection == eFace.None )
+			return;
 
 		bool facingTarget = targetDirection == m_data.Facing;
 		if ( facingTarget == false )
@@ -800,8 +864,32 @@ public class CharacterComponent : MonoBehaviour
 		OnAnimStateChange();
 	}
 
-	public void OnAnimationChanged( eState animState )
-	{		
+	// Skip animation transition and/or turning anim
+	public void SkipTransition()
+	{
+		// Update transitional anims
+		if ( string.IsNullOrEmpty(m_transitioningToAnim) == false )
+		{			
+			// Clears transtition data and starts the queued transition animation.			
+			OnTransitionAnimComplete();
+		}
+
+		// Update turn anims
+		if ( string.IsNullOrEmpty(m_playAfterTurnAnim) == false)
+		{
+			string queuedAnim = m_playAfterTurnAnim;
+			m_playAfterTurnAnim = null;
+			PlayAnimInternal(queuedAnim, true);
+		}
+	}
+
+	// AnimState is passed as none, anim will always update, otherwise only if that state has changed.
+	public void OnAnimationChanged( eState animState = eState.None )
+	{	
+		
+		if ( animState == eState.None )
+			animState = m_state;
+
 		// If current state has changed anim, then change the current state anim immediately
 		if ( animState == m_state )
 		{
@@ -832,7 +920,7 @@ public class CharacterComponent : MonoBehaviour
 				} break;
 
 			}
-		}
+		}		
 	}
 	
 	public void OnClickableColliderIdChanged()
@@ -925,7 +1013,7 @@ public class CharacterComponent : MonoBehaviour
 		}
 	}
 
-	public void WalkTo( Vector2 pos, bool anywhere, bool playWalkAnim )
+	public void WalkTo( Vector2 pos, bool anywhere, bool playWalkAnim, bool couldntFindPath = false )
 	{
 		if ( m_state == eState.Walk && m_targetEndPos == pos && m_playWalkAnim == playWalkAnim)
 			return; // Already walking there. Should probably also check if "anywhere" flag has changed, but that's an edge case
@@ -948,9 +1036,18 @@ public class CharacterComponent : MonoBehaviour
 			}
 
 			// Find closest Pos that's navigatable
+			
+			/* First, use clipper? For now just falling back to this if can't find path normal way.
+			{
+			RoomComponent rc = PowerQuest.Get.GetCurrentRoom().Instance;
+			if ( rc != null )
+				pos = rc.GetClosestPoint(m_data.Position, pos);}
+			}
+			/**/
+			Vector2 originalPos = pos;
 			if ( pathfinder.IsPointInArea(pos) == false )
-				pos = pathfinder.GetClosestPointToArea(pos);
-						
+				pos = pathfinder.GetClosestPointToArea(pos);			
+				
 			m_targetPos = pos;
 			m_targetEndPos = m_targetPos;
 
@@ -964,7 +1061,18 @@ public class CharacterComponent : MonoBehaviour
 			}
 			else if ( path == null || path.Length == 0 )
 			{
-				Debug.LogWarning("Couldn't Find Path");
+				if ( couldntFindPath == false )
+				{
+					// First time, try again using clipper (possibly slow and definitely buggy, so not doing do it by default. Need more time to get it working as resplacement)
+					RoomComponent rc = PowerQuest.Get.GetCurrentRoom().Instance;
+					if ( rc != null )
+						pos = rc.GetClosestPoint(m_data.Position, originalPos);
+					WalkTo(pos, anywhere, playWalkAnim, true );
+				}
+				else 
+				{
+					Debug.LogWarning("Couldn't Find Path");
+				}
 			}
 		}
 		else 
@@ -1009,7 +1117,7 @@ public class CharacterComponent : MonoBehaviour
 		}
 		maxHeight *= transform.localScale.y;
 
-		return (Vector2)m_sprite.transform.position + new Vector2(0,maxHeight) + PowerQuest.Get.GetDialogTextOffset();
+		return (Vector2)m_sprite.transform.position + new Vector2(0,maxHeight) + PowerQuest.Get.GetDialogTextOffset() + m_data.TextPositionOffset.Scaled( transform.localScale );
 	}
 
 	public void OnSkipCutscene()
@@ -1141,56 +1249,70 @@ public class CharacterComponent : MonoBehaviour
 	{
 		AnimWalkSpeedReset();
 	}
-
+	
 	// Plays directional anim and handles flipping
 	void PlayAnimInternal(string animName, bool fromStart = true)
 	{	
 		//Debug.Log("PlayAnim: "+animName);
+		string animNameNoPrefix = animName;
+		if ( string.IsNullOrEmpty(GetData().AnimPrefix) == false )
+			animName = GetData().AnimPrefix + animName;
 
-		if ( string.IsNullOrEmpty(m_transitionAnim) == false && m_transitionAnim.StartsWith(animName, System.StringComparison.OrdinalIgnoreCase) )
+		if ( IsString.Set(m_transitionAnim) && m_transitionAnim.StartsWith(animName, System.StringComparison.OrdinalIgnoreCase) )
 			return; // Already transitioning to this animation, so don't try and play it again
 
-		if ( animName != m_currTurnAnim && m_currTurnAnim != null )
+		if ( m_currTurnAnim != null && animName != m_currTurnAnim && animNameNoPrefix != m_currTurnAnim )
 		{
 			// Check if should cancel turn anim cause another anim is playing
 			m_currTurnAnim = null;
 			m_playAfterTurnAnim = null;
 		}
 		
-		bool flip;
-		AnimationClip clip = FindDirectionalAnimation( animName, out flip );
+		bool ignoreTransitionLoopTime = false;	
+
 		string oldClipName = m_spriteAnimator.ClipName;		
 
-		bool ignoreTransitionLoopTime = false;
+		bool flip;
+		AnimationClip clip = FindDirectionalAnimation( animName, out flip );
+	
+		// If clip is null and there was a prefix, try without the prefix
+		if ( clip == null && IsString.Set(GetData().AnimPrefix) )
+		{
+			animName = animNameNoPrefix;
+			clip = FindDirectionalAnimation( animName, out flip );			
+		}
 
 		// Experimental "Transition" code. Not really working for flipping and stuff
-		if ( string.IsNullOrEmpty(m_transitionAnim) == false && m_transitionAnim.StartsWith(animName, System.StringComparison.OrdinalIgnoreCase) == false && oldClipName != clip.name )
-		{			
-			if ( m_animChangeTime < 0.05f )
+		
+		if ( IsString.Set(m_transitionAnim) && m_transitionAnim.StartsWith(animName, System.StringComparison.OrdinalIgnoreCase) == false && oldClipName != clip.name )
+		{
+			string newTransitionName = GetTransitionAnim(m_transitioningFromAnim, m_flippedLastUpdate, clip.name, flip);			
+			if ( m_animChangeTime < 0.05f && IsString.Set(newTransitionName) && m_transitionAnim.StartsWith(newTransitionName, System.StringComparison.OrdinalIgnoreCase) )
 			{
-				// Fix for when we change anims a few times really quick. (like changing pose, then start/stopping talking)
+				// If already transitioning to the same thing...
+				// Fix for when we change anims a few times really quick. (like resetting pose back to default, then starting/stopping talking). In this case the transitionTo anim has chnaged, but the transition should remain.
+				
 				ignoreTransitionLoopTime = true;	// This flag stops anim with loop tags from restarting
 				oldClipName = m_transitioningFromAnim;	// hack the 'oldClipName'
-				//Debug.LogFormat("Ignored transition to {0} (with {1}), transAnim: {2}", m_transitioningToAnim, animName, m_transitionAnim);
+				//Debug.Log($"Ignored transition to {m_transitioningToAnim} (with {animName}). TransAnim: {m_transitionAnim}, TransitioningFrom: {m_transitioningFromAnim}");
 			}
 			else 
 			{			
 				// Cancel the current transition
 				// Changing to another anim that's not the transition target, so cancel the transition. NB: This probably breaks things for walking, where this funtion is played more often
 				// TODO: this isn't handling flipping- Should probably remove the "flipping" stuff if wanna keep this code
-				//Debug.LogFormat("Cleared transition to {0} (with {1}), transAnim: {2}", m_transitioningToAnim, animName, m_transitionAnim);
+				//Debug.Log($"Cleared transition to {m_transitioningToAnim} (with {animName}). TransAnim: {m_transitionAnim},  TransitioningFrom: {m_transitioningFromAnim}, NewTransName: {newTransitionName}");
 				m_transitioningFromAnim = null;
 				m_transitioningToAnim = null;
 				m_transitionAnim = null;
 			}
 		}
-		
 
 		// Experimental "Transition" code.
 		if ( clip != null && oldClipName != clip.name ) // ignore transitions to same animation
 		{
 			string transitionName = GetTransitionAnim(oldClipName, m_flippedLastUpdate, clip.name, flip);
-			if ( string.IsNullOrEmpty(transitionName) == false )
+			if ( IsString.Set(transitionName) )
 			{
 				//Debug.LogFormat("{0} to {1} ({2}): found", oldClipName, clip.name, flip != m_flippedLastUpdate);
 				// Found transition				
@@ -1241,11 +1363,11 @@ public class CharacterComponent : MonoBehaviour
 				}
 			}
 		}
-		if (  flip != Flipped() )
+		if ( flip != Flipped() )
 			transform.localScale = new Vector3(-transform.localScale.x,transform.localScale.y,transform.localScale.z);
 
 		if ( clip == null && Debug.isDebugBuild && animName != "Idle" && animName != "Talk"  && animName != "Walk" && string.IsNullOrEmpty(animName) == false )
-			Debug.Log("Failed to find animation: "+animName);
+			Debug.Log("Failed to find animation: "+animName, gameObject);
 		
 	}
 
@@ -1563,10 +1685,10 @@ public class CharacterComponent : MonoBehaviour
 	}
 
 	Vector2 m_walkSpeedOverride = -Vector2.one;
-	// Overrides walk speed temporarily (until end of anim, or WalkSpeedReset tag is hit)
-	void AnimWalkSpeed(float speed) { m_walkSpeedOverride = new Vector2(speed,speed); }
-	void AnimWalkSpeedX(float speed) { m_walkSpeedOverride.x = speed; }
-	void AnimWalkSpeedY(float speed) { m_walkSpeedOverride.y = speed; }		
+	// Overrides walk speed temporarily (until end of anim, or WalkSpeedReset tag is hit). If 'speed' is less than one, it's treated as a multiplier (eg: 0.5 will make character walk half-speed)
+	void AnimWalkSpeed(float speed) { AnimWalkSpeedX(speed); AnimWalkSpeedY(speed); }
+	void AnimWalkSpeedX(float speed) { m_walkSpeedOverride.x = (speed > -1.0f && speed < 1.0f ) ? (m_data.WalkSpeed.x * speed) : speed; }
+	void AnimWalkSpeedY(float speed) { m_walkSpeedOverride.y = (speed > -1.0f && speed < 1.0f ) ? (m_data.WalkSpeed.y * speed) : speed; }
 	void AnimWalkSpeedReset() { m_walkSpeedOverride = -Vector2.one; }
 	
 	// spawn game object at character's node
@@ -1574,6 +1696,18 @@ public class CharacterComponent : MonoBehaviour
 	{
 		if ( obj != null )
 			GameObject.Instantiate( obj, transform.position, Quaternion.identity );
+	}
+	
+	bool m_animShadowOff = false;
+	public void AnimShadowOff() 
+	{ 
+		m_animShadowOff = true; 
+		UpdateShadow(); 
+	}
+	public void AnimShadowReset() 
+	{
+		m_animShadowOff = false; 
+		UpdateShadow(); 
 	}
 
 	#endregion

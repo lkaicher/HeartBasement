@@ -71,8 +71,10 @@ MonoBehaviour:
     m_animWalk: Walk
     m_animTalk: Talk
     m_animMouth: 
+    m_animShadow: 
     m_useRegionTinting: 1
     m_useRegionScaling: 1
+    m_textOffset: {x: 0, y: 0}
     m_LipSyncEnabled: 0
     m_footstepSound: 
     m_useSpriteAsHotspot: 0

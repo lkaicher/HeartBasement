@@ -55,38 +55,33 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 
 	//static readonly GUIStyle STYLE_TOOLBAR_TOGGLE = new GUIStyle(EditorStyles.toggle) { font = EditorStyles.miniLabel.font, fontSize = EditorStyles.miniLabel.fontSize, padding = new RectOffset(15,0,3,0) };
 
-	static readonly string REGEX_FUNCTION_START = @"\(.+\n*.*\{.*\n\r?";
+	static readonly string REGEX_FUNCTION_START = @"\s*\(.+\n*.*\{.*\n\r?";
 	static readonly string REGEX_CLASS_START = @"public (?:partial )?class \w*.+\n*.*\{.*\n\r?";
 
 	static readonly string STR_TABS = "\t\t";
 	static readonly string STR_TABS_HEADER = "\t";
 
+	
 	static readonly string REGEX_YIELD_LINE_START = @"(?<=^\s*)yield return\s(";
+	static readonly string REGEX_YIELD_CHARACTER = @"((character)|(C\.\w+))\.";
+	//static readonly string REGEX_YIELD_PROP= @"((prop)|(Prop\(.+\)\.";
+	static readonly string REGEX_YIELD_P_OR_C= @"((prop)|(Prop\(.+\))|(character)|(C\.\w+))\."; // C.Dave. or Prop("Door"). or character. or prop.
 
 	// Strings that should have the "yield return" removed from the start. The first group should contain whitespace
 	static readonly string[] REGEX_YIELD_STRINGS = 
-		{
-			@"C\.\w*\.Say(?:NoSkip)?\("     +')',
-			@"\w\.Display\("                +')',
-			@"C\.\w*\.WalkTo\("             +')',
-			@"C\.(\w*\.)?WalkToClicked"     +')',
-			@"C\.(\w*\.)?Face\w*?(?<!BG)\(" +')',  // Has zero width  negative lookbehind assertion so it won't include 'BG'
-			@"C\.\w*\.PlayAnimation\("      +')',
-			@"C\.\w*\.WaitFor\w*?\("        +')',
-			@"Prop\(.+\)\.PlayAnimation\("  +')', // TODO: these don't work for prop.MoveTo( style calls... needs fixing
-			@"Prop\(.+\)\.PlayVideo\("      +')',
-			@"Prop\(.+\)\.MoveTo\("         +')',
-			@"Prop\(.+\)\.Fade\("           +')',
-			@"Prop\(.+\)\.WaitFor\w*?\("    +')',
-			@"E\.Wait"                      +')',
-			@"E\.Break"                     +')',
-			@"E\.ConsumeEvent"              +')',
-			@"E\.FadeIn\("                  +')',
-			@"E\.FadeOut\("                 +')',
-			@"E\.ChangeRoom\("              +')',
-			@"E\.Handle"                    +')',
-			@"R\.\w*\.Enter\("              +')',
-	};
+	{
+		@"\w\.Display\(",
+		@"C(\.\w+)?\.(WalkTo|Face)Clicked\(", // C.WalkToClicked, C.FaceClicked
+		REGEX_YIELD_CHARACTER+@"Say(?:NoSkip)?\(",
+		REGEX_YIELD_CHARACTER + @"WalkTo\(",
+		REGEX_YIELD_CHARACTER + @"Face\w*?(?<!BG)\(",  // Has zero width  negative lookbehind assertion so it won't include 'BG'			
+		REGEX_YIELD_P_OR_C+@"((PlayAnimation\()|(Wait)|(MoveTo\()|(Fade\())", // Shared prop/character functions, combined to be a bit quicker
+		@"E\.(Wait|Break|ConsumeEvent|Handle)",
+		@"E\.Fade(In|Out)\(",
+		@"E\.ChangeRoom\(",
+		@"R\.\w*\.Enter\(",
+	};	
+
 	static Regex[] REGEX_YIELD_STRINGS_LOAD_COMPILED = null; // these are compiled lazily when first used
 	static Regex[] REGEX_YIELD_STRINGS_SAVE_COMPILED = null; // these are compiled lazily when first used
 			
@@ -119,6 +114,8 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			new Regex(@"(?<=^|\W)Button\(\s*""(\w+)""\s*\)", RegexOptions.Compiled), 	// Button("blah") -> Buttons.blah
 			new Regex(@"(?<=^|\W)Image\(\s*""(\w+)""\s*\)", RegexOptions.Compiled), 	// Image("blah") -> Images.blah
 			new Regex(@"(?<=^|\W)Label\(\s*""(\w+)""\s*\)", RegexOptions.Compiled), 	// Label("blah") -> Labels.blah
+			new Regex(@"(?<=^|\W)Slider\(\s*""(\w+)""\s*\)", RegexOptions.Compiled), 	// Slider("blah") -> Slider.blah
+			new Regex(@"(?<=^|\W)InventoryPanel\(\s*""(\w+)""\s*\)", RegexOptions.Compiled), 	// InventoryPanel("blah") -> InventoryPanels.blah
 			new Regex(@"(?<=^|\W)Option\(\s*""(\w+)""\s*\)", RegexOptions.Compiled), 	// Option("blah") -> O.blah.	
 			new Regex(@"(?<=^|\W)Option\(\s*(\d+)\s*\)", RegexOptions.Compiled), 	// Option(1) -> O.1.
 			new Regex(@"(?<=^|\W)C\.Plr\.", RegexOptions.Compiled), 	// C.Plr. -> Plr.
@@ -154,6 +151,8 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			@"Buttons.$1",
 			@"Images.$1",
 			@"Labels.$1",
+			@"Sliders.$1",
+			@"InventoryPanels.$1",
 			@"O.$1",
 			@"O.$1",
 			@"Plr.",
@@ -196,21 +195,23 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			new Regex(@"^(\s*)Return\s*$", RegexOptions.Compiled),
 			new Regex(@"^(\s*)WalkToClicked", RegexOptions.Compiled | RegexOptions.IgnoreCase),
 			new Regex(@"^(\s*)FaceClicked", RegexOptions.Compiled | RegexOptions.IgnoreCase),
-			new Regex(@"(^|\W)H\.(\w+)", RegexOptions.Compiled),
-			new Regex(@"(^|\W)P\.(\w+)", RegexOptions.Compiled),
-			new Regex(@"(^|\W)Regions\.(\w+)", RegexOptions.Compiled),
-			new Regex(@"(^|\W)Points\.(\w+)", RegexOptions.Compiled),
-			new Regex(@"(^|\W)Controls\.(\w+)", RegexOptions.Compiled),
-			new Regex(@"(^|\W)Buttons\.(\w+)", RegexOptions.Compiled),
-			new Regex(@"(^|\W)Images\.(\w+)", RegexOptions.Compiled),
-			new Regex(@"(^|\W)Labels\.(\w+)", RegexOptions.Compiled),
-			new Regex(@"(^|\W)O\.(\d+)", RegexOptions.Compiled),
-			new Regex(@"(^|\W)O\.(\w+)", RegexOptions.Compiled),
-			new Regex(@"(^|[^\.\w])Plr\.", RegexOptions.Compiled), // match start of line, or non-word that's not a '.'
-			new Regex(@"(^|\W)R\.(\w+)\.Script\.", RegexOptions.Compiled),
-			new Regex(@"(^|\W)C\.(\w+)\.Script\.", RegexOptions.Compiled),
-			new Regex(@"(^|\W)I\.(\w+)\.Script\.", RegexOptions.Compiled),
-			new Regex(@"(^|\W)G\.(\w+)\.Script\.", RegexOptions.Compiled),
+			new Regex(@"(^|[^\w.])H\.(\w+)", RegexOptions.Compiled),// [^\w.] matches any non-word character that's not a '.'
+			new Regex(@"(^|[^\w.])P\.(\w+)", RegexOptions.Compiled),
+			new Regex(@"(^|[^\w.])Regions\.(\w+)", RegexOptions.Compiled),
+			new Regex(@"(^|[^\w.])Points\.(\w+)", RegexOptions.Compiled),
+			new Regex(@"(^|[^\w.])Controls\.(\w+)", RegexOptions.Compiled),
+			new Regex(@"(^|[^\w.])Buttons\.(\w+)", RegexOptions.Compiled),
+			new Regex(@"(^|[^\w.])Images\.(\w+)", RegexOptions.Compiled),
+			new Regex(@"(^|[^\w.])Labels\.(\w+)", RegexOptions.Compiled),
+			new Regex(@"(^|[^\w.])Sliders\.(\w+)", RegexOptions.Compiled),
+			new Regex(@"(^|[^\w.])InventoryPanels\.(\w+)", RegexOptions.Compiled),
+			new Regex(@"(^|[^\w.])O\.(\d+)", RegexOptions.Compiled),
+			new Regex(@"(^|[^\w.])O\.(\w+)", RegexOptions.Compiled),
+			new Regex(@"(^|[^\w.])Plr\.", RegexOptions.Compiled), 
+			new Regex(@"(^|[^\w.])R\.(\w+)\.Script\.", RegexOptions.Compiled),
+			new Regex(@"(^|[^\w.])C\.(\w+)\.Script\.", RegexOptions.Compiled),
+			new Regex(@"(^|[^\w.])I\.(\w+)\.Script\.", RegexOptions.Compiled),
+			new Regex(@"(^|[^\w.])G\.(\w+)\.Script\.", RegexOptions.Compiled),
 		};
 
 	// The $1 preserves any spacing that's at the start
@@ -249,6 +250,8 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			@"$1Button(""$2"")", // // Button("blah") -> Buttons.blah.
 			@"$1Image(""$2"")", // // Image("blah") -> Images.blah.
 			@"$1Label(""$2"")", // // Label("blah") -> Labels.blah.
+			@"$1Slider(""$2"")", // // Slider("blah") -> Sliders.blah.
+			@"$1InventoryPanel(""$2"")", // // InventoryPanel("blah") -> InventoryPanels.blah.
 			@"$1Option($2)", // // Option(3) -> O.3.
 			@"$1Option(""$2"")", // // Option("blah") -> O.blah.
 			@"$1C.Plr.", // // Plr. -> C.Plr.
@@ -417,7 +420,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 
 	enum eTabEvent { None, Tab, Backspace, Delete, Indent, Outdent, Left, Right };
 
-	static readonly string[] FUNCTION_SORT_ORDER = { "OnEnterRoom", "OnEnterRoomAfterFade", "OnExitRoom", "UpdateBlocking", "Update", "OnAnyClick", "OnWalkTo", "OnPostRestore" };
+	static readonly string[] FUNCTION_SORT_ORDER = { "OnGameStart","OnEnterRoom", "OnEnterRoomAfterFade", "OnExitRoom", "UpdateBlocking", "Update", "UpdateNoPause","UpdateInput","OnMouseClick","OnAnyClick", "OnWalkTo", "OnPostRestore" };
 
 	#endregion
 	#region Variables: Serialized
@@ -469,7 +472,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 	long m_compileErrorExpireTime = 0;
 
 	//[SerializeField] System.DateTime m_sourceModifiedTime = System.DateTime.MinValue;
-	//static List<QuestScriptEditor> s_editors = new List<QuestScriptEditor>();			
+	static List<QuestScriptEditor> s_editors = new List<QuestScriptEditor>();			
 	
 
 	#endregion
@@ -477,6 +480,18 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 
 	public QuestScriptEditor()
 	{
+	}
+
+	public static void UpdateAutoComplete(eAutoCompleteContext specificType = eAutoCompleteContext.Ignored)
+	{	
+		if ( EditorWindow.HasOpenInstances<QuestScriptEditor>() )
+		{
+			foreach(QuestScriptEditor editor in s_editors)
+			{				
+				if ( editor != null )
+					editor.BuildAutoCompleteLists(false, specificType);
+			}
+		}
 	}
 
 	public static void Open(string file, string className, eType type = eType.Other, string function = null, bool isCoroutine = true )
@@ -583,6 +598,11 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 
 	void OnEnable()
 	{
+		
+		s_editors.RemoveAll(item=>item == null);
+		if ( s_editors.Exists(item=>item==this) == false )
+			s_editors.Add(this);
+
 		InitSpellCheck();
 
 		BuildAutoCompleteLists();
@@ -1025,15 +1045,20 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 		// Prev-next function in history control
 		EditorGUI.BeginDisabledGroup( m_historyIndex + 1 >= m_history.Count );
 		string prevFunc = m_history.IsIndexValid(m_historyIndex+1) ? string.Format("{1}\n{0}",m_history[m_historyIndex+1].m_file,m_history[m_historyIndex+1].m_function) : "Previous";
-		bool doPrevScript = GUILayout.Button( new GUIContent(Contents.PREV) {tooltip=prevFunc}, Styles.TOOLBAR_BUTTON, GUILayout.Width(25) ); 		
-		if ( ev.type == EventType.KeyDown && ev.alt && ev.keyCode == KeyCode.LeftArrow && focusedWindow == this )
+		bool doPrevScript = GUILayout.Button( new GUIContent(Contents.PREV) {tooltip=prevFunc}, Styles.TOOLBAR_BUTTON, GUILayout.Width(25) );         
+		#if UNITY_EDITOR_OSX
+		bool pressedChangeButton = ev.type == EventType.KeyDown && ev.alt && ev.command;
+		#else
+		bool pressedChangeButton = ev.type == EventType.KeyDown && ev.alt;
+		#endif
+		if ( pressedChangeButton && ev.keyCode == KeyCode.LeftArrow && focusedWindow == this )
 			doPrevScript = true;
 		EditorGUI.EndDisabledGroup();
 		EditorGUI.BeginDisabledGroup( m_historyIndex <= 0 );
 		string nextFunc = m_history.IsIndexValid(m_historyIndex-1) ? string.Format("{1}\n{0}",m_history[m_historyIndex-1].m_file,m_history[m_historyIndex-1].m_function) : "Next";
 		GUI.tooltip = "Next function";
 		bool doNextScript = GUILayout.Button( new GUIContent(Contents.NEXT) {tooltip=nextFunc}, Styles.TOOLBAR_BUTTON, GUILayout.Width(25) );
-		if ( ev.type == EventType.KeyDown && ev.alt && ev.keyCode == KeyCode.RightArrow && focusedWindow == this )
+		if ( pressedChangeButton && ev.keyCode == KeyCode.RightArrow && focusedWindow == this )
 			doNextScript = true;
 		EditorGUI.EndDisabledGroup();
 
@@ -1349,7 +1374,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 				ClearAutoComplete();		
 		
 		// Update auto complete. Only expensive if cursor has changed postiion
-		UpdateAutoComplete();
+		UpdateAutoComplete(false);
 
 		// Do autocomplete box
 		LayoutAutoCompleteList(rect, s_textStyle);
@@ -1527,7 +1552,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 		startIndex = -1;
 		endIndex = -1;
 
-		Regex regex = new Regex(functionName+REGEX_FUNCTION_START, RegexOptions.Compiled );
+		Regex regex = new Regex(@"\b"+functionName+REGEX_FUNCTION_START);//, RegexOptions.Compiled );
 		Match match = regex.Match(text);
 		if ( match.Index <= 0 )
 			return false;
@@ -1609,6 +1634,27 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			{
 				m_functionNames.Insert(index++,null);
 				seperate = false;
+			}
+
+			// For global script, find Unhandled		
+			if ( m_fileName == "GlobalScript.cs" )
+			{
+				for (int i = index; i < m_functionNames.Count; ++i )
+				{
+					int oldIndex = m_functionNames.FindIndex(index,(item)=>item.StartsWith("Unhandled"));
+					if ( oldIndex > 0 )
+					{
+						m_functionNames.Swap(index,oldIndex);				
+						++index;
+						seperate = true;
+					}
+				}
+			
+				if (seperate)			
+				{
+					m_functionNames.Insert(index++,null);
+					seperate = false;
+				}
 			}
 
 			// Next list object functions
@@ -1919,7 +1965,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			{				
 				REGEX_YIELD_STRINGS_LOAD_COMPILED = new Regex[REGEX_YIELD_STRINGS.Length];
 				for ( int i = 0; i < REGEX_YIELD_STRINGS.Length; ++i )
-					REGEX_YIELD_STRINGS_LOAD_COMPILED[i] = new Regex(REGEX_YIELD_LINE_START+REGEX_YIELD_STRINGS[i], RegexOptions.Compiled | RegexOptions.Multiline );
+					REGEX_YIELD_STRINGS_LOAD_COMPILED[i] = new Regex(REGEX_YIELD_LINE_START+REGEX_YIELD_STRINGS[i]+')', RegexOptions.Compiled | RegexOptions.Multiline );
 			}
 
 			foreach ( Regex regex in REGEX_YIELD_STRINGS_LOAD_COMPILED )
@@ -2005,7 +2051,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 				{				
 					REGEX_YIELD_STRINGS_SAVE_COMPILED = new Regex[REGEX_YIELD_STRINGS.Length];
 					for ( int i = 0; i < REGEX_YIELD_STRINGS.Length; ++i )
-						REGEX_YIELD_STRINGS_SAVE_COMPILED[i] = new Regex(@"(?<=^\s*)("+REGEX_YIELD_STRINGS[i], RegexOptions.Compiled | RegexOptions.Multiline );
+						REGEX_YIELD_STRINGS_SAVE_COMPILED[i] = new Regex(@"(?<=^\s*)("+REGEX_YIELD_STRINGS[i]+')', RegexOptions.Compiled | RegexOptions.Multiline );
 				}
 
 				foreach ( Regex regexStr in REGEX_YIELD_STRINGS_SAVE_COMPILED )

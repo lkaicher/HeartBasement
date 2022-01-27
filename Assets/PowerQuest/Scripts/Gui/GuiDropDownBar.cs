@@ -23,15 +23,15 @@ public class GuiDropDownBar : MonoBehaviour
 	[Tooltip("Edge of screen that mouse has to be near to Show gui")]
 	[SerializeField] eScreenEdgeY m_edgeY = eScreenEdgeY.Top;
 	[Tooltip("Should pause game while mouse is over the gui?")]
-	[SerializeField] bool m_pauseWhenVisible = true;
+	[SerializeField] bool m_pauseWhenVisible = true;	
+	[Tooltip("Whether to have the gui hide when a blocking script is running")]
+	[SerializeField] bool m_hideDuringCutscenes = false; // obsolete with new gui, since this can just be set in the actual gui component
 	[Tooltip("How far to move (multiplied by the result of the animation curves")]
 	[SerializeField] float m_dropDownDistance = 1;
 	[Tooltip("Anim curves that play when show/hiding the gui")]
 	[SerializeField] AnimationCurve m_curveIn = new AnimationCurve();
 	[SerializeField] AnimationCurve m_curveOut = new AnimationCurve();
 
-	// obsolete with new gui, since this can just be set in the actual gui component
-	[SerializeField] bool m_hideDuringCutscenes = false;
 
 	[Header("Sounds")]
 	[SerializeField] AudioCue m_soundShow = null;
@@ -123,12 +123,21 @@ public class GuiDropDownBar : MonoBehaviour
 		m_delayShow = true;
 	}
 
-	// Use this for initialization
-	void Start () 
+	void OnEnable()
 	{
+		// Always start 'hidden'
 		m_guiComponent = GetComponentInParent<GuiComponent>();
+		m_ratio = 0;
+		m_shown = false;
+		m_blendTimer = 0;
 		Update();
 	}
+
+	// Use this for initialization
+	//void Start () 
+	//{
+	//	OnEnable();
+	//}
 
 	void OnDestroy()
 	{
@@ -145,9 +154,6 @@ public class GuiDropDownBar : MonoBehaviour
 	{	
 		if ( m_highlightPopupTimer > 0 )
 			m_highlightPopupTimer -= Time.deltaTime;
-
-
-
 		
 		RectTransform rectTransform = GetComponent<RectTransform>();
 		AlignToScreen guiAlign = GetComponent<AlignToScreen>();

@@ -1,7 +1,10 @@
+//#define DEBUG_FADE
+
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using PowerTools;
+
 
 namespace PowerTools.Quest
 {
@@ -64,9 +67,12 @@ public class QuestMenuManager
 	public void FadeOut(float time) { FadeOut(time,DEFAULT_FADE_SOURCE); }
 	public void FadeOut(float time, string source)
 	{
-		//Debug.Log("FadeOut: " + source+": "+time);
+		#if DEBUG_FADE
+		Debug.Log("FadeOut: " + source+": "+time);
+		#endif
 		m_fadeOutTime = time;
-		m_fadeSources.Add(source);
+		if (m_fadeSources.Contains(source) == false )		
+			m_fadeSources.Add(source);
 		if ( m_fadeOutTime == 0 )
 		{
 			m_fadeAlpha = 1;
@@ -74,15 +80,20 @@ public class QuestMenuManager
 		}
 	}
 	public void FadeSkip()
-	{
-		//Debug.Log("FadeSkip");
+	{		
+		#if DEBUG_FADE
+		Debug.Log("FadeSkip: "+ (m_fadeSources.Empty() ? "In" : "Out"));
+		#endif
 		m_fadeAlpha = ( m_fadeSources.Empty() ) ? 0 : 1;
 		UpdateFadeSprite();
 	}
 	public void FadeIn(float time) { FadeIn(time,DEFAULT_FADE_SOURCE); }
 	public void FadeIn(float time, string source)
 	{
-		//Debug.Log("FadeIn: " + source+": "+time);
+		
+		#if DEBUG_FADE
+		Debug.Log("FadeIn: " + source+": "+time);
+		#endif
 		m_fadeInTime = time;
 		m_fadeSources.Remove(source);
 		if ( m_fadeInTime == 0 )
@@ -158,8 +169,6 @@ public class QuestMenuManager
 			CallbackOnUpdateFade.Invoke();
 			
 	}
-
-
 
 }
 

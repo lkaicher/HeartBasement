@@ -65,6 +65,7 @@ public enum eSpeechStyle
 	AboveCharacter,
 	Portrait,
 	Caption,
+	Custom,
 };
 
 // TODO: other location styles
@@ -76,6 +77,21 @@ public enum eSpeechPortraitLocation
 	TODOCharacterPosition,
 	TODOCharacterFacing,
 };
+
+/// Easing curves. See https://easings.net for visualisation of most of them. "Smooth" is a light easing and a good default. IT's like InOutSin but more efficient (it's what powers perlin noise)
+[QuestAutoCompletable]
+public enum eEaseCurve 
+{ 
+	None, Linear=None, 
+	InSmooth,  OutSmooth, InOutSmooth, Smooth = InOutSmooth, 
+	InSine,    OutSine,   InOutSine, 
+	InQuad,    OutQuad,   InOutQuad, 
+	InCubic,   OutCubic,  InOutCubic, 
+	InQuart,   OutQuart,  InOutQuart,
+	InQuint,   OutQuint,  InOutQuint, 
+	InExp,     OutExp,    InOutExp, 
+	InElastic, OutElastic,InOutElastic }
+
 
 #endregion
 #region Interfaces
@@ -136,6 +152,8 @@ public static partial class Systems
 	public static PowerQuest Quest { get{return PowerQuest.Get; } }
 	public static SystemAudio Audio { get{return SystemAudio.Get; } }
 	public static SystemTime Time { get{return SystemTime.Get; } }
+	public static SystemDebug Debug { get{return SystemDebug.Get; } }
+	public static SystemText Text { get { return SystemText.Get; } }
 
 	/// Returns true when systems have been initialised
 	public static bool Valid { get { return PowerQuest.GetValid() && SystemAudio.GetValid() && SystemTime.GetValid(); } }
@@ -172,6 +190,7 @@ public partial class PowerQuest
 	public static readonly string SCRIPT_FUNCTION_ONWALKTO = "OnWalkTo";
 	public static readonly string SCRIPT_FUNCTION_ONANYCLICK= "OnAnyClick";
 	public static readonly string SCRIPT_FUNCTION_CLICKGUI = "OnClick";
+	public static readonly string SCRIPT_FUNCTION_DRAGGUI = "OnDrag";
 
 	static readonly YieldInstruction EMPTY_YIELD_INSTRUCTION = new YieldInstruction(); // Used to prevent having to wait a frame in UpdateBlocking which happens when a routine returns yield break
 	static readonly YieldInstruction CONSUME_YIELD_INSTRUCTION = new YieldInstruction(); // Used to prevent falling through to default interaction in an empty function
@@ -186,6 +205,13 @@ public partial class PowerQuest
 		//public bool m_paused = false;
 		public string m_player = string.Empty;
 		public string m_currentDialog = string.Empty;
+		
+		public string m_displayBoxGui;
+		public string m_dialogTreeGui;
+		public string m_customSpeechGui;
+		public eSpeechStyle m_speechStyle;
+		public eSpeechPortraitLocation m_speechPortraitLocation;
+		public float m_transitionFadeTime;
 	}
 
 	public delegate IEnumerator DelegateWaitForFunction();

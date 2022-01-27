@@ -102,6 +102,7 @@ MonoBehaviour:
   - {fileID: 7400000, guid: 04b748349ba069343b257f53dd4fb80a, type: 2}
   - {fileID: 7400000, guid: 29a17f734b0fb0b4e999700518a456f3, type: 2}
   - {fileID: 7400000, guid: a413e9f044686174da81f504e8855cd8, type: 2}
+  m_sprites: []
 --- !u!1 &1188119584316416
 GameObject:
   m_ObjectHideFlags: 0
@@ -154,8 +155,10 @@ MonoBehaviour:
     m_visible: 1
     m_clickable: 0
     m_animation: Back
+    m_alpha: 1
     m_position: {x: 0, y: 0}
     m_baseline: 271
+    m_baselineFixed: 0
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: -2, y: -1}
     m_scriptName: Back
@@ -374,6 +377,7 @@ MonoBehaviour:
     m_enabled: 1
     m_walkable: 1
     m_tint: {r: 1, g: 1, b: 1, a: 0}
+    m_fadeDistance: 0
     m_scaleTop: 1
     m_scaleBottom: 1.25
     m_scriptName: Scale
@@ -459,8 +463,10 @@ MonoBehaviour:
     m_visible: 1
     m_clickable: 1
     m_animation: Pump
+    m_alpha: 1
     m_position: {x: 0, y: 0}
     m_baseline: -154
+    m_baselineFixed: 0
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: 0, y: 0}
     m_scriptName: Pump
@@ -631,8 +637,10 @@ MonoBehaviour:
     m_visible: 1
     m_clickable: 1
     m_animation: WaterFront
+    m_alpha: 1
     m_position: {x: 0, y: 0}
     m_baseline: -274
+    m_baselineFixed: 0
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: 0, y: 0}
     m_scriptName: WaterFront
@@ -884,8 +892,10 @@ MonoBehaviour:
     m_visible: 1
     m_clickable: 0
     m_animation: Water
+    m_alpha: 1
     m_position: {x: 0, y: 0}
     m_baseline: 46
+    m_baselineFixed: 0
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: 0, y: 0}
     m_scriptName: Water
@@ -1141,8 +1151,10 @@ MonoBehaviour:
     m_visible: 1
     m_clickable: 0
     m_animation: Handle
+    m_alpha: 1
     m_position: {x: 0, y: 0}
     m_baseline: -106
+    m_baselineFixed: 0
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: 0, y: 0}
     m_scriptName: Handle
@@ -1284,8 +1296,10 @@ MonoBehaviour:
     m_visible: 1
     m_clickable: 1
     m_animation: Bucket
+    m_alpha: 1
     m_position: {x: 0, y: 0}
     m_baseline: 0
+    m_baselineFixed: 0
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: 0, y: 0}
     m_scriptName: Bucket

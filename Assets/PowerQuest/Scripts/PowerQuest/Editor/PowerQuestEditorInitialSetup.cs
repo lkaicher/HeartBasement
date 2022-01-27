@@ -325,7 +325,7 @@ public partial class PowerQuestEditor
 				// Pre-empting 0.15 change to 9-verb. Otherwise when they install 0.15 it'll have compile error and won't get to this update code.
 				if ( File.Exists("Assets/Game/PowerQuestExtensions9Verb.cs") )
 				{
-					AssetDatabase.ImportPackage("Assets/PowerQuest/Templates/Update-0-15-9Verb.unitypackage", false );
+					AssetDatabase.ImportPackage("Assets/PowerQuest/Templates/Update-0-14-10-9Verb.unitypackage", false );
 				}
 			}
 
@@ -357,11 +357,54 @@ public partial class PowerQuestEditor
 				PowerQuestProjectSetupUtil.SetProjectSettings();
 				
 				// Import controls, gui sprites/anims, and prompt gui
-				AssetDatabase.ImportPackage( "Assets/PowerQuest/Templates/Update-0-15.unitypackage", false );
+				//AssetDatabase.ImportPackage( "Assets/PowerQuest/Templates/Update-0-15.unitypackage", false );
 				
 				EditorUtility.SetDirty(m_powerQuest);
 
+				// Add prompt gui
+				{
+					string name = "Prompt";
+					QuestEditorUtils.InsertTextIntoFile(PATH_GAME_GLOBALS, "#G", "\n\t\tpublic static IGui "+name.PadRight(14)+" { get { return PowerQuest.Get.GetGui(\""+name+"\"); } }");
+				}
+
 			}
+			if ( oldVersion < Version(0,15,4) )
+			{
+				// Add options gui
+				{
+					string name = "Options";
+					QuestEditorUtils.InsertTextIntoFile(PATH_GAME_GLOBALS, "#G", "\n\t\tpublic static IGui "+name.PadRight(14)+" { get { return PowerQuest.Get.GetGui(\""+name+"\"); } }");
+				}				
+								
+				// Import controls, gui sprites/anims, and prompt gui
+				if ( File.Exists("Assets/Game/PowerQuestExtensions9Verb.cs") )
+				{
+					AssetDatabase.ImportPackage( "Assets/PowerQuest/Templates/Update-0-15-9Verb.unitypackage", false );
+				}
+				else 
+				{
+					AssetDatabase.ImportPackage( "Assets/PowerQuest/Templates/Update-0-15.unitypackage", false );
+				}
+			}
+			
+			if ( oldVersion < Version(0,15,8) )
+			{
+				// Add save gui & PQ icon
+				{
+					string name = "Save";
+					QuestEditorUtils.InsertTextIntoFile(PATH_GAME_GLOBALS, "#G", "\n\t\tpublic static IGui "+name.PadRight(14)+" { get { return PowerQuest.Get.GetGui(\""+name+"\"); } }");
+				}
+				
+				if ( File.Exists("Assets/Game/PowerQuestExtensions9Verb.cs") )
+				{
+					AssetDatabase.ImportPackage( "Assets/PowerQuest/Templates/Update-0-15-8-9Verb.unitypackage", false );
+				}
+				else 
+				{
+					AssetDatabase.ImportPackage( "Assets/PowerQuest/Templates/Update-0-15-8.unitypackage", false );
+				}
+			}
+
 
 		}
 		catch ( System.Exception e )

@@ -34,6 +34,8 @@ public partial class PowerQuestEditor
 	//ReorderableList m_listOther = null;
 	ReorderableList m_listControls = null;
 
+	Camera m_guiCamera = null;
+
 	#endregion
 	#region Functions: Create GUI Lists
 
@@ -77,7 +79,8 @@ public partial class PowerQuestEditor
 					drawElementCallback = 	LayoutControlGUI,
 					onSelectCallback = 		SelectGameObjectFromList,
 					onAddCallback = 		(ReorderableList list) => ShowAddControlMenu(),
-					onRemoveCallback = 		(ReorderableList list) => { DeleteControl(list.index); }
+					onRemoveCallback = 		(ReorderableList list) => { DeleteControl(list.index); },
+					onReorderCallback =     UpdateControlOrder
 				};
 			}
 
@@ -317,6 +320,8 @@ public partial class PowerQuestEditor
 				controlTypeName = "Img";		
 			else if ( itemComponent is InventoryPanel )
 				controlTypeName = "Inv";		
+			else if ( itemComponent is Slider )
+				controlTypeName = "Slr";		
 			EditorGUI.LabelField(rect, controlTypeName, EditorStyles.miniLabel );
 			
 			rect.x += 25;
@@ -359,6 +364,40 @@ public partial class PowerQuestEditor
 			QuestEditorUtils.LayoutQuestObjectContextMenu( eQuestObjectType.Hotspot, m_listHotspots, itemComponent.GetData().GetScriptName(), itemComponent.gameObject, rect, index,false );
 		offset += fixedWidth;
 		*/
+	}
+
+	
+	
+	void UpdateControlOrder(ReorderableList list)
+	{
+		if ( m_selectedGui == null)
+			return;
+		int index = 0;
+		m_selectedGui.GetControlComponents().ForEach( item=> { if ( item.transform.parent == m_selectedGui.transform ) item.transform.SetSiblingIndex(index++); } );
+
+		EditorUtility.SetDirty(m_selectedGui);
+		Repaint();
+	}
+		
+	void OnSceneGui(SceneView sceneView)
+	{
+		if ( m_selectedGui == null )
+			return;
+		
+		// Get the gui camera
+		if (m_guiCamera == null)
+			m_guiCamera = GuiUtils.FindGuiCamera();
+
+		if (m_guiCamera != null )
+		{
+			Rect cameraRect = m_guiCamera.pixelRect;
+			RectCentered bounds = new RectCentered( cameraRect );
+			bounds.Min = m_guiCamera.ScreenToWorldPoint(bounds.Min);
+			bounds.Max = m_guiCamera.ScreenToWorldPoint(bounds.Max);
+			
+			Handles.DrawSolidRectangleWithOutline(bounds, new Color(0,0,0,0),Color.yellow);
+		}
+
 	}
 
 

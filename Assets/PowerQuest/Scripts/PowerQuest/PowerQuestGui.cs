@@ -67,6 +67,7 @@ public partial class PowerQuest
 	
 	public void OnGuiShown(Gui gui)
 	{
+
 		// Call OnShow on gui script
 		if ( gui == null )
 			throw new System.Exception("gui is null");

@@ -52,7 +52,7 @@ public class CharacterComponentEditor : Editor
 	public void OnSceneGUI()
 	{		
 		CharacterComponent component = (CharacterComponent)target;
-		QuestClickableEditorUtils.OnSceneGUI( component, component.GetData() );
+		QuestClickableEditorUtils.OnSceneGUI( component, component.GetData(),false );
 		
 		if ( component.GetData().EditorGetSolid() )
 		{
