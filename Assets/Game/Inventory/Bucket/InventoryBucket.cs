@@ -14,7 +14,7 @@ public class InventoryBucket : InventoryScript<InventoryBucket>
 		{
 			Globals.tutorialProgress = tutorialStage.selectedBucket;
 		
-			yield return C.Display(" Click on the water with the bucket to scoop it up, then click on the window to dump it out.", 33);
+			yield return C.Display(" Click on the water with the bucket to scoop it up.", 33);
 		
 			Prop("Water").Clickable = true;
 			I.Bucket.SetActive();

@@ -53,12 +53,13 @@ MonoBehaviour:
   - m_code: GB
     m_description: British English
     m_customData: []
+  m_defaultTextSource: 1
   m_lipSyncExtendedShapes: X
   m_strings:
   - m_character: Dave
     m_id: 0
     m_orderId: 0
-    m_string: Oh no! My basement is flooded!
+    m_string: Oh dang! Weeewoooo
     m_sourceFile: Room- Home
     m_sourceFunction: OnEnterRoomAfterFade
     m_translations:

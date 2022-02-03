@@ -70,7 +70,7 @@ public class RoomHome : RoomScript<RoomHome>
 		Prop("Pump").Disable();
 		Prop("Handle").Disable();
 		C.Dave.SetPosition(Point("StartPosition"));
-		// C.Dave.Moveable = false;
+		C.Dave.Moveable = false;
 		
 		yield return C.Dave.Say("Oh no! My basement is flooded!", 0);
 		yield return C.Dave.Say("Good thing I have my trusty bucket!", 41);
@@ -125,6 +125,15 @@ public class RoomHome : RoomScript<RoomHome>
 				Globals.tutorialProgress = tutorialStage.usedBucket;
 				Globals.m_progressExample = eProgress.UsedBucket;
 				lowerWater();
+		
+				I.Active = null;
+				yield return E.WaitSkip();
+				yield return C.Dave.Say("Oh man... this is going to take forever.", 44);
+				yield return C.Dave.Say("Maybe there's something at Doc's hardware store that can help.", 45);
+				yield return E.WaitSkip();
+				yield return C.Display("Click on a space in the room to walk to it.");
+				C.Dave.Moveable = true;
+		
 				// I.Bucket.SetActive();
 			} else {
 				yield return C.Dave.Say(" This bucket ain't gonna cut it...");
@@ -140,6 +149,8 @@ public class RoomHome : RoomScript<RoomHome>
 			Prop("Pump").Enable();
 			Prop("Handle").Enable();
 			// FaceClicked
+		
+			/*
 			yield return C.Display("Dave begins to try to pump out the water.", 1);
 			Prop("Pump").Visible = false;
 			Prop("Handle").Visible = false;
@@ -154,7 +165,7 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return E.Wait(1);
 			yield return E.WaitSkip();
 			yield return C.Dave.FaceDown();
-		
+			*/
 		
 		}
 		yield return E.Break;
@@ -181,15 +192,15 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator UpdateBlocking()
 	{
-		/*
+		
 		if ( (Globals.tutorialProgress == tutorialStage.usedBucket) && (C.Player.Position != Point("StartPosition") && !C.Player.Walking) )
 		{
 			Globals.tutorialProgress = tutorialStage.complete;
 		
-			// Display: Walk all the way to the right and click the door to leave your basement.
+			yield return C.Display("Walk all the way to the right and click the door to leave your basement.");
 		
 		}
-		*/
+		
 		yield return E.Break;
 	}
 
@@ -212,14 +223,19 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnInteractPropPump( IProp prop )
 	{
-
+		string[] pumpAnims = {"PumpingS", "PumpingM", "PumpingL"};
+		
+		
 		yield return C.Dave.WalkTo(Point("PumpPosition"));
 		Prop("Pump").Visible = false;
 		Prop("Handle").Visible = false;
-		yield return C.Dave.PlayAnimation("Pumping");
-		yield return C.Dave.PlayAnimation("Pumping");
-		yield return C.Dave.PlayAnimation("Pumping");
-		yield return C.Dave.PlayAnimation("Pumping");
+		
+		Debug.Log((int)currentHandle);
+		Debug.Log(pumpAnims[(int)currentHandle]);
+		
+		yield return C.Dave.PlayAnimation(pumpAnims[(int)currentHandle]);
+		yield return C.Dave.PlayAnimation(pumpAnims[(int)currentHandle]);
+		yield return C.Dave.PlayAnimation(pumpAnims[(int)currentHandle]);
 		Prop("Pump").Visible = true;
 		Prop("Handle").Visible = true;
 		
@@ -395,7 +411,7 @@ public class RoomHome : RoomScript<RoomHome>
 		{
 			Globals.tutorialProgress = tutorialStage.clickedBucket;
 			yield return E.WaitSkip();
-			yield return C.Dave.Say(" There it is! Now I can scoop this water out the window.", 42);
+			yield return C.Dave.Say(" There it is! Now I can scoop up some of this water.", 42);
 			yield return E.WaitSkip();
 			yield return C.Display(" Click on the bucket icon in your inventory to select it.", 32);
 		
@@ -441,6 +457,12 @@ public class RoomHome : RoomScript<RoomHome>
 	IEnumerator OnUseInvPropBucket( IProp prop, IInventory item )
 	{
 		
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotWindow( IHotspot hotspot )
+	{
+
 		yield return E.Break;
 	}
 }
