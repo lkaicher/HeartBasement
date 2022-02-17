@@ -4,8 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity WebGL Player | Heart Basement</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css">
+    <link rel="shortcut icon" href="BuildHere/TemplateData/favicon.ico">
+    <link rel="stylesheet" href="BuildHere/TemplateData/style.css">
+    <style>
+      #unity-container {
+        width: 100%; 
+        left:0 !important; 
+        top:0 !important; 
+        transform: translate(0,0) !important;
+      }
+      #unity-canvas {cursor: none!important;}
+    </style>
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
@@ -26,12 +35,12 @@
       </div>
     </div>
     <script>
-      var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/docs.loader.js";
+      var buildUrl = "BuildHere/Build";
+      var loaderUrl = buildUrl + "/BuildHere.loader.js";
       var config = {
-        dataUrl: buildUrl + "/docs.data",
-        frameworkUrl: buildUrl + "/docs.framework.js",
-        codeUrl: buildUrl + "/docs.wasm",
+        dataUrl: buildUrl + "/BuildHere.data",
+        frameworkUrl: buildUrl + "/BuildHere.framework.js",
+        codeUrl: buildUrl + "/BuildHere.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "TLL",
         productName: "Heart Basement",
@@ -53,8 +62,7 @@
           mobileWarning.style.display = "none";
         }, 5000);
       } else {
-        canvas.style.width = "1280px";
-        canvas.style.height = "720px";
+        canvas.style.width = "100%";
       }
       loadingBar.style.display = "block";
 

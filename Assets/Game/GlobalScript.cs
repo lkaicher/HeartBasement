@@ -66,6 +66,9 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		 C.Tony.ChangeRoom(R.Home);
 		
 		*/
+		
+		// GUI
+		G.Toolbar.Hide();
 	} 
 
 	/// Called after restoring a game. Use this if you need to update any references based on saved data.

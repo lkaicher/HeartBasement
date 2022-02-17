@@ -90,18 +90,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: Save and Exit
-    m_position: {x: 0, y: 0}
     m_baseline: 0
     m_visible: 1
-    m_clickable: 1
+    m_visibleInCutscenes: 1
     m_modal: 0
     m_pauseGame: 0
+    m_hideObscuredGuis: 0
+    m_hideSpecificGuis: []
+    m_description: Save and Exit
     m_cursor: 
     m_allowInventoryCursor: 0
-    m_hideGuisWhenActive: []
+    m_position: {x: 0, y: 0}
     m_scriptName: GuiNew
     m_scriptClass: GuiNew
+  m_animations: []
+  m_sprites: []
+  m_controlComponents: []
 --- !u!1 &123866
 GameObject:
   m_ObjectHideFlags: 0
@@ -192,18 +196,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: Toggle Volume
-    m_position: {x: 0, y: 0}
     m_baseline: 0
     m_visible: 1
-    m_clickable: 1
+    m_visibleInCutscenes: 1
     m_modal: 0
     m_pauseGame: 0
+    m_hideObscuredGuis: 0
+    m_hideSpecificGuis: []
+    m_description: Toggle Volume
     m_cursor: 
     m_allowInventoryCursor: 0
-    m_hideGuisWhenActive: []
+    m_position: {x: 0, y: 0}
     m_scriptName: GuiNew
     m_scriptClass: GuiNew
+  m_animations: []
+  m_sprites: []
+  m_controlComponents: []
 --- !u!1 &138232
 GameObject:
   m_ObjectHideFlags: 0
@@ -426,18 +434,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: Toggle Text Display
-    m_position: {x: 0, y: 0}
     m_baseline: 0
     m_visible: 1
-    m_clickable: 1
+    m_visibleInCutscenes: 1
     m_modal: 0
     m_pauseGame: 0
+    m_hideObscuredGuis: 0
+    m_hideSpecificGuis: []
+    m_description: Toggle Text Display
     m_cursor: 
     m_allowInventoryCursor: 0
-    m_hideGuisWhenActive: []
+    m_position: {x: 0, y: 0}
     m_scriptName: GuiNew
     m_scriptClass: GuiNew
+  m_animations: []
+  m_sprites: []
+  m_controlComponents: []
 --- !u!1 &151112
 GameObject:
   m_ObjectHideFlags: 0
@@ -834,18 +846,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: 
-    m_position: {x: 0, y: 0}
     m_baseline: 0
     m_visible: 1
-    m_clickable: 1
+    m_visibleInCutscenes: 1
     m_modal: 0
     m_pauseGame: 0
+    m_hideObscuredGuis: 0
+    m_hideSpecificGuis: []
+    m_description: 
     m_cursor: 
     m_allowInventoryCursor: 0
-    m_hideGuisWhenActive: []
+    m_position: {x: 0, y: 0}
     m_scriptName: Toolbar
     m_scriptClass: GuiToolbar
+  m_animations: []
+  m_sprites: []
+  m_controlComponents: []
 --- !u!222 &22202690
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -891,7 +907,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 175918}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3931ceb8eb0d2d54aaafc24c1a87dc29, type: 3}
   m_Name: 
@@ -901,6 +917,7 @@ MonoBehaviour:
   m_edgeX: 1
   m_edgeY: 1
   m_pauseWhenVisible: 1
+  m_hideDuringCutscenes: 1
   m_dropDownDistance: 17
   m_curveIn:
     serializedVersion: 2
@@ -950,7 +967,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 0
-  m_hideDuringCutscenes: 1
   m_soundShow: {fileID: 0}
   m_soundHide: {fileID: 0}
 --- !u!114 &11408990

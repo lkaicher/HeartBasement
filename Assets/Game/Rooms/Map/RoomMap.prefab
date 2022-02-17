@@ -78,6 +78,7 @@ MonoBehaviour:
   m_walkableAreas:
   - {fileID: 2678240337107981029}
   m_animations: []
+  m_sprites: []
 --- !u!1 &2491461335203807332
 GameObject:
   m_ObjectHideFlags: 0
@@ -131,8 +132,10 @@ MonoBehaviour:
     m_visible: 1
     m_clickable: 1
     m_animation: Hardware
+    m_alpha: 1
     m_position: {x: 0, y: 0}
     m_baseline: -381
+    m_baselineFixed: 0
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: 0, y: 0}
     m_scriptName: Hardware
@@ -302,8 +305,10 @@ MonoBehaviour:
     m_visible: 1
     m_clickable: 0
     m_animation: Back
+    m_alpha: 1
     m_position: {x: 0, y: 0}
     m_baseline: 271
+    m_baselineFixed: 0
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: -1, y: -1}
     m_scriptName: Back
@@ -516,6 +521,7 @@ MonoBehaviour:
     m_enabled: 1
     m_walkable: 1
     m_tint: {r: 1, g: 1, b: 1, a: 0}
+    m_fadeDistance: 0
     m_scaleTop: 0.25
     m_scaleBottom: 0.25
     m_scriptName: Scale
@@ -601,8 +607,10 @@ MonoBehaviour:
     m_visible: 1
     m_clickable: 1
     m_animation: Home
+    m_alpha: 1
     m_position: {x: 0, y: 0}
     m_baseline: -86
+    m_baselineFixed: 0
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: 0, y: 0}
     m_scriptName: Home

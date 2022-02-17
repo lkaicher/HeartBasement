@@ -19,14 +19,17 @@ public class RoomMap : RoomScript<RoomMap>
 			C.Dave.SetPosition(Point("HardwarePoint"));
 		} else {
 			C.Dave.SetPosition(Point("HomePoint"));
-	}
-	
+		}
+		
+		//GUI
+		G.Inventory.Hide();
 	}
 
 	IEnumerator OnInteractPropHome( IProp prop )
 	{
 		yield return C.Dave.WalkTo(Point("HomePoint"));
 		C.Dave.ChangeRoomBG(R.Home);
+		G.Inventory.Show();
 		yield return E.Break;
 	}
 
@@ -34,6 +37,7 @@ public class RoomMap : RoomScript<RoomMap>
 	{
 		yield return C.Dave.WalkTo(Point("HardwarePoint"));
 		C.Dave.ChangeRoomBG(R.Hardware);
+		G.Inventory.Show();
 		yield return E.Break;
 	}
 
