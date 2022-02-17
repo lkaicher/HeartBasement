@@ -52,8 +52,10 @@ MonoBehaviour:
     m_visible: 1
     m_clickable: 0
     m_animation: Counter
+    m_alpha: 1
     m_position: {x: 0, y: 0}
     m_baseline: -42
+    m_baselineFixed: 0
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: 0, y: 0}
     m_scriptName: Counter
@@ -195,8 +197,10 @@ MonoBehaviour:
     m_visible: 1
     m_clickable: 1
     m_animation: BeerPack
+    m_alpha: 1
     m_position: {x: 0, y: 0}
     m_baseline: 42
+    m_baselineFixed: 0
     m_walkToPoint: {x: -4, y: 0}
     m_lookAtPoint: {x: -4, y: 0}
     m_scriptName: BeerPack
@@ -372,8 +376,10 @@ MonoBehaviour:
     m_visible: 1
     m_clickable: 0
     m_animation: Shelf
+    m_alpha: 1
     m_position: {x: 0, y: 0}
     m_baseline: -175
+    m_baselineFixed: 0
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: 0, y: 0}
     m_scriptName: Shelf
@@ -510,6 +516,7 @@ MonoBehaviour:
     m_enabled: 1
     m_walkable: 1
     m_tint: {r: 1, g: 1, b: 1, a: 0}
+    m_fadeDistance: 0
     m_scaleTop: 1
     m_scaleBottom: 1.5
     m_scriptName: Scale
@@ -626,6 +633,7 @@ MonoBehaviour:
   m_walkableAreas:
   - {fileID: 3776840236462207789}
   m_animations: []
+  m_sprites: []
 --- !u!1 &6204995005782182605
 GameObject:
   m_ObjectHideFlags: 0
@@ -678,8 +686,10 @@ MonoBehaviour:
     m_visible: 1
     m_clickable: 0
     m_animation: Back
+    m_alpha: 1
     m_position: {x: 0, y: 0}
     m_baseline: 266
+    m_baselineFixed: 0
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: -1, y: -1}
     m_scriptName: Back
@@ -906,13 +916,13 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: -999.0581, y: -270.4062}
-      - {x: -1000.3298, y: -169.19356}
-      - {x: -814.9331, y: -45.13382}
-      - {x: 573.1243, y: -52.297394}
-      - {x: 645.1001, y: -114.00808}
-      - {x: 687.29346, y: -107.07648}
-      - {x: 891.18176, y: -265.929}
+    - - {x: -1000.3641, y: -268.29276}
+      - {x: -954.95856, y: -201.6768}
+      - {x: -786.96954, y: -65.53889}
+      - {x: 535.506, y: -67.49992}
+      - {x: 593.07465, y: -121.80704}
+      - {x: 657.9507, y: -135.31305}
+      - {x: 820.02545, y: -269.84595}
 --- !u!114 &3776840236462207789
 MonoBehaviour:
   m_ObjectHideFlags: 0

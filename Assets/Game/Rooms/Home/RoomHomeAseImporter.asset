@@ -14,19 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_animations:
   - m_name: Water Levels
-    m_firstFrame: 1
+    m_firstFrame: 0
     m_loop: 0
-    m_length: 11
-    m_frameDurations: 6400000064000000640000006400000064000000640000006400000064000000640000006400000064000000
-  m_packingTag: RoomForest
+    m_fullRect: 0
+    m_length: 20
+    m_frameDurations: 6400000064000000640000006400000064000000640000006400000064000000640000006400000064000000640000006400000064000000640000006400000064000000640000006400000064000000
   m_pixelsPerUnit: 1
   m_filterMode: 0
   m_compression: 0
+  m_spriteMeshType: 1
   m_crunchedCompression: 0
-  m_sourcePSD: ../Documents/HeartBasementAssets/HeartBasementBasementBackground.aseprite
-  m_sourceDirectory: ..\Documents\HeartBasementAssets/Export
+  m_sourcePSD: ../../Documents/HeartBasementAssets/HeartBasement_BasementBackground_with_Hoses_and_Waterlevels.aseprite
+  m_sourceDirectory: C:\Users\lukek\Desktop
   m_deleteImportedPngs: 1
   m_spriteDirectory: Sprites
   m_gui: 0
   m_isAseprite: 1
   m_trimSprites: 0
+  m_createSingleSpriteAnims: 1

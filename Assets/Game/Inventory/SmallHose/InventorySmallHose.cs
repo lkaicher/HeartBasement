@@ -7,4 +7,10 @@ using static GlobalScript;
 public class InventorySmallHose : InventoryScript<InventorySmallHose>
 {
     public bool isHose = true;
+
+	IEnumerator OnInteractInventory( IInventory thisItem )
+	{
+
+		yield return E.Break;
+	}
 }

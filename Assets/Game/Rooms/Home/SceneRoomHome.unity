@@ -134,6 +134,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: CharacterDave
       objectReference: {fileID: 0}
+    - target: {fileID: 1387124637103046, guid: b4910caf4195aeb45895069ad277b9fd, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4268106140606114, guid: b4910caf4195aeb45895069ad277b9fd, type: 3}
       propertyPath: m_RootOrder
       value: 4
