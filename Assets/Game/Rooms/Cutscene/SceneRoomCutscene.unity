@@ -305,9 +305,73 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 716012838920720703, guid: 44651c51f21780a4ca86fbfaede30fb2, type: 3}
+      propertyPath: m_outlineMeshes.Array.data[0]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 716012838920720703, guid: 44651c51f21780a4ca86fbfaede30fb2, type: 3}
+      propertyPath: m_outlineMeshes.Array.data[1]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 716012838920720703, guid: 44651c51f21780a4ca86fbfaede30fb2, type: 3}
+      propertyPath: m_outlineMeshes.Array.data[2]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 716012838920720703, guid: 44651c51f21780a4ca86fbfaede30fb2, type: 3}
+      propertyPath: m_outlineMeshes.Array.data[3]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 716012838920720703, guid: 44651c51f21780a4ca86fbfaede30fb2, type: 3}
+      propertyPath: m_outlineMeshes.Array.data[4]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 716012838920720703, guid: 44651c51f21780a4ca86fbfaede30fb2, type: 3}
+      propertyPath: m_outlineMeshes.Array.data[5]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 716012838920720703, guid: 44651c51f21780a4ca86fbfaede30fb2, type: 3}
+      propertyPath: m_outlineMeshes.Array.data[6]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 716012838920720703, guid: 44651c51f21780a4ca86fbfaede30fb2, type: 3}
+      propertyPath: m_outlineMeshes.Array.data[7]
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 2000376657603516639, guid: 44651c51f21780a4ca86fbfaede30fb2, type: 3}
       propertyPath: m_Name
       value: RoomCutscene
+      objectReference: {fileID: 0}
+    - target: {fileID: 5479858263929790767, guid: 44651c51f21780a4ca86fbfaede30fb2, type: 3}
+      propertyPath: m_outlineMeshes.Array.data[0]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5479858263929790767, guid: 44651c51f21780a4ca86fbfaede30fb2, type: 3}
+      propertyPath: m_outlineMeshes.Array.data[1]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5479858263929790767, guid: 44651c51f21780a4ca86fbfaede30fb2, type: 3}
+      propertyPath: m_outlineMeshes.Array.data[2]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5479858263929790767, guid: 44651c51f21780a4ca86fbfaede30fb2, type: 3}
+      propertyPath: m_outlineMeshes.Array.data[3]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5479858263929790767, guid: 44651c51f21780a4ca86fbfaede30fb2, type: 3}
+      propertyPath: m_outlineMeshes.Array.data[4]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5479858263929790767, guid: 44651c51f21780a4ca86fbfaede30fb2, type: 3}
+      propertyPath: m_outlineMeshes.Array.data[5]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5479858263929790767, guid: 44651c51f21780a4ca86fbfaede30fb2, type: 3}
+      propertyPath: m_outlineMeshes.Array.data[6]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5479858263929790767, guid: 44651c51f21780a4ca86fbfaede30fb2, type: 3}
+      propertyPath: m_outlineMeshes.Array.data[7]
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8927809423599020477, guid: 44651c51f21780a4ca86fbfaede30fb2, type: 3}
       propertyPath: m_RootOrder

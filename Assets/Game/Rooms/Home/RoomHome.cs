@@ -159,7 +159,7 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return C.Dave.PlayAnimation("Pumping");
 			Prop("Pump").Visible = true;
 			Prop("Handle").Visible = true;
-			Globals.m_progressExample = eProgress.TriedPump1;
+			Globals.m_progressExample = eProgress.TriedPump;
 			//lowerWater();
 			// C.Dave.WalkTo(0,-400);
 			Prop("Back").Animation="WaterLevel2";
@@ -260,6 +260,8 @@ public class RoomHome : RoomScript<RoomHome>
 		
 			yield return C.Display("You've chosen the correct parts for the pump and the water level has decreased.", 3);
 			yield return C.Dave.Say("Still not enough... I could use some extra hands.", 7);
+			C.Dave.ChangeRoom(R.Cutscene);
+		
 		} else {
 			yield return C.Dave.Say(" This isn't any better. I should try different parts.", 8);
 		}
