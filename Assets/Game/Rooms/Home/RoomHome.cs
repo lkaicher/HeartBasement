@@ -132,12 +132,12 @@ public class RoomHome : RoomScript<RoomHome>
 				yield return C.Dave.Say("Oh man... this is going to take forever.", 44);
 				yield return C.Dave.Say("Maybe there's something at Doc's hardware store that can help.", 45);
 				yield return E.WaitSkip();
-				yield return C.Display("Click on a space in the room to walk to it.");
+				yield return C.Display("Click on a space in the room to walk to it.", 28);
 				C.Dave.Moveable = true;
 		
 				// I.Bucket.SetActive();
 			} else {
-				yield return C.Dave.Say(" This bucket ain't gonna cut it...");
+				yield return C.Dave.Say(" This bucket ain't gonna cut it...", 6);
 			}
 		
 		
@@ -200,7 +200,7 @@ public class RoomHome : RoomScript<RoomHome>
 		{
 			Globals.tutorialProgress = tutorialStage.complete;
 		
-			yield return C.Display("Walk all the way to the right and click the door to leave your basement.");
+			yield return C.Display("Walk all the way to the right and click the door to leave your basement.", 36);
 		
 		}
 		
@@ -463,10 +463,10 @@ public class RoomHome : RoomScript<RoomHome>
 				yield return C.Dave.Say("Oh man... this is going to take forever.", 44);
 				yield return C.Dave.Say("Maybe there's something at Doc's hardware store that can help.", 45);
 				yield return E.WaitSkip();
-				yield return C.Display("Click on a space in the room to walk to it.");
+				yield return C.Display("Click on a space in the room to walk to it.", 37);
 				C.Dave.Moveable = true;
 			} else {
-				yield return C.Dave.Say(" This bucket aint going to cut it...");
+				yield return C.Dave.Say(" This bucket aint going to cut it...", 30);
 			}
 		
 		}

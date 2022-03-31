@@ -124,8 +124,8 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		//E.ProcessClick( E.GetMouseOverType() );
 		// Vector2 coords = Cursor.PositionOverride;
 		
-		yield return E.WaitUntil( ()=> Input.GetMouseButtonUp(0));
-		C.Player.WalkToBG(E.GetMousePosition());
+		// E.WaitUntil( ()=> Input.GetMouseButtonUp(0));
+		// C.Player.WalkToBG(E.GetMousePosition());
 		//Debug.Log(Input.GetMouseButtonUp(0));
 		
 		//C.Player.WalkTo(coords);
