@@ -46,18 +46,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: 
-    m_position: {x: 0, y: 0}
     m_baseline: 0
     m_visible: 1
-    m_clickable: 0
+    m_visibleInCutscenes: 1
     m_modal: 0
     m_pauseGame: 0
+    m_hideObscuredGuis: 0
+    m_hideSpecificGuis: []
+    m_description: 
     m_cursor: 
     m_allowInventoryCursor: 0
-    m_hideGuisWhenActive: []
+    m_position: {x: 0, y: 0}
     m_scriptName: InfoBar
     m_scriptClass: GuiInfoBar
+  m_animations: []
+  m_sprites: []
+  m_controlComponents: []
 --- !u!114 &11436504
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -123,6 +127,8 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -134,6 +140,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -146,6 +153,7 @@ MeshRenderer:
   m_SortingLayerID: -1164025503
   m_SortingLayer: 1
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!102 &10269918
 TextMesh:
   serializedVersion: 3

@@ -46,19 +46,19 @@ MonoBehaviour:
   m_data:
     m_options:
     - m_name: 1
-      m_text: Call Jim
+      m_text: '&33 Call Jim'
       m_visible: 1
       m_disabled: 0
       m_used: 0
       m_timesUsed: 0
     - m_name: 2
-      m_text: Order Pizza
+      m_text: '&34 Order Pizza'
       m_visible: 1
       m_disabled: 0
       m_used: 0
       m_timesUsed: 0
     - m_name: 3
-      m_text: Put Away Phone
+      m_text: '&35 Put Away Phone'
       m_visible: 1
       m_disabled: 0
       m_used: 0

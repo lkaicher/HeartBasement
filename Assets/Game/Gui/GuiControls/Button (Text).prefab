@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 666f9d91473931844b4684988c676d4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_baseline: 0
+  m_baseline: 1
   m_visible: 1
   m_clickable: 1
   m_description: 
@@ -56,7 +56,7 @@ MonoBehaviour:
   m_animClick: BtnDown
   m_animOff: BtnOff
   m_colorWhat: 1
-  m_color: {r: 0.22352943, g: 0.4156863, b: 0.7803922, a: 1}
+  m_color: {r: 1, g: 1, b: 1, a: 1}
   m_colorHover: {r: 0.22352943, g: 0.4156863, b: 0.7803922, a: 1}
   m_colorClick: {r: 1, g: 1, b: 1, a: 1}
   m_colorOff: {r: 0.22352943, g: 0.4156863, b: 0.7803922, a: 1}
@@ -82,7 +82,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -0.4000244, y: -0.7000122}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -93,7 +93,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 8, y: 2}
+  m_Size: {x: 62, y: 13}
   m_EdgeRadius: 0
 --- !u!1 &3600884075240493001
 GameObject:
@@ -124,8 +124,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3600884075240493001}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -0.0869552, y: -0.3199997, z: 0}
+  m_LocalScale: {x: 0.9592759, y: 1.0232277, z: 1.0232277}
   m_Children: []
   m_Father: {fileID: 7883405053413171984}
   m_RootOrder: 0
@@ -169,13 +169,13 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1164025503
   m_SortingLayer: 1
-  m_SortingOrder: -29866
+  m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: 9dac2c880ff5371489281cb91189e2ca, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 8, y: 2}
+  m_Size: {x: 70, y: 15}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -325,7 +325,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1164025503
   m_SortingLayer: 1
-  m_SortingOrder: -29866
+  m_SortingOrder: 1
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!102 &3486361324765900567
 TextMesh:
@@ -335,7 +335,7 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8846689668417078757}
-  m_Text: New Button
+  m_Text: Change Text
   m_OffsetZ: 0
   m_CharacterSize: 10
   m_LineSpacing: 1
@@ -348,7 +348,7 @@ TextMesh:
   m_Font: {fileID: 12800000, guid: 9bfc53a14025788469f6f9870d73e7a0, type: 3}
   m_Color:
     serializedVersion: 2
-    rgba: 4291258937
+    rgba: 4294967295
 --- !u!114 &5375699406641876803
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -361,10 +361,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99f5801e9ab1722449b271233da6c14c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_text: New Button
+  m_text: Change Text
   m_localize: 0
   m_sortingLayer: Gui
-  m_orderInLayer: 35670
+  m_orderInLayer: 1
   m_wrapWidth: 0
   m_truncate: 0
   m_wrapUniformLineWidth: 0
@@ -375,5 +375,5 @@ MonoBehaviour:
     m_directions: 0
     m_width: 1
     m_color: {r: 0.9333334, g: 0.76470596, b: 0.6039216, a: 1}
-  m_unlocalizedText: New Button
+  m_unlocalizedText: Change Text
   m_outlineMeshes: []

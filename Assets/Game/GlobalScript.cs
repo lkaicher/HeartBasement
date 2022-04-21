@@ -69,6 +69,11 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		
 		// GUI
 		G.Toolbar.Hide();
+		
+		Settings.LanguageId = 2;
+		
+		
+		
 	} 
 
 	/// Called after restoring a game. Use this if you need to update any references based on saved data.

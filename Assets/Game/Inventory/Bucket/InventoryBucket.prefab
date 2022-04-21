@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: Bucket
+    m_description: '&23 Bucket'
     m_animGui: bucket
     m_animCursor: bucket
     m_animCursorInactive: bucket

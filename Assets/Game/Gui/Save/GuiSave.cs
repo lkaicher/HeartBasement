@@ -30,9 +30,9 @@ public class GuiSave : GuiScript<GuiSave>
 	{
 		
 		if ( m_save )
-			Label("LblSave").Text = SystemText.Localize("Save Game");
+			Label("LblSave").Text = SystemText.Localize("Save Game", 58);
 		else
-			Label("LblSave").Text = SystemText.Localize("Restore Game");
+			Label("LblSave").Text = SystemText.Localize("Restore Game", 59);
 					
 		IButton[] slots =
 		{
@@ -47,7 +47,7 @@ public class GuiSave : GuiScript<GuiSave>
 		
 			if ( data == null )
 			{
-				slots[i].Text = SystemText.Localize("Empty");
+				slots[i].Text = SystemText.Localize("Empty", 60);
 		
 				if ( m_save )
 				{
@@ -85,7 +85,7 @@ public class GuiSave : GuiScript<GuiSave>
 			// Special case for auto save slot
 			if ( i == AutoSaveSlot )
 			{		
-				slots[i].Text = SystemText.Localize("Autosave");
+				slots[i].Text = SystemText.Localize("Autosave", 61);
 				// don't allow save over auto-save slot
 				if ( m_save )
 					slots[i].Clickable = false;		
@@ -94,7 +94,7 @@ public class GuiSave : GuiScript<GuiSave>
 
 			// Add "(Latest)" if it's the latest slot to be saved into
 			if ( m_save == false && E.GetLastSaveSlotData() == data )
-				slots[i].Text += $" ({SystemText.Localize("Latest")})";
+				slots[i].Text += $" ({SystemText.Localize("Latest", 62)})";
 
 		}
 		
@@ -108,7 +108,7 @@ public class GuiSave : GuiScript<GuiSave>
 		
 			if ( E.GetSaveSlotData(slot) != null )
 			{
-				GuiPrompt.Script.Show(SystemText.Localize("Overwrite save data?"), SystemText.Localize("Yes"),SystemText.Localize("No"), ()=>Save(slot));
+				GuiPrompt.Script.Show(SystemText.Localize("Overwrite save data?"), SystemText.Localize("Yes"),SystemText.Localize("No", 63), ()=>Save(slot));
 			}
 			else
 			{
@@ -129,7 +129,7 @@ public class GuiSave : GuiScript<GuiSave>
 		string description = System.DateTime.Now.ToString("d MMM yy"); // Eg: 1 Jan 22
 		
 		E.Save(slot, description);
-		GuiPrompt.Script.Show( SystemText.Localize("Game Saved"), SystemText.Localize("Ok"));
+		GuiPrompt.Script.Show( SystemText.Localize("Game Saved"), SystemText.Localize("Ok", 64));
 	}
 
 	void Load(int slot)

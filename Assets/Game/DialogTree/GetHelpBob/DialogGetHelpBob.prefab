@@ -46,7 +46,7 @@ MonoBehaviour:
   m_data:
     m_options:
     - m_name: 1
-      m_text: I have a flood in my basement. Can you come help me pump it out?
+      m_text: '&32 I have a flood in my basement. Can you come help me pump it out?'
       m_visible: 1
       m_disabled: 0
       m_used: 0

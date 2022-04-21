@@ -8,12 +8,16 @@ using eDialogDisplay = PowerTools.Quest.QuestSettings.eDialogDisplay;
 
 public class GuiOptions : GuiScript<GuiOptions>
 {
+	
 	int m_resolution = 0;
 	FullScreenMode m_fullScreenMode = FullScreenMode.Windowed;
 	bool m_resDirty = false;
 	
 	List<int> m_uniqueResolutions = new List<int>();
-
+	
+	
+	
+	
 	IEnumerator OnClickBack( IGuiControl control )
 	{
 		G.Options.Hide();
@@ -78,30 +82,30 @@ public class GuiOptions : GuiScript<GuiOptions>
 	public void UpdateText()
 	{
 		// Volume slider text
-		Slider("Volume").Text = string.Format( SystemText.Localize("Volume: {0}"), Mathf.RoundToInt(Settings.Volume * 100.0f));
+		Slider("Volume").Text = string.Format( SystemText.Localize("Volume: {0}", 48), Mathf.RoundToInt(Settings.Volume * 100.0f));
 		
 		// Some games might want sliders for types of sound...
 		/*
-		Slider("VolumeSound").Text = string.Format( SystemText.Localize("Sound: {0}"), Mathf.RoundToInt(Settings.VolumeSFX * 100.0f));
-		Slider("VolumeMusic").Text = string.Format( SystemText.Localize("Music: {0}"), Mathf.RoundToInt(Settings.VolumeMusic * 100.0f));
-		Slider("VolumeSpeech").Text = string.Format( SystemText.Localize("Speech: {0}"), Mathf.RoundToInt(Settings.VolumeDialog * 100.0f));
+		Slider("VolumeSound").Text = string.Format( SystemText.Localize("Sound: {0}", 49), Mathf.RoundToInt(Settings.VolumeSFX * 100.0f));
+		Slider("VolumeMusic").Text = string.Format( SystemText.Localize("Music: {0}", 50), Mathf.RoundToInt(Settings.VolumeMusic * 100.0f));
+		Slider("VolumeSpeech").Text = string.Format( SystemText.Localize("Speech: {0}", 51), Mathf.RoundToInt(Settings.VolumeDialog * 100.0f));
 		*/
 		
 		// Language text
-		Button("Language").Text = string.Format( SystemText.Localize("Language: {0}"), Settings.LanguageData.m_description );
+		Button("Language").Text = string.Format( SystemText.Localize("Language: {0}", 52), Settings.LanguageData.m_description );
 		
 		// Cursor lock mode
 		if ( Settings.LockCursor == CursorLockMode.Confined )
-			Button("LockCursor").Text = SystemText.Localize("Lock Cursor: On");
+			Button("LockCursor").Text = SystemText.Localize("Lock Cursor: On", 53);
 		else
-			Button("LockCursor").Text = SystemText.Localize("Lock Cursor: Off");
+			Button("LockCursor").Text = SystemText.Localize("Lock Cursor: Off", 54);
 		
 		// Dialog display toggle button
 		switch( Settings.DialogDisplay )
 		{
-			case eDialogDisplay.TextAndSpeech: Button("Subtitles").Text = SystemText.Localize("Speech + Subtitles"); break;
-			case eDialogDisplay.SpeechOnly:	Button("Subtitles").Text = SystemText.Localize("Speech Only"); break;
-			case eDialogDisplay.TextOnly:	  Button("Subtitles").Text = SystemText.Localize("Subtitles Only"); break;
+			case eDialogDisplay.TextAndSpeech: Button("Subtitles").Text = SystemText.Localize("Speech + Subtitles", 55); break;
+			case eDialogDisplay.SpeechOnly:	Button("Subtitles").Text = SystemText.Localize("Speech Only", 56); break;
+			case eDialogDisplay.TextOnly:	  Button("Subtitles").Text = SystemText.Localize("Subtitles Only", 57); break;
 		}
 		
 		// Screen res slider

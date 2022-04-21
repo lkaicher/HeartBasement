@@ -10,6 +10,8 @@ public class DialogDialogWithClerk : DialogTreeScript<DialogDialogWithClerk>
 	{
 		//Globals.m_progressExample = eProgress.TriedPump1;
 		
+
+
 		if (Globals.m_progressExample <= eProgress.UsedBucket) {
 			D.DialogWithClerk.OptionOff(2);
 			D.DialogWithClerk.OptionOn(1);

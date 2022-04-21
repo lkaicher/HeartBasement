@@ -844,7 +844,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: Window
+    m_description: '&5 Window'
     m_cursor: 
     m_clickable: 1
     m_baseline: 0
@@ -1476,7 +1476,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: Bucket
+    m_description: '&3 Bucket'
     m_cursor: 
     m_visible: 1
     m_clickable: 1

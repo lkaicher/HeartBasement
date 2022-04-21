@@ -11,6 +11,8 @@ public class CharacterDave : CharacterScript<CharacterDave>
 	IEnumerator OnLookAt()
 	{
 		yield return C.Dave.Say(" My lucky day...", 12);
+		string blah = SystemText.Localize("Save Game", 58);
+		Debug.Log(blah);
 		yield return E.Break;
 	}
 

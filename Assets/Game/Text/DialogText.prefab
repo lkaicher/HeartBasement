@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 489318}
+  - component: {fileID: 11401660}
   - component: {fileID: 2383140}
   - component: {fileID: 10256322}
-  - component: {fileID: 11401660}
   m_Layer: 5
   m_Name: DialogText
   m_TagString: Untagged
@@ -33,6 +33,38 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &11401660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 115000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99f5801e9ab1722449b271233da6c14c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_text: '&47 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+    tempor incididunt ut labore et dolore magna aliqua'
+  m_localize: 1
+  m_sortingLayer: Gui
+  m_orderInLayer: -10
+  m_wrapWidth: 200
+  m_truncate: 0
+  m_wrapUniformLineWidth: 0
+  m_wrapWidthMin: 120
+  m_keepOnScreen: 1
+  m_shaderOverride: {fileID: 0}
+  m_outline:
+    m_directions: 68
+    m_width: 1
+    m_color: {r: 0.08088237, g: 0.08088237, b: 0.08088237, a: 1}
+  m_unlocalizedText: '&47 Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua'
+  m_outlineMeshes:
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!23 &2383140
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -82,12 +114,12 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 115000}
-  m_Text: 'Lorem ipsum dolor sit amet,
+  m_Text: '&47 Lorem ipsum dolor sit amet,
 
-    consectetur adipiscing elit, sed do
+    consectetur adipiscing elit, sed
+    do
 
-    eiusmod
-    tempor incididunt ut labore
+    eiusmod tempor incididunt ut labore
 
     et dolore magna aliqua'
   m_OffsetZ: 0
@@ -103,35 +135,3 @@ TextMesh:
   m_Color:
     serializedVersion: 2
     rgba: 4292467161
---- !u!114 &11401660
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 115000}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 99f5801e9ab1722449b271233da6c14c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_text: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-    tempor incididunt ut labore et dolore magna aliqua
-  m_localize: 0
-  m_sortingLayer: Gui
-  m_orderInLayer: -10
-  m_wrapWidth: 200
-  m_truncate: 0
-  m_wrapUniformLineWidth: 0
-  m_wrapWidthMin: 120
-  m_keepOnScreen: 1
-  m_shaderOverride: {fileID: 0}
-  m_outline:
-    m_directions: 68
-    m_width: 1
-    m_color: {r: 0.08088237, g: 0.08088237, b: 0.08088237, a: 1}
-  m_unlocalizedText: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-    do eiusmod tempor incididunt ut labore et dolore magna aliqua
-  m_outlineMeshes:
-  - {fileID: 0}
-  - {fileID: 0}

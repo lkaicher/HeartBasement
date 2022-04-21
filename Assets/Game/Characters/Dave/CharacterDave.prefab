@@ -50,7 +50,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: Dave
+    m_description: '&11 Dave'
     m_cursor: 
     m_room: Home
     m_position: {x: -301, y: -173}
@@ -271,7 +271,7 @@ SpriteMask:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 0}
-  m_MaskAlphaCutoff: 0.2
+  m_MaskAlphaCutoff: 0.59
   m_FrontSortingLayerID: 0
   m_BackSortingLayerID: 0
   m_FrontSortingLayer: 0
