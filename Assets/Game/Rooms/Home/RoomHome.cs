@@ -51,31 +51,36 @@ public class RoomHome : RoomScript<RoomHome>
 
     public void OnEnterRoom()
     {
-        // Put things here that you need to set up BEFORE the room fades in (but nothing "blocking")
-        // Note, you can also just do this at the top of OnEnterRoomAfterFade
-
-        // sets water level according to the stage of the game
-
-        //C.Tony.ChangeRoom(R.Hardware);
-
-        Prop("Water").SetPosition(0, 0 - ((float)Globals.m_progressExample * 20));
-
-        if (C.Tony.Room == R.Home)
-        {
-            C.Tony.SetPosition(
-                new Vector2(Point("HomeDoorPosition")[0] - 100, Point("HomeDoorPosition")[1])
-            );
-        }
-
-        // C.Dave.WalkToBG(Point("EntryWalk"));
-
-
-        // I.BilgePump.Add();
-
-
-
-
-    }
+		// Put things here that you need to set up BEFORE the room fades in (but nothing "blocking")
+		// Note, you can also just do this at the top of OnEnterRoomAfterFade
+		
+		// sets water level according to the stage of the game
+		
+		//C.Tony.ChangeRoom(R.Hardware);
+		
+		Prop("Water").SetPosition(0, 0 - ((float)Globals.m_progressExample * 20));
+		
+		if (C.Tony.Room == R.Home)
+		{
+			C.Tony.SetPosition(
+				new Vector2(Point("HomeDoorPosition")[0] - 100, Point("HomeDoorPosition")[1])
+			);
+		}
+		
+		//GuiTestGui test = gameObject.GetComponent("GuiTestGui");
+		
+		//gameObject.
+		
+		// C.Dave.WalkToBG(Point("EntryWalk"));
+		
+		
+		// I.BilgePump.Add();
+		
+		
+		
+		
+		
+ }
 
     public IEnumerator OnEnterRoomAfterFade()
     {

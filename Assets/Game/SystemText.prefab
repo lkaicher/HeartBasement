@@ -76,7 +76,8 @@ MonoBehaviour:
     m_sourceFunction: OnEnterRoomAfterFade
     m_translations:
     - Better grab my bucket!
-    - Better use a  Diuretic!
+    - If you were treating heart failure, you might consider using a Diuretic! This
+      would improve urine output
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -161,7 +162,7 @@ MonoBehaviour:
     m_sourceFunction: OnUseInvPropWater
     m_translations:
     - 
-    - 
+    - Looks like the patient will need more than a diuretic
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -187,7 +188,7 @@ MonoBehaviour:
     m_sourceFunction: OnUseInvPropWater
     m_translations:
     - 
-    - The stroke volume isn't enough!
+    - The stroke volume isn't enough! What about afterload??
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -250,7 +251,8 @@ MonoBehaviour:
     m_sourceFunction: OnInteractPropPump
     m_translations:
     - 
-    - By using the Large Handle, you have increased the stroke volume to the Heart
+    - By using the Large Handle, you have increased the stroke volume of the pump
+      (heart)
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -262,7 +264,8 @@ MonoBehaviour:
     m_sourceFunction: OnInteractPropPump
     m_translations:
     - 
-    - The stroke volume isn't enough!
+    - One of the ways to improve heart failure is to recruit more muscle with medication
+      or other methods
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -274,7 +277,7 @@ MonoBehaviour:
     m_sourceFunction: OnInteractPropPump
     m_translations:
     - 
-    - 
+    - Physiologically speaking, what else can you do to improve heart function?
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -298,7 +301,8 @@ MonoBehaviour:
     m_sourceFunction: OnInteractCharacterTony
     m_translations:
     - 
-    - 
+    - Having your friends help in the basement is medically like recruitment of more
+      heart muscle (improving pumping efficiency)
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -395,7 +399,7 @@ MonoBehaviour:
     m_sourceFunction: OnLookAtPropBucket
     m_translations:
     - 
-    - 'The Bucket is equivalent to a Diuretic '
+    - 'Medically, consider the bucket to be a Diuretic '
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -851,7 +855,9 @@ MonoBehaviour:
     m_sourceFunction: OnLookAtInventory
     m_translations:
     - 
-    - 
+    - Medically, this is getting more muscle recruited (improved cardiac pumping
+      efficiency). Pharmacologically this is like Digoxin or Entresto (add generic
+      name too)
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -935,7 +941,8 @@ MonoBehaviour:
     m_sourceFunction: Description
     m_translations:
     - 
-    - 
+    - This is a way to get your friends to come over to help - in the physiology
+      world, this would be helping to get recruitment of heart muscle
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -1103,7 +1110,7 @@ MonoBehaviour:
     m_sourceFunction: Option2
     m_translations:
     - 
-    - 
+    - Good choice this is physiologically equivalent to improving stroke volume
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -1175,7 +1182,7 @@ MonoBehaviour:
     m_sourceFunction: Option4
     m_translations:
     - 
-    - 
+    - Excellet choice, this is equivlent physiologically to AFTERLOAD REDUCTION
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -1355,7 +1362,7 @@ MonoBehaviour:
     m_sourceFunction: Option1
     m_translations:
     - 
-    - 
+    - This would be like increasing the dose of the diuretic
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -1403,7 +1410,8 @@ MonoBehaviour:
     m_sourceFunction: Option2
     m_translations:
     - 
-    - 
+    - You are recruiting more muscle (your friends will stay longer to help if you
+      feed them)
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0
@@ -1692,7 +1700,7 @@ MonoBehaviour:
     m_sourceFunction: Text in GuiPrompt
     m_translations:
     - 
-    - 
+    - That's greek (or latin) to me? LOL
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 0

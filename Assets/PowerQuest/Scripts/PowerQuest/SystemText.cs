@@ -1,4 +1,4 @@
-#define RUNTIME_CSV_IMPORT_ENABLED // Uncomment to enable, and also move CSVFile.dll from '/ThirdPary/Editor/' directory into '/ThirdParty/' directory, and tick the "Any Platform" tickbox on it's settings.
+// #define RUNTIME_CSV_IMPORT_ENABLED // Uncomment to enable, and also move CSVFile.dll from '/ThirdPary/Editor/' directory into '/ThirdParty/' directory, and tick the "Any Platform" tickbox on it's settings.
 
 using UnityEngine;
 using System.Collections;

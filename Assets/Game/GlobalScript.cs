@@ -9,12 +9,14 @@ using PowerTools.Quest;
  * - The functions in this script are used in every room in your game.
  * - Add your own variables and functions in here and you can access them with `Globals.` (eg: `Globals.m_myCoolInteger`)
  * - If you've used Adventure Game Studio, this is equivalent to the Global Script in that
+
+
+
 */
 public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 {	
 	////////////////////////////////////////////////////////////////////////////////////
 	// Global Game Variables
-	
 	/// Just an example of using an enum for game state.
 	/// This can be accessed from other scripts, eg: if ( Globals.m_progressExample == eProgress.DrankWater )...
 	public enum eProgress
@@ -45,6 +47,12 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	// Global Game Functions
 	
 	/// Called when game first starts
+
+	public void SetPhase(int PhaseId){
+		Settings.LanguageId = PhaseId;
+		IButton button = (IButton)G.Toolbar.GetControl("ChangePhaseButton");
+		button.Text = Settings.LanguageData.m_description;
+	}
 	public void OnGameStart()
 	{     
 		// I.CellPhone.Add();
@@ -68,9 +76,11 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		*/
 		
 		// GUI
-		G.Toolbar.Hide();
+		//G.Toolbar.Hide();
 		
-		Settings.LanguageId = 2;
+		//SetPhase(1);
+		
+	
 		
 		
 		
@@ -85,6 +95,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	public void OnEnterRoom()
 	{
 		
+		if (Settings.LanguageId == 0) SetPhase(1);
 	}
 
 	/// Blocking script called whenever you enter a room, after fade in is complete

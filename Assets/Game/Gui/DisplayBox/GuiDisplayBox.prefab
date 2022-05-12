@@ -126,9 +126,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 426662}
+  - component: {fileID: 11424402}
   - component: {fileID: 2358770}
   - component: {fileID: 10291340}
-  - component: {fileID: 11424402}
   - component: {fileID: 114570034715884548}
   m_Layer: 5
   m_Name: Text
@@ -151,6 +151,34 @@ Transform:
   m_Father: {fileID: 425924}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &11424402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 192826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99f5801e9ab1722449b271233da6c14c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_text: The Quick Brown Fox Jumped over the Lazy Dog
+  m_localize: 0
+  m_sortingLayer: Gui
+  m_orderInLayer: 3
+  m_wrapWidth: 200
+  m_truncate: 0
+  m_wrapUniformLineWidth: 1
+  m_wrapWidthMin: 0
+  m_keepOnScreen: 0
+  m_shaderOverride: {fileID: 0}
+  m_outline:
+    m_directions: 0
+    m_width: 1
+    m_color: {r: 0.04705883, g: 0.054901965, b: 0.098039225, a: 1}
+  m_unlocalizedText: The Quick Brown Fox Jumped over the Lazy Dog
+  m_outlineMeshes: []
 --- !u!23 &2358770
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -216,34 +244,6 @@ TextMesh:
   m_Color:
     serializedVersion: 2
     rgba: 4294967295
---- !u!114 &11424402
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 192826}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 99f5801e9ab1722449b271233da6c14c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_text: The Quick Brown Fox Jumped over the Lazy Dog
-  m_localize: 0
-  m_sortingLayer: Gui
-  m_orderInLayer: 3
-  m_wrapWidth: 200
-  m_truncate: 0
-  m_wrapUniformLineWidth: 1
-  m_wrapWidthMin: 0
-  m_keepOnScreen: 0
-  m_shaderOverride: {fileID: 0}
-  m_outline:
-    m_directions: 0
-    m_width: 1
-    m_color: {r: 0.04705883, g: 0.054901965, b: 0.098039225, a: 1}
-  m_unlocalizedText: The Quick Brown Fox Jumped over the Lazy Dog
-  m_outlineMeshes: []
 --- !u!114 &114570034715884548
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -351,8 +351,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1677263128809502}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 151, y: 25.990234, z: 1}
+  m_LocalPosition: {x: -0.1858, y: 0, z: 0}
+  m_LocalScale: {x: 151.3716, y: 25.990234, z: 1}
   m_Children: []
   m_Father: {fileID: 425924}
   m_RootOrder: 1

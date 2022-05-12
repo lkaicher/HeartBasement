@@ -15,4 +15,17 @@ public class GuiToolbar : GuiScript<GuiToolbar>
 		
 		yield return E.Break;
 	}
+
+	IEnumerator OnClickChangePhaseButton( IGuiControl control )
+	{
+		Settings.LanguageId = (1 - (Settings.LanguageId - 1)) + 1;
+		
+		Globals.SetPhase(Settings.LanguageId);
+		
+		
+		
+		// ChangePhaseButton.Text = "Hello";
+		
+		yield return E.Break;
+	}
 }
