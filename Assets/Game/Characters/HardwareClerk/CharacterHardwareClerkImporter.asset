@@ -16,21 +16,25 @@ MonoBehaviour:
   - m_name: Idle
     m_firstFrame: 1
     m_loop: 0
+    m_fullRect: 0
     m_length: 34
     m_frameDurations: b80b0000640000006400000064000000640000006400000064000000640000006400000064000000640000004b0000004b0000004b0000004b0000004b0000004b0000004b0000004b0000004b0000004b0000004b0000004b000000e803000019000000e80300006400000064000000640000006400000064000000640000006400000064000000
   - m_name: Talking
     m_firstFrame: 35
     m_loop: 0
+    m_fullRect: 0
     m_length: 3
     m_frameDurations: 640000006400000064000000
-  m_packingTag: CharacterDave
   m_pixelsPerUnit: 1
   m_filterMode: 0
   m_compression: 0
+  m_spriteMeshType: 1
   m_crunchedCompression: 0
   m_sourcePSD: ../Documents/HeartBasementAssets/HeartBasementDoc.aseprite
-  m_sourceDirectory: ..\Documents\HeartBasementAssets/Export
+  m_sourceDirectory: C:\Users\lukek\Desktop
   m_deleteImportedPngs: 1
   m_spriteDirectory: Sprites
   m_gui: 0
   m_isAseprite: 1
+  m_trimSprites: 0
+  m_createSingleSpriteAnims: 1
