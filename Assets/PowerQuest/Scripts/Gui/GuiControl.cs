@@ -217,28 +217,32 @@ public partial class GuiControl : MonoBehaviour, IQuestClickable, IQuestScriptab
 			yield break;
 
 		SpriteRenderer[] sprites = Instance.GetComponentsInChildren<SpriteRenderer>(true);
-		TextMesh[] texts = Instance.GetComponentsInChildren<TextMesh>(true);
-
+		QuestText[] texts = Instance.GetComponentsInChildren<QuestText>(true);
+		
 		float time = 0;
 		float alpha = start;
-		System.Array.ForEach( sprites, sprite => { sprite.color = sprite.color.WithAlpha( alpha ); });
-		System.Array.ForEach( texts, text => { text.color = text.color.WithAlpha( alpha ); });
-		while ( time < duration && PowerQuest.Get.GetSkippingCutscene() == false )
+		
+		System.Action FadeSetAlpha = ()=>
+		{		
+			System.Array.ForEach( sprites, sprite => { if ( sprite != null ) sprite.color = sprite.color.WithAlpha( alpha ); });
+			System.Array.ForEach( texts, text => { if ( text != null ) text.color = text.color.WithAlpha( alpha ); });
+		};
+
+		FadeSetAlpha();
+		while ( time < duration ) //&& PowerQuest.Get.GetSkippingCutscene() == false )
 		{
 			yield return new WaitForEndOfFrame();
 					
-			if ( SystemTime.Paused == false )
+			//if ( SystemTime.Paused == false )
 			time += Time.deltaTime;
 			float ratio = time/duration;
 			ratio = QuestUtils.Ease(ratio, curve);
 			alpha = Mathf.Lerp(start,end, ratio);
-			System.Array.ForEach( sprites, sprite => { if ( sprite != null ) sprite.color = sprite.color.WithAlpha( alpha ); });
-			System.Array.ForEach( texts, text => { if ( text != null ) text.color = text.color.WithAlpha( alpha ); });
+			FadeSetAlpha();
 		}
 
 		alpha = end;
-		System.Array.ForEach( sprites, sprite => { if ( sprite != null ) sprite.color = sprite.color.WithAlpha( alpha ); });
-		System.Array.ForEach( texts, text => { if ( text != null ) text.color = text.color.WithAlpha( alpha ); });
+		FadeSetAlpha();
 
 	}
 

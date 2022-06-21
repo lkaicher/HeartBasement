@@ -30,6 +30,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 	{
 		C.Dave.Position = Point("HWDoorPosition");
 		C.Dave.Face(eFace.Right, true);
+		C.HardwareClerk.ChangeRoomBG(R.Hardware);
 		C.HardwareClerk.Position = Point("HWClerkPosition");
 		
 		// Globals.m_progressExample = eProgress.TriedPump1;

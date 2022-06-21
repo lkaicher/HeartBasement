@@ -56,6 +56,8 @@ namespace PowerScript
 
 		/// True when loading into a room while testing in the editor
 		public static bool EnteredFromEditor { get { return Debug.isDebugBuild && PowerQuest.Get.GetPlayer().LastRoom == null; } }
+		public static bool FirstTimeVisited { get { return Current.FirstTimeVisited; } }
+
 	}
 
 	// Dialog

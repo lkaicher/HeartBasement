@@ -202,13 +202,25 @@ public class RoomComponentEditor : Editor
 [CustomEditor(typeof(PropComponent))]
 public class PropComponentEditor : Editor 
 {	
-
+	float m_oldYPos = float.MaxValue;
 	
 	public override void OnInspectorGUI()
 	{
 		EditorGUILayout.LabelField("Setup", EditorStyles.boldLabel);
-		DrawDefaultInspector();
 		PropComponent component = (PropComponent)target;
+		if ( component == null ) 
+			return;
+					
+		Prop data = component.GetData();
+		float oldBaseline = data.Baseline;
+		bool oldBaselineFixed = data.BaselineFixed;
+		
+		DrawDefaultInspector();
+		
+		// Update baseline on renderers if it changed
+		if ( oldBaseline != data.Baseline || oldBaselineFixed != data.BaselineFixed || m_oldYPos != component.transform.position.y )
+			QuestClickableEditorUtils.UpdateBaseline(component.transform, data, data.BaselineFixed);
+		m_oldYPos = component.transform.position.y;
 		
 		GUILayout.Space(5);
 		GUILayout.Label("Script Functions",EditorStyles.boldLabel);

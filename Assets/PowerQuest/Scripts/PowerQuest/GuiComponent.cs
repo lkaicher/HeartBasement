@@ -320,7 +320,7 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 			m_script = QuestUtils.ConstructByName<QuestScript>(m_scriptClass);			
 		if ( m_script != null )
 		{
-			// Hack to set gui in script
+			// Set data in script
 			System.Reflection.MethodInfo method = m_script.GetType().GetMethod( "Initialise", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy  );
 			if ( method != null ) 
 				method.Invoke(m_script, new object[]{Data});		

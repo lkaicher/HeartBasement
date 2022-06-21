@@ -570,7 +570,7 @@ public partial class PowerQuestEditor : EditorWindow
 		case eQuestObjectType.Region: scriptable = prefab.GetComponent<RegionComponent>().GetData(); break;
 		} 
 		
-		if ( questType == eQuestObjectType.Room )
+		if ( questType == eQuestObjectType.Room || isRoomChild )
 		{			
 			// Save scene first incase
 			EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo();
@@ -1278,7 +1278,7 @@ public partial class PowerQuestEditor : EditorWindow
 	}
 	void OnPrefabUnstaged(PrefabStage stage)
 	{
-		if ( m_selectedTab == eTab.Gui )
+		if ( m_selectedTab == eTab.Gui && (m_selectedGui == null || stage.prefabContentsRoot == m_selectedGui.gameObject) )
 		{
 			m_selectedTab = eTab.Main;
 			m_selectedGui = null;

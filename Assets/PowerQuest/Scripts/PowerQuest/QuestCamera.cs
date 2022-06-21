@@ -99,7 +99,7 @@ public partial class QuestCamera : ICamera
 		if ( overTime > 0 ) 
 		{
 			SetPositionOverride(m_position,0); 
-			ResetPositionOverride(0.6f); 
+			ResetPositionOverride(overTime); 
 		}
 		else if ( m_instance != null ) 
 		{
@@ -152,11 +152,17 @@ public partial class QuestCamera : ICamera
 			m_instance.OnZoom(transitionTime);
 
 	}
+	
+	/// Gets or sets the camera zoom  (mulitplier on default/room vertical height). Use SetZoom() to set transition time.
+	public float Zoom { get{return m_zoom;} set { SetZoom(value); } }
 
 	public void Snap() { m_instance.Snap(); }
 
 	// Returns the actual position of the camera
 	public Vector2 GetPosition() { return m_position; }
+	
+	/// Returns the actual position of the camera. Use SetPositionOverride to set a transition time \sa ResetPositionOverride()
+	public Vector2 Position { get{return m_position;} set { SetPositionOverride(value); } }
 
 	// Set position of camera object, usually you'd use SetPositionOverride to stop tracking a player.
 	public void SetPosition(Vector2 position) { m_position = position; }
@@ -164,7 +170,7 @@ public partial class QuestCamera : ICamera
 	// Returns the target position of the camera
 	public Vector2 GetTargetPosition() { return m_targetPosition; }
 
-	// Set position of camera object, usually you'd use SetPositionOverride to stop tracking a player.
+	// Set position of camera object
 	public void SetTargetPosition(Vector2 position) { m_targetPosition = position; }
 
 	public bool GetSnappedLastUpdate() { return m_instance == null ? true : m_instance.GetSnappedLastUpdate(); }

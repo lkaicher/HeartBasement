@@ -172,6 +172,7 @@ public class PowerSprite : MonoBehaviour
 	public void OnValidate()
 	{
 		// DL TODO: Apparently OnValidate can cause slowdowns on saving in the editor? 
+		if ( Application.isPlaying == false )
 		{		
 			CheckMaterial(true);
 			UpdateTint();

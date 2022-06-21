@@ -51,7 +51,7 @@ MonoBehaviour:
   m_data:
     m_description: '&12 Tony'
     m_cursor: 
-    m_room: Hardware
+    m_room: Home
     m_position: {x: 350, y: -100}
     m_faceDirection: 0
     m_clickable: 1

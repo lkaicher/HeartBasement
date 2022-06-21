@@ -312,6 +312,9 @@ public partial class PowerQuest
 				for( int i = 0; i < m_inventoryItems.Count; ++i )
 					m_inventoryItems[i].OnPostRestore(restoredVersion, m_inventoryPrefabs[i].gameObject);
 
+				for( int i = 0; i < m_dialogTrees.Count; ++i )
+					m_dialogTrees[i].OnPostRestore(restoredVersion, m_dialogTreePrefabs[i].gameObject);
+
 				QuestCameraComponent cameraInstance = GameObject.FindObjectOfType<QuestCameraComponent>();
 				if ( cameraInstance != null )
 					m_cameraData.SetInstance(cameraInstance);

@@ -950,7 +950,7 @@ public partial class PowerQuestEditor
 			
 			if ( itemComponent != null && itemComponent.GetData() != null )
 			{
-				QuestEditorUtils.LayoutQuestObjectContextMenu( eQuestObjectType.Hotspot, m_listHotspots, itemComponent.GetData().GetScriptName(), itemComponent.gameObject, rect, index, true );
+				QuestEditorUtils.LayoutQuestObjectContextMenu( eQuestObjectType.Region, m_listRegions, itemComponent.GetData().GetScriptName(), itemComponent.gameObject, rect, index, true );
 
 				int actionCount = 2;
 				float fixedWidth = 45;

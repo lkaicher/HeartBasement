@@ -16,7 +16,7 @@ namespace PowerTools.Quest
  * 
  * Features:
  * - This is an audio cue based system. You create an AudioCue in your project, set up which clips it plays and data like volume, pitch, etc. Then you play that "Cue". 
- * - Cues can be added to SystemAudio so that you can play them by name. Then it's as simple as calling "Audio.Play("gunshot");
+ * - Cues can be added to SystemAudio so that you can play them by name. Then it's as simple as calling `Audio.Play("gunshot");`
  * - Cues have a lot of controls for randomisation so common sounds don't get repetive: set min/max pitch, a list of clips to randomly choose from, and even string multiple cues together with random delays
  * - Type based volume control: Flag cues with a type (eg SoundEffect, Music, Dialog), and then set those volumes seperately
  * - Simple functions for playing music and an ambient loop and crossfading between them
@@ -108,10 +108,12 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 	// For save data
 	string m_musicCueName = string.Empty;
 	float m_musicVolOverride = 1;
-	string m_ambientCueName = null;
+	string m_ambientCueName = null;	
+	bool m_restartMusicIfAlreadyPlaying = false;
 
 	#endregion
 	#region Public Static Functions
+
 
 	/// Sets the volume (from 0.0 to 1.0) for audio of a particular type (eg: Sound effects, Music, Dialog) 
 	public static void SetVolume( AudioCue.eAudioType type, float volume )
@@ -668,7 +670,13 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 	/// Play a music cue, with seperate fade out and fade in times
 	public static AudioHandle PlayMusic( AudioCue cue, float fadeOutTime, float fadeInTime ) 
 	{
-		StopMusic(fadeOutTime);
+		if ( m_instance.m_restartMusicIfAlreadyPlaying == false && m_instance.GetIsActiveMusic(cue) )
+		{		
+			// If flag set, we don't want to restart music that's already playing, just update it's volume
+			m_instance.UpdateCurrentMusicVolumeFromCue(cue, fadeInTime);
+			return m_instance.m_activeMusic;
+		}
+		StopMusic(fadeOutTime);		
 		m_instance.m_musicCueName = cue == null ? null : cue.name;
 		m_instance.m_musicVolOverride = 0;
 		m_instance.m_activeMusic = Play(cue);
@@ -691,6 +699,14 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 	{
 		if ( m_instance.m_activeMusic == null )
 			return PlayMusic(cue);
+
+		if ( m_instance.m_restartMusicIfAlreadyPlaying == false && m_instance.GetIsActiveMusic(cue) )
+		{
+			// If flag set, we don't want to restart music that's already playing, just update it's volume
+			m_instance.UpdateCurrentMusicVolumeFromCue(cue, fadeTime, volumeOverride);
+			return m_instance.m_activeMusic;
+		}
+
 		float syncTime = m_instance.m_activeMusic.time;
 		StopMusic(fadeTime*1.5f);
 		m_instance.m_musicCueName = cue.name;
@@ -713,6 +729,10 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 		m_instance.m_activeMusic = null;		
 		m_instance.m_musicCueName = null;
 	}
+
+	
+	/// Flag to set whether playing the same music cue again will restart it, or leave the old one playing
+	public static bool ShouldRestartMusicIfAlreadyPlaying => m_instance.m_restartMusicIfAlreadyPlaying;
 
 	/// Plays an ambient sound by it's cue name, with optional fade time. Sound cue is assumed to be looping.
 	public static void PlayAmbientSound( string name, float fadeTime = 0.4f )
@@ -856,6 +876,24 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 		return cue.GetClipData(m_activeMusic.clip) != null;
 	}
 
+	// Used when playing the same music again, so it'll set the volume without restarting the music.
+	void UpdateCurrentMusicVolumeFromCue(AudioCue cue, float fadeTime, float volumeOverride = 0) 
+	{
+		if ( m_activeMusic == null || cue == null )
+			return;
+
+		float vol = cue.GetClipData(m_activeMusic.clip).m_volume.GetRandom();
+		vol *= cue.m_volume.GetRandom();
+
+		// Don't play the same music again, but do update volume
+		if ( volumeOverride > 0.0f )
+		{
+			vol = volumeOverride;
+			m_musicVolOverride = volumeOverride;
+		}
+		m_activeMusic.Fade(vol,fadeTime);
+	}
+
 
 	/// Editor function for adding an audio cue to the list of cues playable by name. Primarily used by editor. Returns true if added, false if it already existed
 	public bool EditorAddCue(AudioCue cue)
@@ -902,7 +940,6 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 		if ( time <= 0 )
 		{
 			clipInfo.defaultVolume = targetVolume;
-			clipInfo.targetVolume = targetVolume;
 			if ( stopOnFinish )
 				handle.Stop();
 			return;
@@ -931,6 +968,7 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 		public float m_musicVolOverride = -1;
 		public float m_musicTime = 0;
 		public string m_ambientCueName = null;
+		public bool m_restartMusicIfAlreadyPlaying = false;
 
 		public class ActiveAudioSaveData
 		{
@@ -967,6 +1005,7 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 		result.m_musicCueName = m_musicCueName;
 		result.m_musicVolOverride = m_musicVolOverride;
 		result.m_ambientCueName = m_ambientCueName;
+		result.m_restartMusicIfAlreadyPlaying = m_restartMusicIfAlreadyPlaying;
 		result.m_musicTime = m_activeMusic == null ? 0 : m_activeMusic.time;
 
 		result.activeAudio = new SaveData.ActiveAudioSaveData[m_activeAudio.Count];
@@ -990,6 +1029,8 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 		if ( obj == null || obj as SaveData == null )
 			return;
 		SaveData data = obj as SaveData;
+
+		m_restartMusicIfAlreadyPlaying = data.m_restartMusicIfAlreadyPlaying;
 
 		// Stop/fade current sounds and start them from the ones in data.m_activeAudio. 
 		foreach ( ClipInfo clip in m_activeAudio )
@@ -1378,7 +1419,7 @@ public class AudioHandle
 {
 	public AudioHandle(AudioSource source) { m_source = source; }
 
-	public static bool IsPlaying( AudioHandle handle ) { return handle != null && handle.isPlaying == false; }
+	public static bool IsPlaying( AudioHandle handle ) { return handle != null && handle.isPlaying; }
 	public static bool IsNullOrStopped( AudioHandle handle ) { return handle == null || handle.isPlaying == false; }
 
 	public static implicit operator AudioSource( AudioHandle handle ) { return handle == null ? null : handle.m_source; }

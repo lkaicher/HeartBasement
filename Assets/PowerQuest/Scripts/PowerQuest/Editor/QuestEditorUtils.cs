@@ -900,21 +900,26 @@ public class QuestClickableEditorUtils
 		return false;
 	}
 
+	static public void UpdateBaseline(Transform transform, IQuestClickable clickable, bool fixedBaseline)
+	{	
+		if ( Application.isPlaying )
+			return;
+		int sortOrder = -Mathf.RoundToInt(((fixedBaseline?0:transform.position.y) + clickable.Baseline)*10.0f);
+		Renderer[] renderers = transform.GetComponentsInChildren<Renderer>();
+		foreach ( Renderer renderer in renderers )
+		{
+			if ( renderer != null )
+				renderer.sortingOrder = sortOrder;
+		}
+	}
+
 	static public void OnSceneGUI( MonoBehaviour component, IQuestClickable clickable, bool fixedBaseline )
 	{
 		GUIStyle textStyle = new GUIStyle(EditorStyles.boldLabel);
 		
 		Transform transform = component.transform;
 		if ( OnSceneGUIBaseline(component, clickable, fixedBaseline? Vector3.zero : transform.position) )
-		{
-			int sortOrder = -Mathf.RoundToInt(((fixedBaseline?0:transform.position.y) + clickable.Baseline)*10.0f);
-			Renderer[] renderers = transform.GetComponentsInChildren<Renderer>();
-			foreach ( Renderer renderer in renderers )
-			{
-				if ( renderer != null )
-					renderer.sortingOrder = sortOrder;
-			}
-		}
+			UpdateBaseline(transform,clickable,fixedBaseline);
 
 		{
 			Vector3 position = transform.position + clickable.WalkToPoint.WithZ(0);

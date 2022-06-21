@@ -10,13 +10,12 @@ namespace PowerTools.Quest
 /// This is experimental, will probably be made into something simpler to use
 public class QuestAnimationTriggers : MonoBehaviour
 {
-	class StringActionDictonary : Dictionary<string, System.Action> {}
 
 	[Tooltip("AnimShake(int shakeDataIndex)")]
 	[SerializeField] CameraShakeData[] m_shakeData = null;
 
-	StringActionDictonary m_animCallbacks = new StringActionDictonary();
-	StringActionDictonary m_animCallbacksTemp = new StringActionDictonary();
+	 Dictionary<string, System.Action> m_animCallbacks = new Dictionary<string, System.Action>(System.StringComparer.OrdinalIgnoreCase);
+	 Dictionary<string, System.Action> m_animCallbacksTemp = new Dictionary<string, System.Action>(System.StringComparer.OrdinalIgnoreCase);
 
 	bool m_character = false;
 

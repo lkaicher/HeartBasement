@@ -28,7 +28,7 @@ public partial class QuestScriptEditor
 			"Display: ", "DisplayBG: ","Section: ",
 			"bool","int","float","string","Vector2","enum","true","false","if","else","while","for","switch","case","default","break","continue","new","public",
 		};
-	static readonly string[] AC_KEYWORDS_R = { "Current", "Previous", "EnteredFromEditor" };
+	static readonly string[] AC_KEYWORDS_R = { "Current", "Previous", "EnteredFromEditor", "FirstTimeVisited" };
 	static readonly string[] AC_KEYWORDS_C = { "Display(","DisplayBG(","Player","Plr" };
 	static readonly string[] AC_KEYWORDS_I = { "Active", "Current" };
 	static readonly string[] AC_KEYWORDS_D = { "Current", "Previous" };
@@ -74,7 +74,7 @@ public partial class QuestScriptEditor
 		ICursor,      // ICursor
 		Settings,	  // Settings
 		EnumItem,	  // e???. -> enum contents eg eStateWindow.Open
-		ObjectScript, // C.Dave.Script. or R.Kitchen.Script. or I.Bucket.Script
+		ObjectScript, // C.Dave.Script. or R.Kitchen.Script. or I.Bucket.Script or D.Chat.Script.
 
 		// These contexts include a space or open bracket
 		AnimChar,	// C.Dave.AnimIdle = " or C.Dave.PlayAnimation(
@@ -677,6 +677,7 @@ public partial class QuestScriptEditor
 					if ( classType == 'C' ) className = "Character"+className;
 					if ( classType == 'I' ) className = "Inventory"+className;
 					if ( classType == 'G' ) className = "Gui"+className;
+					if ( classType == 'D' ) className = "Dialog"+className;
 
 					// Find class by name
 					System.Type scriptType = System.Type.GetType( string.Format("{0}, {1}", className, PowerQuestEditor.GetPowerQuest().GetType().Assembly.FullName ) );
@@ -710,7 +711,7 @@ public partial class QuestScriptEditor
 					contextList.Clear();
 
 					string charName = match.Groups[1].Value;
-					CharacterComponent charPrefab= PowerQuestEditor.GetPowerQuest().GetCharacterPrefabs().Find(character=>character.GetData().ScriptName == charName);
+					CharacterComponent charPrefab= PowerQuestEditor.GetPowerQuest().GetCharacterPrefabs().Find(character=> character != null && character.GetData() != null && character.GetData().ScriptName == charName);
 					if ( charPrefab == null ) // if didn't find prefab, assume it's Plr or C.Player or something
 						charPrefab = PowerQuestEditor.GetPowerQuest().GetCharacterPrefabs()[0]; // Also assuming player is first in list still
 					charPrefab?.GetAnimations()?.ForEach( item=>  

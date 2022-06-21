@@ -237,12 +237,6 @@ public partial class Button : GuiControl, IButton
 	#endregion
 	#region Component: Functions: Unity
 	
-	// Use this for initialization
-	void Awake() 
-	{	
-		InitComponentReferences();
-		ExAwake();
-	}
 
 	void InitComponentReferences()
 	{
@@ -254,16 +248,22 @@ public partial class Button : GuiControl, IButton
 			m_questText = GetComponentInChildren<QuestText>();
 	}
 
+	// Use this for initialization
+	void Awake() 
+	{	
+		InitComponentReferences();
+		ExAwake();
+
+		// Set state if clickable/not clickable.
+		// NB: set this in Awake, since if color is changed by fading on show, it'll be overriden by this state change
+		SetState(Clickable ? eState.Default : eState.Off);
+	}
 
 	void Start()
 	{		
 		InitComponentReferences();
-			
-		// Set state if clickable/not clickable			
-		SetState(Clickable ? eState.Default : eState.Off);
 
 		StartStateAnimation();
-		//OnSetVisible();
 
 		if ( m_sizeSetting == eSizeSetting.FitText )
 		{

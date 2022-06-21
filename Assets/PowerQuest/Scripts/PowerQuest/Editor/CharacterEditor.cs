@@ -13,16 +13,25 @@ namespace PowerTools.Quest
 [CanEditMultipleObjects]
 [CustomEditor(typeof(CharacterComponent))]
 public class CharacterComponentEditor : Editor 
-{	
-
+{
+	float m_oldYPos = float.MaxValue;
 
 	public override void OnInspectorGUI()
 	{
-		EditorGUILayout.LabelField("Setup", EditorStyles.boldLabel);
-		DrawDefaultInspector();
 		CharacterComponent component = (CharacterComponent)target;
-		if ( component == null ) return;
+		if ( component == null ) 
+			return;
+		Character data = component.GetData();
+		float oldBaseline = data.Baseline;
 
+		EditorGUILayout.LabelField("Setup", EditorStyles.boldLabel);		
+		DrawDefaultInspector();
+		
+		// Update baseline on renderers if it changed
+		if ( oldBaseline != data.Baseline || m_oldYPos != component.transform.position.y )
+			QuestClickableEditorUtils.UpdateBaseline(component.transform, data, false);
+		m_oldYPos = component.transform.position.y;
+		
 		GUILayout.Space(5);
 		GUILayout.Label("Script Functions",EditorStyles.boldLabel);
 		if ( PowerQuestEditor.GetActionEnabled(eQuestVerb.Use) && GUILayout.Button("On Interact") )

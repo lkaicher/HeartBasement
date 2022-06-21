@@ -56,7 +56,7 @@ MonoBehaviour:
   m_snapToPixel: 1
   m_pixelCamEnabled: 1
   m_defaultPixelsPerUnit: 1
-  m_speechStyle: 1
+  m_speechStyle: 0
   m_speechPortraitLocation: 0
   m_dialogTextPrefab: {fileID: 11401660, guid: e602015b16ad0c041abca0abc9116b9d, type: 3}
   m_dialogTextOffset: {x: 0, y: 1}
@@ -191,5 +191,5 @@ MonoBehaviour:
   - {fileID: 4800000, guid: d98a9fb29ffd9b047b8b28042595d236, type: 3}
   - {fileID: 4800000, guid: a2c3f6022054c654ea6aeb84a997cda4, type: 3}
   - {fileID: 4800000, guid: 553637da87459c4428e8af106c8e49fd, type: 3}
-  m_version: 15010
+  m_version: 15013
   m_newVersion: 12004

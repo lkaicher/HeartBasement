@@ -245,7 +245,7 @@ public partial class PowerQuestEditor
 				Debug.Log("Checking for Powerquest Update");
 				m_newVersionCheckTime = System.DateTime.UtcNow.ToFileTimeUtc();
 
-				UnityEngine.Networking.UnityWebRequest request = UnityEngine.Networking.UnityWebRequest.Get("http://www.powerquestpowerhoof.com/public/powerquestdocs/version.txt");
+				UnityEngine.Networking.UnityWebRequest request = UnityEngine.Networking.UnityWebRequest.Get("http://powerquest.powerhoof.com/version.txt");
 				request.SendWebRequest().completed += ((item)=>
 				{ 
 					#if UNITY_2020_1_OR_NEWER

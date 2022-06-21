@@ -405,6 +405,19 @@ public partial class PowerQuestEditor
 				}
 			}
 
+			if ( oldVersion < Version(0,15,11) )
+			{			
+				// Renamed mispelled Occurance functions
+				ReplaceInAllScripts("Occurr?ance","Occurrence");		
+				
+			}
+
+			// Remove PowerQuestObsolete after upgrading for all future versions
+			{
+				AssetDatabase.DeleteAsset(@"Assets\PowerQuest\Scripts\PowerQuest\PowerQuestObsolete.cs");
+				//AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);		
+			}
+
 
 		}
 		catch ( System.Exception e )
@@ -414,6 +427,27 @@ public partial class PowerQuestEditor
 		}
 
 		return true;
+	}
+
+	void ReplaceInAllScripts(string pattern, string replacement)
+	{	
+		// Find all the paths we want to hot-load	
+		List<string> paths = new List<string>();
+
+		string[] assets = AssetDatabase.FindAssets(STR_SCRIPT_TYPE,STR_SCRIPT_FOLDERS);			
+		for ( int i = 0; i < assets.Length; ++i )
+		{
+			string path = AssetDatabase.GUIDToAssetPath(assets[i]);			
+			if ( paths.Contains(path) == false )
+				paths.Add(path);		
+		}
+
+		foreach( string path in paths )
+		{
+			string globalSource = File.ReadAllText(	path );
+			globalSource = Regex.Replace(globalSource, pattern,replacement, RegexOptions.Multiline);
+			File.WriteAllText( path, globalSource );
+		}
 	}
 	
 	[MenuItem("Edit/PowerQuest/Create sprite atlases")]

@@ -33,7 +33,7 @@ It makes a good list of the functionality that are easily available when doing y
 
 	        E.FadeOut(1);			
 			E.Wait(3);
-			if ( E.FirstOccurance("AteBadPie") )
+			if ( E.FirstOccurrence("AteBadPie") )
 				E.ChangeRoom(R.Vomitorium);
 			E.Save(1);
 			E.StartCutscene;
@@ -254,6 +254,10 @@ public partial interface IPowerQuest
 	
 	/// The room the player's in (R.Current)
 	Room GetCurrentRoom();
+		
+	/// Debugging function that overrides the value of `R.Previous`. Useful for testing, paricularly in 'Play from` functions- (when using the [QuestPlayFromFunction] attribute)
+	void DebugSetPreviousRoom(IRoom room);
+
 	/// Retrieve a room by it's name
 	Room GetRoom(string scriptName);
 
@@ -263,8 +267,8 @@ public partial interface IPowerQuest
 	/// Get the current player controlled character
 	Character GetPlayer();
 
-	/// Set the current player controlled character. If in another room, will trigger room transition.
-	void SetPlayer(ICharacter character);
+	/// Set the current player controlled character. If in another room, will trigger room transition. If in the same room, the camera will pan to the new character over 'cameraPanTime' seconds
+	void SetPlayer(ICharacter character, float cameraPanTime = 0);
 
 
 	/// Retrieve a character by it's name. eg `E.GetCharacter("Dave");` Usually you would just use `C.Dave`
@@ -395,6 +399,8 @@ public partial interface IPowerQuest
 	Coroutine HandleLookAt( IInventory target );
 	/// Runs a "Use inventory on Inventory" sequence
 	Coroutine HandleInventory( IInventory target, IInventory item );
+	/// Runs a specific dialog option. NB: Does NOT start the dialog tree first
+	Coroutine HandleOption( IDialogTree dialog, string optionName );
 
 	//
 	// Misc utilities
@@ -412,34 +418,34 @@ public partial interface IPowerQuest
 	/// Registers something "occuring", and returns whether it's the first time it's occurred
 	/**
 	 * Usage:
-	 * if ( FirstOccurance("unlockdoor") ) 
+	 * if ( FirstOccurrence("unlockdoor") ) 
 	 * 		C.Display("You unlock the door");
 	 * else
 	 * 		C.Display("It's already unlocked");
 	 * 		
-	 *  \sa Occurrance \sa GetOccuranceCount
+	 *  \sa Occurrence \sa GetOccurrenceCount
 	 */
-	bool FirstOccurance(string uniqueString);
+	bool FirstOccurrence(string uniqueString);
 
 	/// Registers something "occuring", and returns the number of time's it's occurred. Returns 0 the first time, then 1, etc.
 	/**
 	 * Usage:
-	 * if ( Occurance("knocked on door") < 3 )
+	 * if ( Occurrence("knocked on door") < 3 )
 	 * 		C.Display("You knock on the door");
 	 * 		
-	 *  \sa FirstOccurance \sa GetOccuranceCount
+	 *  \sa FirstOccurrence \sa GetOccurrenceCount
 	 */
-	int Occurrance(string uniqueString);
+	int Occurrence(string uniqueString);
 
-	/// Checks how many times something has occurred, without incrementing the occurance
+	/// Checks how many times something has occurred, without incrementing the occurrence
 	/**
 	 * Usage:
-	 * if ( GetOccuranceCount("knocked on door") == 3 )
+	 * if ( GetOccurrenceCount("knocked on door") == 3 )
 	 * 		C.Doorman("Who's there?");
 	 * 		
-	 *  \sa FirstOccurance \sa Occurrance
+	 *  \sa FirstOccurrence \sa Occurrrence
 	 */
-	int GetOccuranceCount(string uniqueString);
+	int GetOccurrenceCount(string uniqueString);
 
 	/// Restart the game from the first scene
 	void Restart();
@@ -448,7 +454,13 @@ public partial interface IPowerQuest
 	void Restart( IRoom room, string playFromFunction= null );
 
 	/// Helper function that temporarily disables all clickables, except those specified. Useful when you want to set only certain props clickable for a short time. Eg: `E.DisableAllClickablesExcept("Ropes","BrokenGlass");`
+	void DisableAllClickablesExcept();
+
+	/// Helper function that temporarily disables all clickables, except those specified. Useful when you want to set only certain props clickable for a short time. Eg: `E.DisableAllClickablesExcept("Ropes","BrokenGlass");`
 	void DisableAllClickablesExcept(params string[] exceptions);
+
+	/// Helper function that temporarily disables all clickables, except those specified. Useful when you want to set only certain props clickable for a short time. Eg: `E.DisableAllClickablesExcept("Ropes","BrokenGlass");`
+	void DisableAllClickablesExcept(params IQuestClickableInterface[] exceptions);
 
 	/// Helper function that restores clickables disabled with the DisableAllClickablesExcept function
 	void RestoreAllClickables();
@@ -458,7 +470,7 @@ public partial interface IPowerQuest
 
 	/// Resets all clickable cursors after a call to "SetAllClickableCursors"
 	void RestoreAllClickableCursors();
-
+	
 	//
 	// Save/Load
 	//
@@ -621,8 +633,16 @@ public partial interface ICharacter : IQuestClickableInterface
 	\sa Position \sa Facing
 	*/
 	void SetPosition( Vector2 position, eFace face = eFace.None );
+	
+	/// Set the location of the character to the walk to point of a prop/hotspot/character, with an optional 'facing' direction. 
+	/** 
+	Eg `C.Dave.SetPosition(H.Door, eFace.Right);`
+	\sa Position \sa Facing
+	*/
+	void SetPosition( IQuestClickableInterface atClickable, eFace face = eFace.None );
 
-	/// The position of the character's baseline (for sorting)
+
+	/// The position of the character's baseline (for sorting). This is local to the player, so to get/set in world space. Do Plr.Basline - Plr.Position.y
 	float Baseline { get;set; }
 
 	/// The speed the character walks horizontally and vertically. Eg: `C.Player.WalkSpeed = new Vector2(10,20);` \sa ResetWalkSpeed()
@@ -885,29 +905,37 @@ public partial interface ICharacter : IQuestClickableInterface
 	Coroutine ChangeRoom(IRoom room);
 
 	/// Moves the character to another room. If the player character is moved, the scene will change to the new room.
-	void ChangeRoomBG(IRoom room);
+	void ChangeRoomBG(IRoom room);	
 
 	/// Obsolete: Set's visible & clickable (Same as `Enable(bool clickable)`), and changes them to the current room (if they weren't there already) \sa Hide()	
 	[System.Obsolete("Show(bool clickable) is obsolete. Use Show(), and Clickable property. Note that Show/Hide functions now remember previous state of visible/clickable/solid and restore it.")]
 	void Show( bool clickable );
 	
-	/// Shows the character again after a call to Hide(), moving them to current room, and forcing Visible to true.
+	/// Shows the character, moving them to current room, and forcing Visible to true.
 	/// You can optionally pass in a position or face direction. If not passed no change will be made.
 	/// The Enable() function is similar, but doesn't set Visible to true, or move them to the current room.
 	/// \sa Hide() \sa Disable() \sa Enable()
 	void Show( Vector2 pos = new Vector2(), eFace facing = eFace.None );	
 
-	/// Shows the character again after a call to Hide(), moving them to current room, and forcing Visible to true.
+	/// Shows the character, moving them to current room, and forcing Visible to true.
 	/// You can optionally pass in a position or face direction. If not passed no change will be made.
 	/// The Enable() function is similar, but doesn't set Visible to true, or move them to the current room.
 	/// \sa Hide() \sa Disable() \sa Enable()
 	void Show( float posX, float posy, eFace facing = eFace.None );
 
-	/// Shows the character again after a call to Hide(), moving them to current room, and forcing Visible to true.
+	/// Shows the character, moving them to current room, and forcing Visible to true.
 	/// You can optionally pass in a position or face direction. If not passed no change will be made.
 	/// The Enable() function is similar, but doesn't set Visible to true, or move them to the current room.
 	/// \sa Hide() \sa Disable() \sa Enable()
 	void Show( eFace facing );
+	
+	/// Note- leaving this as an extention for now until I work out how much use it gets
+	/// Shows the character, moving them to current room, and forcing Visible to true.
+	/// The character will be positioned at the Walk To of the passed in prop/hotspot/character, and optionally a face direction.
+	/// The Enable() function is similar, but doesn't set Visible to true, or move them to the current room.
+	/// Eg: C.Plr.Show(H.Door, eFace.Right);
+	/// \sa Hide() \sa Disable() \sa Enable()
+	//void Show(IQuestClickableInterface atClickableWalkToPos, eFace face = eFace.None);
 
 	/// Hides the character until Show() is called. Saves you setting Visible, Clickable, Solid all to false. (Same as `Disable()`) \sa Show() \sa Disable() \sa Enable()
 	void Hide();
@@ -1322,7 +1350,7 @@ public partial interface IProp : IQuestClickableInterface
 	void FadeBG(float start, float end, float duration, eEaseCurve curve = eEaseCurve.InOutSmooth );
 	
 	/// Gets/Sets the transparency of the prop
-	float Alpha {get;set;}
+	float Alpha {get;set;}	
 
 	/// Access to the base class with extra functionality used by the PowerQuest
 	Prop Data {get;}
@@ -1572,7 +1600,7 @@ public partial interface IDialogOption
 	*/
 	bool Used { get; set; }
 	
-	/** The number of times this option has been selected
+	/** The number of times this option has been selected.
 	 * Note that UseCount will NOT reset to zero when you set Used = false. So `option.Used == false` is NOT the same as `option.TimesUsed == 0`. (This can be useful)
 	 * 
 	 * Eg: 
@@ -1626,21 +1654,28 @@ public partial interface ICamera
 	/// Resets any position override, returning to folling the current camera, optionally transitions over time.
 	void ResetPositionOverride(float transitionTime = 0);
 
+	/// Gets or sets the camera zoom  (mulitplier on default/room vertical height). Use `SetZoom()` if you want to set a transition time. \sa SetZoom() \sa ResetZoom \sa GetHasZoom()
+	float Zoom {get;set;}	
+
 	/// Gets the current camera zoom (mulitplier on default/room vertical height)
 	float GetZoom();
+
 	/// Returns true if the camera has a zoom override
 	bool GetHasZoom();
 
 	/// Returns true if the camera's zoom is overriden, or if it's still transitioning back to default
 	bool GetHasZoomOrTransition();
 
-	/// Sets a camera zoom (mulitplier on default/room vertical height)
+	/// Sets a camera zoom (mulitplier on default/room vertical height) \sa ResetZoom \sa Zoom \sa GetHasZoom
 	void SetZoom(float zoom, float transitionTime = 0);
 	/// Removes any zoom override, returning to the default/room vertical height
 	void ResetZoom(float transitionTime = 0);
 
-	/// Returns the actual position of the camera
+	/// Returns the current position of the camera
 	Vector2 GetPosition();
+	
+	/// Returns the actual position of the camera. Use `SetPositionOverride()` to set a transition time \sa ResetPositionOverride()
+	Vector2 Position {get;set;}
 
 	/// Snaps the camera to it's target position. Use to cancel the camera from smoothly transitioning to the player position
 	void Snap();

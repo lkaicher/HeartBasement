@@ -159,7 +159,9 @@ public class RegionComponent : MonoBehaviour
 
 	public bool GetCharacterOnRegion(Character character)
 	{
-		return m_data?.GetCharacterOnRegionMask()?.Get( PowerQuest.Get.GetCharacterId(character) ) ?? false;
+		int id = PowerQuest.Get.GetCharacterId(character);
+		if ( id < 0 ) return false;
+		return m_data?.GetCharacterOnRegionMask()?.Get( id ) ?? false;
 	}
 
 	// checks if character is in zone. Doesn't check if character is in room, so check that before calling. Returns true if standing on region

@@ -165,7 +165,10 @@ public class PropComponent : MonoBehaviour
 		SetupComponents();
 
 		foreach( Renderer renderer in m_renderers )
+		{
+			if ( renderer != null )
 			renderer.GetComponent<Renderer>().enabled = GetData().Visible;
+		}
 
 		if ( GetData().Visible )
 		{
@@ -410,7 +413,7 @@ public partial class Prop : IQuestClickable, IProp, IQuestScriptable
     [SerializeField, Tooltip("If true, the baseline will be in world position, instead of local to the object. So y position of the sortable is ignored")] bool m_baselineFixed = false;
 	[SerializeField] Vector2 m_walkToPoint = Vector2.zero;
 	[SerializeField] Vector2 m_lookAtPoint = Vector2.zero;	
-	[HideInInspector,SerializeField] string m_scriptName = "PropNew";
+	[ReadOnly,SerializeField] string m_scriptName = "PropNew";
 
 	//
 	// Private variables
@@ -463,7 +466,7 @@ public partial class Prop : IQuestClickable, IProp, IQuestScriptable
 	} }
 	public void SetPosition(float x, float y) { Position = new Vector2(x,y); }
 	public float Baseline { get{ return m_baseline;} set{m_baseline = value; if ( m_instance != null ) m_instance.UpdateBaseline(); } }
-	public bool BaselineFixed { get { return m_baselineFixed; } set { m_baselineFixed=false; if ( m_instance != null ) m_instance.UpdateBaseline(); } }
+	public bool BaselineFixed { get { return m_baselineFixed; } set { m_baselineFixed=value; if ( m_instance != null ) m_instance.UpdateBaseline(); } }
 	public int SortOrder => -Mathf.RoundToInt(((m_baselineFixed ? 0.0f: Position.y) + Baseline)*10.0f);
 
 	public Vector2 WalkToPoint { get{ return m_walkToPoint;} set{m_walkToPoint = value;} }

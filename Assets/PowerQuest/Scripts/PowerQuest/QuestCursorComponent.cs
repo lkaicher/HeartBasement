@@ -419,7 +419,7 @@ public partial class QuestCursorComponent : MonoBehaviour
 			}
 		}		
 				
-		m_noneCursor = m_currAnim == "None" || (clickable != null && clickable.Cursor == "None" && Utils.IsEmpty(m_data.AnimationOverGui) && Utils.IsEmpty(m_playingAnim) );
+		m_noneCursor = m_currAnim == "None" || (clickable != null && clickable.Cursor == "None");
 
 		if ( m_noneCursor )
 			outlineColor = new Color(1,1,1,0);

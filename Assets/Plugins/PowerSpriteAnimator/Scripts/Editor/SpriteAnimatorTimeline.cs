@@ -39,6 +39,9 @@ public partial class SpriteAnimator
 	//static readonly float EVENT_WIDTH = 2;
 	static readonly float EVENT_CLICK_OFFSET = -2;
 	static readonly float EVENT_CLICK_WIDTH = 10;
+	
+	static readonly string STR_ELLIPSES = "...";
+	static readonly int TIMELINE_ARG_STR_MAX_LEN = 20;
 
 	enum eDragState
 	{
@@ -463,6 +466,45 @@ public partial class SpriteAnimator
 		GUI.EndGroup();
 	}
 
+
+	string GenerateEventName(AnimEvent animEvent) 
+	{		
+		if ( animEvent.m_paramType == eAnimEventParameter.None )
+			return animEvent.m_functionName;
+			
+		string args = string.Empty;		
+
+		switch (animEvent.m_paramType) 
+		{
+			case eAnimEventParameter.Int:		
+				args = animEvent.m_paramInt.ToString();
+				break;
+
+			case eAnimEventParameter.Float:
+				args = animEvent.m_paramFloat.ToString();
+				break;
+
+			case eAnimEventParameter.String:
+				
+				args = '"'+animEvent.m_paramString+'"';
+				break;
+
+			case eAnimEventParameter.Object:
+				args = animEvent.m_paramObjectReference == null ? "null" : animEvent.m_paramObjectReference.name;
+				break;
+			
+			// Nicer to just gracefully fail
+			//default:
+			//	throw new System.ArgumentOutOfRangeException();
+		}
+		
+		// Shorten if too long		
+		if ( args.Length > TIMELINE_ARG_STR_MAX_LEN )
+			args = args.Substring(0,TIMELINE_ARG_STR_MAX_LEN-3)+STR_ELLIPSES;
+
+		return animEvent.m_functionName + '(' + args + ')';
+	}
+
 	void LayoutEvents(Rect rect)
 	{
 		Event e = Event.current;
@@ -500,7 +542,7 @@ public partial class SpriteAnimator
 			eventTimelineData[i] = eventData;
 
 			eventData.start = AnimTimeToGuiPos(rect, SnapTimeToFrameRate( animEvent.m_time ) );
-			eventData.text = animEvent.m_functionName;//.Replace(ANIM_EVENT_PREFIX,null);
+			eventData.text = GenerateEventName(animEvent);
 			eventData.textWidth = Styles.TIMELINE_EVENT_TEXT.CalcSize(new GUIContent(eventData.text)).x;
 			eventData.end = eventData.start + eventData.textWidth + 4;
 			eventData.selected = m_selectedEvents.Contains(m_events[i]);

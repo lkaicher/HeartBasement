@@ -10,12 +10,11 @@ namespace PowerTools.Quest
 [CustomEditor(typeof(Sortable)), CanEditMultipleObjects]
 public class SortableEditor : Editor 
 {
-	
+	float m_oldYPos = float.MaxValue;
 	public void OnSceneGUI()
 	{		
 		Sortable component = (Sortable)target;
-
-
+		
 		GUIStyle textStyle = new GUIStyle(EditorStyles.boldLabel);
 
 		Transform transform = component.transform;
@@ -43,16 +42,10 @@ public class SortableEditor : Editor
 				component.Baseline = Utils.Snap(position.y - transformPosition.y,PowerQuestEditor.SnapAmount);				
 			}			
 
-			if ( transformPosition.y + component.Baseline != oldY )
-			{
-				component.EditorRefresh();/*
-				component.LateUpdate();
-				SpriteRenderer renderer = transform.GetComponentInChildren<SpriteRenderer>();
-				if ( renderer != null )
-				{
-					renderer.sortingOrder = -Mathf.RoundToInt((transformPosition.y + clickable.Baseline)*10.0f);
-				}*/
-			}
+			if ( m_oldYPos + component.Baseline != oldY && Application.isPlaying == false)
+				component.EditorRefresh();
+			
+			m_oldYPos = transformPosition.y;
 		}
 	}
 }

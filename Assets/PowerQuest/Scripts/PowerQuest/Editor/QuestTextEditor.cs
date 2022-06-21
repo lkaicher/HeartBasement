@@ -22,7 +22,7 @@ public class QuestTextEditor : Editor
 		{
 			QuestText component = (QuestText)target;
 			TextMesh tm = component != null ? component.GetComponent<TextMesh>() : null;
-			if ( tm != null && tm.characterSize != 10 )
+			if ( tm != null && tm.characterSize == 1 )
 			{
 				tm.characterSize = 10;
 				EditorUtility.SetDirty(tm);					

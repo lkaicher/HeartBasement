@@ -269,8 +269,17 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 		}		
 	}
 
-	// Returns the last room visited before the current one
-	public IRoom LastRoom { get { return PowerQuest.Get.GetRoom(m_lastRoom); } }
+	// Returns the last room visited before the current one.
+	public IRoom LastRoom => PowerQuest.Get.GetRoom(m_lastRoom);
+
+	// Debugging function to set the last room, useful in PlayFrom functions in particular
+	public void DebugSetLastRoom(IRoom room)
+	{
+		if ( room == null ) 
+			m_lastRoom = null; 
+		else 
+			m_lastRoom = room.ScriptName; 
+	}
 
 	public Vector2 Position{ get{return m_position;} set {SetPosition(value);} }
 	public Vector2 TargetPosition { get {
@@ -280,7 +289,9 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 	} }
 	public List<Vector2> Waypoints { get { return m_waypoints; } }
 
-	public float Baseline { get{return m_baseline;} set{m_baseline = value;} }
+	public float Baseline { get{return m_baseline;} set{m_baseline = value;} }	
+	public void SetBaselineInFrontOf(IQuestClickableInterface clickable) { Baseline = (clickable.IClickable.Baseline-1) - Position.y; }
+
 	public Vector2 WalkSpeed 
 	{
 		get{ return m_walkSpeed; } 
@@ -405,7 +416,8 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 	/// The Enable() function is similar, but doesn't set Visible to true, or move them to the current room.
 	/// \sa Hide() \sa Disable() \sa Enable()
 	public void Show( float posX, float posy, eFace facing = eFace.None ) { Show(new Vector2(posX,posy),facing); }
-	public void Show( eFace facing ) { Show(Vector2.zero,facing); }
+	public void Show( eFace facing ) { Show(Vector2.zero,facing); }	
+	public void Show(IQuestClickableInterface atClickableWalkToPos, eFace face = eFace.None) { Show(atClickableWalkToPos.IClickable.Position + atClickableWalkToPos.IClickable.WalkToPoint, face); }
 	public void Show( Vector2 pos = new Vector2(), eFace facing = eFace.None )
 	{
 		/*
@@ -538,7 +550,7 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 		{
 			bool changed = m_animMouth != value;
 			m_animMouth = value;
-			if ( m_instance != null && changed ) m_instance.OnAnimationChanged( eState.Talk );
+			if ( m_instance != null && changed ) m_instance.OnAnimationChanged( eState.None );
 		}
 	}
 	public string AnimPrefix
@@ -600,10 +612,16 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 	public void SetTextPosition(Vector2 worldPosition) { TextPositionOverride = worldPosition; }
 	public void SetTextPosition(float worldPosX, float worldPosY)  { TextPositionOverride = new Vector2(worldPosX,worldPosY); }
 	public void LockTextPosition()
-	{ 
+	{
 		if ( m_instance != null )
+		{
+			ResetTextPosition();
 			TextPositionOverride = m_instance.GetTextPosition();
-		TextPositionOverride = Position;
+		}
+		else
+		{
+			TextPositionOverride = Position;
+		}
 	}
 	public void ResetTextPosition() { TextPositionOverride = Vector2.zero; }
 	
@@ -653,8 +671,9 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 		m_instance = instance; 
 		m_instance.SetData(this);
 		m_instance.name = m_prefab.name;
-	}
+	}	
 	public void SetPosition(float x, float y, eFace face = eFace.None) { SetPosition(new Vector2(x,y),face); }
+	public void SetPosition(IQuestClickableInterface clickable, eFace face = eFace.None) { SetPosition(clickable.IClickable.Position + clickable.IClickable.WalkToPoint, face); }
 	public void SetPosition(Vector2 position, eFace face = eFace.None) 
 	{ 
 		m_position = position; 
@@ -1099,6 +1118,11 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 	public Coroutine Face( IQuestClickableInterface clickable, bool instant = false ) { return Face(clickable.IClickable, instant); }
 	public Coroutine Face( IQuestClickable clickable, bool instant = false )
 	{
+		if ( clickable == this.IClickable )
+		{
+			Debug.LogWarning($"Character {clickable.ScriptName} tried to Face() themselves");
+			return null;
+		}
 		if ( clickable != null )
 		{
 			return Face(clickable.Position + clickable.LookAtPoint, instant);
@@ -1253,6 +1277,19 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 		if ( m_instance != null ) m_instance.SkipTransition();
 	}
 
+	
+
+	public Coroutine WaitForTransition(bool skippable = true) { return PowerQuest.Get.StartCoroutine(CoroutineWaitForTransition(skippable)); }
+	public IEnumerator CoroutineWaitForTransition(bool skippable)
+	{
+		if ( m_instance != null )
+		{
+			yield return PowerQuest.Get.WaitWhile( m_instance.GetPlayingTransition, true );
+			SkipTransition();
+		}
+		yield break;
+	}
+
 
 	public void AddAnimationTrigger(string triggerName, bool removeAfterTriggering, System.Action action )
 	{
@@ -1373,9 +1410,8 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 			}
 		}
 
-		// After first walk, sequences are no longer cancelable
-		//if ( IsPlayer ) // ADVJAM2019: Change to be any character walk.
-			PowerQuest.Get.OnPlayerWalkComplete();
+		// After first walk, sequences are no longer cancelable. Note, ANY characters walk will stop the sequence being cancelable (It was buggy when it was just the player...)
+		PowerQuest.Get.OnPlayerWalkComplete();
 		
 		yield break;
 	}
@@ -1519,7 +1555,11 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 					if ( m_instance == null )
 					{
 						//Vector2 dialogWorldPos = m_position.WithZ(m_dialogText.transform.position.z);
-						m_dialogText.AttachTo(m_position);					
+						
+						Vector3 dialogWorldPos = m_position;
+						if ( TextPositionOverride != Vector2.zero )
+							dialogWorldPos = TextPositionOverride;
+						m_dialogText.AttachTo(dialogWorldPos);					
 					}
 					else 
 					{

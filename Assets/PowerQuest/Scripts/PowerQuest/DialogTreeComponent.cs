@@ -69,6 +69,14 @@ public partial class DialogOption : IDialogOption, IQuestClickable
 [System.Serializable]
 public class DialogTreeScript<T> : QuestScript where T : QuestScript
 {
+
+	
+	protected IDialogTree m_data = null;
+	
+	/// Get the DialogTree associated with this script. 
+	/// eg. `Data.Hide()` 
+	/// \sa PowerTools.Quest.IDialogTree
+	//public IDialogTree Data { get{return m_data;} }
 		
 	/// True the first time the dialog tree is shown (or if its never been shown). 
 	public bool FirstTimeShown { get => D.Current.FirstTimeShown; }
@@ -76,23 +84,27 @@ public class DialogTreeScript<T> : QuestScript where T : QuestScript
 	public int TimesShown { get => D.Current.TimesShown; }
 
 	/// Access to option with specified id. Eg: `Option(3).On();`. This example in the QuestScript editor is simplified to `O.3.On();`
-	public DialogOption Option(int id) { return D.Current.GetOption(id); }
+	public DialogOption Option(int id) { return m_data.GetOption(id); }
 	/// Access to option with specified id. Eg: `Option("NiceHat").On();` This example in the QuestScript editor is simplified to `O.NiceHat.On();`
-	public DialogOption Option(string id) { return D.Current.GetOption(id); }
+	public DialogOption Option(string id) 
+	{
+		if ( m_data == null ) Debug.LogError("Data not set up yet in Dialog. Can't retrieve option"); 
+		return m_data.GetOption(id); 
+	}
 
 	/// Turns on one or more options. Eg: `D.ChatWithBarney.OptionOn(1,2,3);` \sa OptionOff() \sa OptionOffForever
-	public void OptionOn(params int[] id){ D.Current.OptionOn(id);  }
+	public void OptionOn(params int[] id){ m_data.OptionOn(id);  }
 	/// Turns off one or more options. Eg: `D.ChatWithBarney.OptionOff(1,2,3);` \sa OptionOn() \sa OptionOffForever
-	public void OptionOff(params int[] id){ D.Current.OptionOff(id); }
+	public void OptionOff(params int[] id){ m_data.OptionOff(id); }
 	/// Turns one or more options off permanantly. Future OptionOn calls will be ignored. Eg: `D.ChatWithBarney.OptionOffForever(1,2,3);` \sa OptionOn() \sa OptionOff
-	public void OptionOffForever(params int[] id){ D.Current.OptionOffForever(id); }
+	public void OptionOffForever(params int[] id){ m_data.OptionOffForever(id); }
 
 	/// Turns on one or more options. Eg: `D.ChatWithBarney.OptionOn("Yes","No","Maybe");` \sa OptionOff() \sa OptionOffForever()
-	public void OptionOn(params string[] id){ D.Current.OptionOn(id);  }
+	public void OptionOn(params string[] id){ m_data.OptionOn(id);  }
 	/// Turns off one or more options. Eg: `D.ChatWithBarney.OptionOff("Yes","No","Maybe");` \sa OptionOn() \sa OptionOffForever()
-	public void OptionOff(params string[] id){ D.Current.OptionOff(id); }
+	public void OptionOff(params string[] id){ m_data.OptionOff(id); }
 	/// Turns one or more options off permanantly. Future OptionOn calls will be ignored. Eg: `D.ChatWithBarney.OptionOffForever("Yes","No","Maybe");` \sa OptionOn() \sa OptionOff()
-	public void OptionOffForever(params string[] id){ D.Current.OptionOffForever(id); }
+	public void OptionOffForever(params string[] id){ m_data.OptionOffForever(id); }
 
 	/// Changes the active dialog tree to the new one specified. Useful for switching to a sub-tree. Eg: `Goto(D.AskAboutQuests);`. \sa GotoPrevious()
 	public void Goto(IDialogTree dialog) { if ( dialog != null ) dialog.Start(); }
@@ -102,7 +114,7 @@ public class DialogTreeScript<T> : QuestScript where T : QuestScript
 
 	/// Stops the active dialog tree and returns the player to the game
 	public void Stop() { PowerQuest.Get.StopDialog(); }
-
+	
 	/// Used internally to access one script from another
 	public static T Script { get { return E.GetScript<T>(); } }
 }
@@ -158,8 +170,18 @@ public partial class DialogTree : IQuestScriptable, IDialogTree
 	public IQuestScriptable GetScriptable() { return this; }
 	public T GetScript<T>() where T : DialogTreeScript<T> {  return ( m_script != null ) ? m_script as T : null; }
 	public string GetScriptName(){ return m_scriptName; }
-	public string GetScriptClassName() { return m_scriptClass; }
-	public void HotLoadScript(Assembly assembly) { QuestUtils.HotSwapScript( ref m_script, m_scriptClass, assembly ); }
+	public string GetScriptClassName() { return m_scriptClass; }	
+	public void HotLoadScript(Assembly assembly) 
+	{ 
+		QuestUtils.HotSwapScript( ref m_script, m_scriptClass, assembly ); 
+		if ( m_script != null )
+		{
+			// Set data in script
+			System.Reflection.FieldInfo fi = m_script.GetType().GetField("m_data", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy );
+			fi.SetValue(m_script,Data);
+		}
+	}
+
 	public GameObject GetPrefab() { return m_prefab; }
 
 	/* NB: this is maybe not used? */
@@ -248,7 +270,13 @@ public partial class DialogTree : IQuestScriptable, IDialogTree
 	{
 		m_prefab = prefab;
 		if ( m_script == null ) // script could be null if it didn't exist in old save game, but does now.
-			m_script = QuestUtils.ConstructByName<QuestScript>(m_scriptClass);
+			m_script = QuestUtils.ConstructByName<QuestScript>(m_scriptClass);			
+		if ( m_script != null )
+		{
+			// Set data in script
+			System.Reflection.FieldInfo fi = m_script.GetType().GetField("m_data", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy );
+			fi.SetValue(m_script,Data);
+		}
 	}
 
 	public void Initialise( GameObject prefab )
@@ -265,6 +293,13 @@ public partial class DialogTree : IQuestScriptable, IDialogTree
 		{
 			m_options.Add( new DialogOption() );
 			QuestUtils.CopyFields(m_options[i], defaultItems[i]);
+		}
+				
+		if ( m_script != null )
+		{
+			// Set data in script
+			System.Reflection.FieldInfo fi = m_script.GetType().GetField("m_data", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy );
+			fi.SetValue(m_script,Data);
 		}
 	}
 

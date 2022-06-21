@@ -52,7 +52,7 @@ MonoBehaviour:
     m_description: '&10 Doc'
     m_cursor: Talk
     m_room: Hardware
-    m_position: {x: 24, y: 6}
+    m_position: {x: 905, y: -8}
     m_faceDirection: 0
     m_clickable: 1
     m_visible: 1
@@ -77,7 +77,7 @@ MonoBehaviour:
     m_LipSyncEnabled: 0
     m_footstepSound: 
     m_useSpriteAsHotspot: 0
-    m_baseline: -118
+    m_baseline: 0
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: 0, y: 0}
     m_scriptName: HardwareClerk

@@ -139,14 +139,18 @@ public class GuiDropDownBar : MonoBehaviour
 	//	OnEnable();
 	//}
 
-	void OnDestroy()
+	void OnDisable()
 	{
 		if ( m_triggeredPause && PowerQuest.Exists )
 		{
 			PowerQuest.Get.UnPause(gameObject.name);
 			m_triggeredPause = false;
 		}
+	}
 
+	void OnDestroy()
+	{
+		OnDisable();
 	}
 	
 	// Update is called once per frame

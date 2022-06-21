@@ -102,6 +102,7 @@ MonoBehaviour:
   m_colorHover: {r: 1, g: 1, b: 1, a: 1}
   m_changeImageColor: 1
   m_wrapText: 1
+  m_showOptionNumbers: 0
   m_verticalAlignment: 0
   m_maxVisibleItems: 5
   m_arrowButtonWidth: 12

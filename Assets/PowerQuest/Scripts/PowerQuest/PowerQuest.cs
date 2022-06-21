@@ -26,14 +26,14 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	// Variables in this class are all saved/restored automatically
 	partial class SavedVarCollection
 	{
-		public SourceList m_occurances = new SourceList();
+		public SourceList m_occurrences = new SourceList();
 		public List<string> m_tempDisabledProps = new List<string>();
 		public List<string> m_tempDisabledHotspots = new List<string>();
 		public List<string> m_tempCursorNoneProps = new List<string>();
 		public List<string> m_tempCursorNoneHotspots = new List<string>();
 		public List<string> m_tempCursorNoneCursor = new List<string>();
 
-		public List<string> m_currentInteractionOccurrances = new List<string>();
+		public List<string> m_currentInteractionOccurrences = new List<string>();
 		public List<string> m_captureInputSources = new List<string>();
 		public List<Timer> m_timers = new List<Timer>();
 		public bool m_callEnterOnRestore = false; // when true, restoring a game will call "OnEnterAfterFade, etc again"
@@ -517,6 +517,13 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	}
 
 	public Room GetCurrentRoom() { return m_currentRoom; }
+	
+	/// Debugging function that overrides the value of `R.Previous`. Useful for testing, paricularly in 'Play from` functions- (when using the [QuestPlayFromFunction] attribute)
+	public void DebugSetPreviousRoom(IRoom room)
+	{
+		GetPlayer().DebugSetLastRoom(room);
+	}
+
 	public Room GetRoom(string scriptName) 
 	{ 
 		Room result = m_rooms.Find(item=>string.Equals(item.ScriptName, scriptName, System.StringComparison.OrdinalIgnoreCase )); 
@@ -525,13 +532,14 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		return result;
 	}
 
-	public ICharacter Player { get { return m_player; } set { SetPlayer(value); } }
+	public ICharacter Player { get { return m_player; } set { SetPlayer(value, 0.6f); } }
 	public Character GetPlayer() { return m_player; }
-	public void SetPlayer(ICharacter character) 
+	public void SetPlayer(ICharacter character, float cameraTransitionTime = 0) 
 	{ 
+		bool sameRoom = character != null && m_player != null && character.Room == m_player.Room;
 		Character newPlayer = GetCharacter(character.ScriptName);
 		m_player = newPlayer;
-		GetCamera().SetCharacterToFollow(newPlayer);
+		GetCamera().SetCharacterToFollow(newPlayer,sameRoom ? cameraTransitionTime : 0 );
 		ChangeRoomBG(m_player.Room);
 	}
 	public Character GetCharacter(string scriptName) { return m_characters.Find(item=>string.Equals(item.ScriptName, scriptName, System.StringComparison.OrdinalIgnoreCase )); }
@@ -1034,6 +1042,23 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	public Coroutine HandleInteract( IInventory target )	{ return StartScriptInteractionCoroutine( target.Data.GetScript(), PowerQuest.SCRIPT_FUNCTION_INTERACT_INVENTORY, new object[] {target}, true ); }
 	public Coroutine HandleLookAt( IInventory target ) 		{ return StartScriptInteractionCoroutine( target.Data.GetScript(), PowerQuest.SCRIPT_FUNCTION_LOOKAT_INVENTORY, new object[] {target}, true ); }
 	public Coroutine HandleInventory( IInventory target, IInventory item ) { return StartScriptInteractionCoroutine( target.Data.GetScript(), PowerQuest.SCRIPT_FUNCTION_USEINV_INVENTORY, new object[] {target, item}, true ); }
+	/// Runs a specific dialog option. NB: Does NOT start the dialog tree first
+	public Coroutine HandleOption( IDialogTree dialog, string optionName )
+	{ 
+		DialogOption option = dialog.GetOption(optionName);
+		//return StartScriptInteractionCoroutine( dialog.Data.GetScript(), PowerQuest.SCRIPT_FUNCTION_DIALOG_OPTION+option.ScriptName, new object[] {option} ); 
+		Coroutine coroutine = StartScriptInteractionCoroutine(dialog.Data.GetScript(), SCRIPT_FUNCTION_DIALOG_OPTION + option.Name, new object[]{option}, false );
+		if ( coroutine == null )
+			coroutine = StartScriptInteractionCoroutine(dialog.Data.GetScript(), SCRIPT_FUNCTION_DIALOG_OPTION + option.Name, null, false );
+		if ( coroutine != null )
+		{
+			option.Used = true;
+			option.TimesUsed++;
+			GetGui(DialogTreeGui).Visible = false;
+		}
+		return coroutine;
+	}
+	
 
 	//
 	// Misc utilities
@@ -1081,15 +1106,15 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	{
 		if ( m_sequenceIsCancelable && m_backgroundSequence != null )
 		{
-			// Rollback sequence "used" and "Clicked" and "Occurrances"
+			// Rollback sequence "used" and "Clicked" and "Occurrences"
 			for ( int i = 0; i < m_currentInteractionClickables.Count; ++i)
 				m_currentInteractionClickables[i]?.OnCancelInteraction(m_currentInteractionVerbs[i]);
 				
 			m_currentInteractionClickables.Clear();
 			m_currentInteractionVerbs.Clear();
 			
-			SV.m_currentInteractionOccurrances.ForEach(occurance=>SV.m_occurances.Remove(occurance));
-			SV.m_currentInteractionOccurrances.Clear();	
+			SV.m_currentInteractionOccurrences.ForEach(occurrence=>SV.m_occurrences.Remove(occurrence));
+			SV.m_currentInteractionOccurrences.Clear();	
 
 			// Stop the background sequence as well as all other sequences started since "cancelable"
 			StopCoroutine(m_backgroundSequence);
@@ -1109,33 +1134,36 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 
 	}
 
+
 	// Returns true the first time something occurrs, increments each time
-	public bool FirstOccurance(string uniqueString)
+	public bool FirstOccurrence(string uniqueString)
 	{
 		if ( m_allowEnableCancel )
-			SV.m_currentInteractionOccurrances.Add(uniqueString);
-		return SV.m_occurances.Add(uniqueString) <= 1;
+			SV.m_currentInteractionOccurrences.Add(uniqueString);
+		return SV.m_occurrences.Add(uniqueString) <= 1;
 	}
-	// Checks how many times something has occurred without incrementing the occurance
-	public int GetOccuranceCount(string thing)
+	// Checks how many times something has occurred without incrementing the occurrence
+	public int GetOccurrenceCount(string thing)
 	{
-		return SV.m_occurances.Count(thing);
+		return SV.m_occurrences.Count(thing);
 	}
 
 	// Returns number of times something has occurred, and incrementing the number
-	public int Occurrance(string thing)
+	public int Occurrence(string thing)
 	{
 		if ( m_allowEnableCancel )
-			SV.m_currentInteractionOccurrances.Add(thing);
-		return SV.m_occurances.Add(thing) - 1;
+			SV.m_currentInteractionOccurrences.Add(thing);
+		return SV.m_occurrences.Add(thing) - 1;
 	}
-
+	
+	
 	/// Helper function that temporarily disables all clickables, except those specified (will probably move to PowerQuest system)
-	public void DisableAllClickablesExcept(params string[] exceptions)
+	public void DisableAllClickablesExcept()
 	{
-		foreach( Prop prop in PowerQuest.Get.GetCurrentRoom().GetProps() )
-		{	        
-			if ( prop.Clickable && System.Array.Exists(exceptions, item=> item == prop.ScriptName) == false )
+		RestoreAllClickables();
+		foreach( Prop prop in PowerQuest.Get.GetCurrentRoom().GetProps() )		
+		{
+			if ( prop.Clickable )
 			{
 				SV.m_tempDisabledProps.Add( prop.ScriptName);
 				prop.Clickable = false;
@@ -1144,7 +1172,53 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 
 		foreach( Hotspot hotspot in PowerQuest.Get.GetCurrentRoom().GetHotspots() )
 		{
-			if ( hotspot.Clickable && System.Array.Exists(exceptions, item=> item == hotspot.ScriptName) == false )
+			if ( hotspot.Clickable )
+			{
+				SV.m_tempDisabledHotspots.Add(hotspot.ScriptName);
+				hotspot.Clickable = false;
+			}
+		}
+		
+	}
+	
+	/// Helper function that temporarily disables all clickables, except those specified (will probably move to PowerQuest system)
+	public void DisableAllClickablesExcept(params string[] exceptions)
+	{
+		RestoreAllClickables();
+		foreach( Prop prop in PowerQuest.Get.GetCurrentRoom().GetProps() )		
+		{
+			if ( prop.Clickable && System.Array.Exists(exceptions, item=> string.Equals(prop.ScriptName, item, System.StringComparison.OrdinalIgnoreCase)) == false )
+			{
+				SV.m_tempDisabledProps.Add( prop.ScriptName);
+				prop.Clickable = false;
+			}
+		}
+
+		foreach( Hotspot hotspot in PowerQuest.Get.GetCurrentRoom().GetHotspots() )
+		{
+			if ( hotspot.Clickable && System.Array.Exists(exceptions, item => string.Equals(hotspot.ScriptName, item, System.StringComparison.OrdinalIgnoreCase)) == false )
+			{
+				SV.m_tempDisabledHotspots.Add(hotspot.ScriptName);
+				hotspot.Clickable = false;
+			}
+		}
+	}
+
+	public void DisableAllClickablesExcept(params IQuestClickableInterface[] exceptions)
+	{
+		RestoreAllClickables();
+		foreach( Prop prop in PowerQuest.Get.GetCurrentRoom().GetProps() )		
+		{
+			if ( prop.Clickable && System.Array.Exists(exceptions, item=> item==prop) == false )
+			{
+				SV.m_tempDisabledProps.Add( prop.ScriptName);
+				prop.Clickable = false;
+			}
+		}
+
+		foreach( Hotspot hotspot in PowerQuest.Get.GetCurrentRoom().GetHotspots() )
+		{
+			if ( hotspot.Clickable && System.Array.Exists(exceptions, item => item==hotspot) == false )
 			{
 				SV.m_tempDisabledHotspots.Add(hotspot.ScriptName);
 				hotspot.Clickable = false;
@@ -1398,7 +1472,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		return null;
 	}
 
-
+	public List<DialogTree> GetDialogTrees() { return m_dialogTrees; }
 	public DialogTree GetDialogTree(int id) 
 	{
 		List<DialogTree> list = m_dialogTrees;
@@ -2755,7 +2829,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		CancelCurrentInteraction();
 
 		// Clear the list of things the current interaction has changed
-		SV.m_currentInteractionOccurrances.Clear();
+		SV.m_currentInteractionOccurrences.Clear();
 		m_currentInteractionClickables.Clear();
 		m_currentInteractionVerbs.Clear();
 

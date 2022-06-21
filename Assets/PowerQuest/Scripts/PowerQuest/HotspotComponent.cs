@@ -30,7 +30,7 @@ public partial class Hotspot : IQuestClickable, IHotspot, IQuestScriptable
 	[SerializeField] float m_baseline = 0;
 	[SerializeField] Vector2 m_walkToPoint = Vector2.zero;
 	[SerializeField] Vector2 m_lookAtPoint = Vector2.zero;
-	[HideInInspector][SerializeField] string m_scriptName = "HotspotNew";
+	[ReadOnly, SerializeField] string m_scriptName = "HotspotNew";
 
 	#endregion
 	#region Hotspot: Vars: private

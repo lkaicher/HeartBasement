@@ -107,11 +107,28 @@ public class QuestText : MonoBehaviour
 	[SerializeField, HideInInspector] string m_unlocalizedText = null;
 
 	[SerializeField, HideInInspector] List<TextMesh> m_outlineMeshes = null;
+	bool m_wasRendererEnabled = true;
 	
 	Vector2 m_rectSize = Vector2.zero;
 
 	public string text { get { return m_text; } set { SetText(value); } }
-	public Color color { get { return CheckTextMesh() ? m_mesh.color : Color.white; } set { if ( CheckTextMesh() ) { m_mesh.color = value; } } }
+	public Color color 
+	{	
+		get { return CheckTextMesh() ? m_mesh.color : Color.white; } 
+		set 
+		{ 
+			if ( CheckTextMesh() == false ) 
+				return;
+			bool alphaChange = m_mesh.color.a != value.a;
+			m_mesh.color = value;			
+			// update alpha of new color
+			foreach( TextMesh item in m_outlineMeshes) 
+			{
+				if ( item != null)
+					item.color = item.color.WithAlpha(color.a);
+			}
+		}
+	}
 
 	public float WrapWidth { get { return m_wrapWidth; } set { m_wrapWidth = value; } }
 	public bool Truncate { get { return m_truncate; } set { m_truncate = value; } }
@@ -120,12 +137,21 @@ public class QuestText : MonoBehaviour
 	public string SortingLayer { get{ return m_sortingLayer; } set{ m_sortingLayer = value; } }
 	public int OrderInLayer { get{ return m_orderInLayer; } set
 	{ 
+		if ( m_orderInLayer == value )
+			return;
 		m_orderInLayer = value; 
+		if (m_meshRenderer)
+			m_meshRenderer.sortingOrder = m_orderInLayer;
 		// Update any background text too!
-		TextOutline outline = m_outline;
-		SetOutline(null);
-		SetOutline(outline);
+		if ( m_outlineMeshes != null )
+		{
 
+			foreach( TextMesh mesh in m_outlineMeshes )
+			{
+				if ( mesh != null ) 
+					mesh.GetComponent<Renderer>().sortingOrder = m_orderInLayer;				
+			}
+		}
 	} }
 	public bool GetShouldLocalize() { return m_localize; }
 	public float GetWrapWidth() { return m_wrapWidth; }
@@ -422,6 +448,8 @@ public class QuestText : MonoBehaviour
 
 	void LateUpdate()
 	{
+		if ( CheckMaterial() == false )
+			return;
 		if ( m_attachObject != null || m_attachWorldPos != Vector2.zero )
 		{
 			if ( PowerQuest.GetValid() == false || PowerQuest.Get.GetCamera() == null || PowerQuest.Get.GetCameraGui() == null )
@@ -463,6 +491,17 @@ public class QuestText : MonoBehaviour
 
 			#endif
 			
+		}
+
+		// Sync shadow renderer 'enabled' property with the main renderer
+		if ( m_wasRendererEnabled != m_meshRenderer.enabled )
+		{
+			foreach( TextMesh item in m_outlineMeshes)
+			{
+				if ( item != null)
+					item.GetComponent<Renderer>().enabled = m_meshRenderer.enabled;
+			}
+			m_wasRendererEnabled = m_meshRenderer.enabled;
 		}
 	}
 	

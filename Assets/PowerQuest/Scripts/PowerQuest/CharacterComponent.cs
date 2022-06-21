@@ -882,6 +882,10 @@ public partial class CharacterComponent : MonoBehaviour
 			PlayAnimInternal(queuedAnim, true);
 		}
 	}
+	public bool GetPlayingTransition()
+	{
+		return IsString.Set(m_transitioningToAnim) || IsString.Set(m_playAfterTurnAnim);
+	}
 
 	// AnimState is passed as none, anim will always update, otherwise only if that state has changed.
 	public void OnAnimationChanged( eState animState = eState.None )
@@ -911,16 +915,26 @@ public partial class CharacterComponent : MonoBehaviour
 				{
 					// Play talk anim
 					PlayAnimInternal(m_data.AnimTalk, true);
-					if ( m_mouth != null && m_mouth.isActiveAndEnabled )
-					{
-						bool flip;
-						m_mouth.Play( FindDirectionalAnimation( m_data.AnimMouth, out flip ) );
-						m_mouth.Pause();
-					}
 				} break;
 
 			}
-		}		
+			UpdateMouthAnim();	
+		}
+	}
+
+	void UpdateMouthAnim()
+	{
+		if ( m_mouth != null )
+		{
+			bool flip;
+			bool wasactive = m_mouth.gameObject.activeSelf;
+			if ( wasactive == false )
+				m_mouth.gameObject.SetActive(true);
+			m_mouth.Play( FindDirectionalAnimation( m_data.AnimMouth, out flip ) );
+			m_mouth.Pause();
+			if ( wasactive == false )
+				m_mouth.gameObject.SetActive(false);
+		}
 	}
 	
 	public void OnClickableColliderIdChanged()
@@ -993,14 +1007,7 @@ public partial class CharacterComponent : MonoBehaviour
 			}
 			if (m_mouth != null && string.IsNullOrEmpty(m_data.AnimMouth) == false)
 			{
-				bool flip;
-				bool wasactive = m_mouth.gameObject.activeSelf;
-				if ( wasactive == false )
-					m_mouth.gameObject.SetActive(true);
-				m_mouth.Play( FindDirectionalAnimation( m_data.AnimMouth, out flip ) );
-				m_mouth.Pause();
-				if ( wasactive == false )
-					m_mouth.gameObject.SetActive(false);
+				UpdateMouthAnim();
 			}
 		}
 	}
@@ -1071,7 +1078,19 @@ public partial class CharacterComponent : MonoBehaviour
 				}
 				else 
 				{
-					Debug.LogWarning("Couldn't Find Path");
+					if ( GetData().Solid )
+					{
+						// Try finding path with 'Solid' off- Since the clipper version doesn't always like that
+						Debug.Log("Couldn't Find Path, trying with 'solid' flag off");
+						GetData().Solid = false;
+						WalkTo(pos,anywhere,playWalkAnim,couldntFindPath);
+						GetData().Solid = true;
+
+					}
+					else 
+					{
+						Debug.Log("Couldn't Find Path.");
+					}
 				}
 			}
 		}
@@ -1210,13 +1229,14 @@ public partial class CharacterComponent : MonoBehaviour
 			{
 				// Play talk anim
 				//if ( string.IsNullOrEmpty(m_transitionAnim) || m_transitionAnim.StartsWith(m_data.AnimTalk) == false ) // Don't play again if alteady transitioning to it
-				if ( string.IsNullOrEmpty(m_data.AnimTalk) == false )
+				if ( IsString.Set(m_data.AnimTalk) )
 					PlayAnimInternal(m_data.AnimTalk);
+				else 
+					PlayAnimInternal(m_data.AnimIdle);  // Fall back to idle anim when there's no talk anim
 
-			    if ( m_data.LipSyncEnabled && m_mouthNode == null )
-			    {
-			        m_spriteAnimator.Pause();
-			    }
+				if ( m_data.LipSyncEnabled && m_mouthNode == null )
+					m_spriteAnimator.Pause();
+				
 			} break;
 			case eState.Animate:
 			{
@@ -1322,7 +1342,7 @@ public partial class CharacterComponent : MonoBehaviour
 				clip = FindDirectionalAnimation( animName, out flip );
 				m_transitionAnim = clip.name; 
 			}
-			else if ( m_data.LoopStartTime > 0 )
+			else if ( m_data.LoopStartTime > 0 && m_data.LoopEndTime > 0 )
 			{
 				// Transition out from looping anim
 				if ( ignoreTransitionLoopTime == false && m_data.LoopEndTime > m_data.LoopStartTime )

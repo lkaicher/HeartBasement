@@ -120,7 +120,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			new Regex(@"(?<=^|\W)Option\(\s*(\d+)\s*\)", RegexOptions.Compiled), 	// Option(1) -> O.1.
 			new Regex(@"(?<=^|\W)C\.Plr\.", RegexOptions.Compiled), 	// C.Plr. -> Plr.
 			new Regex(@"(?<=^|\W)GlobalScript\.Script\.", RegexOptions.Compiled), 	// GlobalScript.Script. -> Globals. No longer needed, but left to cleanup old scripts that might still be using GlobalScript.Script
-			new Regex(@"(?<=^|\W)(R|C|I|G)(?:oom|haracter|nventory|ui)(\w*)\.Script\.", RegexOptions.Compiled), 	// RoomKitchen.Script. => R.Kitchen.Script. (or CharacterDave => C.Dave, or InventoryBucket => I.Bucket, GuiBlah => G.GuiBlah)
+			new Regex(@"(?<=^|\W)(R|C|I|G|D)(?:oom|haracter|nventory|ui|ialog)(\w*)\.Script\.", RegexOptions.Compiled), 	// RoomKitchen.Script. => R.Kitchen.Script. (or CharacterDave => C.Dave, or InventoryBucket => I.Bucket, GuiBlah => G.GuiBlah, DialogBlah...)
 
 		};
 
@@ -212,6 +212,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			new Regex(@"(^|[^\w.])C\.(\w+)\.Script\.", RegexOptions.Compiled),
 			new Regex(@"(^|[^\w.])I\.(\w+)\.Script\.", RegexOptions.Compiled),
 			new Regex(@"(^|[^\w.])G\.(\w+)\.Script\.", RegexOptions.Compiled),
+			new Regex(@"(^|[^\w.])D\.(\w+)\.Script\.", RegexOptions.Compiled),
 		};
 
 	// The $1 preserves any spacing that's at the start
@@ -259,6 +260,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			@"$1Character$2.Script.", // C.Dave.Script. -> CharacterDave.Script.
 			@"$1Inventory$2.Script.", // I.Bucket.Script. -> InventoryBucket.Script.
 			@"$1Gui$2.Script.", // G.Prompt.Script. -> GuiPrompt.Script.
+			@"$1Dialog$2.Script.", // G.Prompt.Script. -> GuiPrompt.Script.
 		};
 
 
@@ -853,6 +855,11 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 
 		// Ctrl+s to save.. can't do it :( use Ctrl+shift+s or ctrl+enter instead.
 		Event ev = Event.current;
+		
+		bool controlHeld = ev.control;
+		#if UNITY_EDITOR_OSX
+			controlHeld = ev.command;
+		#endif
 
 		if ( focusedWindow == this )
 		{	
@@ -866,7 +873,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			}
 			
 			// Ctrl+ mousewheel zooms
-			if ( ev.type == EventType.ScrollWheel && ev.control )
+			if ( ev.type == EventType.ScrollWheel && controlHeld )
 			{
 				if ( ev.delta.y < 0 )
 					m_fontSize++;
@@ -877,12 +884,34 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 				ev.Use();
 			}
 
+			// Handle double click selecting words that have underscores, like m_myVariable_3
+			if ( ev.isMouse && ev.clickCount == 2 )
+			{	
+				if ( m_textEditor.selectIndex == m_textEditor.cursorIndex 
+					&& m_textEditor.cursorIndex >= 0 && m_textEditor.cursorIndex < m_textEditor.text.Length-1 
+					&& char.IsLetterOrDigit(m_textEditor.text[m_textEditor.cursorIndex]) )
+				{
+					int wordStart = m_textEditor.cursorIndex;
+					int wordEnd = wordStart;
+					
+					while ( wordStart > 0 && (char.IsLetterOrDigit(m_textEditor.text[wordStart-1]) || m_textEditor.text[wordStart-1] == '_') )
+						--wordStart;
+					while ( wordEnd < m_textEditor.text.Length-1 && (char.IsLetterOrDigit(m_textEditor.text[wordEnd]) || m_textEditor.text[wordEnd] == '_') )
+						++wordEnd;
+					//Debug.Log($"Word: {m_text.Substring(wordStart,wordEnd-wordStart)}");
+					m_textEditor.cursorIndex=wordStart;
+					m_textEditor.selectIndex=wordEnd;
+					ev.Use();
+				}
+
+			}
 
 			if ( (ev.type == EventType.KeyDown) && FindTextEditor() != null )
 			{
-				bool textNavigateKeyDown = ev.keyCode == KeyCode.UpArrow || ev.keyCode == KeyCode.DownArrow || ev.keyCode == KeyCode.LeftArrow  || ev.keyCode == KeyCode.RightArrow || ev.keyCode == KeyCode.Home || ev.keyCode == KeyCode.End || ev.keyCode == KeyCode.PageUp || ev.keyCode == KeyCode.PageDown;
 
-				if ( ev.control && (ev.keyCode == KeyCode.Return || ev.keyCode == KeyCode.S)  )
+				bool textNavigateKeyDown = ev.keyCode == KeyCode.UpArrow || ev.keyCode == KeyCode.DownArrow || ev.keyCode == KeyCode.LeftArrow  || ev.keyCode == KeyCode.RightArrow || ev.keyCode == KeyCode.Home || ev.keyCode == KeyCode.End || ev.keyCode == KeyCode.PageUp || ev.keyCode == KeyCode.PageDown;
+				
+				if ( controlHeld && ev.keyCode == KeyCode.S  )
 				{ 
 					// Save with ctrl+enter, Ctrl+S
 					doSave |= needsSave;
@@ -902,7 +931,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 					m_acSelectedIndex = Mathf.Clamp(m_acSelectedIndex,0,m_acList.Count-1);
 					ev.Use();
 				}
-				else if ( ev.control == false && HasAutoComplete() && (ev.character == '\n' || ev.character == '.' || ev.character == ':' || ev.character == '\t') )
+				else if ( HasAutoComplete() && (ev.character == '\n' || ev.character == '.' || ev.character == ':' || ev.character == '\t') )
 				{
 					// Do Autocomplete
 					forceIncrementUndoGroup = true;
@@ -922,7 +951,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 					// Don't let escape fall through or it'll delete any chagnes to the text box!
 					ev.Use();
 				}
-				else if ( ev.control == false && ev.character == '\n' )
+				else if ( ev.character == '\n' )
 				{
 					// Do carriage return
 					forceIncrementUndoGroup = true;
@@ -2291,7 +2320,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 				.GetField("s_RecycledEditor", BindingFlags.Static | BindingFlags.NonPublic)
 				.GetValue(null) as TextEditor; 
 		}
-
+		
 		return m_textEditor;
 	}
 

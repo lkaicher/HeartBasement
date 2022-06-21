@@ -66,8 +66,9 @@ public static class QuestUtils
 			case eEaseCurve.OutQuint:
 			case eEaseCurve.InOutQuint:
 			{				
-				float pow = ((float)curve-(float)((int)eEaseCurve.InQuad/3))+2;
-				int dir = (int)curve-(int)eEaseCurve.InQuad%3;
+				float pow = (((int)curve-(int)eEaseCurve.InQuad)/3)+2;
+				int dir = ((int)curve-(int)eEaseCurve.InQuad)%3;
+				//Debug.Log($"Enum: {curve}, pow: {pow}, dir: {dir}");
 				if ( dir == 0)
 				{
 					return Mathf.Pow(ratio,pow);
@@ -96,12 +97,12 @@ public static class QuestUtils
 			} 
 			case eEaseCurve.InElastic:
 			{
-				const float c4 = (2f * Mathf.PI) / 3f;
+				const float c4 = (2f * Mathf.PI) / 3f - 0.62734f;
 				return -Mathf.Pow(2,10*x-10) * Mathf.Sin((x*10-10.75f)*c4);
 			} 
 			case eEaseCurve.OutElastic:
 			{
-				const float c4 = (2f * Mathf.PI) / 3f;
+				const float c4 = (2f * Mathf.PI) / 3f - 0.62734f;
 				return Mathf.Pow(2,-10*x) * Mathf.Sin((x*10-0.75f)*c4)+1;
 			} 
 			case eEaseCurve.InOutElastic:
@@ -174,7 +175,7 @@ public static class QuestUtils
 				catch (System.Exception e )
 				{
 					// Doesn't matter so m uch if we can't copy some data for hotswap
-					Debug.LogWarning(e.ToString()); 
+					Debug.LogWarning($"Hotloading script warning: {e.ToString()}"); 
 				}
 			}
 		}
