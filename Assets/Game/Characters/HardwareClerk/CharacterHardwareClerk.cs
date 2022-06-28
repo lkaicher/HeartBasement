@@ -11,7 +11,7 @@ public class CharacterHardwareClerk : CharacterScript<CharacterHardwareClerk>
 	
 	IEnumerator OnLookAt()
 	{
-		yield return C.Dave.Say("There's the clerk. He looks bored.", 14);
+		yield return C.Dave.Say("There's Doc, the titular owner of Doc's Hardware", 14);
 		yield return E.Break;
 	}
 

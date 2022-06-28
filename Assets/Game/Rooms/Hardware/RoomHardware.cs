@@ -119,4 +119,265 @@ public class RoomHardware : RoomScript<RoomHardware>
 
 		yield return E.Break;
 	}
+
+	IEnumerator OnLookAtHotspotPaint( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("Used paint?! For only a dollar?! What a steal!");
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotQuestionBox( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("I wonder what’s in there.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotPokeball( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("Poke a man? Now why would I do that?");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotPokeball( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("Poke a man? Now why would I do that?");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotQuestionBox( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("I wonder what’s in there.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotPaint( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("Used paint?! For only a dollar?! What a steal!");
+		
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotPOWBlock( IHotspot hotspot )
+	{
+		yield return C.Dave.Say(" Looks POWerful.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotPOWBlock( IHotspot hotspot )
+	{
+		yield return C.Dave.Say(" Looks POWerful.");
+		
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotGoldRing( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("Blue rodent not included.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotGoldRing( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("Blue rodent not included.");
+		
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotPipeBomb( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("Oh. That’s a pipe bomb.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotPipeBomb( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("Oh. That’s a pipe bomb.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotBusterSword( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("Lugging that hunk of iron around would be a work out in itself.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotBusterSword( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("Lugging that hunk of iron around would be a work out in itself.");
+		
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotGhost( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("Why so glum, chum?");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotGhost( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("Why so glum, chum?");
+		
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotNuts( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("A box of peanuts, walnuts, and pistachios.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotNuts( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("A box of peanuts, walnuts, and pistachios.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotBolts( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("It’s filled to the brim with lightning bolts.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotBolts( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("It’s filled to the brim with lightning bolts.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotBanjosAndKazoos( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("It’s filled with banjos and kazoos. My favorite instruments!");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotBanjosAndKazoos( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("It’s filled with banjos and kazoos. My favorite instruments!");
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotRedPaint( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("A can of red paint. Definitely my favorite color.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotRedPaint( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("A can of red paint. Definitely my favorite color.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotOrangePaint( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("A can of orange paint. Definitely my favorite color.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotOrangePaint( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("A can of orange paint. Definitely my favorite color.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotYellowPaint( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("A can of yellow paint. Definitely my favorite color.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotYellowPaint( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("A can of yellow paint. Definitely my favorite color.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotGreenPaint( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("A can of green paint. Definitely my favorite color.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotGreenPaint( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("A can of green paint. Definitely my favorite color.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotBluePaint( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("A can of blue paint. Definitely my favorite color.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotBluePaint( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("A can of blue paint. Definitely my favorite color.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotPurplePaint( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("A can of purple paint. Definitely my favorite color.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotPurplePaint( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("A can of purple paint. Definitely my favorite color.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotLampOil( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("Lamp Oil.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotLampOil( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("Lamp Oil.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotRope( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("It's rope. What did you expect?");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotRope( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("It's rope. What did you expect?");
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotBombs( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("I hope he has the correct permits to sell these.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotBombs( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("I hope he has the correct permits to sell these.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotSign( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("Hey! I'm no chump...");
+		yield return E.WaitSkip();
+		yield return C.Dave.Say("Am I?");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotSign( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("Hey! I'm no chump...");
+		yield return E.WaitSkip();
+		yield return C.Dave.Say("Am I?");
+		yield return E.Break;
+	}
 }
