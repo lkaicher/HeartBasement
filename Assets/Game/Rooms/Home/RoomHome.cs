@@ -138,70 +138,70 @@ public class RoomHome : RoomScript<RoomHome>
 
     IEnumerator OnUseInvPropWater(IProp prop, IInventory item)
     {
-        // NB: You need to check they used the correct item!
-        if (item == I.Bucket)
-        {
-            Prop("Water").Clickable = false;
-            if (Globals.tutorialProgress == tutorialStage.selectedBucket)
-            {
-                I.Bucket.AnimCursor = "bucketFull";
-                I.Bucket.AnimCursorInactive = "bucketFull";
-                I.Bucket.AnimGui = "bucketFull";
-                // Display: You scoop some water up.
-                Globals.tutorialProgress = tutorialStage.usedBucket;
-                Globals.m_progressExample = eProgress.UsedBucket;
-                //lowerWater();
-                Prop("Back").Animation = "WaterLevel1";
-
-                I.Active = null;
-                yield return E.WaitSkip();
-                yield return C.Dave.Say("Oh man... this is going to take forever.", 44);
-                yield return C.Dave.Say(
-                    "Maybe there's something at Doc's hardware store that can help.", 45);
-                yield return E.WaitSkip();
-                yield return C.Display("Click on a space in the room to walk to it.", 28);
-                C.Dave.Moveable = true;
-
-                // I.Bucket.SetActive();
-            }
-            else
-            {
-                yield return C.Dave.Say(" This bucket ain't gonna cut it...", 6);
-            }
-        }
-        if (item == I.BilgePump)
-        {
-            Prop("Water").Clickable = false;
-            yield return C.Dave.WalkTo(
-                new Vector2(Point("PumpPosition")[0], Point("PumpPosition")[1] + 50)
-            );
-            I.BilgePump.Remove();
-            Prop("Pump").Enable();
-            Prop("Handle").Enable();
-            Prop("Hose").Enable();
-            // FaceClicked
-
-            /*
-            //Display(1): Dave begins to try to pump out the water.
-            Prop("Pump").Visible = false;
-            Prop("Handle").Visible = false;
-            yield return C.Dave.PlayAnimation("Pumping");
-            Prop("Pump").Visible = true;
-            Prop("Handle").Visible = true;
-            Globals.m_progressExample = eProgress.TriedPump;
-            //lowerWater();
-            // C.Dave.WalkTo(0,-400);
-            Prop("Back").Animation="WaterLevel2";
-            yield return C.Display("Congratulations! The water level has decreased. However, it is not enough...", 2);
-            yield return C.Dave.Say("This is too hard! I think the handle is too short and the diameter of the hose is too small, I need to go back to the hardware store.", 4);
-            yield return E.Wait(1);
-            yield return E.WaitSkip();
-            yield return C.Dave.FaceDown();
-            */
-
-        }
-        yield return E.Break;
-    }
+		// NB: You need to check they used the correct item!
+		if (item == I.Bucket)
+		{
+			Prop("Water").Clickable = false;
+			if (Globals.tutorialProgress == tutorialStage.selectedBucket)
+			{
+				I.Bucket.AnimCursor = "bucketFull";
+				I.Bucket.AnimCursorInactive = "bucketFull";
+				I.Bucket.AnimGui = "bucketFull";
+				// Display: You scoop some water up.
+				Globals.tutorialProgress = tutorialStage.usedBucket;
+				//lowerWater();
+				Prop("Back").Animation = "WaterLevel1";
+		
+				I.Active = null;
+				yield return E.WaitSkip();
+				yield return C.Dave.Say("Oh man... this is going to take forever.", 44);
+				yield return C.Dave.Say(
+					"Maybe there's something at Doc's hardware store that can help.", 45);
+				yield return E.WaitSkip();
+				yield return C.Display("Click on a space in the room to walk to it.", 28);
+				C.Dave.Moveable = true;
+		
+				// I.Bucket.SetActive();
+			}
+			else
+			{
+				yield return C.Dave.Say(" This bucket ain't gonna cut it...", 6);
+			}
+		}
+		if (item == I.BilgePump)
+		{
+			Prop("Water").Clickable = false;
+			yield return C.Dave.WalkTo(
+				new Vector2(Point("PumpPosition")[0], Point("PumpPosition")[1] + 50)
+			);
+			I.BilgePump.Remove();
+			Prop("Pump").Enable();
+			Prop("Handle").Enable();
+			Prop("Hose").Enable();
+			// FaceClicked
+		
+			/*
+			//Display(1): Dave begins to try to pump out the water.
+			Prop("Pump").Visible = false;
+			Prop("Handle").Visible = false;
+			yield return C.Dave.PlayAnimation("Pumping");
+			Prop("Pump").Visible = true;
+			Prop("Handle").Visible = true;
+			Globals.m_progressExample = eProgress.TriedPump;
+			//lowerWater();
+			// C.Dave.WalkTo(0,-400);
+			Prop("Back").Animation="WaterLevel2";
+			yield return C.Display("Congratulations! The water level has decreased. However, it is not enough...", 2);
+			yield return C.Dave.Say("This is too hard! I think the handle is too short and the diameter of the hose is too small, I need to go back to the hardware store.", 4);
+			yield return E.Wait(1);
+			yield return E.WaitSkip();
+			yield return C.Dave.FaceDown();
+			*/
+		
+		}
+		yield return E.Break;
+		
+ }
 
     IEnumerator OnLookAtPropWater(IProp prop)
     {
@@ -222,19 +222,21 @@ public class RoomHome : RoomScript<RoomHome>
 
     IEnumerator UpdateBlocking()
     {
-        if (
-            (Globals.tutorialProgress == tutorialStage.usedBucket)
-            && (C.Player.Position != Point("StartPosition") && !C.Player.Walking)
-        )
-        {
-            Globals.tutorialProgress = tutorialStage.complete;
-
-            yield return C.Display(
-                "Walk all the way to the right and click the door to leave your basement.", 36);
-        }
-
-        yield return E.Break;
-    }
+		if (
+			(Globals.tutorialProgress == tutorialStage.usedBucket)
+			&& (C.Player.Position != Point("StartPosition") && !C.Player.Walking)
+		)
+		{
+			Globals.tutorialProgress = tutorialStage.complete;
+			Globals.m_progressExample = eProgress.UsedBucket;
+		
+			yield return C.Display(
+				"Walk all the way to the right and click the door to leave your basement.", 36);
+		}
+		
+		yield return E.Break;
+		
+ }
 
     void Update() { }
 
@@ -477,21 +479,22 @@ public class RoomHome : RoomScript<RoomHome>
 
     IEnumerator OnInteractPropBucket(IProp prop)
     {
-        I.Bucket.Add();
-        Prop("Bucket").Disable();
-        yield return C.Display("Bucket added to  your inventory.", 34);
-
-        if (Globals.tutorialProgress == tutorialStage.start)
-        {
-            Globals.tutorialProgress = tutorialStage.clickedBucket;
-            yield return E.WaitSkip();
-            yield return C.Dave.Say(" There it is! Now I can scoop up some of this water.", 42);
-            yield return E.WaitSkip();
-            yield return C.Display(" Click on the bucket icon in your inventory to select it.", 32);
-        }
-
-        yield return E.Break;
-    }
+		I.Bucket.Add();
+		Prop("Bucket").Disable();
+		yield return C.Display("Bucket added to  your toolbox.", 34);
+		
+		if (Globals.tutorialProgress == tutorialStage.start)
+		{
+			Globals.tutorialProgress = tutorialStage.clickedBucket;
+			yield return E.WaitSkip();
+			yield return C.Dave.Say(" There it is! Now I can scoop up some of this water.", 42);
+			yield return E.WaitSkip();
+			yield return C.Display(" Click on the bucket icon in your toolbox to select it.", 32);
+		}
+		
+		yield return E.Break;
+		
+ }
 
     IEnumerator OnLookAtPropBucket(IProp prop)
     {
