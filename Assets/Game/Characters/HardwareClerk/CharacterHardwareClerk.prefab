@@ -113,10 +113,14 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 19.9729, y: -4.2493515}
-      - {x: -21.4506, y: -3.1399689}
-      - {x: -18.340721, y: 55.883713}
-      - {x: 22.048637, y: 58.745186}
+    - - {x: 39.20871, y: 68.43674}
+      - {x: 46.80345, y: 52.08024}
+      - {x: 66.764175, y: -77.57896}
+      - {x: -70.686165, y: -76.46956}
+      - {x: -64.02611, y: 45.64541}
+      - {x: -65.53449, y: 54.165703}
+      - {x: -49.767693, y: 121.18198}
+      - {x: 17.159996, y: 121.24994}
 --- !u!212 &212752163434094802
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -156,7 +160,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1547338543
   m_SortingLayer: -2
-  m_SortingOrder: 1900
+  m_SortingOrder: 260
   m_Sprite: {fileID: 21300000, guid: c8339a1199210ae46b4736de56a91f99, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

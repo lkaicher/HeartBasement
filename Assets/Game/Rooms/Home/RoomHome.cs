@@ -155,6 +155,7 @@ public class RoomHome : RoomScript<RoomHome>
 				I.Bucket.AnimGui = "bucketFull";
 				// Display: You scoop some water up.
 				Globals.tutorialProgress = tutorialStage.usedBucket;
+<<<<<<< HEAD
 				Globals.m_progressExample = eProgress.UsedBucket;
 
 				waterLevelInt++;
@@ -162,6 +163,10 @@ public class RoomHome : RoomScript<RoomHome>
 		        yield return E.Wait((float)1.0);
 		        Prop("Back").Animation = "WaterLevel" + waterLevelInt;
 
+=======
+				//lowerWater();
+				Prop("Back").Animation = "WaterLevel1";
+>>>>>>> 35d0b5629674931b2cc65aaaaeab807da082369b
 		
 				I.Active = null;
 				yield return E.WaitSkip();
@@ -233,19 +238,21 @@ public class RoomHome : RoomScript<RoomHome>
 
     IEnumerator UpdateBlocking()
     {
-        if (
-            (Globals.tutorialProgress == tutorialStage.usedBucket)
-            && (C.Player.Position != Point("StartPosition") && !C.Player.Walking)
-        )
-        {
-            Globals.tutorialProgress = tutorialStage.complete;
-
-            yield return C.Display(
-                "Walk all the way to the right and click the door to leave your basement.", 36);
-        }
-
-        yield return E.Break;
-    }
+		if (
+			(Globals.tutorialProgress == tutorialStage.usedBucket)
+			&& (C.Player.Position != Point("StartPosition") && !C.Player.Walking)
+		)
+		{
+			Globals.tutorialProgress = tutorialStage.complete;
+			Globals.m_progressExample = eProgress.UsedBucket;
+		
+			yield return C.Display(
+				"Walk all the way to the right and click the door to leave your basement.", 36);
+		}
+		
+		yield return E.Break;
+		
+ }
 
     void Update() { }
 
@@ -488,21 +495,22 @@ public class RoomHome : RoomScript<RoomHome>
 
     IEnumerator OnInteractPropBucket(IProp prop)
     {
-        I.Bucket.Add();
-        Prop("Bucket").Disable();
-        yield return C.Display("Bucket added to  your inventory.", 34);
-
-        if (Globals.tutorialProgress == tutorialStage.start)
-        {
-            Globals.tutorialProgress = tutorialStage.clickedBucket;
-            yield return E.WaitSkip();
-            yield return C.Dave.Say(" There it is! Now I can scoop up some of this water.", 42);
-            yield return E.WaitSkip();
-            yield return C.Display(" Click on the bucket icon in your inventory to select it.", 32);
-        }
-
-        yield return E.Break;
-    }
+		I.Bucket.Add();
+		Prop("Bucket").Disable();
+		yield return C.Display("Bucket added to  your toolbox.", 34);
+		
+		if (Globals.tutorialProgress == tutorialStage.start)
+		{
+			Globals.tutorialProgress = tutorialStage.clickedBucket;
+			yield return E.WaitSkip();
+			yield return C.Dave.Say(" There it is! Now I can scoop up some of this water.", 42);
+			yield return E.WaitSkip();
+			yield return C.Display(" Click on the bucket icon in your toolbox to select it.", 32);
+		}
+		
+		yield return E.Break;
+		
+ }
 
     IEnumerator OnLookAtPropBucket(IProp prop)
     {
@@ -557,4 +565,89 @@ public class RoomHome : RoomScript<RoomHome>
     {
         yield return E.Break;
     }
+
+	IEnumerator OnLookAtHotspotWindow( IHotspot hotspot )
+	{
+		yield return C.Dave.Say(" It’s a window. Yup.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotBleach( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("It’s bleach, fer cleanin’ yer clothes.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotSprayPaint( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("It’s a can of Mach brand orange spray paint.");
+		
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotSprayPaint( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("It’s a can of Mach brand orange spray paint.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotWashingMachine( IHotspot hotspot )
+	{
+		yield return C.Dave.Say(" It’s my trusty old washing machine. Although at this point I probably could just throw some detergent in the water and make my whole basement the washing machine.");
+		
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotBoiler( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("This clunker of a boiler is from the 1940’s. It works, but it makes the worst darn noises you’ve ever dun heard.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotTV( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("Haven’t used this in a while. For all you kids out there, this is what TV’s looked like in the stone age.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtHotspotCouch( IHotspot hotspot )
+	{
+		yield return C.Dave.Say(" I can’t believe I thought this looked good.");
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotBleach( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("It’s bleach, fer cleanin’ yer clothes.");
+		
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotWashingMachine( IHotspot hotspot )
+	{
+		yield return C.Dave.Say(" It’s my trusty old washing machine. Although at this point I probably could just throw some detergent in the water and make my whole basement the washing machine.");
+		
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotBoiler( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("This clunker of a boiler is from the 1940’s. It works, but it makes the worst darn noises you’ve ever dun heard.");
+		
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotTV( IHotspot hotspot )
+	{
+		yield return C.Dave.Say("Haven’t used this in a while. For all you kids out there, this is what TV’s looked like in the stone age.");
+		
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractHotspotCouch( IHotspot hotspot )
+	{
+		yield return C.Dave.Say(" I can’t believe I thought this looked good.");
+		
+		yield return E.Break;
+	}
 }

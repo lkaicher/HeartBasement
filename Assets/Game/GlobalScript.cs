@@ -56,12 +56,12 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	public void OnGameStart()
 	{     
 		I.CellPhone.Add();
+		C.Tony.Disable();
 		//
 		
 		// temporary
 		
-		Globals.m_progressExample = eProgress.UsedBucket
-		;
+		// Globals.m_progressExample = eProgress.UsedBucket;
 		// C.Tony.ChangeRoom(R.Home);
 		
 		/*

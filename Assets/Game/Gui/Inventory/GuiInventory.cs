@@ -7,4 +7,10 @@ using static GlobalScript;
 public class GuiInventory : GuiScript<GuiInventory>
 {
 
+
+	IEnumerator OnClickNewButtonText( IGuiControl control )
+	{
+
+		yield return E.Break;
+	}
 }

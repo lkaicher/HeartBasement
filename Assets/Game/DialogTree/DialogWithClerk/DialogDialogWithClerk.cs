@@ -45,7 +45,7 @@ public class DialogDialogWithClerk : DialogTreeScript<DialogDialogWithClerk>
 		
 				yield return E.WaitSkip();
 		
-				yield return C.HardwareClerk.Say("Yes", 2);
+				yield return C.HardwareClerk.Say("We’ve got a special Pumps 4 Chumps promotion going on! It’ll be sure to unflood your flood, no money back guarantee!", 2);
 		
 				yield return E.WaitSkip();
 		
