@@ -6,36 +6,42 @@ using static GlobalScript;
 
 public class RoomHome : RoomScript<RoomHome>
 {
-    // This area is where you can put variables you want to use for game logic in your room
-
-    // Pump Part variables
-    public enum handleType
+	// This area is where you can put variables you want to use for game logic in your room
+	
+	// Pump Part variables
+	public enum handleType
+	{
+		small,
+		medium,
+		large
+	};
+	
+	public enum hoseType
+	{
+		small,
+		medium,
+		large
+	};
+	
+	private string[] sizeString = { "Small", "Medium", "Large" };
+	
+	
+	handleType currentHandle = handleType.small;
+	hoseType currentHose = hoseType.small;
+	
+	// Water level variables
+	// public int waterLevelInt = (int)Globals.m_progressExample * 40;
+	public int waterLevelInt = 0;
+    /*
+    public IEnumerator lowerWater()
     {
-        small,
-        medium,
-        large
-    };
-
-    public enum hoseType
-    {
-        small,
-        medium,
-        large
-    };
-
-    private string[] sizeString = { "Small", "Medium", "Large" };
-
-    handleType currentHandle = handleType.small;
-    hoseType currentHose = hoseType.small;
-
-    // Water level variables
-    public int waterLevelInt = (int)Globals.m_progressExample * 40;
-
-    public void lowerWater()
-    {
-        Prop("Water").MoveTo(0, 0 - ((float)Globals.m_progressExample * 20), 50);
+				waterLevelInt++;
+				Prop("Back").Animation = "WaterLower" + waterLevelInt;
+		        yield return E.Wait((float)1.0);
+		        Prop("Back").Animation = "WaterLevel" + waterLevelInt;       
+                yield return E.Break; 
     }
-
+    */
     // enums like this are a nice way of keeping track of what's happened in a room
     enum eThingsYouveDone
     {
@@ -58,7 +64,7 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		//C.Tony.ChangeRoom(R.Hardware);
 		
-		Prop("Water").SetPosition(0, 0 - ((float)Globals.m_progressExample * 20));
+		
 		
 		if (C.Tony.Room == R.Home)
 		{
@@ -138,70 +144,75 @@ public class RoomHome : RoomScript<RoomHome>
 
     IEnumerator OnUseInvPropWater(IProp prop, IInventory item)
     {
-        // NB: You need to check they used the correct item!
-        if (item == I.Bucket)
-        {
-            Prop("Water").Clickable = false;
-            if (Globals.tutorialProgress == tutorialStage.selectedBucket)
-            {
-                I.Bucket.AnimCursor = "bucketFull";
-                I.Bucket.AnimCursorInactive = "bucketFull";
-                I.Bucket.AnimGui = "bucketFull";
-                // Display: You scoop some water up.
-                Globals.tutorialProgress = tutorialStage.usedBucket;
-                Globals.m_progressExample = eProgress.UsedBucket;
-                //lowerWater();
-                Prop("Back").Animation = "WaterLevel1";
+		// NB: You need to check they used the correct item!
+		if (item == I.Bucket)
+		{
+			Prop("Water").Clickable = false;
+			if (Globals.tutorialProgress == tutorialStage.selectedBucket)
+			{
+				I.Bucket.AnimCursor = "bucketFull";
+				I.Bucket.AnimCursorInactive = "bucketFull";
+				I.Bucket.AnimGui = "bucketFull";
+				// Display: You scoop some water up.
+				Globals.tutorialProgress = tutorialStage.usedBucket;
+				Globals.m_progressExample = eProgress.UsedBucket;
 
-                I.Active = null;
-                yield return E.WaitSkip();
-                yield return C.Dave.Say("Oh man... this is going to take forever.", 44);
-                yield return C.Dave.Say(
-                    "Maybe there's something at Doc's hardware store that can help.", 45);
-                yield return E.WaitSkip();
-                yield return C.Display("Click on a space in the room to walk to it.", 28);
-                C.Dave.Moveable = true;
+				waterLevelInt++;
+				Prop("Back").Animation = "WaterLower" + waterLevelInt;
+		        yield return E.Wait((float)1.0);
+		        Prop("Back").Animation = "WaterLevel" + waterLevelInt;
 
-                // I.Bucket.SetActive();
-            }
-            else
-            {
-                yield return C.Dave.Say(" This bucket ain't gonna cut it...", 6);
-            }
-        }
-        if (item == I.BilgePump)
-        {
-            Prop("Water").Clickable = false;
-            yield return C.Dave.WalkTo(
-                new Vector2(Point("PumpPosition")[0], Point("PumpPosition")[1] + 50)
-            );
-            I.BilgePump.Remove();
-            Prop("Pump").Enable();
-            Prop("Handle").Enable();
-            Prop("Hose").Enable();
-            // FaceClicked
-
-            /*
-            //Display(1): Dave begins to try to pump out the water.
-            Prop("Pump").Visible = false;
-            Prop("Handle").Visible = false;
-            yield return C.Dave.PlayAnimation("Pumping");
-            Prop("Pump").Visible = true;
-            Prop("Handle").Visible = true;
-            Globals.m_progressExample = eProgress.TriedPump;
-            //lowerWater();
-            // C.Dave.WalkTo(0,-400);
-            Prop("Back").Animation="WaterLevel2";
-            yield return C.Display("Congratulations! The water level has decreased. However, it is not enough...", 2);
-            yield return C.Dave.Say("This is too hard! I think the handle is too short and the diameter of the hose is too small, I need to go back to the hardware store.", 4);
-            yield return E.Wait(1);
-            yield return E.WaitSkip();
-            yield return C.Dave.FaceDown();
-            */
-
-        }
-        yield return E.Break;
-    }
+		
+				I.Active = null;
+				yield return E.WaitSkip();
+				yield return C.Dave.Say("Oh man... this is going to take forever.", 44);
+				yield return C.Dave.Say(
+					"Maybe there's something at Doc's hardware store that can help.", 45);
+				yield return E.WaitSkip();
+				yield return C.Display("Click on a space in the room to walk to it.", 28);
+				C.Dave.Moveable = true;
+		
+				// I.Bucket.SetActive();
+			}
+			else
+			{
+				yield return C.Dave.Say(" This bucket ain't gonna cut it...", 6);
+			}
+		}
+		if (item == I.BilgePump)
+		{
+			Prop("Water").Clickable = false;
+			yield return C.Dave.WalkTo(
+				new Vector2(Point("PumpPosition")[0], Point("PumpPosition")[1] + 50)
+			);
+			I.BilgePump.Remove();
+			Prop("Pump").Enable();
+			Prop("Handle").Enable();
+			Prop("Hose").Enable();
+			// FaceClicked
+		
+			/*
+			//Display(1): Dave begins to try to pump out the water.
+			Prop("Pump").Visible = false;
+			Prop("Handle").Visible = false;
+			yield return C.Dave.PlayAnimation("Pumping");
+			Prop("Pump").Visible = true;
+			Prop("Handle").Visible = true;
+			Globals.m_progressExample = eProgress.TriedPump;
+			//lowerWater();
+			// C.Dave.WalkTo(0,-400);
+			Prop("Back").Animation="WaterLevel2";
+			yield return C.Display("Congratulations! The water level has decreased. However, it is not enough...", 2);
+			yield return C.Dave.Say("This is too hard! I think the handle is too short and the diameter of the hose is too small, I need to go back to the hardware store.", 4);
+			yield return E.Wait(1);
+			yield return E.WaitSkip();
+			yield return C.Dave.FaceDown();
+			*/
+		
+		}
+		yield return E.Break;
+		
+ }
 
     IEnumerator OnLookAtPropWater(IProp prop)
     {

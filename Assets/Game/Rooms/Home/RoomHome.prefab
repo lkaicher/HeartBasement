@@ -106,10 +106,17 @@ MonoBehaviour:
   - {fileID: 7400000, guid: 7d0b014405662024b91412a37802b3df, type: 2}
   - {fileID: 7400000, guid: 29a17f734b0fb0b4e999700518a456f3, type: 2}
   - {fileID: 7400000, guid: c4707fb7cb4d5a04cbaf960aaf8a18ee, type: 2}
+  - {fileID: 7400000, guid: 1efab442ca1b3dc4bbea97fdb9227d45, type: 2}
+  - {fileID: 7400000, guid: a23b8619a42b301408ab85bc2773a1c1, type: 2}
+  - {fileID: 7400000, guid: 74bbac75478ce584aa5b68868db2d5c5, type: 2}
+  - {fileID: 7400000, guid: 93e45ce5d5b48a648a3fbc139114efa3, type: 2}
+  - {fileID: 7400000, guid: 987960415d5817e46b65b84b8003c8af, type: 2}
+  - {fileID: 7400000, guid: 864f08bf6ee2d43499a1c053810327f8, type: 2}
   - {fileID: 7400000, guid: 8ddce15b9746ce24aada87be8b127192, type: 2}
   - {fileID: 7400000, guid: 88fbc03f3627d5748b5d73e37e1bc6fa, type: 2}
   - {fileID: 7400000, guid: 77174b9be93fcd7418f5581792db8d32, type: 2}
-  - {fileID: 7400000, guid: 864f08bf6ee2d43499a1c053810327f8, type: 2}
+  - {fileID: 7400000, guid: d96cd34b1251ad14f974be6615b1868f, type: 2}
+  - {fileID: 7400000, guid: 8a8b2b44b8feefe498c7cb6146e25431, type: 2}
   - {fileID: 7400000, guid: a413e9f044686174da81f504e8855cd8, type: 2}
   m_sprites:
   - {fileID: 21300000, guid: 8121de8361fd3894cb35e99d008e9f2c, type: 3}
