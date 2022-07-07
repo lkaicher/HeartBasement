@@ -38,7 +38,8 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 		C.Tony.ChangeRoom(R.Home);
 		C.Tony.SetPosition(Point("HomeDoorPosition"));
 		
-		Camera.SetCharacterToFollow(C.Neighbor2, 200);
+		
+		// Camera.SetCharacterToFollow(C.Tony, 200);
 		yield return E.Wait(1);
 		
 		yield return C.Tony.Say("Ay Dave, I'm here to he-", 1);
@@ -48,7 +49,7 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 		yield return C.Tony.Say("Oh boy.", 3);
 		
 		Stop();
-		Camera.SetCharacterToFollow(C.Dave, 200);
+		// Camera.SetCharacterToFollow(C.Dave, 200);
 		D.UsePhone.OptionOffForever(1);
 		
 		yield return E.Break;
@@ -135,6 +136,8 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 		yield return C.Dave.Say(" 22 Hart Street", 29);
 		yield return C.Display(" Your order will be there in 30 minutes.", 19);
 		D.UsePhone.OptionOffForever(2);
+		yield return E.FadeOut();
+		yield return E.FadeIn();
 		yield return C.Display("Pizza has been added to your inventory");
 		C.Dave.AddInventory(I.Beer);
 		Stop();

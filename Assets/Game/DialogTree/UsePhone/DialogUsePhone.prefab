@@ -46,7 +46,7 @@ MonoBehaviour:
   m_data:
     m_options:
     - m_name: 1
-      m_text: '&33 Call Jim'
+      m_text: '&33 Call Tony'
       m_visible: 1
       m_disabled: 0
       m_used: 0

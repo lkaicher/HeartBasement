@@ -57,11 +57,13 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	{     
 		I.CellPhone.Add();
 		C.Tony.Disable();
+		
+		
 		//
 		
 		// temporary
-		
-		// Globals.m_progressExample = eProgress.UsedBucket;
+		 Globals.m_progressExample = eProgress.TriedPump1;
+		  I.BilgePump.Add();
 		// C.Tony.ChangeRoom(R.Home);
 		
 		/*
