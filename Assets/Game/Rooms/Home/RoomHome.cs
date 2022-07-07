@@ -155,7 +155,6 @@ public class RoomHome : RoomScript<RoomHome>
 				I.Bucket.AnimGui = "bucketFull";
 				// Display: You scoop some water up.
 				Globals.tutorialProgress = tutorialStage.usedBucket;
-<<<<<<< HEAD
 				Globals.m_progressExample = eProgress.UsedBucket;
 
 				waterLevelInt++;
@@ -163,10 +162,6 @@ public class RoomHome : RoomScript<RoomHome>
 		        yield return E.Wait((float)1.0);
 		        Prop("Back").Animation = "WaterLevel" + waterLevelInt;
 
-=======
-				//lowerWater();
-				Prop("Back").Animation = "WaterLevel1";
->>>>>>> 35d0b5629674931b2cc65aaaaeab807da082369b
 		
 				I.Active = null;
 				yield return E.WaitSkip();
@@ -285,7 +280,12 @@ public class RoomHome : RoomScript<RoomHome>
         if (Globals.m_progressExample == eProgress.UsedBucket)
         {
             Globals.m_progressExample = eProgress.TriedPump1;
-            Prop("Back").Animation = "WaterLevel2";
+
+            waterLevelInt++;
+			Prop("Back").Animation = "WaterLower" + waterLevelInt;
+		    yield return E.Wait((float)1.0);
+		    Prop("Back").Animation = "WaterLevel" + waterLevelInt;
+
             yield return C.Display(
                 "Congratulations! The water level has decreased. However, it is not enough...", 2);
             yield return C.Dave.Say(
@@ -299,8 +299,10 @@ public class RoomHome : RoomScript<RoomHome>
         {
             Globals.m_progressExample = eProgress.RightParts;
 
-            if (Prop("Back").Animation == "WaterLevel2")
-                Prop("Back").Animation = "WaterLevel3";
+            waterLevelInt++;
+			Prop("Back").Animation = "WaterLower" + waterLevelInt;
+		    yield return E.Wait((float)1.0);
+		    Prop("Back").Animation = "WaterLevel" + waterLevelInt;
 
             yield return C.Display(
                 "You've chosen the correct parts for the pump and the water level has decreased.", 3);
@@ -455,7 +457,12 @@ public class RoomHome : RoomScript<RoomHome>
         Prop("Handle").Visible = true;
 
         Globals.m_progressExample = eProgress.Friend1;
-        lowerWater();
+        
+        waterLevelInt++;
+		Prop("Back").Animation = "WaterLower" + waterLevelInt;
+		yield return E.Wait((float)1.0);
+		Prop("Back").Animation = "WaterLevel" + waterLevelInt;
+        // lowerWater();
 
         yield return C.Display(" The recruited muscle has helped bring the water level down.", 4);
 
@@ -475,7 +482,7 @@ public class RoomHome : RoomScript<RoomHome>
             "Jim helps get some more water out by scooping it out the window with his bucket. Equivalent to using a diuretic.", 5);
 
         Globals.m_progressExample = eProgress.Friend1;
-        lowerWater();
+        // lowerWater();
 
         yield return E.Wait(2);
         yield return E.FadeOut();
