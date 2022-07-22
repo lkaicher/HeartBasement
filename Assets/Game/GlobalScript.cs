@@ -62,8 +62,8 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		//
 		
 		// temporary
-		 Globals.m_progressExample = eProgress.TriedPump1;
-		  I.BilgePump.Add();
+		// Globals.m_progressExample = eProgress.UsedBucket;
+		 // I.BilgePump.Add();
 		// C.Tony.ChangeRoom(R.Home);
 		
 		/*
@@ -116,6 +116,8 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	/// Blocking script called every frame when nothing's blocking, you can call blocking functions in here that you'd like to occur anywhere in the game
 	public IEnumerator UpdateBlocking()
 	{
+		
+		
 		yield return E.Break;
 	}
 

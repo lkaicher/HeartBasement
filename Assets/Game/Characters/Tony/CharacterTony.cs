@@ -10,7 +10,7 @@ public class CharacterTony : CharacterScript<CharacterTony>
 
 	IEnumerator OnUseInv( IInventory item )
 	{
-
+		if (item == I.Beer)
 		yield return E.Break;
 	}
 
