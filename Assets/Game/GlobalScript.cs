@@ -56,15 +56,16 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	public void OnGameStart()
 	{     
 		I.CellPhone.Add();
-		C.Tony.Disable();
+		//C.Tony.Disable();
 		
 		
 		//
 		
 		// temporary
-		// Globals.m_progressExample = eProgress.UsedBucket;
+		Globals.m_progressExample = eProgress.UsedBucket;
 		 // I.BilgePump.Add();
-		// C.Tony.ChangeRoom(R.Home);
+		 C.Tony.Enable();
+		  //C.Tony.ChangeRoom(R.Home);
 		
 		/*
 		
