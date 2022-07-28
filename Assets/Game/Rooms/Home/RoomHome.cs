@@ -693,4 +693,16 @@ public class RoomHome : RoomScript<RoomHome>
 		}
 		yield return E.Break;
 	}
+
+	IEnumerator OnLookAtPropWaterFront( IProp prop )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractPropWaterFront( IProp prop )
+	{
+
+		yield return E.Break;
+	}
 }
