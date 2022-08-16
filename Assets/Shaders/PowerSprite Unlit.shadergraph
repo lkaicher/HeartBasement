@@ -809,7 +809,7 @@
     "m_StageCapability": 3,
     "m_Value": {
         "x": 0.0,
-        "y": -20.0,
+        "y": -25.0,
         "z": 0.0,
         "w": 0.0
     },
@@ -2172,7 +2172,7 @@
     "m_Hidden": false,
     "m_ShaderOutputName": "Width",
     "m_StageCapability": 3,
-    "m_Value": 170.0,
+    "m_Value": 200.0,
     "m_DefaultValue": 0.5,
     "m_Labels": []
 }

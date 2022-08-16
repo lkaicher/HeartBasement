@@ -78,8 +78,8 @@ MonoBehaviour:
     m_footstepSound: 
     m_useSpriteAsHotspot: 0
     m_baseline: 0
-    m_walkToPoint: {x: 0, y: 130}
-    m_lookAtPoint: {x: 0, y: 130}
+    m_walkToPoint: {x: 0, y: 0}
+    m_lookAtPoint: {x: 0, y: 0}
     m_scriptName: Dave
     m_scriptClass: CharacterDave
   m_clickableColliders: []

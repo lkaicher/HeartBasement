@@ -366,8 +366,8 @@ PolygonCollider2D:
     - - {x: -35.529896, y: -267.8924}
       - {x: -1000.06775, y: -270.05634}
       - {x: -1001.2273, y: -157.3687}
-      - {x: -631.55646, y: -137.8347}
-      - {x: -609.4234, y: -157.774}
+      - {x: -648.2362, y: -138.27365}
+      - {x: -626.1032, y: -158.65189}
       - {x: -412.56732, y: -156.0068}
       - {x: -324.02554, y: -149.0263}
       - {x: -21.802055, y: -146.8826}
@@ -523,7 +523,7 @@ MonoBehaviour:
     m_animation: Pump
     m_alpha: 1
     m_position: {x: 0, y: 0}
-    m_baseline: -160
+    m_baseline: -161
     m_baselineFixed: 0
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: 0, y: 0}
@@ -630,7 +630,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2056
+  m_SortingOrder: 2066
   m_Sprite: {fileID: 21300000, guid: f91541f0cac0aab4bbc83cdc29dcaf4d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -1680,7 +1680,7 @@ MonoBehaviour:
     m_animation: Handle
     m_alpha: 1
     m_position: {x: 0, y: 0}
-    m_baseline: -201
+    m_baseline: -206
     m_baselineFixed: 1
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: 0, y: 0}
@@ -1758,7 +1758,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2010
+  m_SortingOrder: 2060
   m_Sprite: {fileID: 21300000, guid: 1a164a54bc1ae0f4d9d91396590408e8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

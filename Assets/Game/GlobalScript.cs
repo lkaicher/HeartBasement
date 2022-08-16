@@ -64,7 +64,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		// temporary
 		Globals.m_progressExample = eProgress.UsedBucket;
 		 // I.BilgePump.Add();
-		 C.Tony.Enable();
+		  C.Tony.Enable();
 		  //C.Tony.ChangeRoom(R.Home);
 		
 		/*
