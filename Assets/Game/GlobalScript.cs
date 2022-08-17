@@ -56,13 +56,16 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	public void OnGameStart()
 	{     
 		I.CellPhone.Add();
+		//C.Tony.Disable();
+		
+		
 		//
 		
 		// temporary
-		
-		Globals.m_progressExample = eProgress.UsedBucket
-		;
-		// C.Tony.ChangeRoom(R.Home);
+		Globals.m_progressExample = eProgress.UsedBucket;
+		 // I.BilgePump.Add();
+		  C.Tony.Enable();
+		  //C.Tony.ChangeRoom(R.Home);
 		
 		/*
 		
@@ -114,6 +117,8 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	/// Blocking script called every frame when nothing's blocking, you can call blocking functions in here that you'd like to occur anywhere in the game
 	public IEnumerator UpdateBlocking()
 	{
+		
+		
 		yield return E.Break;
 	}
 

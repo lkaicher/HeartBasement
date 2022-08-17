@@ -44,13 +44,14 @@ SpriteAtlas:
     variantMultiplier: 1
     packables:
     - {fileID: 102900000, guid: 271d48509b6f6ef42af530e0a33950d2, type: 3}
-    totalSpriteSurfaceArea: 54840
+    totalSpriteSurfaceArea: 78508
     bindAsDefault: 1
     isAtlasV2: 0
     cachedData: {fileID: 0}
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 7f351560cce760e4cbbfd4e68783aa2f, type: 3}
+  - {fileID: 21300000, guid: e4bab7b0a74f942e681b9fa7171934e2, type: 3}
   - {fileID: 21300000, guid: c01909c00b16e574f9b30f48d0558f09, type: 3}
   - {fileID: 21300000, guid: 92baf0d008939fb4b9ac768925cd54d9, type: 3}
   - {fileID: 21300000, guid: 2d4b4441c8db4b04f983998b482b052c, type: 3}
@@ -87,6 +88,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 5349c2df1fa31f74dbc66c2ba9ed929f, type: 3}
   m_PackedSpriteNamesToIndex:
   - HeartBasementInventory
+  - HeartBasementInventory2
   - Border2
   - BtnOver
   - Square

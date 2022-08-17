@@ -77,9 +77,9 @@ MonoBehaviour:
     m_LipSyncEnabled: 0
     m_footstepSound: 
     m_useSpriteAsHotspot: 0
-    m_baseline: 35
-    m_walkToPoint: {x: 0, y: 32}
-    m_lookAtPoint: {x: 0, y: 32}
+    m_baseline: 0
+    m_walkToPoint: {x: 0, y: 0}
+    m_lookAtPoint: {x: 0, y: 0}
     m_scriptName: Tony
     m_scriptClass: CharacterTony
   m_clickableColliders: []
@@ -113,7 +113,7 @@ PolygonCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: -34}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -125,10 +125,23 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: -63.272087, y: 2.9281006}
-      - {x: -68.55231, y: 376.6634}
-      - {x: 73.23615, y: 379.42853}
-      - {x: 72.58427, y: 3.3718567}
+    - - {x: -52.858616, y: 34.716553}
+      - {x: -41.01947, y: 116.607185}
+      - {x: -68.73431, y: 112.17867}
+      - {x: -94.17595, y: 130.06554}
+      - {x: -93.063065, y: 210.31564}
+      - {x: -67.44468, y: 249.773}
+      - {x: -34.041336, y: 261.8305}
+      - {x: -33.735737, y: 333.11127}
+      - {x: 39.11793, y: 332.5712}
+      - {x: 39.80345, y: 260.4958}
+      - {x: 75.76614, y: 253.14713}
+      - {x: 95.20521, y: 213.04233}
+      - {x: 95.98325, y: 132.90178}
+      - {x: 73.299095, y: 119.312645}
+      - {x: 48.846554, y: 120.28272}
+      - {x: 60.526573, y: 35.160324}
+      - {x: 72.036194, y: 35.160324}
 --- !u!212 &4143797130560263171
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -168,7 +181,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -350
+  m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 1bc34435fe43a492caa65cf99c6a7020, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -194,8 +207,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_tint: {r: 0.21542534, g: 0.20914915, b: 0.9433962, a: 0}
   m_outline: {r: 1, g: 1, b: 1, a: 0}
-  m_offset: {x: 0, y: 192}
-  m_shaderOverride: {fileID: 0}
+  m_offset: {x: 0, y: 156.66666}
+  m_shaderOverride: {fileID: -6465566751694194690, guid: 597628f51abda3e49a2638a8d5da26d6, type: 3}
 --- !u!95 &302015314446112285
 Animator:
   serializedVersion: 3
