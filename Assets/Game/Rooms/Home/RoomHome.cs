@@ -64,7 +64,7 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		//C.Tony.ChangeRoom(R.Hardware);
 		
-		
+		changeLevel();
 		
 		if (C.Tony.Room == R.Home)
 		{
@@ -233,6 +233,7 @@ public class RoomHome : RoomScript<RoomHome>
 
     IEnumerator UpdateBlocking()
     {
+
 		if (
 			(Globals.tutorialProgress == tutorialStage.usedBucket)
 			&& (C.Player.Position != Point("StartPosition") && !C.Player.Walking)
@@ -255,7 +256,12 @@ public class RoomHome : RoomScript<RoomHome>
 		
  }
 
-    void Update() { }
+    void Update() 
+	{
+		changeLevel();
+		//yield return E.Break;
+	}
+
 
     IEnumerator OnAnyClick()
     {
@@ -704,5 +710,13 @@ public class RoomHome : RoomScript<RoomHome>
 	{
 
 		yield return E.Break;
+	}
+
+	public void changeLevel()
+	{
+		GameObject dave = GameObject.Find("CharacterDave");
+		Renderer renderer = dave.GetComponent<Renderer>();
+		Material uniqueMaterial = renderer.material;
+		uniqueMaterial.SetFloat("_Level", (float)(0.5 + waterLevelInt*0.1) );
 	}
 }

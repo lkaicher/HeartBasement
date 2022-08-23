@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 2849470158332228860}
   - component: {fileID: -7970056216723856333}
   - component: {fileID: 1473505170165588379}
+  - component: {fileID: -6262793324493447359}
   m_Layer: 0
   m_Name: CharacterDave
   m_TagString: Untagged
@@ -229,3 +230,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_defaultAnim: {fileID: 7400000, guid: f4f1f74bc6279a5468a88bb1c9d16307, type: 2}
+--- !u!114 &-6262793324493447359
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1387124637103046}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cd4eb08f17484ec292853e17add5740, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
