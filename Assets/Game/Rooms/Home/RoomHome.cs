@@ -64,7 +64,7 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		//C.Tony.ChangeRoom(R.Hardware);
 		
-		changeLevel();
+		
 		
 		if (C.Tony.Room == R.Home)
 		{
@@ -95,6 +95,11 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		if ((R.Current.FirstTimeVisited) && (Globals.m_progressExample <= eProgress.UsedBucket)) // Only run this part the first time you visit
 		{
+		
+		
+			PowerQuest.Get.StartCoroutine(ChangeWaterStage(1));
+		
+		
 			Prop("Pump").Disable();
 			Prop("Handle").Disable();
 			Prop("Hose").Disable();
@@ -102,6 +107,8 @@ public class RoomHome : RoomScript<RoomHome>
 			C.Dave.Moveable = false;
 		
 			yield return C.Dave.Say("Oh no! My basement is flooded!", 0);
+		
+			yield return E.WaitSkip();
 		
 		
 			yield return C.Dave.Say("Good thing I have my trusty bucket!", 41);
@@ -111,6 +118,8 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return E.WaitSkip();
 			yield return C.Display(
 				"Your bucket is over on the shelf. Click on it to add it to your inventory.", 30);
+		
+		
 		}
 		else
 		{
@@ -258,7 +267,6 @@ public class RoomHome : RoomScript<RoomHome>
 
     void Update() 
 	{
-		changeLevel();
 		//yield return E.Break;
 	}
 
@@ -712,11 +720,54 @@ public class RoomHome : RoomScript<RoomHome>
 		yield return E.Break;
 	}
 
-	public void changeLevel()
+	public void LowerWaterShader(int spriteIndex)
 	{
 		GameObject dave = GameObject.Find("CharacterDave");
 		Renderer renderer = dave.GetComponent<Renderer>();
 		Material uniqueMaterial = renderer.material;
-		uniqueMaterial.SetFloat("_Level", (float)(0.5 + waterLevelInt*0.1) );
+		double baseLevel = 0.5;
+		int totalFrames = 20;
+		double increment = baseLevel / totalFrames;
+		int numIncrements = totalFrames - spriteIndex;
+		uniqueMaterial.SetFloat("_Level", (float)(baseLevel + numIncrements*increment) );
+
+	}
+
+	public void LowerWater(int spriteIndex)
+	{
+		GameObject water = GameObject.Find("Water");
+		SpriteRenderer spriteRenderer = water.GetComponent<SpriteRenderer>();
+		Sprite waterSprite = Resources.Load<Sprite>("Water"+spriteIndex);
+		spriteRenderer.sprite = waterSprite;
+		Debug.Log("howdy");	
+	
+	}
+
+	
+
+	public  IEnumerator ChangeWaterStage(int stageNum)
+	{
+		Debug.Log("changewaterstage start");	
+
+		int totalFrames = 20;
+		int framesPerStage = 4;
+		int startingIndex = totalFrames - framesPerStage*(stageNum-1);
+		int endingIndex = startingIndex - framesPerStage;
+		Debug.Log("Start index: "+ startingIndex + " End Index: " + endingIndex);
+		for(int i = startingIndex; i >= endingIndex; i--){
+			Debug.Log("begin loop iteration "+ i);
+			LowerWater(i);
+			LowerWaterShader(i);
+			yield return new WaitForSeconds((float)0.5);
+			Debug.Log(" end loop iteration "+ i);	
+		}
+        //Print the time of when the function is first called.
+        //Debug.Log("Started Coroutine at timestamp : " + Time.time);
+
+        //yield on a new YieldInstruction that waits for 5 seconds.
+
+        //After we have waited 5 seconds print the time again.
+        //Debug.Log("Finished Coroutine at timestamp : " + Time.time);
+		yield return E.Break;
 	}
 }

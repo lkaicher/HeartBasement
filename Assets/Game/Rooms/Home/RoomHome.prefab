@@ -115,6 +115,7 @@ MonoBehaviour:
   - {fileID: 7400000, guid: 7cda8319db36c4e48835b620a97a78f6, type: 2}
   - {fileID: 7400000, guid: 7d0b014405662024b91412a37802b3df, type: 2}
   - {fileID: 7400000, guid: 29a17f734b0fb0b4e999700518a456f3, type: 2}
+  - {fileID: 7400000, guid: a5af3c72eafc7405fb964a147788caa3, type: 2}
   - {fileID: 7400000, guid: c4707fb7cb4d5a04cbaf960aaf8a18ee, type: 2}
   - {fileID: 7400000, guid: 1efab442ca1b3dc4bbea97fdb9227d45, type: 2}
   - {fileID: 7400000, guid: a23b8619a42b301408ab85bc2773a1c1, type: 2}
@@ -213,7 +214,7 @@ MonoBehaviour:
     m_cursor: 
     m_visible: 1
     m_clickable: 0
-    m_animation: WaterLevel0
+    m_animation: WaterLevel5
     m_alpha: 1
     m_position: {x: 0, y: 0}
     m_baseline: 271
@@ -1193,10 +1194,10 @@ MonoBehaviour:
     m_cursor: 
     m_visible: 0
     m_clickable: 0
-    m_animation: Water
+    m_animation: Water20
     m_alpha: 1
     m_position: {x: 0, y: 0}
-    m_baseline: 46
+    m_baseline: 217
     m_baselineFixed: 0
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: 0, y: 0}
@@ -1308,9 +1309,9 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -460
-  m_Sprite: {fileID: 21300000, guid: fbe2501dec7194b488f544437167acda, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_SortingOrder: -2170
+  m_Sprite: {fileID: 21300000, guid: 1a569d1367082438e932852bd4eb846c, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.8}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

@@ -67,6 +67,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		  C.Tony.Enable();
 		  //C.Tony.ChangeRoom(R.Home);
 		
+		
 		/*
 		
 		 I.BilgePump.Add();
