@@ -18,26 +18,26 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	////////////////////////////////////////////////////////////////////////////////////
 	// Global Game Variables
 	/// Just an example of using an enum for game state.
-	/// This can be accessed from other scripts, eg: if ( Globals.m_progressExample == eProgress.DrankWater )...
-	public enum eProgress
+	/// This can be accessed from other scripts, eg: if ( Globals.gameStage == gameProgress.DrankWater )...
+	public enum gameProgress
 	{
 		None,
 		UsedBucket,
 		TriedPump1,
 		RightParts,
-		Friend1,
-		Friend2,
+		TonyPumped,
+		TonyAte,
 		WonGame
 	};
 	
 	
 	public string myVar = "testGlobal";
 	
-	public eProgress m_progressExample = eProgress.None;
+	public gameProgress gameStage = gameProgress.None;
 	
 	// tutorial sequence variables
-	public enum tutorialStage {start, clickedBucket, selectedBucket, usedBucket, complete};
-	public tutorialStage tutorialProgress = tutorialStage.start;
+	public enum tutorialProgress {start, clickedBucket, selectedBucket, usedBucket, complete};
+	public tutorialProgress tutorialStage= tutorialProgress.start;
 	
 	/// Just an example of using a global variable that can be accessed in any room with `Globals.m_spokeToBarney`.
 	/// All variables like this in Quest Scripts are automatically saved
@@ -55,6 +55,10 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	}
 	public void OnGameStart()
 	{     
+		// GAME STAGE
+		Globals.gameStage = gameProgress.None;
+		
+		
 		I.CellPhone.Add();
 		//C.Tony.Disable();
 		
@@ -62,9 +66,8 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		//
 		
 		// temporary
-		Globals.m_progressExample = eProgress.UsedBucket;
 		 // I.BilgePump.Add();
-		  C.Tony.Enable();
+		 // C.Tony.Enable();
 		  //C.Tony.ChangeRoom(R.Home);
 		
 		

@@ -45,7 +45,7 @@ public class DialogGetHelpBob : DialogTreeScript<DialogGetHelpBob>
 		//davePosition[0] = (Point("PumpPosition")[0] - 150);
 		//C.Dave.WalkTo(Point("davePosition"));
 		
-		//Globals.m_progressExample = eProgress.Friend1;
+		//Globals.gameStage = gameProgress.TonyPumped;
 		 
 		//C.Tony.SetPosition(Point("PumpPosition"));
 		} else {

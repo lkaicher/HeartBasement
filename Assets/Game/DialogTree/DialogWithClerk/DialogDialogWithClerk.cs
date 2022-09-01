@@ -8,11 +8,11 @@ public class DialogDialogWithClerk : DialogTreeScript<DialogDialogWithClerk>
 {
 	public IEnumerator OnStart()
 	{
-		//Globals.m_progressExample = eProgress.TriedPump1;
+		//Globals.gameStage = gameProgress.TriedPump1;
 		
 
 
-		if (Globals.m_progressExample <= eProgress.UsedBucket) {
+		if (Globals.gameStage <= gameProgress.UsedBucket) {
 			D.DialogWithClerk.OptionOff(2);
 			D.DialogWithClerk.OptionOn(1);
 		} else {

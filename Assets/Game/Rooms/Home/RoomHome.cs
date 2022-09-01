@@ -30,7 +30,7 @@ public class RoomHome : RoomScript<RoomHome>
 	hoseType currentHose = hoseType.small;
 	
 	// Water level variables
-	// public int waterLevelInt = (int)Globals.m_progressExample * 40;
+	// public int waterLevelInt = (int)Globals.gameStage * 40;
 	public int waterLevelInt = 0;
     /*
     public IEnumerator lowerWater()
@@ -93,11 +93,11 @@ public class RoomHome : RoomScript<RoomHome>
 		// Put things here that happen when you enter a room
 		
 		
-		if ((R.Current.FirstTimeVisited) && (Globals.m_progressExample <= eProgress.UsedBucket)) // Only run this part the first time you visit
+		if ((R.Current.FirstTimeVisited) && (Globals.gameStage < gameProgress.UsedBucket)) // Only run this part the first time you visit
 		{
 		
 		
-			PowerQuest.Get.StartCoroutine(ChangeWaterStage(1));
+			// PowerQuest.Get.StartCoroutine(ChangeWaterStage(1));
 		
 		
 			Prop("Pump").Disable();
@@ -138,7 +138,7 @@ public class RoomHome : RoomScript<RoomHome>
 
     IEnumerator OnInteractHotspotDoor(IHotspot hotspot)
     {
-        if (Globals.m_progressExample == eProgress.None)
+        if (Globals.gameStage == gameProgress.None)
         {
             yield return C.Dave.Say("Ok Here I go...", 3);
         }
@@ -157,19 +157,15 @@ public class RoomHome : RoomScript<RoomHome>
 		if (item == I.Bucket)
 		{
 			Prop("Water").Clickable = false;
-			if (Globals.tutorialProgress == tutorialStage.selectedBucket)
+			if (Globals.tutorialStage== tutorialProgress.selectedBucket)
 			{
 				I.Bucket.AnimCursor = "bucketFull";
 				I.Bucket.AnimCursorInactive = "bucketFull";
 				I.Bucket.AnimGui = "bucketFull";
 				// Display: You scoop some water up.
-				Globals.tutorialProgress = tutorialStage.usedBucket;
-				Globals.m_progressExample = eProgress.UsedBucket;
-
-				waterLevelInt++;
-				Prop("Back").Animation = "WaterLower" + waterLevelInt;
-		        yield return E.Wait((float)1.0);
-		        Prop("Back").Animation = "WaterLevel" + waterLevelInt;
+				Globals.tutorialStage= tutorialProgress.usedBucket;
+				Globals.gameStage = gameProgress.UsedBucket;
+				yield return StageComplete();
 
 		
 				I.Active = null;
@@ -207,7 +203,7 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return C.Dave.PlayAnimation("Pumping");
 			Prop("Pump").Visible = true;
 			Prop("Handle").Visible = true;
-			Globals.m_progressExample = eProgress.TriedPump;
+			Globals.gameStage = gameProgress.TriedPump;
 			//lowerWater();
 			// C.Dave.WalkTo(0,-400);
 			Prop("Back").Animation="WaterLevel2";
@@ -244,12 +240,12 @@ public class RoomHome : RoomScript<RoomHome>
     {
 
 		if (
-			(Globals.tutorialProgress == tutorialStage.usedBucket)
+			(Globals.tutorialStage== tutorialProgress.usedBucket)
 			&& (C.Player.Position != Point("StartPosition") && !C.Player.Walking)
 		)
 		{
-			Globals.tutorialProgress = tutorialStage.complete;
-			Globals.m_progressExample = eProgress.UsedBucket;
+			Globals.tutorialStage= tutorialProgress.complete;
+			Globals.gameStage = gameProgress.UsedBucket;
 		
 			yield return C.Display(
 				"Walk all the way to the right and click the door to leave your basement.", 36);
@@ -297,14 +293,11 @@ public class RoomHome : RoomScript<RoomHome>
 		Prop("Pump").Visible = true;
 		Prop("Handle").Visible = true;
 		
-		if (Globals.m_progressExample == eProgress.UsedBucket)
+		if (Globals.gameStage == gameProgress.UsedBucket)
 		{
-			Globals.m_progressExample = eProgress.TriedPump1;
-		
-			waterLevelInt++;
-			Prop("Back").Animation = "WaterLower" + waterLevelInt;
-			yield return E.Wait((float)1.0);
-			Prop("Back").Animation = "WaterLevel" + waterLevelInt;
+			Globals.gameStage = gameProgress.TriedPump1;		
+			yield return StageComplete();
+
 		
 			yield return C.Display(
 				"Congratulations! The water level has decreased. However, it is not enough...", 2);
@@ -317,12 +310,9 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		if (currentHandle == handleType.large && currentHose == hoseType.large)
 		{
-			Globals.m_progressExample = eProgress.RightParts;
-		
-			waterLevelInt++;
-			Prop("Back").Animation = "WaterLower" + waterLevelInt;
-			yield return E.Wait((float)1.0);
-			Prop("Back").Animation = "WaterLevel" + waterLevelInt;
+			Globals.gameStage = gameProgress.RightParts;
+			yield return StageComplete();
+
 		
 			yield return C.Display(
 				"You've chosen the correct parts for the pump and the water level has decreased.", 3);
@@ -477,13 +467,8 @@ public class RoomHome : RoomScript<RoomHome>
 		Prop("Pump").Visible = true;
 		Prop("Handle").Visible = true;
 		
-		Globals.m_progressExample = eProgress.Friend1;
-		
-		waterLevelInt++;
-		Prop("Back").Animation = "WaterLower" + waterLevelInt;
-		yield return E.Wait((float)1.0);
-		Prop("Back").Animation = "WaterLevel" + waterLevelInt;
-		// lowerWater();
+		Globals.gameStage = gameProgress.TonyPumped;
+		yield return StageComplete();
 		
 		yield return C.Display(" The recruited muscle has helped bring the water level down.", 4);
 		
@@ -505,7 +490,7 @@ public class RoomHome : RoomScript<RoomHome>
         yield return C.Display(
             "Jim helps get some more water out by scooping it out the window with his bucket. Equivalent to using a diuretic.", 5);
 
-        Globals.m_progressExample = eProgress.Friend1;
+        Globals.gameStage = gameProgress.TonyPumped;
         // lowerWater();
 
         yield return E.Wait(2);
@@ -530,9 +515,9 @@ public class RoomHome : RoomScript<RoomHome>
 		Prop("Bucket").Disable();
 		yield return C.Display("Bucket added to  your toolbox.", 34);
 		
-		if (Globals.tutorialProgress == tutorialStage.start)
+		if (Globals.tutorialStage== tutorialProgress.start)
 		{
-			Globals.tutorialProgress = tutorialStage.clickedBucket;
+			Globals.tutorialStage= tutorialProgress.clickedBucket;
 			yield return E.WaitSkip();
 			yield return C.Dave.Say(" There it is! Now I can scoop up some of this water.", 42);
 			yield return E.WaitSkip();
@@ -554,13 +539,13 @@ public class RoomHome : RoomScript<RoomHome>
         if (item == I.Bucket)
         {
             I.Active = null;
-            if (Globals.tutorialProgress == tutorialStage.usedBucket)
+            if (Globals.tutorialStage== tutorialProgress.usedBucket)
             {
                 I.Bucket.AnimCursor = "bucket";
                 I.Bucket.AnimCursorInactive = "bucket";
                 I.Bucket.AnimGui = "bucket";
 
-                Globals.tutorialProgress = tutorialStage.complete;
+                Globals.tutorialStage= tutorialProgress.complete;
 
                 // ...
                 // Display(35):  You use the bucket to scoop some water out of the window.
@@ -696,12 +681,8 @@ public class RoomHome : RoomScript<RoomHome>
 		Prop("Pump").Visible = true;
 		Prop("Handle").Visible = true;
 		
-		Globals.m_progressExample = eProgress.Friend2;
-		
-		waterLevelInt++;
-		Prop("Back").Animation = "WaterLower" + waterLevelInt;
-		yield return E.Wait((float)1.0);
-		Prop("Back").Animation = "WaterLevel" + waterLevelInt;
+		Globals.gameStage = gameProgress.TonyAte;
+		yield return StageComplete();
 		
 		
 		}
@@ -768,6 +749,12 @@ public class RoomHome : RoomScript<RoomHome>
 
         //After we have waited 5 seconds print the time again.
         //Debug.Log("Finished Coroutine at timestamp : " + Time.time);
+		yield return E.Break;
+	}
+
+	public IEnumerator StageComplete()
+	{
+		yield return ChangeWaterStage((int)Globals.gameStage);
 		yield return E.Break;
 	}
 }

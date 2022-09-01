@@ -11,11 +11,11 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 		D.UsePhone.OptionOff(1);
 		D.UsePhone.OptionOff(2);
 		
-		if (Globals.m_progressExample >= eProgress.TriedPump1){
+		if (Globals.gameStage >= gameProgress.TriedPump1){
 			D.UsePhone.OptionOn(1);
 		
 		}
-		if (Globals.m_progressExample == eProgress.Friend1) {
+		if (Globals.gameStage == gameProgress.TonyPumped) {
 			D.UsePhone.OptionOn(2);
 			}
 		
@@ -59,22 +59,22 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 	{
 		
 		
-		switch (Globals.m_progressExample) {
-			case eProgress.None:
-				switch (Globals.tutorialProgress) {
-					case tutorialStage.start:
+		switch (Globals.gameStage) {
+			case gameProgress.None:
+				switch (Globals.tutorialStage) {
+					case tutorialProgress.start:
 						yield return C.Display("The bucket is located on the shelf above the laundry machine. Click on it to add it to your toolbox.", 29);
 						break;
-					case tutorialStage.clickedBucket:
+					case tutorialProgress.clickedBucket:
 						yield return C.Display("Your toolbox is located at the bottom left. Move the mouse down to the lower left, and the toolbox will slide up. Then, click on the bucket icon to select it.", 31);
 						break;
-					case tutorialStage.selectedBucket:
+					case tutorialProgress.selectedBucket:
 						yield return C.Display("With the bucket selected, use it on the water by clicking anywhere on the water.", 35);
 						break;
-					case tutorialStage.usedBucket:
+					case tutorialProgress.usedBucket:
 						yield return C.Display("To move around the room, click the spot you would like to walk to.", 38);
 						break;
-					case tutorialStage.complete:
+					case tutorialProgress.complete:
 						yield return C.Display("Now the fun begins!", 39);
 						break;
 					default:
@@ -82,7 +82,7 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 						break;
 					}
 				break;
-			case eProgress.UsedBucket:
+			case gameProgress.UsedBucket:
 				// player has acquired the pump, but not yet placed it in the basement
 				if (I.BilgePump.Owned) {
 					yield return C.Display(" Now that you have a pump, you can select it from your toolbox and use it on the water in your basement.", 41);
@@ -103,18 +103,18 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 				}
 				break;
 			// #TODO flesh out remaining hint scenarios
-			case eProgress.TriedPump1:
+			case gameProgress.TriedPump1:
 				// player has acquired replacement parts
 				// player has replaced parts, but they are not the correct parts
 				// player has not yet acquired replacement parts
 				yield return C.Display("You should go back to Doc at his hardware store. Maybe he has something else that could help.", 46);
 				break;
-			case eProgress.RightParts:
+			case gameProgress.RightParts:
 				// player has called Tony and he has arrived, but not yet pumped.
 				// player has not called Tony
 				yield return C.Display("You could use some extra muscle. Try calling a friend, maybe they could help out.", 47);
 				break;
-			case eProgress.Friend1:
+			case gameProgress.TonyPumped:
 				// player has ordered pizza, but not yet given it to tony
 				// player has not yet ordered pizza
 				yield return C.Display("Tony is tired, he needs something to boost his energy. That pizza place delivers, try giving them a call.", 48);
@@ -124,7 +124,7 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 				break;
 		}
 		
-		//C.Display(hintString[(int)Globals.m_progressExample]);
+		//C.Display(hintString[(int)Globals.gameStage]);
 		Stop();
 		yield return E.Break;
 	}

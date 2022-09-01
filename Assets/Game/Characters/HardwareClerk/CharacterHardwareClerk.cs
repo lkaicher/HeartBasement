@@ -24,7 +24,7 @@ public class CharacterHardwareClerk : CharacterScript<CharacterHardwareClerk>
 		
 		 if (D.DialogWithClerk.GetOption(2).Used) {
 			 D.BuyOptions.Start();
-		 } else if (D.DialogWithClerk.GetOption(1).Used && Globals.m_progressExample <= eProgress.UsedBucket) {
+		 } else if (D.DialogWithClerk.GetOption(1).Used && Globals.gameStage <= gameProgress.UsedBucket) {
 			 yield return C.HardwareClerk.Say("Good luck.", 0);
 		 } else {
 			 D.DialogWithClerk.Start();

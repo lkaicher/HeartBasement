@@ -10,9 +10,9 @@ public class InventoryBucket : InventoryScript<InventoryBucket>
 
 	IEnumerator OnInteractInventory( IInventory thisItem )
 	{
-		if (Globals.tutorialProgress == tutorialStage.clickedBucket)
+		if (Globals.tutorialStage== tutorialProgress.clickedBucket)
 		{
-			Globals.tutorialProgress = tutorialStage.selectedBucket;
+			Globals.tutorialStage= tutorialProgress.selectedBucket;
 		
 			yield return C.Display(" Click on the water with the bucket to scoop it up.", 33);
 		

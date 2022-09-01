@@ -10,7 +10,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 
 	IEnumerator OnInteractHotspotDoor( IHotspot hotspot )
 	{
-		if (Globals.m_progressExample == eProgress.None) {
+		if (Globals.gameStage == gameProgress.None) {
 		
 			if (I.BilgePump.Owned){
 			
@@ -33,10 +33,10 @@ public class RoomHardware : RoomScript<RoomHardware>
 		C.HardwareClerk.ChangeRoomBG(R.Hardware);
 		C.HardwareClerk.Position = Point("HWClerkPosition");
 		
-		// Globals.m_progressExample = eProgress.TriedPump1;
+		// Globals.gameStage = gameProgress.TriedPump1;
 		
 		
-		if( Globals.m_progressExample >= eProgress.RightParts)
+		if( Globals.gameStage >= gameProgress.RightParts)
 		{
 			C.Tony.Enable();
 		}
