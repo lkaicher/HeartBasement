@@ -18,7 +18,6 @@ namespace PowerScript
 		public static ICharacter Tony		{ get{return PowerQuest.Get.GetCharacter("Tony"); } }
 		public static ICharacter Neighbor2		{ get{return PowerQuest.Get.GetCharacter("Neighbor2"); } }
 		public static ICharacter r		{ get{return PowerQuest.Get.GetCharacter("r"); } }
-		public static ICharacter TestGuy        { get { return PowerQuest.Get.GetCharacter("TestGuy"); } }
 		// #CHARS# - Do not edit this line, it's used by the system to insert characters
 	}
 

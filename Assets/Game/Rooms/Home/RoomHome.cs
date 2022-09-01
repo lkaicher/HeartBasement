@@ -61,8 +61,7 @@ public class RoomHome : RoomScript<RoomHome>
 		// Note, you can also just do this at the top of OnEnterRoomAfterFade
 		
 		// sets water level according to the stage of the game
-		
-		//C.Tony.ChangeRoom(R.Hardware);
+		yield return ChangeWaterStage((int) Globals.gameStage, false);
 		
 		
 		
@@ -73,15 +72,6 @@ public class RoomHome : RoomScript<RoomHome>
 			);
 		}
 		
-		//GuiTestGui test = gameObject.GetComponent("GuiTestGui");
-		
-		//gameObject.
-		
-		// C.Dave.WalkToBG(Point("EntryWalk"));
-		
-		
-		// I.BilgePump.Add();
-		
 		
 		
 		
@@ -90,36 +80,29 @@ public class RoomHome : RoomScript<RoomHome>
 
     public IEnumerator OnEnterRoomAfterFade()
     {
+		yield return ChangeWaterStage((int) Globals.gameStage, false);
+
 		// Put things here that happen when you enter a room
-		
-		
-		if ((R.Current.FirstTimeVisited) && (Globals.gameStage < gameProgress.UsedBucket)) // Only run this part the first time you visit
+		if ((Globals.gameStage <= gameProgress.UsedBucket))
 		{
-		
-		
-			// PowerQuest.Get.StartCoroutine(ChangeWaterStage(1));
-		
-		
 			Prop("Pump").Disable();
 			Prop("Handle").Disable();
 			Prop("Hose").Disable();
+		}
+		
+		
+		if ((Globals.gameStage < gameProgress.UsedBucket)) // Only run this part the first time you visit
+		{
+		
 			C.Dave.SetPosition(Point("StartPosition"));
 			C.Dave.Moveable = false;
 		
 			yield return C.Dave.Say("Oh no! My basement is flooded!", 0);
-		
 			yield return E.WaitSkip();
-		
-		
 			yield return C.Dave.Say("Good thing I have my trusty bucket!", 41);
-		
-		
-		
 			yield return E.WaitSkip();
 			yield return C.Display(
 				"Your bucket is over on the shelf. Click on it to add it to your inventory.", 30);
-		
-		
 		}
 		else
 		{
@@ -138,13 +121,14 @@ public class RoomHome : RoomScript<RoomHome>
 
     IEnumerator OnInteractHotspotDoor(IHotspot hotspot)
     {
-        if (Globals.gameStage == gameProgress.None)
-        {
-            yield return C.Dave.Say("Ok Here I go...", 3);
-        }
-        C.Dave.ChangeRoomBG(R.Map);
-        yield return E.Break;
-    }
+		if (Globals.gameStage == gameProgress.UsedBucket)
+		{
+			yield return C.Dave.Say("Here I go!", 3);
+		}
+		C.Dave.ChangeRoomBG(R.Map);
+		yield return E.Break;
+		
+ }
 
     IEnumerator OnUseInvHotspotDoor(IHotspot hotspot, IInventory item)
     {
@@ -597,7 +581,7 @@ public class RoomHome : RoomScript<RoomHome>
 	IEnumerator OnInteractHotspotSprayPaint( IHotspot hotspot )
 	{
 		yield return C.Dave.Say("It’s a can of Mach brand orange spray paint.", 50);
-		
+		SwapShader();
 		yield return E.Break;
 	}
 
@@ -701,10 +685,10 @@ public class RoomHome : RoomScript<RoomHome>
 		yield return E.Break;
 	}
 
-	public void LowerWaterShader(int spriteIndex)
+	public void LowerWaterShader(int spriteIndex, string CharacterName)
 	{
-		GameObject dave = GameObject.Find("CharacterDave");
-		Renderer renderer = dave.GetComponent<Renderer>();
+		GameObject character = GameObject.Find(CharacterName);
+		Renderer renderer = character.GetComponent<Renderer>();
 		Material uniqueMaterial = renderer.material;
 		double baseLevel = 0.5;
 		int totalFrames = 20;
@@ -726,7 +710,7 @@ public class RoomHome : RoomScript<RoomHome>
 
 	
 
-	public  IEnumerator ChangeWaterStage(int stageNum)
+	public  IEnumerator ChangeWaterStage(int stageNum, bool animate = true)
 	{
 		Debug.Log("changewaterstage start");	
 
@@ -734,11 +718,14 @@ public class RoomHome : RoomScript<RoomHome>
 		int framesPerStage = 4;
 		int startingIndex = totalFrames - framesPerStage*(stageNum-1);
 		int endingIndex = startingIndex - framesPerStage;
+		if (!animate)
+			startingIndex = endingIndex;
 		Debug.Log("Start index: "+ startingIndex + " End Index: " + endingIndex);
 		for(int i = startingIndex; i >= endingIndex; i--){
 			Debug.Log("begin loop iteration "+ i);
 			LowerWater(i);
-			LowerWaterShader(i);
+			LowerWaterShader(i, "CharacterDave");
+			LowerWaterShader(i, "CharacterTony");
 			yield return new WaitForSeconds((float)0.5);
 			Debug.Log(" end loop iteration "+ i);	
 		}
@@ -752,9 +739,17 @@ public class RoomHome : RoomScript<RoomHome>
 		yield return E.Break;
 	}
 
+
+
 	public IEnumerator StageComplete()
 	{
 		yield return ChangeWaterStage((int)Globals.gameStage);
 		yield return E.Break;
+	}
+
+	public void SwapShader()
+	{
+		//E.GetScript<CharacterDave>();
+		//Assets/Shaders/water.shadergraph;
 	}
 }

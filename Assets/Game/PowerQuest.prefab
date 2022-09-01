@@ -104,7 +104,6 @@ MonoBehaviour:
   - {fileID: 6035720155002498351, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
   - {fileID: 114894982771319608, guid: 65de018bf92bf6a4088d8c3f977119e7, type: 3}
   - {fileID: 4870277455036649029, guid: ef96f9240e30bc64a8ab75184977f7b2, type: 3}
-  - {fileID: 2387493757007107366, guid: e1f40695503492e488bc821801e4663a, type: 3}
   m_guiPrefabs:
   - {fileID: 114997530584156344, guid: 411a5d13109ce024888cfebc375721e4, type: 3}
   - {fileID: 11415644, guid: d8cae87a9052f7b4eaaa6894c6d8a869, type: 3}

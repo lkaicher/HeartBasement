@@ -56,11 +56,13 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	public void OnGameStart()
 	{     
 		// GAME STAGE
-		Globals.gameStage = gameProgress.None;
+		Globals.gameStage = gameProgress.TriedPump1;
+		
 		
 		
 		I.CellPhone.Add();
-		//C.Tony.Disable();
+		SetInventory();
+		C.Tony.Disable();
 		
 		
 		//
@@ -284,4 +286,19 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
     }
 
 
+
+	public void SetInventory()
+	{
+		switch((int)Globals.gameStage)
+		{
+			case(0):
+				break;
+			case(1):
+				I.Bucket.Add();
+				break;
+			default:
+				break;
+		
+		}
+	}
 }

@@ -36,7 +36,7 @@ public class DialogBuyOptions : DialogTreeScript<DialogBuyOptions>
 			yield return C.Display("Medium Handle added to  your inventory.", 13);
 			yield return E.WaitSkip();
 			yield return C.HardwareClerk.Say("Anything else?", 5);
-				
+		
 			Stop();
 			D.BuyOptions.Start();
 		
