@@ -49,14 +49,17 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	/// Called when game first starts
 
 	public void SetPhase(int PhaseId){
+		
 		Settings.LanguageId = PhaseId;
 		IButton button = (IButton)G.Toolbar.GetControl("ChangePhaseButton");
 		button.Text = Settings.LanguageData.m_description;
+		
 	}
 	public void OnGameStart()
 	{     
 		// GAME STAGE
 		Globals.gameStage = gameProgress.TriedPump1;
+		
 		
 		
 		
@@ -111,6 +114,9 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	/// Blocking script called whenever you enter a room, after fade in is complete
 	public IEnumerator OnEnterRoomAfterFade()
 	{
+		if (R.Current != R.Home)
+			LowerWaterShader(0,"CharacterDave");
+		
 		yield return E.Break;
 	}
 
@@ -285,7 +291,18 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
         yield return E.Break;
     }
 
+	public void LowerWaterShader(int spriteIndex, string CharacterName)
+	{
+		GameObject character = GameObject.Find(CharacterName);
+		Renderer renderer = character.GetComponent<Renderer>();
+		Material uniqueMaterial = renderer.material;
+		double baseLevel = 0.5;
+		int totalFrames = 20;
+		double increment = baseLevel / totalFrames;
+		int numIncrements = totalFrames - spriteIndex;
+		uniqueMaterial.SetFloat("_Level", (float)(baseLevel + numIncrements*increment) );
 
+	}
 
 	public void SetInventory()
 	{
@@ -295,6 +312,8 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 				break;
 			case(1):
 				I.Bucket.Add();
+				break;
+			case(2):
 				break;
 			default:
 				break;

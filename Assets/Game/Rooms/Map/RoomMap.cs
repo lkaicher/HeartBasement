@@ -13,9 +13,7 @@ public class RoomMap : RoomScript<RoomMap>
 	void OnEnterRoom()
 	{
 		// Display:  The hardware store is to the north
-		if (C.Dave.LastRoom == R.Home) {
-			C.Dave.SetPosition(Point("HomePoint"));
-		} else if (C.Dave.LastRoom == R.Hardware) {
+		if (C.Dave.LastRoom == R.Hardware) {
 			C.Dave.SetPosition(Point("HardwarePoint"));
 		} else {
 			C.Dave.SetPosition(Point("HomePoint"));

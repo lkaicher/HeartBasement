@@ -60,8 +60,7 @@ public class RoomHome : RoomScript<RoomHome>
 		// Put things here that you need to set up BEFORE the room fades in (but nothing "blocking")
 		// Note, you can also just do this at the top of OnEnterRoomAfterFade
 		
-		// sets water level according to the stage of the game
-		yield return ChangeWaterStage((int) Globals.gameStage, false);
+		
 		
 		
 		
@@ -80,8 +79,7 @@ public class RoomHome : RoomScript<RoomHome>
 
     public IEnumerator OnEnterRoomAfterFade()
     {
-		yield return ChangeWaterStage((int) Globals.gameStage, false);
-
+		
 		// Put things here that happen when you enter a room
 		if ((Globals.gameStage <= gameProgress.UsedBucket))
 		{
@@ -109,6 +107,12 @@ public class RoomHome : RoomScript<RoomHome>
 			C.Dave.Position = Point("HomeDoorPosition");
 			yield return C.Dave.Face(eFace.Left, true);
 		}
+		
+		// sets water level according to the stage of the game
+		yield return ChangeWaterStage((int) Globals.gameStage, false);
+		
+		
+		
 		yield return E.Break;
 		
  }
@@ -121,10 +125,7 @@ public class RoomHome : RoomScript<RoomHome>
 
     IEnumerator OnInteractHotspotDoor(IHotspot hotspot)
     {
-		if (Globals.gameStage == gameProgress.UsedBucket)
-		{
-			yield return C.Dave.Say("Here I go!", 3);
-		}
+		
 		C.Dave.ChangeRoomBG(R.Map);
 		yield return E.Break;
 		
@@ -217,8 +218,10 @@ public class RoomHome : RoomScript<RoomHome>
 
     IEnumerator OnExitRoom(IRoom oldRoom, IRoom newRoom)
     {
-        yield return E.Break;
-    }
+		
+		yield return E.Break;
+		
+ }
 
     IEnumerator UpdateBlocking()
     {
