@@ -31,8 +31,6 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	};
 	
 	
-	public string myVar = "testGlobal";
-	
 	public gameProgress gameStage = gameProgress.None;
 	
 	// tutorial sequence variables
@@ -47,7 +45,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	// Global Game Functions
 	
 	/// Called when game first starts
-
+	
 	public void SetPhase(int PhaseId){
 		
 		Settings.LanguageId = PhaseId;
@@ -58,15 +56,13 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	public void OnGameStart()
 	{     
 		// GAME STAGE
-		Globals.gameStage = gameProgress.TriedPump1;
-		
+		Globals.gameStage = gameProgress.UsedBucket;
 		
 		
 		
 		I.CellPhone.Add();
 		SetInventory();
 		C.Tony.Disable();
-		
 		
 		//
 		
@@ -84,7 +80,6 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		I.MediumHose.Add();
 		 I.LargeHose.Add();
 		
-		 C.Tony.ChangeRoom(R.Home);
 		
 		*/
 		
@@ -115,7 +110,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	public IEnumerator OnEnterRoomAfterFade()
 	{
 		if (R.Current != R.Home)
-			LowerWaterShader(0,"CharacterDave");
+		   LowerWaterShader(0,"CharacterDave");
 		
 		yield return E.Break;
 	}
@@ -293,6 +288,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 
 	public void LowerWaterShader(int spriteIndex, string CharacterName)
 	{
+		
 		GameObject character = GameObject.Find(CharacterName);
 		Renderer renderer = character.GetComponent<Renderer>();
 		Material uniqueMaterial = renderer.material;
@@ -301,7 +297,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		double increment = baseLevel / totalFrames;
 		int numIncrements = totalFrames - spriteIndex;
 		uniqueMaterial.SetFloat("_Level", (float)(baseLevel + numIncrements*increment) );
-
+		
 	}
 
 	public void SetInventory()

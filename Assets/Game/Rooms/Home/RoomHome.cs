@@ -126,7 +126,7 @@ public class RoomHome : RoomScript<RoomHome>
     IEnumerator OnInteractHotspotDoor(IHotspot hotspot)
     {
 		
-		C.Dave.ChangeRoomBG(R.Map);
+		C.Dave.ChangeRoomBG(R.Hardware);
 		yield return E.Break;
 		
  }
@@ -225,7 +225,7 @@ public class RoomHome : RoomScript<RoomHome>
 
     IEnumerator UpdateBlocking()
     {
-
+		
 		if (
 			(Globals.tutorialStage== tutorialProgress.usedBucket)
 			&& (C.Player.Position != Point("StartPosition") && !C.Player.Walking)
@@ -238,7 +238,7 @@ public class RoomHome : RoomScript<RoomHome>
 				"Walk all the way to the right and click the door to leave your basement.", 36);
 		}
 		
-		if (waterLevelInt == 5){
+		if ((int)Globals.gameStage == 5){
 			yield return C.Dave.Say(" Finally! I got that dang water outta my dang basement!", 46);
 			yield return C.Dave.Say(" I sure hope that never happens again!", 47);
 			C.Dave.ChangeRoom(R.Cutscene);
@@ -494,7 +494,7 @@ public class RoomHome : RoomScript<RoomHome>
         yield return E.Break;
     }
 
-    void OnPostRestore(int version) { }
+    // void OnPostRestore(int version) { }
 
     IEnumerator OnInteractPropBucket(IProp prop)
     {
@@ -584,7 +584,6 @@ public class RoomHome : RoomScript<RoomHome>
 	IEnumerator OnInteractHotspotSprayPaint( IHotspot hotspot )
 	{
 		yield return C.Dave.Say("It’s a can of Mach brand orange spray paint.", 50);
-		SwapShader();
 		yield return E.Break;
 	}
 

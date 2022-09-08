@@ -13,6 +13,7 @@ public class RoomMap : RoomScript<RoomMap>
 	void OnEnterRoom()
 	{
 		// Display:  The hardware store is to the north
+		
 		if (C.Dave.LastRoom == R.Hardware) {
 			C.Dave.SetPosition(Point("HardwarePoint"));
 		} else {
@@ -73,6 +74,72 @@ public class RoomMap : RoomScript<RoomMap>
 	IEnumerator OnLookAtPropNeighbor2( IProp prop )
 	{
 		yield return C.Display(" Bob's House", 10);
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtCharacterDave( ICharacter character )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractCharacterDave( ICharacter character )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnUseInvCharacterDave( ICharacter character, IInventory item )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnUseInvCharacterTony( ICharacter character, IInventory item )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtCharacterTony( ICharacter character )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtCharacterHardwareClerk( ICharacter character )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractCharacterHardwareClerk( ICharacter character )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnUseInvCharacterHardwareClerk( ICharacter character, IInventory item )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnUseInvCharacterNeighbor2( ICharacter character, IInventory item )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractCharacterNeighbor2( ICharacter character )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtCharacterNeighbor2( ICharacter character )
+	{
+
 		yield return E.Break;
 	}
 }
