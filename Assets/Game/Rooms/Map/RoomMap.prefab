@@ -67,6 +67,8 @@ MonoBehaviour:
       m_position: {x: 46, y: 8}
     - m_name: HardwarePoint
       m_position: {x: -94, y: 98}
+    - m_name: StartingPoint
+      m_position: {x: 161, y: 44}
   m_debugStartFunction: 
   m_hotspotComponents: []
   m_propComponents:

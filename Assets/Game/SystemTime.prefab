@@ -49,5 +49,5 @@ MonoBehaviour:
   - PostProcessing
   m_ignoredComponents:
   - PostProcessLayer
-  - Packages/com.unity.render-pipelines.universal/Runtime/2D/Light2D
-  - Packages/com.unity.render-pipelines.universal/Runtime/2D/Renderer2D
+  - Light2D
+  - Renderer2D

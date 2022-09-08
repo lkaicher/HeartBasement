@@ -56,7 +56,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	public void OnGameStart()
 	{     
 		// GAME STAGE
-		Globals.gameStage = gameProgress.UsedBucket;
+		Globals.gameStage = gameProgress.None;
 		
 		
 		

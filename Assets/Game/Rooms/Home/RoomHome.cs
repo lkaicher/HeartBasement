@@ -126,7 +126,7 @@ public class RoomHome : RoomScript<RoomHome>
     IEnumerator OnInteractHotspotDoor(IHotspot hotspot)
     {
 		
-		C.Dave.ChangeRoomBG(R.Hardware);
+		C.Dave.ChangeRoomBG(R.Map);
 		yield return E.Break;
 		
  }

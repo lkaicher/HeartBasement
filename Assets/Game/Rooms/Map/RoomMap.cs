@@ -12,13 +12,27 @@ public class RoomMap : RoomScript<RoomMap>
 	
 	void OnEnterRoom()
 	{
-		// Display:  The hardware store is to the north
 		
-		if (C.Dave.LastRoom == R.Hardware) {
-			C.Dave.SetPosition(Point("HardwarePoint"));
-		} else {
-			C.Dave.SetPosition(Point("HomePoint"));
-		}
+		
+		Debug.Log(C.Dave.LastRoom.ScriptName);
+		C.Dave.SetPosition(Point(string.Format("{0}Point",C.Dave.LastRoom.ScriptName)));
+		
+		
+		// if (C.Dave.LastRoom == R.Hardware) {
+		//	 C.Dave.SetPosition(Point("HardwarePoint"));
+		// } else if (C.Dave.LastRoom == R.Home){
+		//	 C.Dave.SetPosition(Point("HomePoint"));
+		// } else {
+		//	 C.Dave.SetPosition(Point("StartingPoint"));
+		// }
+		
+		// // Display:  The hardware store is to the north
+		// if ( R.Current.FirstTimeVisited ) {
+		//  C.Dave.Say(" What a trip!");
+		// }
+		
+		
+		
 		
 		//GUI
 		G.Inventory.Hide();
