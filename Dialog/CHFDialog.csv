@@ -3,7 +3,6 @@ Character,ID,File,Context,English,PhaseOne,PhaseTwo
 "Dave","41","Room- Home","OnEnterRoomAfterFade","Good thing I have my trusty bucket!","I think I have a bucket ?round here somewhere?","If you were treating heart failure, you might consider using a Diuretic! This would improve urine output"
 "Narr","30","Room- Home","OnEnterRoomAfterFade","Your bucket is over on the shelf. Click on it to add it to your inventory.","","The diuretic is over on the shelf. Click on it to add it to your inventory."
 "Dave","2","Room- Home","OnLookAtHotspotDoor"," It's a door to the outside.","",""
-"Dave","3","Room- Home","OnInteractHotspotDoor","Ok Here I go...","",""
 "Dave","44","Room- Home","OnUseInvPropWater","Oh man... this is going to take forever.","",""
 "Dave","45","Room- Home","OnUseInvPropWater","Maybe there's something at Doc's hardware store that can help.","",""
 "Narr","28","Room- Home","OnUseInvPropWater","Click on a space in the room to walk to it.","",""
@@ -49,6 +48,7 @@ Character,ID,File,Context,English,PhaseOne,PhaseTwo
 "Dave","60","Room- Home","OnInteractHotspotCouch"," I can?t believe I thought this looked good.",,
 "Tony","5","Room- Home","OnUseInvCharacterTony","Pizza AND beer?!",,
 "Tony","6","Room- Home","OnUseInvCharacterTony","Just what I needed!",,
+"Dave","32","Room- Map","OnLookAtCharacterTony"," What a trip!",,
 "Narr","7","Room- Map","OnLookAtPropHardware"," The Hardware Store","",""
 "Narr","8","Room- Map","OnLookAtPropHome"," Home","",""
 "Narr","9","Room- Map","OnLookAtPropNeighbor1"," Jim's House","",""

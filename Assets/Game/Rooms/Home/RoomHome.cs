@@ -754,4 +754,10 @@ public class RoomHome : RoomScript<RoomHome>
 		//E.GetScript<CharacterDave>();
 		//Assets/Shaders/water.shadergraph;
 	}
+
+	IEnumerator OnLookAtCharacterTony( ICharacter character )
+	{
+
+		yield return E.Break;
+	}
 }

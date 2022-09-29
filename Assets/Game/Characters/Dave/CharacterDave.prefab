@@ -33,6 +33,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -133,7 +134,7 @@ PolygonCollider2D:
       - {x: 57.609406, y: -122.83024}
 --- !u!95 &95575645197976436
 Animator:
-  serializedVersion: 3
+  serializedVersion: 4
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -146,6 +147,7 @@ Animator:
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
@@ -161,6 +163,7 @@ SpriteRenderer:
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -216,7 +219,7 @@ MonoBehaviour:
   m_tint: {r: 1, g: 1, b: 1, a: 0}
   m_outline: {r: 1, g: 1, b: 1, a: 0}
   m_offset: {x: 0, y: 124}
-  m_shaderOverride: {fileID: -6465566751694194690, guid: af93590d30f80449dbed048703d58532, type: 3}
+  m_shaderOverride: {fileID: 0}
 --- !u!114 &1473505170165588379
 MonoBehaviour:
   m_ObjectHideFlags: 0

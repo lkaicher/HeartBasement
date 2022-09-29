@@ -4,7 +4,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 using UnityEditorInternal;
-using UnityEditor.Experimental.SceneManagement;
+
 using System.Reflection;
 using PowerTools;
 using PowerTools.Quest;
@@ -42,7 +42,7 @@ public partial class PowerQuestEditor
 	void UpdateGuiSelectionFromStage()
 	{	
 		GuiComponent gui = null;		
-		PrefabStage stage = PrefabStageUtility.GetCurrentPrefabStage();
+		UnityEditor.SceneManagement.PrefabStage stage = UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage();
 		if (stage != null) 
 		{
 			if ( stage.prefabContentsRoot != null )				

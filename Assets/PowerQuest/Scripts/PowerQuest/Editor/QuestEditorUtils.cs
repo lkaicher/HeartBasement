@@ -12,7 +12,7 @@ using PowerTools.Quest;
 using PowerTools;
 using UnityEditorInternal;
 using System.Text.RegularExpressions;
-using UnityEditor.Experimental.SceneManagement;
+
 using UnityEngine.U2D;
 using UnityEditor.U2D;
 
@@ -257,7 +257,7 @@ public class QuestEditorUtils
 					prefabObject = gameObject == null ? null : gameObject.transform.root.gameObject;
 		
 				// If staged, return staged path			
-				PrefabStage prefabStage = PrefabStageUtility.GetPrefabStage(prefabObject);			
+				UnityEditor.SceneManagement.PrefabStage prefabStage = UnityEditor.SceneManagement.PrefabStageUtility.GetPrefabStage(prefabObject);			
 				if ( prefabStage != null )
 				{
 					#if UNITY_2020_1_OR_NEWER
@@ -312,7 +312,7 @@ public class QuestEditorUtils
 				// Christ this API is confusing. But this means it's a prefab in the project view
 				return instance;
 			}
-			PrefabStage prefabStage = PrefabStageUtility.GetPrefabStage(instance);	
+			UnityEditor.SceneManagement.PrefabStage prefabStage = UnityEditor.SceneManagement.PrefabStageUtility.GetPrefabStage(instance);	
 			if ( prefabStage != null )
 				return instance; // if staged then it's a prefab already I guess?
 			if ( Application.isPlaying && suppressWarning == false )

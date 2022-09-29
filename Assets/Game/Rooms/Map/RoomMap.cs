@@ -28,7 +28,7 @@ public class RoomMap : RoomScript<RoomMap>
 		
 		// // Display:  The hardware store is to the north
 		// if ( R.Current.FirstTimeVisited ) {
-		//  C.Dave.Say(" What a trip!");
+		//  C.Dave.Say(" What a trip!", 32);
 		// }
 		
 		

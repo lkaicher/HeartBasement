@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using PowerTools.Quest;
 using PowerTools;
 using PowerTools.QuestGui;
-using UnityEditor.Experimental.SceneManagement;
+
 
 namespace PowerTools.Quest
 {
@@ -40,7 +40,7 @@ public class QuestTextEditor : Editor
 
 		// Make the quest text component the first in the list.. Have to do some hackery to ensure it's not an unstaged prefab
 		Component[] list = component.GetComponents<Component>();
-		if ( list[1] != component && list[1] is MeshRenderer && (PrefabUtility.GetPrefabAssetType(target) == PrefabAssetType.NotAPrefab || ( PrefabStageUtility.GetCurrentPrefabStage() != null && PrefabStageUtility.GetCurrentPrefabStage().prefabContentsRoot == component.gameObject) ))
+		if ( list[1] != component && list[1] is MeshRenderer && (PrefabUtility.GetPrefabAssetType(target) == PrefabAssetType.NotAPrefab || ( UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage() != null && UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage().prefabContentsRoot == component.gameObject) ))
 			UnityEditorInternal.ComponentUtility.MoveComponentUp(component);
 		
 		EditorGUI.BeginChangeCheck();
