@@ -27,6 +27,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -106,20 +107,8 @@ MonoBehaviour:
     m_phonesCharacter: 
     m_changedSinceImport: 1
   - m_character: Dave
-    m_id: 3
-    m_orderId: 4
-    m_string: Ok Here I go...
-    m_sourceFile: Room- Home
-    m_sourceFunction: OnInteractHotspotDoor
-    m_translations:
-    - 
-    - 
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: Dave
     m_id: 44
-    m_orderId: 5
+    m_orderId: 4
     m_string: Oh man... this is going to take forever.
     m_sourceFile: Room- Home
     m_sourceFunction: OnUseInvPropWater
@@ -131,7 +120,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 45
-    m_orderId: 6
+    m_orderId: 5
     m_string: Maybe there's something at Doc's hardware store that can help.
     m_sourceFile: Room- Home
     m_sourceFunction: OnUseInvPropWater
@@ -143,7 +132,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 28
-    m_orderId: 7
+    m_orderId: 6
     m_string: Click on a space in the room to walk to it.
     m_sourceFile: Room- Home
     m_sourceFunction: OnUseInvPropWater
@@ -155,7 +144,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 6
-    m_orderId: 8
+    m_orderId: 7
     m_string: ' This bucket ain''t gonna cut it...'
     m_sourceFile: Room- Home
     m_sourceFunction: OnUseInvPropWater
@@ -167,7 +156,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 2
-    m_orderId: 9
+    m_orderId: 8
     m_string: Congratulations! The water level has decreased. However, it is not
       enough...
     m_sourceFile: Room- Home
@@ -180,7 +169,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 4
-    m_orderId: 10
+    m_orderId: 9
     m_string: This is too hard! I think the handle is too short and the diameter
       of the hose is too small, I need to go back to the hardware store.
     m_sourceFile: Room- Home
@@ -193,7 +182,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 5
-    m_orderId: 11
+    m_orderId: 10
     m_string: That's a lot of water!
     m_sourceFile: Room- Home
     m_sourceFunction: OnLookAtPropWater
@@ -205,7 +194,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 36
-    m_orderId: 12
+    m_orderId: 11
     m_string: Walk all the way to the right and click the door to leave your basement.
     m_sourceFile: Room- Home
     m_sourceFunction: UpdateBlocking
@@ -217,7 +206,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 46
-    m_orderId: 13
+    m_orderId: 12
     m_string: ' Finally! I got that dang water outta my dang basement!'
     m_sourceFile: Room- Home
     m_sourceFunction: UpdateBlocking
@@ -227,7 +216,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 47
-    m_orderId: 14
+    m_orderId: 13
     m_string: ' I sure hope that never happens again!'
     m_sourceFile: Room- Home
     m_sourceFunction: UpdateBlocking
@@ -237,7 +226,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 2
-    m_orderId: 15
+    m_orderId: 14
     m_string: Congratulations! The water level has decreased. However, it is not
       enough...
     m_sourceFile: Room- Home
@@ -250,7 +239,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 4
-    m_orderId: 16
+    m_orderId: 15
     m_string: This is too hard! I think the handle is too short and the diameter
       of the hose is too small, I need to go back to the hardware store.
     m_sourceFile: Room- Home
@@ -263,7 +252,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 3
-    m_orderId: 17
+    m_orderId: 16
     m_string: You've chosen the correct parts for the pump and the water level has
       decreased.
     m_sourceFile: Room- Home
@@ -277,7 +266,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 7
-    m_orderId: 18
+    m_orderId: 17
     m_string: Still not enough... I could use some extra hands.
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractPropPump
@@ -290,7 +279,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 8
-    m_orderId: 19
+    m_orderId: 18
     m_string: ' This isn''t any better. I should try different parts.'
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractPropPump
@@ -302,7 +291,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Tony
     m_id: 0
-    m_orderId: 20
+    m_orderId: 19
     m_string: Here goes nothing!
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractCharacterTony
@@ -314,7 +303,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 4
-    m_orderId: 21
+    m_orderId: 20
     m_string: ' The recruited muscle has helped bring the water level down.'
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractCharacterTony
@@ -327,7 +316,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Tony
     m_id: 4
-    m_orderId: 22
+    m_orderId: 21
     m_string: ' Phew... I''m wiped out. Got any grub?'
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractCharacterTony
@@ -337,7 +326,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 5
-    m_orderId: 23
+    m_orderId: 22
     m_string: Jim helps get some more water out by scooping it out the window with
       his bucket. Equivalent to using a diuretic.
     m_sourceFile: Room- Home
@@ -350,7 +339,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 6
-    m_orderId: 24
+    m_orderId: 23
     m_string: ' 30 minutes later...'
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractCharacterNeighbor2
@@ -362,7 +351,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Neighbor2
     m_id: 0
-    m_orderId: 25
+    m_orderId: 24
     m_string: Phew, I'm exhausted
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractCharacterNeighbor2
@@ -374,7 +363,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 9
-    m_orderId: 26
+    m_orderId: 25
     m_string: ' Me too. We could use some extra muscle.'
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractCharacterNeighbor2
@@ -386,7 +375,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 34
-    m_orderId: 27
+    m_orderId: 26
     m_string: Bucket added to  your toolbox.
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractPropBucket
@@ -398,7 +387,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 42
-    m_orderId: 28
+    m_orderId: 27
     m_string: ' There it is! Now I can scoop up some of this water.'
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractPropBucket
@@ -410,7 +399,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 32
-    m_orderId: 29
+    m_orderId: 28
     m_string: ' Click on the bucket icon in your toolbox to select it.'
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractPropBucket
@@ -422,7 +411,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 43
-    m_orderId: 30
+    m_orderId: 29
     m_string: ' There''s my bucket! I can use that to scoop out the water.'
     m_sourceFile: Room- Home
     m_sourceFunction: OnLookAtPropBucket
@@ -434,7 +423,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 44
-    m_orderId: 31
+    m_orderId: 30
     m_string: Oh man... this is going to take forever.
     m_sourceFile: Room- Home
     m_sourceFunction: OnUseInvHotspotWindow
@@ -446,7 +435,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 45
-    m_orderId: 32
+    m_orderId: 31
     m_string: Maybe there's something at Doc's hardware store that can help.
     m_sourceFile: Room- Home
     m_sourceFunction: OnUseInvHotspotWindow
@@ -458,7 +447,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 37
-    m_orderId: 33
+    m_orderId: 32
     m_string: Click on a space in the room to walk to it.
     m_sourceFile: Room- Home
     m_sourceFunction: OnUseInvHotspotWindow
@@ -470,7 +459,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 30
-    m_orderId: 34
+    m_orderId: 33
     m_string: ' This bucket aint going to cut it...'
     m_sourceFile: Room- Home
     m_sourceFunction: OnUseInvHotspotWindow
@@ -482,7 +471,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 48
-    m_orderId: 35
+    m_orderId: 34
     m_string: " It\u2019s a window. Yup."
     m_sourceFile: Room- Home
     m_sourceFunction: OnLookAtHotspotWindow
@@ -492,7 +481,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 49
-    m_orderId: 36
+    m_orderId: 35
     m_string: "It\u2019s bleach, fer cleanin\u2019 yer clothes."
     m_sourceFile: Room- Home
     m_sourceFunction: OnLookAtHotspotBleach
@@ -502,7 +491,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 50
-    m_orderId: 37
+    m_orderId: 36
     m_string: "It\u2019s a can of Mach brand orange spray paint."
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractHotspotSprayPaint
@@ -512,7 +501,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 51
-    m_orderId: 38
+    m_orderId: 37
     m_string: "It\u2019s a can of Mach brand orange spray paint."
     m_sourceFile: Room- Home
     m_sourceFunction: OnLookAtHotspotSprayPaint
@@ -522,7 +511,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 52
-    m_orderId: 39
+    m_orderId: 38
     m_string: " It\u2019s my trusty old washing machine. Although at this point I
       probably could just throw some detergent in the water and make my whole basement
       the washing machine."
@@ -534,7 +523,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 53
-    m_orderId: 40
+    m_orderId: 39
     m_string: "This clunker of a boiler is from the 1940\u2019s. It works, but it
       makes the worst darn noises you\u2019ve ever dun heard."
     m_sourceFile: Room- Home
@@ -545,7 +534,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 54
-    m_orderId: 41
+    m_orderId: 40
     m_string: "Haven\u2019t used this in a while. For all you kids out there, this
       is what TV\u2019s looked like in the stone age."
     m_sourceFile: Room- Home
@@ -556,7 +545,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 55
-    m_orderId: 42
+    m_orderId: 41
     m_string: " I can\u2019t believe I thought this looked good."
     m_sourceFile: Room- Home
     m_sourceFunction: OnLookAtHotspotCouch
@@ -566,7 +555,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 56
-    m_orderId: 43
+    m_orderId: 42
     m_string: "It\u2019s bleach, fer cleanin\u2019 yer clothes."
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractHotspotBleach
@@ -576,7 +565,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 57
-    m_orderId: 44
+    m_orderId: 43
     m_string: " It\u2019s my trusty old washing machine. Although at this point I
       probably could just throw some detergent in the water and make my whole basement
       the washing machine."
@@ -588,7 +577,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 58
-    m_orderId: 45
+    m_orderId: 44
     m_string: "This clunker of a boiler is from the 1940\u2019s. It works, but it
       makes the worst darn noises you\u2019ve ever dun heard."
     m_sourceFile: Room- Home
@@ -599,7 +588,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 59
-    m_orderId: 46
+    m_orderId: 45
     m_string: "Haven\u2019t used this in a while. For all you kids out there, this
       is what TV\u2019s looked like in the stone age."
     m_sourceFile: Room- Home
@@ -610,7 +599,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 60
-    m_orderId: 47
+    m_orderId: 46
     m_string: " I can\u2019t believe I thought this looked good."
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractHotspotCouch
@@ -620,7 +609,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Tony
     m_id: 5
-    m_orderId: 48
+    m_orderId: 47
     m_string: Pizza AND beer?!
     m_sourceFile: Room- Home
     m_sourceFunction: OnUseInvCharacterTony
@@ -630,10 +619,20 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Tony
     m_id: 6
-    m_orderId: 49
+    m_orderId: 48
     m_string: Just what I needed!
     m_sourceFile: Room- Home
     m_sourceFunction: OnUseInvCharacterTony
+    m_translations: []
+    m_phonesTime: []
+    m_phonesCharacter: 
+    m_changedSinceImport: 1
+  - m_character: Dave
+    m_id: 32
+    m_orderId: 49
+    m_string: ' What a trip!'
+    m_sourceFile: Room- Map
+    m_sourceFunction: OnLookAtCharacterTony
     m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
