@@ -8,18 +8,9 @@ public class DialogBuyOptions : DialogTreeScript<DialogBuyOptions>
 {
 	public IEnumerator OnStart()
 	{
-		if (I.MediumHandle.Owned) {
-			D.BuyOptions.OptionOff(1);
-		}
-		if (I.LargeHandle.Owned) {
-			D.BuyOptions.OptionOff(2);
-		}
-		if (I.MediumHose.Owned) {
-			D.BuyOptions.OptionOff(3);
-		}
-		if (I.LargeHose.Owned) {
-			D.BuyOptions.OptionOff(4);
-		}
+		D.BuyOptions.OptionOff(2);
+		D.BuyOptions.OptionOff(4);
+		
 		yield return E.ConsumeEvent;
 	}
 
@@ -36,7 +27,7 @@ public class DialogBuyOptions : DialogTreeScript<DialogBuyOptions>
 			yield return C.Display("Medium Handle added to  your inventory.", 13);
 			yield return E.WaitSkip();
 			yield return C.HardwareClerk.Say("Anything else?", 5);
-		
+			D.BuyOptions.OptionOffForever(1);
 			Stop();
 			D.BuyOptions.Start();
 		
@@ -52,7 +43,7 @@ public class DialogBuyOptions : DialogTreeScript<DialogBuyOptions>
 			yield return C.Display("Large Handle added to  your inventory.", 14);
 			yield return E.WaitSkip();
 			yield return C.HardwareClerk.Say("Anything else?", 6);
-				
+			D.BuyOptions.OptionOffForever(2);
 			Stop();
 			D.BuyOptions.Start();
 		
@@ -74,7 +65,7 @@ public class DialogBuyOptions : DialogTreeScript<DialogBuyOptions>
 			yield return C.Display("Medium Hose added to  your inventory.", 15);
 			yield return E.WaitSkip();
 			yield return C.HardwareClerk.Say("Anything else?", 7);
-				
+			D.BuyOptions.OptionOffForever(3);
 			Stop();
 			D.BuyOptions.Start();
 		
@@ -90,11 +81,31 @@ public class DialogBuyOptions : DialogTreeScript<DialogBuyOptions>
 			yield return C.Display("Large Hose added to  your inventory.", 16);
 			yield return E.WaitSkip();
 			yield return C.HardwareClerk.Say("Anything else?", 8);
-				
+			D.BuyOptions.OptionOffForever(4);
 			Stop();
 			D.BuyOptions.Start();
 		
 		
+		yield return E.Break;
+	}
+
+	IEnumerator Option6( IDialogOption option )
+	{
+		yield return C.Dave.Say(" Do you have any larger options?");
+		
+		yield return C.HardwareClerk.Say("Nope.");
+		yield return E.WaitSkip();
+		yield return E.WaitSkip();
+		yield return C.Dave.Say("Can you check the back?");
+		
+		yield return C.HardwareClerk.Say("Alright, alright, you got me. These are the biggest handles and hoses we have in stock.");
+		
+		D.DialogWithClerk.OptionOffForever(6);
+		D.DialogWithClerk.OptionOn(2);
+		D.DialogWithClerk.OptionOn(4);
+		
+		Stop();
+		D.BuyOptions.Start();
 		yield return E.Break;
 	}
 }
