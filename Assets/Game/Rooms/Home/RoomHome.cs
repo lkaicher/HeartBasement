@@ -438,7 +438,7 @@ public class RoomHome : RoomScript<RoomHome>
 		C.Tony.WalkToBG(Point("PumpPosition"));
 		
 		yield return C.Dave.WalkTo(
-			new Vector2(Point("PumpPosition")[0] - 150, Point("PumpPosition")[1])
+			new Vector2(Point("PumpPosition")[0] - 250, Point("PumpPosition")[1])
 		);
 		yield return C.Dave.Face(eFace.Right);
 		
@@ -609,6 +609,7 @@ public class RoomHome : RoomScript<RoomHome>
 	IEnumerator OnLookAtHotspotTV( IHotspot hotspot )
 	{
 		yield return C.Dave.Say("Haven’t used this in a while. For all you kids out there, this is what TV’s looked like in the stone age.", 54);
+		
 		yield return E.Break;
 	}
 

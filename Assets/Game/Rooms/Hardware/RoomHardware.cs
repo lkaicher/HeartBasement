@@ -70,7 +70,6 @@ public class RoomHardware : RoomScript<RoomHardware>
 	IEnumerator OnLookAtCharacterHardwareClerk( ICharacter character )
 	{
 		
-		
 		yield return E.Break;
 	}
 

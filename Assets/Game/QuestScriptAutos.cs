@@ -68,7 +68,6 @@ namespace PowerScript
 
 		public static IDialogTree DialogWithClerk		{ get{return PowerQuest.Get.GetDialogTree("DialogWithClerk"); } }
 		public static IDialogTree BuyOptions		{ get{return PowerQuest.Get.GetDialogTree("BuyOptions"); } }
-		public static IDialogTree GetHelpBob		{ get{return PowerQuest.Get.GetDialogTree("GetHelpBob"); } }
 		public static IDialogTree UsePhone		{ get{return PowerQuest.Get.GetDialogTree("UsePhone"); } }
 		public static IDialogTree Tutorial             { get { return PowerQuest.Get.GetDialogTree("Tutorial"); } }
 		// #DIALOG# - Do not edit this line, it's used by the system to insert rooms for easy access	    	    

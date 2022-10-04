@@ -34,22 +34,34 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 		yield return E.WaitSkip();
 		yield return C.Display("Again?! Alright, I'll be right over", 17);
 		yield return E.WaitSkip();
+		
+		yield return E.FadeOut(1);
+		
 		C.Tony.Enable();
 		C.Tony.ChangeRoom(R.Home);
 		C.Tony.SetPosition(Point("HomeDoorPosition"));
 		
+		yield return C.Dave.Face(eFace.Right);
+		if (C.Dave.Position == Point("HomeDoorPosition"))
+			C.Dave.SetPosition(new Vector2(Point("HomeDoorPosition")[0] - 250, Point("HomeDoorPosition")[1]));
 		
-		// Camera.SetCharacterToFollow(C.Tony, 200);
-		yield return E.Wait(1);
+		yield return E.FadeIn(1);
+		
+		Camera.SetCharacterToFollow(C.Tony, 1);
+		
+		while(Camera.GetHasPositionOverrideOrTransition())
+		{
+		yield return E.WaitSkip();
+		}
 		
 		yield return C.Tony.Say("Ay Dave, I'm here to he-", 1);
 		yield return E.WaitSkip();
-		yield return C.Tony.Say("...", 2);
+		yield return E.WaitSkip();
 		yield return E.WaitSkip();
 		yield return C.Tony.Say("Oh boy.", 3);
-		
+		yield return E.WaitSkip();
 		Stop();
-		// Camera.SetCharacterToFollow(C.Dave, 200);
+		Camera.SetCharacterToFollow(C.Dave, 1);
 		D.UsePhone.OptionOffForever(1);
 		
 		yield return E.Break;

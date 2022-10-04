@@ -10,7 +10,8 @@ public class CharacterTony : CharacterScript<CharacterTony>
 
 	IEnumerator OnUseInv( IInventory item )
 	{
-		if (item == I.Beer)
+
+		if (item == I.Beer)
 		yield return E.Break;
 	}
 
@@ -23,13 +24,7 @@ public class CharacterTony : CharacterScript<CharacterTony>
 
 	IEnumerator OnInteract()
 	{
-		if ( R.Current == R.Hardware) {
-			Vector2 speakPosition = C.Tony.Position;
-			speakPosition[0] = (C.Tony.Position[0] - 100);
-			yield return C.Dave.WalkTo(speakPosition);
-			D.GetHelpBob.Start();
-		}
-		
+
 		yield return E.Break;
 	}
 }
