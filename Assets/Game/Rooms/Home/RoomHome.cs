@@ -439,6 +439,9 @@ public class RoomHome : RoomScript<RoomHome>
 
     IEnumerator OnInteractCharacterTony(ICharacter character)
     {
+		if(Globals.gameStage != gameProgress.TonyPumped)
+		{
+		
 		C.Tony.WalkToBG(Point("PumpPosition"));
 		
 		yield return C.Dave.WalkTo(
@@ -451,18 +454,17 @@ public class RoomHome : RoomScript<RoomHome>
 		yield return C.Tony.Say("Here goes nothing!", 0);
 		Prop("Pump").Visible = false;
 		Prop("Handle").Visible = false;
-		yield return C.Tony.PlayAnimation("Pumping");
-		yield return C.Tony.PlayAnimation("Pumping");
-		yield return C.Tony.PlayAnimation("Pumping");
-		yield return C.Tony.PlayAnimation("Pumping");
+		
+		C.Tony.PlayAnimationBG("Pumping");
+		Globals.gameStage = gameProgress.TonyPumped;
+		yield return StageComplete();
+		C.Tony.StopAnimation();
+		
 		Prop("Pump").Visible = true;
 		Prop("Handle").Visible = true;
 		
-		Globals.gameStage = gameProgress.TonyPumped;
-		yield return StageComplete();
-		
 		yield return C.Display(" The recruited muscle has helped bring the water level down.", 4);
-		
+		}
 		yield return C.Tony.Say(" Phew... I'm wiped out. Got any grub?", 4);
 		
 		yield return E.Break;
@@ -665,16 +667,14 @@ public class RoomHome : RoomScript<RoomHome>
 		yield return C.Tony.Say("Just what I needed!", 6);
 		Prop("Pump").Visible = false;
 		Prop("Handle").Visible = false;
-		yield return C.Tony.PlayAnimation("Pumping");
-		yield return C.Tony.PlayAnimation("Pumping");
-		yield return C.Tony.PlayAnimation("Pumping");
-		yield return C.Tony.PlayAnimation("Pumping");
-		Prop("Pump").Visible = true;
-		Prop("Handle").Visible = true;
+		C.Tony.PlayAnimationBG("Pumping");
+		
 		
 		Globals.gameStage = gameProgress.TonyAte;
 		yield return StageComplete();
-		
+		C.Tony.StopAnimation();
+		Prop("Pump").Visible = true;
+		Prop("Handle").Visible = true;
 		
 		}
 		yield return E.Break;
