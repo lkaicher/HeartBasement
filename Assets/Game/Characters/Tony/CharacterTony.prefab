@@ -210,7 +210,7 @@ MonoBehaviour:
   m_tint: {r: 0.21542534, g: 0.20914915, b: 0.9433962, a: 0}
   m_outline: {r: 1, g: 1, b: 1, a: 0}
   m_offset: {x: 0, y: 156.66666}
-  m_shaderOverride: {fileID: 0}
+  m_shaderOverride: {fileID: -6465566751694194690, guid: af93590d30f80449dbed048703d58532, type: 3}
 --- !u!95 &302015314446112285
 Animator:
   serializedVersion: 4

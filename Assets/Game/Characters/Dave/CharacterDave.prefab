@@ -219,7 +219,7 @@ MonoBehaviour:
   m_tint: {r: 1, g: 1, b: 1, a: 0}
   m_outline: {r: 1, g: 1, b: 1, a: 0}
   m_offset: {x: 0, y: 124}
-  m_shaderOverride: {fileID: 0}
+  m_shaderOverride: {fileID: -6465566751694194690, guid: af93590d30f80449dbed048703d58532, type: 3}
 --- !u!114 &1473505170165588379
 MonoBehaviour:
   m_ObjectHideFlags: 0
