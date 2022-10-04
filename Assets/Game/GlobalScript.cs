@@ -56,7 +56,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	public void OnGameStart()
 	{     
 		// GAME STAGE
-		Globals.gameStage = gameProgress.TriedPump1;
+		Globals.gameStage = gameProgress.UsedBucket;
 		
 		
 		
@@ -69,7 +69,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		// temporary
 		
 		
-		 // I.BilgePump.Add();
+		 I.BilgePump.Add();
 		 // C.Tony.Enable();
 		  //C.Tony.ChangeRoom(R.Home);
 		

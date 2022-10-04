@@ -274,33 +274,32 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		//Debug.Log((int)currentHandle);
 		//Debug.Log(pumpAnims[(int)currentHandle]);
-		yield return C.Dave.PlayAnimation(pumpAnims[(int)currentHandle]);
-		yield return C.Dave.PlayAnimation(pumpAnims[(int)currentHandle]);
-		yield return C.Dave.PlayAnimation(pumpAnims[(int)currentHandle]);
-		Prop("Pump").Visible = true;
-		Prop("Handle").Visible = true;
+		C.Dave.PlayAnimationBG(pumpAnims[(int)currentHandle]);
+		//C.Dave.PlayAnimation(pumpAnims[(int)currentHandle]);
+		//C.Dave.PlayAnimation(pumpAnims[(int)currentHandle]);
+		
 		
 		if (Globals.gameStage == gameProgress.UsedBucket)
 		{
-			Globals.gameStage = gameProgress.TriedPump1;		
+			Globals.gameStage = gameProgress.TriedPump1;
 			yield return StageComplete();
-
-		
+			C.Dave.StopAnimation();
+			Prop("Pump").Visible = true;
+			Prop("Handle").Visible = true;
 			yield return C.Display(
 				"Congratulations! The water level has decreased. However, it is not enough...", 2);
 			yield return C.Dave.Say(
 				"This is too hard! I think the handle is too short and the diameter of the hose is too small, I need to go back to the hardware store.", 4);
-			yield return E.Wait(1);
-			yield return E.WaitSkip();
 			yield return C.Dave.FaceDown();
 		}
 		
-		if (currentHandle == handleType.large && currentHose == hoseType.large)
+		else if (currentHandle == handleType.large && currentHose == hoseType.large)
 		{
 			Globals.gameStage = gameProgress.RightParts;
 			yield return StageComplete();
-
-		
+			C.Dave.StopAnimation();
+			Prop("Pump").Visible = true;
+			Prop("Handle").Visible = true;
 			yield return C.Display(
 				"You've chosen the correct parts for the pump and the water level has decreased.", 3);
 			yield return C.Dave.Say("Still not enough... I could use some extra hands.", 7);
@@ -308,8 +307,13 @@ public class RoomHome : RoomScript<RoomHome>
 		}
 		else
 		{
+			C.Dave.StopAnimation();
+			Prop("Pump").Visible = true;
+			Prop("Handle").Visible = true;
 			yield return C.Dave.Say(" This isn't any better. I should try different parts.", 8);
 		}
+		
+		
 		
 		yield return E.Break;
 		
