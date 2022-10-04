@@ -54,7 +54,7 @@ MonoBehaviour:
       m_timesUsed: 0
     - m_name: 2
       m_text: '&28 Large Handle'
-      m_visible: 1
+      m_visible: 0
       m_disabled: 0
       m_used: 0
       m_timesUsed: 0
@@ -66,7 +66,7 @@ MonoBehaviour:
       m_timesUsed: 0
     - m_name: 4
       m_text: '&30 Large Diameter Hose'
-      m_visible: 1
+      m_visible: 0
       m_disabled: 0
       m_used: 0
       m_timesUsed: 0

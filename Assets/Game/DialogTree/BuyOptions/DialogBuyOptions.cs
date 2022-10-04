@@ -8,8 +8,8 @@ public class DialogBuyOptions : DialogTreeScript<DialogBuyOptions>
 {
 	public IEnumerator OnStart()
 	{
-		D.BuyOptions.OptionOff(2);
-		D.BuyOptions.OptionOff(4);
+		//D.BuyOptions.OptionOff(2);
+		//D.BuyOptions.OptionOff(4);
 		
 		yield return E.ConsumeEvent;
 	}
@@ -100,11 +100,12 @@ public class DialogBuyOptions : DialogTreeScript<DialogBuyOptions>
 		
 		yield return C.HardwareClerk.Say("Alright, alright, you got me. These are the biggest handles and hoses we have in stock.");
 		
-		D.DialogWithClerk.OptionOffForever(6);
-		D.DialogWithClerk.OptionOn(2);
-		D.DialogWithClerk.OptionOn(4);
+		
+		D.BuyOptions.OptionOn(2);
+		D.BuyOptions.OptionOn(4);
 		
 		Stop();
+		D.BuyOptions.OptionOffForever(6);
 		D.BuyOptions.Start();
 		yield return E.Break;
 	}
