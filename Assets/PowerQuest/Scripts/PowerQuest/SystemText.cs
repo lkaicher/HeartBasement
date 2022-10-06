@@ -4,6 +4,8 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using PowerTools;
+using System.Text.RegularExpressions;
+using System;
 #if RUNTIME_CSV_IMPORT_ENABLED
 using System.IO;
 #endif
@@ -177,12 +179,37 @@ public class SystemText : PowerTools.Singleton<SystemText>
 			return null;
 		}
 
+		//Debug.Log(m_instance.GetLanguageData().m_code);
+		AudioClip clip = m_instance.getVoiceAudioClip(data, id, characterName);
+		return SystemAudio.Play( clip, (int)AudioCue.eAudioType.Dialog, emitter );
+/*		
 		string fullFileName = "Voice/"
 			+ (characterName == null ? "" : data.m_character)
 			+ data.m_id.ToString();
 
 		AudioClip clip = Resources.Load(fullFileName) as AudioClip;
 		return SystemAudio.Play( clip, (int)AudioCue.eAudioType.Dialog, emitter );
+*/
+	}
+
+	public AudioClip getVoiceAudioClip(TextData data, int id, string characterName = null) {
+		string languageCode = m_instance.GetLanguageData().m_code;
+		
+		string fullFileName = "Voice/" + languageCode + '/'
+			+ (characterName == null ? "" : data.m_character)
+			+ data.m_id.ToString();
+
+		
+		//Debug.Log(languageCode);
+		string rootdirectory = "/";
+		Debug.Log(Resources.Load(fullFileName));
+		if ( Resources.Load(fullFileName) == null ) {
+			Debug.Log("File did not exist");
+			fullFileName = Regex.Replace(fullFileName, languageCode + '/', "");
+		}	
+		Debug.Log(fullFileName);
+		return Resources.Load(fullFileName) as AudioClip;
+
 	}
 
 	public static TextData FindTextData(int id, string characterName = null)
@@ -337,10 +364,14 @@ public class SystemText : PowerTools.Singleton<SystemText>
 		if ( data == null )
 			return false;
 
+		AudioClip clip = m_instance.getVoiceAudioClip(data, id, characterName);
+		/*
 		string fullFileName = "Voice/"
 			+ (characterName == null ? "" : data.m_character)
 			+ data.m_id.ToString();	
+		
 		AudioClip clip = Resources.Load(fullFileName) as AudioClip;
+		*/
 		return clip != null;
 	}
 
