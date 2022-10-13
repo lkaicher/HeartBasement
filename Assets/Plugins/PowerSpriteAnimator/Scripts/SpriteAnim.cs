@@ -277,10 +277,12 @@ public class SpriteAnim : SpriteAnimEventHandler
 		else 
 		{
 			// It's a UI Image, so add the Image component if it doesn't already exist
+			#if UNITY_2022_1_OR_NEWER == false || USE_UNITY_UI
 			if ( GetComponent<UnityEngine.UI.Image>() == null )
 			{
 				gameObject.AddComponent<UnityEngine.UI.Image>();
 			}
+			#endif
 		}
 
 	}

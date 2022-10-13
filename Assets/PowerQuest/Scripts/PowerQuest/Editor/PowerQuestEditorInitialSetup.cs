@@ -412,11 +412,25 @@ public partial class PowerQuestEditor
 				
 			}
 
+			if ( oldVersion < Version(0,16,1) )
+			{	
+				if ( File.Exists("Assets/Game/PowerQuestExtensions9Verb.cs") )
+				{
+					AssetDatabase.ImportPackage( "Assets/PowerQuest/Templates/Update-0-16-1-9Verb.unitypackage", false );
+				}
+				else 
+				{
+					AssetDatabase.ImportPackage( "Assets/PowerQuest/Templates/Update-0-16-1.unitypackage", false );
+				}
+			}
+
 			// Remove PowerQuestObsolete after upgrading for all future versions
 			{
 				AssetDatabase.DeleteAsset(@"Assets\PowerQuest\Scripts\PowerQuest\PowerQuestObsolete.cs");
 				//AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);		
 			}
+
+			
 
 
 		}

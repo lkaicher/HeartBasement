@@ -220,6 +220,8 @@ public partial class SpriteAnimator : EditorWindow
 	// Stores cached data for rendereing sprites, for efficiency
 	PreviewRenderUtility m_prevRender = null;
 	Dictionary< Sprite, SpriteRenderData > m_spriteRenderData = new Dictionary<Sprite, SpriteRenderData>();
+	PreviewRenderUtility m_prevRenderTimeline = null;
+	Dictionary< Sprite, SpriteRenderData > m_spriteRenderDataTimeline = new Dictionary<Sprite, SpriteRenderData>();
 
 	#endregion
 	#region Funcs: Init
@@ -297,6 +299,9 @@ public partial class SpriteAnimator : EditorWindow
 
 		if ( m_prevRender != null )
 			m_prevRender.Cleanup();
+
+		if ( m_prevRenderTimeline != null )
+			m_prevRenderTimeline.Cleanup();
 
 	}
 
@@ -707,13 +712,21 @@ public partial class SpriteAnimator : EditorWindow
 		Camera previewCamera = null;
 		SpriteRenderData data = null;
 
-		if ( m_prevRender == null )
+		Dictionary< Sprite, SpriteRenderData > spriteRenderData = clipToRect ? m_spriteRenderData : m_spriteRenderDataTimeline;
+		PreviewRenderUtility prevRender = clipToRect ? m_prevRender : m_prevRenderTimeline;
+		
+		if ( prevRender == null )
 		{
-			m_prevRender = new PreviewRenderUtility();
+			prevRender = new PreviewRenderUtility();
+			if ( clipToRect )
+				m_prevRender = prevRender;
+			else 
+				m_prevRenderTimeline = prevRender;
+
 			#if UNITY_2017_4_OR_NEWER
-				previewCamera = m_prevRender.camera;
+				previewCamera = prevRender.camera;
 			#else 
-				previewCamera = m_prevRender.m_Camera;
+				previewCamera = prevRender.m_Camera;
 			#endif
 
 			previewCamera.orthographic = true;
@@ -721,9 +734,10 @@ public partial class SpriteAnimator : EditorWindow
 			previewCamera.nearClipPlane = 1;
 			previewCamera.farClipPlane = 30;
 			previewCamera.backgroundColor = Color.white.WithAlpha(0);
+			previewCamera.clearFlags = CameraClearFlags.SolidColor;
 		}
 
-		if ( m_spriteRenderData.TryGetValue( sprite, out data ) == false )
+		if ( spriteRenderData.TryGetValue( sprite, out data ) == false )
 		{
 			// First time this sprite has been encountered, so lazy instantiate the render data for it and cache it, since this is expensive
 			data = new SpriteRenderData();
@@ -749,12 +763,12 @@ public partial class SpriteAnimator : EditorWindow
 			data.m_previewMesh.RecalculateBounds();
 			data.m_previewMesh.RecalculateNormals();
 
-			m_spriteRenderData.Add(sprite, data);
+			spriteRenderData.Add(sprite, data);
 		}
 
 		if ( data.m_mat == null || data.m_previewMesh == null )
 		{
-			m_spriteRenderData.Clear();
+			spriteRenderData.Clear();
 			LayoutFrameSpriteRendered(rect, sprite, scale, offset, useTextureRect, clipToRect);
 			return;
 		}
@@ -763,15 +777,15 @@ public partial class SpriteAnimator : EditorWindow
 		float finalScaleInv = 1.0f / (scale * sprite.pixelsPerUnit);
 
 		#if UNITY_2017_4_OR_NEWER
-			previewCamera = m_prevRender.camera;			
+			previewCamera = prevRender.camera;			
 		#else
-			previewCamera = m_prevRender.m_Camera;
+			previewCamera = prevRender.m_Camera;
 		#endif
 		previewCamera.orthographicSize = 0.5f * rect.height * finalScaleInv;
 		previewCamera.transform.position = new Vector3(-offset.x * finalScaleInv, offset.y * finalScaleInv,-10f);
 
 		// begin preview
-		m_prevRender.BeginPreview(rect, GUIStyle.none);
+		prevRender.BeginPreview(rect, GUIStyle.none);
 
 		// Offset from pivot so that sprite is centered correctly)
 		Vector2 pivotOffset = Vector2.zero;
@@ -785,11 +799,11 @@ public partial class SpriteAnimator : EditorWindow
 			pivotOffset += sprite.rect.center - sprite.textureRect.center;
 
 		// Draw the mesh
-		m_prevRender.DrawMesh(data.m_previewMesh, pivotOffset / sprite.pixelsPerUnit, Quaternion.Euler(0,0,angle), data.m_mat, 0);
+		prevRender.DrawMesh(data.m_previewMesh, pivotOffset / sprite.pixelsPerUnit, Quaternion.Euler(0,0,angle), data.m_mat, 0);
 
-		// Render preview to texture
+		// Render preview to texture		
 		previewCamera.Render();
-		Texture texture = m_prevRender.EndPreview();
+		Texture texture = prevRender.EndPreview();
 		texture.filterMode = FilterMode.Point;
 
 		// Draw on the gui
@@ -864,7 +878,9 @@ public partial class SpriteAnimator : EditorWindow
 		}
 		if ( m_curveBinding.isPPtrCurve )
 		{
+			#if UNITY_2022_1_OR_NEWER == false || USE_UNITY_UI
 			m_uiImage = m_curveBinding.type == typeof(UnityEngine.UI.Image);
+			#endif
 			m_spritePath = m_curveBinding.path;
 		}
 
@@ -1043,6 +1059,7 @@ public partial class SpriteAnimator : EditorWindow
 			m_timelineOffset = -TIMELINE_OFFSET_MIN;
 
 			m_spriteRenderData.Clear();
+			m_spriteRenderDataTimeline.Clear();
 		}
 		Repaint();
 
@@ -1878,7 +1895,11 @@ public partial class SpriteAnimator : EditorWindow
 	{
 		m_curveBinding = new EditorCurveBinding();
 		// I want to change the sprites of the sprite renderer, so I put the typeof(SpriteRenderer) as the binding type.
+		#if UNITY_2022_1_OR_NEWER == false || USE_UNITY_UI
 		m_curveBinding.type = m_uiImage ? typeof(UnityEngine.UI.Image) : typeof(SpriteRenderer);
+		#else 
+			m_curveBinding.type = typeof(SpriteRenderer);
+		#endif
 		// Regular path to the gameobject that will be changed (empty string means root)
 		m_curveBinding.path = m_spritePath;
 		// This is the property name to change the sprite of a sprite renderer

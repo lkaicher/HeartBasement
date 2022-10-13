@@ -118,10 +118,7 @@ public class SliderEditor : ControlEditorBase
 	{		
 		// Call up to parent for baseline
 		base.OnSceneGUI();
-
-		// temp test
-		//return;
-
+		
 		// Custom size control (if image is split)
 		Slider component = (Slider)target;
 		OnSceneDrawPivot(component.transform);

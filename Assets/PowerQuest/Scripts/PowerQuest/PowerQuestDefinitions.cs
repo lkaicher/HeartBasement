@@ -191,6 +191,10 @@ public partial class PowerQuest
 	public static readonly string SCRIPT_FUNCTION_ONANYCLICK= "OnAnyClick";
 	public static readonly string SCRIPT_FUNCTION_CLICKGUI = "OnClick";
 	public static readonly string SCRIPT_FUNCTION_DRAGGUI = "OnDrag";
+	public static readonly string SCRIPT_FUNCTION_ONKBFOCUS = "OnKeyboardFocus";
+	public static readonly string SCRIPT_FUNCTION_ONKBDEFOCUS = "OnKeyboardDefocus";
+	public static readonly string SCRIPT_FUNCTION_ONTEXTEDIT = "OnTextEdit";
+	public static readonly string SCRIPT_FUNCTION_ONTEXTCONFIRM = "OnTextConfirm";
 
 	static readonly YieldInstruction EMPTY_YIELD_INSTRUCTION = new YieldInstruction(); // Used to prevent having to wait a frame in UpdateBlocking which happens when a routine returns yield break
 	static readonly YieldInstruction CONSUME_YIELD_INSTRUCTION = new YieldInstruction(); // Used to prevent falling through to default interaction in an empty function

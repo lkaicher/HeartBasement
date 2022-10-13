@@ -71,7 +71,7 @@ public class QuestEditorUtils
 
 			menu.AddSeparator("");
 			
-			if ( questObjectType < eQuestObjectType.Gui )
+			if ( questObjectType < eQuestObjectType.Prop )
 				menu.AddItemToggle("Highlight", PowerQuestEditor.IsHighlighted(prefab),()=>PowerQuestEditor.ToggleHighlight(prefab) );
 			menu.AddItem("Rename", !Application.isPlaying, ()=>{
 				ScriptableObject.CreateInstance< RenameQuestObjectWindow >().ShowQuestWindow(
@@ -901,7 +901,7 @@ public class QuestClickableEditorUtils
 	}
 
 	static public void UpdateBaseline(Transform transform, IQuestClickable clickable, bool fixedBaseline)
-	{	
+	{
 		if ( Application.isPlaying )
 			return;
 		int sortOrder = -Mathf.RoundToInt(((fixedBaseline?0:transform.position.y) + clickable.Baseline)*10.0f);

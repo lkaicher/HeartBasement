@@ -30,6 +30,7 @@ public partial class DialogOption : IDialogOption, IQuestClickable
 	public bool Disabled {get { return m_disabled;} set { m_disabled = value; } }
 	public bool Used {get => m_used; set => m_used = value; }
 	public int TimesUsed {get => m_timesUsed; set => m_timesUsed = value; }
+	public bool FirstUse { get => m_timesUsed <= 1; }
 
 	public void Show() { if ( Disabled == false) Visible = true; }
 	public void Hide() { Visible = false; }
@@ -57,7 +58,6 @@ public partial class DialogOption : IDialogOption, IQuestClickable
 	public QuestScript GetScript() { return null; }
 	public IQuestScriptable GetScriptable() { return null; }
 	
-	
 
 }
 
@@ -69,7 +69,6 @@ public partial class DialogOption : IDialogOption, IQuestClickable
 [System.Serializable]
 public class DialogTreeScript<T> : QuestScript where T : QuestScript
 {
-
 	
 	protected IDialogTree m_data = null;
 	
@@ -126,7 +125,7 @@ public class DialogTreeScript<T> : QuestScript where T : QuestScript
 // Prop Data and functions. Persistant between scenes, as opposed to GuiComponent which lives on a GameObject in a scene.
 //
 [System.Serializable] 
-public partial class DialogTree : IQuestScriptable, IDialogTree
+public partial class DialogTree : IQuestScriptable, IDialogTree, IQuestSaveCachable
 {
 	//
 	// Default values set in inspector
@@ -246,6 +245,11 @@ public partial class DialogTree : IQuestScriptable, IDialogTree
 	public bool GetOptionOffForever(string option) { return this[option]?.Disabled ?? false; }
 	public bool GetOptionUsed(string option)	{ return this[option]?.Used ?? false; }
 	
+	//
+	// Implementing IQuestSaveCachable
+	//	
+	bool m_saveDirty = true;
+	public bool SaveDirty { get=>m_saveDirty; set{m_saveDirty=value;} }
 
 	//
 	// Internal Functions
@@ -277,6 +281,9 @@ public partial class DialogTree : IQuestScriptable, IDialogTree
 			System.Reflection.FieldInfo fi = m_script.GetType().GetField("m_data", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy );
 			fi.SetValue(m_script,Data);
 		}
+
+		// Mark as dirty if the dialog is active, otherwise as clean
+		SaveDirty=(PowerQuest.Get.GetCurrentDialog() == this);
 	}
 
 	public void Initialise( GameObject prefab )

@@ -111,9 +111,10 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	/// Blocking script called whenever you enter a room, after fade in is complete
 	public IEnumerator OnEnterRoomAfterFade()
 	{
-		if (R.Current != R.Home)
+		if (R.Current != R.Home){
 		   LowerWaterShader(0,"CharacterDave");
-		
+		   
+		}
 		yield return E.Break;
 	}
 
@@ -236,7 +237,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 			yield break;
 		
 		// This bit of logic cycles between three options. The '% 3' makes it cycle between 3 options.
-		int option = E.Occurrance("unhandledInteract") % 3;
+		int option = E.Occurrence("unhandledInteract") % 3;
 		if ( option == 0 )	
 			yield return C.Display("You can't use that", 20);
 		else if ( option == 1 )

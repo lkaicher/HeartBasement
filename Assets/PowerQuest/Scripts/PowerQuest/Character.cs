@@ -11,7 +11,7 @@ namespace PowerTools.Quest
 // Character Data and functions. Persistant between scenes, as opposed to CharacterComponent which lives on a GameObject in a scene.
 //
 [System.Serializable]
-public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
+public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, IQuestSaveCachable
 {	
 	#region Constants/Definitions
 
@@ -203,7 +203,7 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 	public IRoom Room 
 	{ 		
 		get 
-		{ 
+		{
 			// Ugly caching for efficiency
 			if ( string.IsNullOrEmpty(m_room) )
 				m_nonSavedData.m_roomCached = null;				
@@ -860,6 +860,8 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 		if ( m_script == null ) // script could be null if it didn't exist in old save game, but does now.
 			m_script = QuestUtils.ConstructByName<QuestScript>(m_scriptClass);
 			
+		SaveDirty=false;
+
 		/*	NB: The below doesn't work because instance won't have loaded yet.
 		
 		// Set the clickable collider to enable the correct collision after restoring
@@ -893,6 +895,11 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 		m_nonSavedData = new NonSavedData();
 	}
 
+	//
+	// Implementing IQuestSaveCachable
+	//	
+	bool m_saveDirty = true;
+	public bool SaveDirty { get=>m_saveDirty; set{m_saveDirty=value;} }
 
 	#endregion
 	#region Funcs: Public
@@ -911,7 +918,6 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 		if ( verb == eQuestVerb.Look ) --m_lookCount;
 		else if ( verb == eQuestVerb.Use) --m_useCount;
 	}
-
 	public void WalkToBG( float x, float y, bool anywhere = false, eFace thenFace = eFace.None )
 	{
 		WalkToBG(new Vector2(x,y), anywhere,thenFace);
@@ -931,10 +937,14 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 		if ( m_instance != null && PowerQuest.Get.GetSkippingCutscene() == false )
 		{
 			m_instance.WalkTo(pos, anywhere,true);
+			if ( Walking == false && m_faceAfterWalk != eFace.None ) // Face after walk manually (if 'walkTo' didn't start walking, maybe already reached destination)
+				FaceBG(thenFace);
 		}
 		else 
 		{
 			SetPosition(pos);
+			if ( m_faceAfterWalk != eFace.None ) // Face after walk manually
+				Facing = m_faceAfterWalk;
 		}	
 
 	}
@@ -945,9 +955,9 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 		if ( clickable != null )
 		{			
 			if ( clickable.IClickable.Instance != null )
-				WalkToBG((Vector2)clickable.IClickable.Instance.transform.position + clickable.IClickable.WalkToPoint, anywhere);
+				WalkToBG((Vector2)clickable.IClickable.Instance.transform.position + clickable.IClickable.WalkToPoint, anywhere, thenFace);
 			else
-				WalkToBG(clickable.IClickable.WalkToPoint, anywhere);
+				WalkToBG(clickable.IClickable.WalkToPoint, anywhere, thenFace);
 		}
 	}
 	public Coroutine WalkTo(float x, float y, bool anywhere = false) {	return PowerQuest.Get.StartQuestCoroutine(CoroutineWalkTo(new Vector2(x,y), anywhere)); }
@@ -1284,12 +1294,44 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable
 	{
 		if ( m_instance != null )
 		{
-			yield return PowerQuest.Get.WaitWhile( m_instance.GetPlayingTransition, true );
+			yield return PowerQuest.Get.WaitWhile( m_instance.GetPlayingTransition, skippable );
 			SkipTransition();
 		}
 		yield break;
 	}
 
+	public bool Idle { get
+	{
+		return Animating == false
+		    && Walking == false
+			&& Talking == false
+			&& (m_instance == null || m_instance.GetPlayingTransition() == false)
+			&& m_targetFaceDirection == m_faceDirection;
+	} }
+	
+	/// Waits until a character is idle. ie: Not Walking,Talking,Animating,Turning, or Transitioning
+	public Coroutine WaitForIdle(bool skippable = true) { return PowerQuest.Get.StartCoroutine(CoroutineWaitForIdle(skippable)); }
+	public IEnumerator CoroutineWaitForIdle(bool skippable)
+	{
+		bool first = true; // first frame the mouse will always be down, so don't skip until 2nd
+		while ( Idle == false
+			    && PowerQuest.Get.GetSkippingCutscene() == false
+			    && ( skippable == false || PowerQuest.Get.HandleSkipDialogKeyPressed() == false || first ) )
+		{
+			first = false;
+			yield return null;
+		}	
+
+		// Incase skipped, clear
+		if (m_instance != null )
+			m_instance.SkipWalk();
+		CancelSay();
+		StopAnimation();			
+		Facing = m_targetFaceDirection;
+		SkipTransition();
+
+		yield break;	
+	}
 
 	public void AddAnimationTrigger(string triggerName, bool removeAfterTriggering, System.Action action )
 	{

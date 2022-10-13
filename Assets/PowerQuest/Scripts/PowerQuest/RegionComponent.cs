@@ -69,7 +69,31 @@ public partial class Region : IRegion, IQuestScriptable
 	public float FadeDistance { get{ return m_fadeDistance;} set{m_fadeDistance = value;} }
 	public float ScaleTop { get{ return m_scaleTop;}  set{ m_scaleTop = value; }  }
 	public float ScaleBottom { get{ return m_scaleBottom;} set{ m_scaleBottom = value;}  }
-	public bool GetCharacterOnRegion(ICharacter character) { return m_instance == null ? false : m_instance.GetCharacterOnRegion(character.Data); }
+
+	public bool GetCharacterOnRegion(ICharacter character = null)
+	{ 
+		if ( m_instance == null || m_characterOnRegionMask == null ) 
+			return false;  // If instance is null, don't used cached data, it won't be accurate
+
+		// If null passed, return true if ANY character is in the region
+		if ( character == null )
+		{
+			foreach( bool b in m_characterOnRegionMask )
+			{
+				if ( b )
+					return true;
+			}
+		}		
+		else if ( character.Data != null )
+		{
+			int id = PowerQuest.Get.GetCharacterId(character.Data);
+			if ( id < 0 ) return false;
+			return m_characterOnRegionMask.Get( id );
+		}
+		return false;
+	}
+
+
 	public RegionComponent GetInstance() { return m_instance; }
 	public void SetInstance(RegionComponent instance) 
 	{ 
@@ -157,24 +181,15 @@ public class RegionComponent : MonoBehaviour
 
 	public PolygonCollider2D GetPolygonCollider() { return m_polygonCollider; }
 
-	public bool GetCharacterOnRegion(Character character)
+	// Updates whether character is active and in the region. Doesn't check if character is active/in room, so pass that in. Returns true if standing on region
+	public bool UpdateCharactersOnRegion( int index, bool characterActiveInRoom, Vector2 characterPos )
 	{
-		int id = PowerQuest.Get.GetCharacterId(character);
-		if ( id < 0 ) return false;
-		return m_data?.GetCharacterOnRegionMask()?.Get( id ) ?? false;
-	}
-
-	// checks if character is in zone. Doesn't check if character is in room, so check that before calling. Returns true if standing on region
-	public bool UpdateCharactersOnRegion( int index, Vector2 characterPos )
-	{
-		if ( m_data.Enabled == false )	
-			return false;
-
 		//bool wasInside = m_characterOnRegionMask.Get(index);
-		bool inside = ( m_polygonCollider != null && m_polygonCollider.OverlapPoint(characterPos) );
-		m_data.GetCharacterOnRegionMask().Set(index,inside);
-
-		return inside;
+		bool result = characterActiveInRoom && m_data.Enabled;
+		if ( result )	
+			result = ( m_polygonCollider != null && m_polygonCollider.OverlapPoint(characterPos) );				
+		m_data.GetCharacterOnRegionMask().Set(index,result);
+		return result;
 	}
 
 	public float GetScaleAt(Vector2 position)
@@ -189,6 +204,7 @@ public class RegionComponent : MonoBehaviour
 	{
 		if ( m_polygonCollider == null )
 			return 0;
+		point -= (Vector2)transform.position;
 		return RegionPolyUtil.CalcDistToEdge(m_polygonCollider.points, point);
 	}
 	

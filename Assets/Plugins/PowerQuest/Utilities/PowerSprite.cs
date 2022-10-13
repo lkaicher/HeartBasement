@@ -140,7 +140,6 @@ public class PowerSprite : MonoBehaviour
 	// Gets the world position of a sprite anim node, with the sprite offset included.
 	public Vector2 GetNodePosition(int node)
 	{
-
 		// Lazy get the nodes component
 		if ( m_nodes == null )
 			m_nodes = GetComponent<SpriteAnimNodes>();
@@ -159,6 +158,23 @@ public class PowerSprite : MonoBehaviour
 			result += (Vector2)m_nodes.GetPosition(node);
 		}
 		return result;
+	}
+
+	public float GetNodeAngle(int node)
+	{
+		// Lazy get the nodes component
+		if ( m_nodes == null )
+			m_nodes = GetComponent<SpriteAnimNodes>();
+		return m_nodes.GetAngle(node);		
+	}
+	
+	public Shader GetShaderOverride() { return m_shaderOverride; }
+	public void SetShaderOverride(Shader shader)
+	{
+		m_shaderOverride = shader;
+		m_materialCached = null;
+		CheckMaterial();
+	
 	}
 
 	#endregion

@@ -2,9 +2,13 @@
 
 //#define LOG_DATA
 #if LOG_DATA 
-	#define LOG_DATA_SERIALIZEABLE // More verbose, shows all serializables, not just custom classes
+	//#define LOG_DATA_SERIALIZEABLE // More verbose, shows all serializables, not just custom classes
 	#define LOG_DATA_SURROGATE
 #endif
+
+// Cache data speeds up consecutive saves, at cost of restore being slower, and save file being bigger
+#define CACHE_SAVE_DATA 
+//#define LOG_CACHE_DATA
 
 // Checking the QuestDontSave attribute potentially makes save/load slower. Though testing with/without this  and logging time, it didn't seem dramatically differnt
 //#define ENABLE_DONTSAVE_ATTRIB
@@ -56,6 +60,11 @@ public class QuestSaveSlotData
 #endregion
 #region Class: Save Manager
 
+public interface IQuestSaveCachable
+{
+	bool SaveDirty {get;set;}
+}
+
 public class QuestSaveManager
 {
 
@@ -86,13 +95,16 @@ public class QuestSaveManager
 	static readonly byte[] NOTHING_TO_SEE_HERE = {0xdd, 0x2a, 0xdc, 0x58, 0xa6, 0xc4, 0xca, 0x10};
 	static readonly byte[] JUST_A_REGULAR_VARIABLE = {0x47, 0xa1, 0x6d, 0xc1, 0xc6, 0x67, 0xd9, 0xed};
 
-
 	static readonly string FILE_NAME_START = "Save";
 	static readonly string FILE_NAME_EXTENTION = ".sav";
 	static readonly string FILE_NAME_WILDCARD = FILE_NAME_START+"*"+FILE_NAME_EXTENTION;
 
 	// Version and version requirement for the save manager. There's a seperate one used for the "game"
-	static readonly int VERSION_CURRENT = 2;
+	#if CACHE_SAVE_DATA
+		static readonly int VERSION_CURRENT = 3;
+	#else 
+		static readonly int VERSION_CURRENT = 2;
+	#endif
 	static readonly int VERSION_REQUIRED = 0;
 	
 	#endregion
@@ -104,6 +116,9 @@ public class QuestSaveManager
 
 	List< CustomSaveData > m_customSaveData = new List< CustomSaveData >();
 	//List< CustomSaveVars > m_customSaveVars = new List< CustomSaveVars >();
+	
+	// Serialized bytes, cached so they don't have to be serialized again (since that's so slow)
+	Dictionary<string, byte[]> m_cachedSaveData = new Dictionary<string, byte[]>();
 
 	#endregion
 	#region Public Functions
@@ -194,7 +209,7 @@ public class QuestSaveManager
 		foreach( CustomSaveData customSaveData in m_customSaveData )
 			data.Add(customSaveData.m_name+'%', customSaveData.m_data); // adding '%' to mostly ensure it's unique
 				
-		Stream stream = null;
+		Stream fStream = null;
 		Stream cryptoStream = null;
 		
 		QuestSaveSurrogateSelector.StartLogSave();
@@ -205,32 +220,32 @@ public class QuestSaveManager
 			#if LOG_TIME
 				QuestUtils.StopwatchStart();
 			#endif		
-
-			stream = File.Open(GetSaveDirectory()+fileName, FileMode.Create);
+					
+			fStream = File.Open(GetSaveDirectory()+fileName, FileMode.Create);
 			
 			BinaryFormatter bformatter = new BinaryFormatter();
-			bformatter.Binder = new VersionDeserializationBinder(); 						
+			bformatter.Binder = new VersionDeserializationBinder(); 	
 
 			// Serialize 'header' (unencrypted version and slot information)
-			bformatter.Serialize(stream, VERSION_CURRENT); 	// QuestSaveManager version
-			bformatter.Serialize(stream, version);			// Game Version
-			bformatter.Serialize(stream, displayName);
-			bformatter.Serialize(stream, Utils.GetUnixTimestamp());			
+			bformatter.Serialize(fStream, VERSION_CURRENT); // QuestSaveManager version
+			bformatter.Serialize(fStream, version);			// Game Version
+			bformatter.Serialize(fStream, displayName);
+			bformatter.Serialize(fStream, Utils.GetUnixTimestamp());			
 			{
 				// Save image				
 				if ( image == null )
 				{
-					bformatter.Serialize(stream, false);	// no image
+					bformatter.Serialize(fStream, false);	// no image
 				}
 				else 
 				{
-					bformatter.Serialize(stream, true);	// Set flag to show there's an image
+					bformatter.Serialize(fStream, true);	// Set flag to show there's an image
 
 					// from https://docs.unity3d.com/ScriptReference/ImageConversion.EncodeToPNG.html
 					{
 						byte[] bytes = image.EncodeToPNG();
 						//bformatter.Serialize(stream,bytes.Length);
-						bformatter.Serialize(stream,bytes);
+						bformatter.Serialize(fStream,bytes);
 					}
 				}
 			}
@@ -241,14 +256,82 @@ public class QuestSaveManager
 			des.Key = NOTHING_TO_SEE_HERE;
 			des.IV = JUST_A_REGULAR_VARIABLE;
 			
-			cryptoStream = new CryptoStream(stream, des.CreateEncryptor(), CryptoStreamMode.Write);
+			cryptoStream = new CryptoStream(fStream, des.CreateEncryptor(), CryptoStreamMode.Write);
 
 			SurrogateSelector surrogateSelector = new SurrogateSelector();					
 			surrogateSelector.ChainSelector( new QuestSaveSurrogateSelector() );
 			bformatter.SurrogateSelector = surrogateSelector;
-
+			
 			// Serialize encrypted data
-			bformatter.Serialize(cryptoStream, data);
+
+			#if CACHE_SAVE_DATA
+				#if LOG_CACHE_DATA
+					string dbg = "";
+					int resaved=0;
+				#endif
+
+				using ( MemoryStream mStream = new MemoryStream(128) )
+				{
+					// Serialise the number of items in the list
+					bformatter.Serialize(cryptoStream, data.Count);
+					foreach ( KeyValuePair<string, object> pair in data )	
+					{
+						// For each item, serialise the key, and the object.
+						// They're done separately so we can avoid re-serialising things that definitely haven't changed (since it's kinda slow)
+						// This gets save time from 0.7 to 0.2 sec in debug
+
+						// Serialise the key
+						bformatter.Serialize(cryptoStream, pair.Key as string);
+						byte[] bytes = null;
+						if ( pair.Value is IQuestSaveCachable )
+						{
+							IQuestSaveCachable cachable = pair.Value as IQuestSaveCachable;
+							if ( cachable.SaveDirty || m_cachedSaveData.ContainsKey(pair.Key) == false )
+							{
+								//using ( MemoryStream mStream = new MemoryStream() ) // moved to outside so not reallocing so much
+								{
+									bformatter.Serialize(mStream, pair.Value as object);
+									bytes = mStream.ToArray();
+									m_cachedSaveData[pair.Key] = bytes;
+									cachable.SaveDirty = false;		
+									#if LOG_CACHE_DATA
+										dbg += "\n"+pair.Key;
+										resaved++;
+									#endif
+								}
+								mStream.SetLength(0); // reset stream
+							}
+							else 
+							{
+								bytes = m_cachedSaveData[pair.Key];
+							}
+						}
+						else
+						{					
+							//using ( MemoryStream mStream = new MemoryStream() ) // moved to outside so not reallocing so much
+							{
+								bformatter.Serialize(mStream, pair.Value);														
+								bytes = mStream.ToArray();
+							}
+							mStream.SetLength(0); // reset stream
+						}						
+
+						bformatter.Serialize(cryptoStream, bytes);
+
+					}
+
+				}
+				#if LOG_CACHE_DATA
+					Debug.Log($"Re-saving {resaved} items:\n{dbg}");	
+				#endif
+
+			#else
+				
+				// The old way to save was just to save the whole dictionary as one thing
+				bformatter.Serialize(cryptoStream, data);
+
+			#endif
+			
 			#if LOG_TIME
 				QuestUtils.StopwatchStop("Save: ");
 			#endif
@@ -264,13 +347,14 @@ public class QuestSaveManager
 		{
 			if ( cryptoStream != null )
 				cryptoStream.Close();
-			if ( stream != null )
-				stream.Close();		
+			if ( fStream != null )
+				fStream.Close();		
 		}
 		TempPrintLog();
 
 		return success;
 	}
+
 
 	// Restore save from a slot. 
 	// (slot 4 = save4.sav)
@@ -349,10 +433,49 @@ public class QuestSaveManager
 			SurrogateSelector ss = new SurrogateSelector();
 			ss.ChainSelector( new QuestSaveSurrogateSelector() );
 			bformatter.SurrogateSelector = ss;
-
+			
 			// deserialize the data
-			data = bformatter.Deserialize(cryptoStream) as Dictionary<string, object>;			
+			if ( saveVersion < 3 )					
+			{
+				// Older version saved all objects in single dictionary. But that meant couldn't cache anything, so consecutive saves were slower.
+				data = bformatter.Deserialize(cryptoStream) as Dictionary<string, object>;
+			}
+			else 
+			{			
+				// The new way of saving, where we have each object serialised separately			
+				int dictionarySize = (int)bformatter.Deserialize(cryptoStream);
+				data = new Dictionary<string, object>(dictionarySize);
+				/* #Optimisation test /
+				using ( MemoryStream memStream = new MemoryStream() )
+				/**/
+				{
+					for ( int i = 0; i < dictionarySize; ++i )
+					{
+						string key = bformatter.Deserialize(cryptoStream) as string;
+						byte[] bytes = bformatter.Deserialize(cryptoStream) as byte[];
+												
+						/* #Optimisation test: Write bytes to memstream, then reset position (try ing to minimise allocs, but maybe just as good to new memory streams each time...) /
+						memStream.SetLength(0);
+						memStream.Write(bytes,0,bytes.Length);
+						memStream.Position = 0;
+						/**/
+						using (MemoryStream memStream = new MemoryStream(bytes) )
+						/**/
+						{					
+							object value = bformatter.Deserialize(memStream) as object;
+							data.Add(key,value);	
 
+							// Mark data as no longer dirty since we just loaded it
+							if ( value is IQuestSaveCachable )
+							{
+								(value as IQuestSaveCachable).SaveDirty=false;
+								m_cachedSaveData[key] = bytes;
+							}
+						}
+					}
+				}
+			}
+			
 			// Pull out the custom data we want
 			object loadedCustomSaveData;
 			foreach( CustomSaveData customSaveData in m_customSaveData )

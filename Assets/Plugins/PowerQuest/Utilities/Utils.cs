@@ -44,7 +44,7 @@ public class Utils
 			return mag;
 		}
 	}
-	
+	/*
 	// Returns the Vector2 rotated 90 counterclockwise
 	public static Vector2 GetVector2Tangent( Vector2 vector )
 	{				
@@ -55,7 +55,8 @@ public class Utils
 	public static Vector2 GetVector2TangentR( Vector2 vector )
 	{				
 		return new Vector2(vector.y, -vector.x);
-	}
+	}*/
+	
 		
  	// Snap to a grid value
 	public static Vector3 Snap( Vector3 pos, float snapTo = 1 )
@@ -461,6 +462,7 @@ public static class ExtentionMethods
 			 Mathf.Max(rect.xMax, other.xMax), Mathf.Max(rect.yMax, other.yMax) );
 	}
 
+
 	/// Returns distance the point would have to move to be inside the rect (or 0 if inside already)
 	public static Vector2 CalcDistToPoint( this Rect rect, Vector2 point )
 	{
@@ -479,12 +481,47 @@ public static class ExtentionMethods
 
 		return result;
 	}
+	
+	
+	// Normalizes the vector and returns the magnitude
+	public static float NormalizeMag( this ref Vector2 vector )
+	{
+		if ( Utils.ApproximatelyZero(vector.x, float.Epsilon) )
+		{
+			if ( Utils.ApproximatelyZero(vector.y,float.Epsilon) )
+			{
+				vector = Vector2.zero;
+				return 0.0f;
+			}
+			else 
+			{				
+				float mag = Mathf.Abs(vector.y);
+				vector.Set(0, Mathf.Sign(vector.y));
+				return mag;
+			}
+		}
+		else if ( Utils.ApproximatelyZero(vector.y, float.Epsilon) )
+		{
+			float mag = Mathf.Abs(vector.x);
+			vector.Set(Mathf.Sign(vector.x),0);
+			return mag;
+		}
+		else 
+		{	
+			float mag = vector.magnitude;
+			if ( mag == 0 ) // Maybe could happen - check to avoid NaN
+				vector = Vector2.zero;
+			else 		
+				vector /= mag;
+				
+			return mag;
+		}
+	}
 
 	public static Vector2 WithOffset( this Vector2 vector, float x, float y )
 	{
 		return new Vector2(vector.x+x, vector.y+y);
 	}
-	
 
 	public static Vector2 Scaled( this Vector2 vector, Vector2 scale )
 	{

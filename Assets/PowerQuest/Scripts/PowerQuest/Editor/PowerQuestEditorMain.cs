@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEditor;
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using PowerTools.Quest;
 using PowerTools;
+using UnityEngine.Assertions;
 
 namespace PowerTools.Quest
 {
@@ -17,48 +19,27 @@ public partial class PowerQuestEditor
 {
 
 	#region Variables: Static definitions
+	
+	enum eMainTab { All, Rooms, Chars, Items, Dialogs, Guis, Count }
 
 	#endregion
 	#region Variables: Serialized
 
 	// Reference to the prefab list, or a filtered list of the prefabs, used by Reorderable lists
-	/*[SerializeField] */List<RoomComponent> m_listRoomPrefabs = null; // NB: commented out the 'serializefield' bit to see if that's what was causing invisible fields
-	/*[SerializeField] */List<CharacterComponent> m_listCharacterPrefabs = null;
-	/*[SerializeField] */List<InventoryComponent> m_listInventoryPrefabs = null;
-	/*[SerializeField] */List<DialogTreeComponent> m_listDialogTreePrefabs = null;	
+	List<RoomComponent> m_listRoomPrefabs = null; // NB: removed out the 'serializefield' bit to see if that's what was causing invisible fields
+	List<CharacterComponent> m_listCharacterPrefabs = null;
+	List<InventoryComponent> m_listInventoryPrefabs = null;
+	List<DialogTreeComponent> m_listDialogTreePrefabs = null;	
+	List<GuiComponent> m_listGuiPrefabs = null;
 
-	// Whether to show filtered list of prefabs, or the whole thing
-	[SerializeField] bool m_filterRooms = false;
-	[SerializeField] bool m_filterCharacters = false;
-	[SerializeField] bool m_filterInventory = false;
-	[SerializeField] bool m_filterDialogTrees = false;
 
 	#endregion
-	#region Variables: Private
+	#region Variables: Private	
+
+	[SerializeField] eMainTab m_selectedMainTab = eMainTab.All;
 
 	#endregion
 	#region Funcs: Init
-
-	void ApplyFilter<T>( List<T> prefablist, ref List<T> list, ref bool filterBool) where T : MonoBehaviour
-	{
-		if ( filterBool ) 
-			list = prefablist.FindAll(item=>IsHighlighted(item));
-		if ( filterBool == false || list.Count == 0 ) 
-		{
-			list = prefablist;	
-			filterBool = false;
-		}
-	}
-	
-	void LayoutListHeader(string name, ref bool show, ref bool filter, Rect rect)
-	{
-		show = EditorGUI.Foldout(new Rect(rect){width=rect.width-60}, show,name, true);
-		if ( GUI.Button( new Rect(rect){x=rect.width-60, width=60 }, filter ? "Highlighted":"All", new GUIStyle(EditorStyles.miniLabel){alignment=TextAnchor.MiddleRight}) )
-		{
-			filter = !filter;
-			CreateMainGuiLists(); // Refresh lists
-		}
-	}
 
 	void CreateMainGuiLists()
 	{
@@ -66,95 +47,67 @@ public partial class PowerQuestEditor
 		// Create reorderable lists
 		//
 
-		// Filters
-		ApplyFilter(m_powerQuest.GetRoomPrefabs(), ref m_listRoomPrefabs, ref m_filterRooms);
-		ApplyFilter(m_powerQuest.GetCharacterPrefabs(), ref m_listCharacterPrefabs, ref m_filterCharacters);
-		ApplyFilter(m_powerQuest.GetInventoryPrefabs(), ref m_listInventoryPrefabs, ref m_filterInventory);
-		ApplyFilter(m_powerQuest.GetDialogTreePrefabs(), ref m_listDialogTreePrefabs, ref m_filterDialogTrees);
-					
-		bool full = !m_filterRooms;
-		m_listRooms = new ReorderableList( m_listRoomPrefabs, typeof(RoomComponent),full,true,full,full) 
-		{
-			drawHeaderCallback = (Rect rect) => LayoutListHeader("Rooms", ref m_showRooms, ref m_filterRooms, rect),
-			drawElementCallback = 	LayoutRoomGUI,
-			onSelectCallback = 		SelectRoom,
-			onAddCallback = 		(ReorderableList list) => 
-			{	
-				ScriptableObject.CreateInstance< CreateQuestObjectWindow >().ShowQuestWindow(
+		Assert.IsTrue(m_gamePath.EndsWith("/"), "GamePath MUST end with '/', all code here expects it");
+
+		m_listRooms = FilterAndCreateReorderable("Rooms",
+			m_powerQuest.GetRoomPrefabs(), ref m_listRoomPrefabs, m_filterRooms,
+			LayoutRoomGUI, SelectRoom,
+			list => {
+				CreateInstance< CreateQuestObjectWindow >().ShowQuestWindow(
 					eQuestObjectType.Room,
 					"Room", "'Bathroom' or 'CastleGarden'",  CreateRoom,
 					m_gamePath + "Rooms");
 			},
-			onRemoveCallback =	(ReorderableList list) => { DeleteQuestObject(list.index, "Room", m_listRoomPrefabs); },
-			onCanRemoveCallback = (ReorderableList list) => { return Application.isPlaying == false; }
-		};
+			list => DeleteQuestObject(list.index, "Room", m_listRoomPrefabs)
+		);
 
-		full = !m_filterCharacters;
-		m_listCharacters = new ReorderableList( m_listCharacterPrefabs, typeof(CharacterComponent),full,true,full,full) 
-		{ 			
-			drawHeaderCallback = 	(Rect rect) => LayoutListHeader("Characters", ref m_showCharacters, ref m_filterCharacters, rect),
-			drawElementCallback = 	LayoutCharacterGUI,
-			onSelectCallback = 		SelectGameObjectFromList,
-			onAddCallback = 		(ReorderableList list) => 
-			{	
-				CreateCharacterWindow window = ScriptableObject.CreateInstance<CreateCharacterWindow>();
+		m_listCharacters = FilterAndCreateReorderable("Characters",
+			m_powerQuest.GetCharacterPrefabs(), ref m_listCharacterPrefabs, m_filterCharacters,
+			LayoutCharacterGUI,
+			SelectGameObjectFromList,
+			list => {
+				CreateCharacterWindow window = CreateInstance<CreateCharacterWindow>();
 				window.SetPath( m_gamePath + "Characters" );
 				window.ShowUtility();
 			},
-			onRemoveCallback = 		(ReorderableList list) => { DeleteQuestObject(list.index, "Character", m_listCharacterPrefabs); },
-			onCanRemoveCallback = (ReorderableList list) => { return Application.isPlaying == false; }
+			list => DeleteQuestObject(list.index, "Character", m_listCharacterPrefabs)
+		);
 
-		};
-
-		full = !m_filterInventory;
-		m_listInventory = new ReorderableList( m_listInventoryPrefabs, typeof(InventoryComponent),full,true,full,full) 
-		{ 
-			drawHeaderCallback = 	(Rect rect) => LayoutListHeader("Inventory", ref m_showInventory, ref m_filterInventory, rect),
-			drawElementCallback = 	LayoutInventoryGUI,
-			onSelectCallback = 		SelectGameObjectFromList,
-			onAddCallback = 		(ReorderableList list) => 
-			{	
-				ScriptableObject.CreateInstance< CreateQuestObjectWindow >().ShowQuestWindow(
+		m_listInventory = FilterAndCreateReorderable("Inventory",
+			m_powerQuest.GetInventoryPrefabs(), ref m_listInventoryPrefabs, m_filterInventory,
+			LayoutInventoryGUI,
+			SelectGameObjectFromList,
+			list => {
+				CreateInstance<CreateQuestObjectWindow>().ShowQuestWindow(
 					eQuestObjectType.Inventory, "Inventory", "'Crowbar' or 'RubberChicken'", CreateInventory,
 					m_gamePath + "Inventory");
 			},
-			onRemoveCallback = 		(ReorderableList list) => { DeleteQuestObject(list.index, "Inventory", m_listInventoryPrefabs); },
-			onCanRemoveCallback = (ReorderableList list) => { return Application.isPlaying == false; }
-		};
+			list => { DeleteQuestObject(list.index, "Inventory", m_listInventoryPrefabs); }
+		);
 
-		full = !m_filterDialogTrees;
-		m_listDialogTrees = new ReorderableList( m_listDialogTreePrefabs, typeof(DialogTreeComponent),full,true,full,full) 
-		{ 
-			drawHeaderCallback = 	(Rect rect) => LayoutListHeader("Dialog Trees", ref m_showDialogTrees, ref m_filterDialogTrees, rect),
-			drawElementCallback = 	LayoutGuiDialogTree,
-			onSelectCallback = 		SelectGameObjectFromList,
-			onAddCallback = 		(ReorderableList list) => 
-			{	
-
-				ScriptableObject.CreateInstance< CreateQuestObjectWindow >().ShowQuestWindow(
+		m_listDialogTrees = FilterAndCreateReorderable("Dialog Trees",
+			m_powerQuest.GetDialogTreePrefabs(), ref m_listDialogTreePrefabs, m_filterDialogTrees,
+			LayoutGuiDialogTree,
+			SelectGameObjectFromList,
+			list => {
+				CreateInstance<CreateQuestObjectWindow>().ShowQuestWindow(
 					eQuestObjectType.Dialog, "DialogTree", "'MeetSarah' or 'Policeman2'", CreateDialogTree,
 					m_gamePath + "DialogTree");
 			},
-			onRemoveCallback = 		(ReorderableList list) => { DeleteQuestObject(list.index, "DialogTree", m_listDialogTreePrefabs); },
-			onCanRemoveCallback = (ReorderableList list) => { return Application.isPlaying == false; }
+			list => { DeleteQuestObject(list.index, "DialogTree", m_listDialogTreePrefabs); }
+		);
 
-		};
-
-		m_listGuis = new ReorderableList( m_powerQuest.GetGuiPrefabs(), typeof(GuiComponent),true,true,true,true) 
-		{ 
-			drawHeaderCallback = 	(Rect rect) => {  m_showGuis = EditorGUI.Foldout(rect, m_showGuis,"Guis", true); },
-			drawElementCallback = 	LayoutGuiGUI,
-			onSelectCallback = 		SelectGameObjectFromList,
-			onAddCallback = 		(ReorderableList list) => 
-			{	
-				ScriptableObject.CreateInstance< CreateQuestObjectWindow >().ShowQuestWindow(
+		m_listGuis = FilterAndCreateReorderable("Guis",
+			m_powerQuest.GetGuiPrefabs(), ref m_listGuiPrefabs, m_filterGuis,
+			LayoutGuiGUI,
+			SelectGameObjectFromList,
+			list => {
+				CreateInstance<CreateQuestObjectWindow>().ShowQuestWindow(
 					eQuestObjectType.Gui, "Gui", "'Toolbar' or 'InventoryBox'", CreateGui,
 					m_gamePath + "Gui");
 			},
-			onRemoveCallback = 		(ReorderableList list) => { DeleteQuestObject(list.index, "Gui", m_powerQuest.GetGuiPrefabs()); },
-			onCanRemoveCallback = (ReorderableList list) => { return Application.isPlaying == false; }
-		};
-
+			list => { DeleteQuestObject(list.index, "Gui", m_listGuiPrefabs); }
+		);
 	}
 
 	#endregion
@@ -163,6 +116,8 @@ public partial class PowerQuestEditor
 
 	void OnGuiMain()
 	{
+		m_selectedMainTab = LayoutMainTabs(m_selectedMainTab);
+
 		m_scrollPosition = EditorGUILayout.BeginScrollView(m_scrollPosition);
 
 		GUILayout.Space(5);
@@ -172,45 +127,100 @@ public partial class PowerQuestEditor
 			QuestScriptEditor.Open(PATH_GLOBAL_SCRIPT, PowerQuest.GLOBAL_SCRIPT_NAME, QuestScriptEditor.eType.Global );
 		}
 
-		// Layout rooms
-		if ( m_showRooms && m_listRooms != null )
-			m_listRooms.DoLayoutList();
-		else 
-			m_showRooms = EditorGUILayout.Foldout(m_showRooms,"Rooms", true); 
 		GUILayout.Space(5);
+
+		// Layout rooms
+		if ( m_selectedMainTab == eMainTab.All || m_selectedMainTab == eMainTab.Rooms )
+		{
+			if ( m_filterRooms.Show && m_listRooms != null )
+				m_listRooms.DoLayoutList();
+			else 
+				m_filterRooms.Show = EditorGUILayout.Foldout(m_filterRooms.Show, "Rooms", true);
+			GUILayout.Space(5);
+		}
 
 		// Layout characters
-		if ( m_showCharacters && m_listCharacters != null) 
-			m_listCharacters.DoLayoutList();
-		else  
-			m_showCharacters = EditorGUILayout.Foldout(m_showCharacters,"Characters", true); 
-		GUILayout.Space(5);
+		
+		if ( m_selectedMainTab == eMainTab.All || m_selectedMainTab == eMainTab.Chars )
+		{
+			if ( m_filterCharacters.Show && m_listCharacters != null)
+				m_listCharacters.DoLayoutList();
+			else  
+				m_filterCharacters.Show = EditorGUILayout.Foldout(m_filterCharacters.Show, "Characters", true);
+			GUILayout.Space(5);
+		}
 
 		// Layout Inventory
-		if ( m_showInventory && m_listInventory != null ) 
-			m_listInventory.DoLayoutList();
-		else  
-			m_showInventory = EditorGUILayout.Foldout(m_showInventory,"Inventory Items", true); 		
-	
-		GUILayout.Space(5);
+		
+		if ( m_selectedMainTab == eMainTab.All || m_selectedMainTab == eMainTab.Items )
+		{
+			if ( m_filterInventory.Show && m_listInventory != null )
+				m_listInventory.DoLayoutList();
+			else  
+				m_filterInventory.Show = EditorGUILayout.Foldout(m_filterInventory.Show, "Inventory Items", true);
+		
+			GUILayout.Space(5);
+		}
 
 		// Layout Dialogs
-		if ( m_showDialogTrees && m_listDialogTrees != null ) 
-			m_listDialogTrees.DoLayoutList();
-		else 
-			m_showDialogTrees = EditorGUILayout.Foldout(m_showDialogTrees,"Dialog Trees", true); 	
+		
+		if ( m_selectedMainTab == eMainTab.All || m_selectedMainTab == eMainTab.Dialogs )
+		{
+			if ( m_filterDialogTrees.Show && m_listDialogTrees != null )
+				m_listDialogTrees.DoLayoutList();
+			else 
+				m_filterDialogTrees.Show = EditorGUILayout.Foldout(m_filterDialogTrees.Show, "Dialog Trees", true);
 
-		GUILayout.Space(5);
+			GUILayout.Space(5);
+		}
 
-		// Layout Gui
-		if ( m_showGuis && m_listGuis != null ) 
-			m_listGuis.DoLayoutList();
-		else 
-			m_showGuis = EditorGUILayout.Foldout(m_showGuis,"Guis", true); 	
+		// Layout Gui		
+		if ( m_selectedMainTab == eMainTab.All || m_selectedMainTab == eMainTab.Guis )
+		{
+			if ( m_filterGuis.Show && m_listGuis != null )
+				m_listGuis.DoLayoutList();
+			else 
+				m_filterGuis.Show = EditorGUILayout.Foldout(m_filterGuis.Show, "Guis", true);
+		}
 
 		LayoutManual();
 
 		EditorGUILayout.EndScrollView();
+	}
+
+	
+	//
+	// Creates tab style layout
+	//
+	eMainTab LayoutMainTabs(eMainTab selected)
+	{
+		const float DarkGray = 0.6f;
+		const float LightGray = 0.9f;
+		//const float StartSpace = 5;
+	 
+		//GUILayout.Space(StartSpace);
+		Color storeColor = GUI.backgroundColor;
+		Color highlightCol = new Color(LightGray, LightGray, LightGray);
+		Color bgCol = new Color(DarkGray, DarkGray, DarkGray);
+		GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
+		buttonStyle.padding.bottom = 8;
+		buttonStyle.margin.left = 0;
+		buttonStyle.margin.right = 0;
+	 
+		GUILayout.BeginHorizontal();
+		{   //Create a row of buttons
+			for (eMainTab i = 0; i < eMainTab.Count; ++i)
+			{
+				GUI.backgroundColor = i == selected ? highlightCol : bgCol;
+				if (GUILayout.Button(((eMainTab)i).ToString(), buttonStyle))
+				{
+					selected = i; //Tab click
+				}
+			}
+		} GUILayout.EndHorizontal();
+		//Restore color
+		GUI.backgroundColor = storeColor;	 
+		return selected;
 	}
 
 	void LayoutManual()
@@ -225,7 +235,7 @@ public partial class PowerQuestEditor
 		GUILayout.Space(5);	
 
 		LayoutVersion();
-				
+
 	}
 
 	void LayoutVersion()
@@ -319,7 +329,7 @@ public partial class PowerQuestEditor
 				float totalFixedWidth = 60+50+22;
 				rect.width -= totalFixedWidth;
 				
-				EditorGUI.LabelField(rect, itemComponent.GetData().ScriptName, ((m_filterRooms == false && IsHighlighted(itemComponent))?EditorStyles.whiteLabel:EditorStyles.label) );
+				EditorGUI.LabelField(rect, itemComponent.GetData().ScriptName, ((m_filterRooms.State == FilterState.All && IsHighlighted(itemComponent))?EditorStyles.whiteLabel:EditorStyles.label) );
 				rect.y += 2;
 				rect = rect.SetNextWidth(60);				
 				if ( GUI.Button(rect, Application.isPlaying ? "Teleport"  : "Scene", EditorStyles.miniButtonLeft ) )
@@ -368,7 +378,7 @@ public partial class PowerQuestEditor
 				actionCount += 2;
 
 				rect.width -= totalFixedWidth;
-				EditorGUI.LabelField(rect, itemComponent.GetData().GetScriptName(), ((m_filterInventory == false && IsHighlighted(itemComponent))?EditorStyles.whiteLabel:EditorStyles.label) );
+				EditorGUI.LabelField(rect, itemComponent.GetData().GetScriptName(), ((m_filterInventory.State == FilterState.All && IsHighlighted(itemComponent))?EditorStyles.whiteLabel:EditorStyles.label) );
 
 				rect.y += 2;
 				rect = rect.SetNextWidth(50);
@@ -442,7 +452,7 @@ public partial class PowerQuestEditor
 
 				rect.width -= totalFixedWidth;
 
-				EditorGUI.LabelField(rect, itemComponent.GetData().GetScriptName(), ((m_filterDialogTrees == false && IsHighlighted(itemComponent))?EditorStyles.whiteLabel:EditorStyles.label) );
+				EditorGUI.LabelField(rect, itemComponent.GetData().GetScriptName(), ((m_filterDialogTrees.State == FilterState.All && IsHighlighted(itemComponent))?EditorStyles.whiteLabel:EditorStyles.label) );
 				
 				rect.y += 2;
 				rect = rect.SetNextWidth(50);
@@ -476,9 +486,9 @@ public partial class PowerQuestEditor
 
 	void LayoutGuiGUI(Rect rect, int index, bool isActive, bool isFocused)
 	{
-		if ( m_powerQuest != null && m_powerQuest.GetGuiPrefabs().IsIndexValid(index))
+		if ( m_powerQuest != null && m_listGuiPrefabs.IsIndexValid(index))
 		{
-			GuiComponent itemComponent = m_powerQuest.GetGuiPrefabs()[index];
+			GuiComponent itemComponent = m_listGuiPrefabs[index];
 			if ( itemComponent != null && itemComponent.GetData() != null )
 			{
 				QuestEditorUtils.LayoutQuestObjectContextMenu( eQuestObjectType.Gui, m_listGuis, itemComponent.GetData().GetScriptName(), itemComponent.gameObject, rect, index, true );
@@ -487,7 +497,8 @@ public partial class PowerQuestEditor
 				
 				rect.width -= totalFixedWidth;
 				rect.height = EditorGUIUtility.singleLineHeight;
-				EditorGUI.LabelField(rect, itemComponent.GetData().GetScriptName() );
+				GUIStyle labelStyle = (m_filterGuis.State == FilterState.All && IsHighlighted(itemComponent)) ? EditorStyles.whiteLabel : EditorStyles.label;
+				EditorGUI.LabelField(rect, itemComponent.GetData().GetScriptName(), labelStyle);
 
 				rect.y = rect.y+2;
 
@@ -540,7 +551,7 @@ public partial class PowerQuestEditor
 				actionCount+=2;
 				
 				rect.width -= totalFixedWidth;
-				EditorGUI.LabelField(rect, itemComponent.GetData().GetScriptName(), ((m_filterCharacters == false && IsHighlighted(itemComponent))?EditorStyles.whiteLabel:EditorStyles.label) );
+				EditorGUI.LabelField(rect, itemComponent.GetData().GetScriptName(), ((m_filterCharacters.State == FilterState.All && IsHighlighted(itemComponent))?EditorStyles.whiteLabel:EditorStyles.label) );
 				
 				rect.y = rect.y+2;
 				rect = rect.SetNextWidth(50);

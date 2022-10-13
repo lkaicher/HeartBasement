@@ -368,8 +368,9 @@ public partial class CharacterComponent : MonoBehaviour
 	{
 		if ( m_shadow == null )
 			return;
-		m_shadow.SetActive(GetData().ShadowEnabled && m_animShadowOff == false);
-		if ( m_shadowAnim != null && string.IsNullOrEmpty(GetData().AnimShadow) == false )
+		bool active = GetData().ShadowEnabled && m_animShadowOff == false;
+		m_shadow.SetActive(active);
+		if ( active && m_shadowAnim != null && string.IsNullOrEmpty(GetData().AnimShadow) == false )
 		{
 			AnimationClip clip = GetAnimations().Find(item=>string.Equals(GetData().AnimShadow, item == null ? null : item.name, System.StringComparison.OrdinalIgnoreCase));
 			m_shadowAnim.Play( clip );
@@ -556,8 +557,16 @@ public partial class CharacterComponent : MonoBehaviour
 					m_playIdleDelayFrames--;
 					if ( m_playIdleDelayFrames <= 0 )
 					{
-						// Play idle anim						
-						PlayAnimInternal(m_data.AnimIdle);				
+						if ( m_currTurnAnim != null )
+						{
+							// Finish turn anim if one's playing (We might be turning already, if called "face" immediately after "walk")
+							m_playAfterTurnAnim = m_data.AnimIdle;
+						}
+						else 
+						{
+							// Play idle anim
+							PlayAnimInternal(m_data.AnimIdle);				
+						}
 					}						
 				}
 			} break;
@@ -989,7 +998,11 @@ public partial class CharacterComponent : MonoBehaviour
 			m_path = null;
 			m_pathPointNext = -1;
 			m_walking = false;
+
 			OnAnimStateChange();
+			
+			if ( m_data.GetFaceAfterWalk() != eFace.None ) 
+				m_data.FaceBG(m_data.GetFaceAfterWalk());
 		}
 
 	}
@@ -1146,7 +1159,9 @@ public partial class CharacterComponent : MonoBehaviour
 			m_data.SetPosition(m_targetPos); 
 			m_targetPos = Vector2.zero;
 			m_targetEndPos = m_data.Position;
-			CancelWalk();
+			CancelWalk();			
+			if ( m_data.GetFaceAfterWalk() != eFace.None )
+				m_data.Facing = m_data.GetFaceAfterWalk();
 		}
 	}
 
@@ -1220,7 +1235,10 @@ public partial class CharacterComponent : MonoBehaviour
 				// Play walk anim
 				if ( m_playWalkAnim )
 				{
-					PlayAnimInternal(m_data.AnimWalk);
+					bool foundAnim = PlayAnimInternal(m_data.AnimWalk);
+					if ( foundAnim == false )
+						PlayAnimInternal(m_data.AnimIdle); // fall back to idle anim if walk anim not found
+
 					// Clicking multiple times can stop then start the walk anim again, this should stop it re-starting the animation
 					m_playIdleDelayFrames = 2;
 				}
@@ -1229,10 +1247,11 @@ public partial class CharacterComponent : MonoBehaviour
 			{
 				// Play talk anim
 				//if ( string.IsNullOrEmpty(m_transitionAnim) || m_transitionAnim.StartsWith(m_data.AnimTalk) == false ) // Don't play again if alteady transitioning to it
-				if ( IsString.Set(m_data.AnimTalk) )
-					PlayAnimInternal(m_data.AnimTalk);
-				else 
-					PlayAnimInternal(m_data.AnimIdle);  // Fall back to idle anim when there's no talk anim
+				bool foundAnim = false;
+				if ( IsString.Set(m_data.AnimTalk) ) 
+					foundAnim = PlayAnimInternal(m_data.AnimTalk);
+				if ( foundAnim == false )
+					PlayAnimInternal(m_data.AnimIdle);  // Fall back to idle anim when there's no talk anim, or it's not found
 
 				if ( m_data.LipSyncEnabled && m_mouthNode == null )
 					m_spriteAnimator.Pause();
@@ -1270,8 +1289,8 @@ public partial class CharacterComponent : MonoBehaviour
 		AnimWalkSpeedReset();
 	}
 	
-	// Plays directional anim and handles flipping
-	void PlayAnimInternal(string animName, bool fromStart = true)
+	// Plays directional anim and handles flipping. Returns false if anim not found
+	bool PlayAnimInternal(string animName, bool fromStart = true)
 	{	
 		//Debug.Log("PlayAnim: "+animName);
 		string animNameNoPrefix = animName;
@@ -1279,7 +1298,7 @@ public partial class CharacterComponent : MonoBehaviour
 			animName = GetData().AnimPrefix + animName;
 
 		if ( IsString.Set(m_transitionAnim) && m_transitionAnim.StartsWith(animName, System.StringComparison.OrdinalIgnoreCase) )
-			return; // Already transitioning to this animation, so don't try and play it again
+			return true; // Already transitioning to this animation, so don't try and play it again
 
 		if ( m_currTurnAnim != null && animName != m_currTurnAnim && animNameNoPrefix != m_currTurnAnim )
 		{
@@ -1336,11 +1355,14 @@ public partial class CharacterComponent : MonoBehaviour
 			{
 				//Debug.LogFormat("{0} to {1} ({2}): found", oldClipName, clip.name, flip != m_flippedLastUpdate);
 				// Found transition				
-				m_transitioningFromAnim = oldClipName;
-				m_transitioningToAnim = animName;
-				animName = transitionName;
-				clip = FindDirectionalAnimation( animName, out flip );
-				m_transitionAnim = clip.name; 
+				clip = FindDirectionalAnimation( transitionName, out flip );
+				if ( clip != null )
+				{
+					m_transitioningFromAnim = oldClipName;
+					m_transitioningToAnim = animName;
+					animName = transitionName;
+					m_transitionAnim = clip.name; 
+				}
 			}
 			else if ( m_data.LoopStartTime > 0 && m_data.LoopEndTime > 0 )
 			{
@@ -1353,7 +1375,7 @@ public partial class CharacterComponent : MonoBehaviour
 				m_transitioningToAnim = animName;
 
 				m_animChangeTime = 0; // treat this like an anim change							
-				return; // return so we just keep playing the current anim
+				return true; // return so we just keep playing the current anim
 			}			
 			else
 			{
@@ -1389,6 +1411,7 @@ public partial class CharacterComponent : MonoBehaviour
 		if ( clip == null && Debug.isDebugBuild && animName != "Idle" && animName != "Talk"  && animName != "Walk" && string.IsNullOrEmpty(animName) == false )
 			Debug.Log("Failed to find animation: "+animName, gameObject);
 		
+		return clip != null;
 	}
 
 	bool Flipped() { return Mathf.Sign(transform.localScale.x) < 0; }
@@ -1724,6 +1747,7 @@ public partial class CharacterComponent : MonoBehaviour
 		m_animShadowOff = true; 
 		UpdateShadow(); 
 	}
+	public void AnimShadowOn() { AnimShadowReset(); }
 	public void AnimShadowReset() 
 	{
 		m_animShadowOff = false; 

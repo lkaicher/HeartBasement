@@ -105,6 +105,9 @@ public partial interface IPowerQuest
 	/// Returns true if there's a blocking script currently running 
 	bool GetBlocked();
 
+	/// Returns true if keyboard events should be processed by the game scripts. If a gui control is capturing keyboard, it returns false
+	bool GameHasKeyboardFocus {get;}
+
 	//
 	// Narrator 
 	//
@@ -791,7 +794,7 @@ public partial interface ICharacter : IQuestClickableInterface
 	
 	/// Make the character walk to a position in game coords without halting the script
 	/**
-	eg: `C.Dave.WalkToBG(12,34);` or `C.Barney.WalkToBG(43,21,eFace.Left);`
+	eg: `C.Dave.WalkToBG(12,34);` or `C.Barney.WalkToBG(43,21,false,eFace.Left);`
 	If 'anywhere' is true, the character will ignore walkable areas
 	If 'thenFace' is specified, the character will face that direction once they finish walking
 	\sa WalkTo() \sa StopWalking()
@@ -1088,6 +1091,12 @@ public partial interface ICharacter : IQuestClickableInterface
 		\sa AddAnimationTrigger
 	*/
 	Coroutine WaitForAnimTrigger(string eventName);
+		
+	/// Waits until a character has finished their transition and/or turning animation
+	Coroutine WaitForTransition(bool skippable = true);
+
+	/// Waits until a character is idle. ie: Not Walking,Talking,Animating,Turning, or Transitioning
+	Coroutine WaitForIdle(bool skippable = true);
 
 	/// Players can have more than one polygon collider for clicking on. Add them in the Character Component, and set which is active with this function
 	int ClickableColliderId { get; set; }
@@ -1430,8 +1439,13 @@ public partial interface IRegion
 	// Gets or Sets the tint color to apply to the character that's standing on the hotspot (NB: Not yet implmented)
 	Color Tint { get;set;}
 
-	/// Returns true if the specified character is standing inside the region
-	bool GetCharacterOnRegion(ICharacter character);
+	/// Returns true if the specified character is standing inside the region. 
+	/**
+		If null is passed as the chracter, the function returns true for ANY character standing inside the region.
+		
+		Note that if a character has changed room or been Enabled/Disabled this frame, this function can return the old result.
+	*/
+	bool GetCharacterOnRegion(ICharacter character = null);
 
 	/// Access to the base class with extra functionality used by the PowerQuest
 	Region Data {get;}
@@ -1453,8 +1467,13 @@ public partial interface IInventory
 {
 	/// Gets/Sets the name shown to players
 	string Description { get; set; }
+	/// Use for setting the Gui AND cursor sprite/animation for the inventory item. Useful if the same sprite is used on both the gui and the cursor
+	string Anim {get;set;}
+	/// Use for setting the sprite/animation for the inventory item on the Gui
 	string AnimGui { get; set; }
+	/// Use for setting the sprite/animation for the inventory item for the cursor
 	string AnimCursor { get; set; }
+	/// Use for setting the sprite/animation for the inventory item for the cursor, when not over a clickable object
 	string AnimCursorInactive { get; set; }
 	/// The name used in scripts
 	string ScriptName { get; }
@@ -1600,6 +1619,9 @@ public partial interface IDialogOption
 	*/
 	bool Used { get; set; }
 	
+	/// Tests if it's the first time this option is being used. Will be true until the 2nd time the option is used. NOT reset if you set Used = false.
+	bool FirstUse{get;}
+	
 	/** The number of times this option has been selected.
 	 * Note that UseCount will NOT reset to zero when you set Used = false. So `option.Used == false` is NOT the same as `option.TimesUsed == 0`. (This can be useful)
 	 * 
@@ -1644,6 +1666,8 @@ public partial interface ICamera
 	bool GetHasPositionOverride();
 	/// Returns true if the camera's position is overriden, or if it's still transitioning back to the player
 	bool GetHasPositionOverrideOrTransition();
+	// Returns true if transitioning to/from position override or zoom
+	bool GetTransitioning();
 
 	/// Overrides the camera position with a specific X,Y. Optionally, transitions to the new position over time.
 	void SetPositionOverride(float x, float y = 0, float transitionTime = 0 ) ;
@@ -1848,6 +1872,8 @@ public partial interface IGuiControl
 	void SetPosition(float x, float y);
 	// Gets/Sets the position of the control. Note that this will be overridden if using AlignTo or FitTo component
 	Vector2 Position {get;set;}
+	// Gets/Sets whether this control has the current keyboard focus (can also be used for specifying which control has 'controller' focus)
+	bool HasKeyboardFocus { get; set; }
 }
 
 /** Gui Button
@@ -2001,6 +2027,52 @@ public partial interface ISlider : IGuiControl
 	
 	bool Clickable {get;set;}
 	
+}
+/** Gui Text Field
+	
+			Display: You typed in {TextField.FullName.Text}			
+			TextField.Parser.HasKeyboardFocus = true;
+*/
+public partial interface ITextField : IGuiControl
+{
+	string Description {get;set;}
+	string Cursor {get;set;}	
+	
+	string Text				{get;set;}
+
+	void FocusKeyboard();
+	/*
+	string Anim	           {get;set;}
+	string AnimHover	   {get;set;}
+	string AnimClick	   {get;set;}
+	//string ColorFocus      {get;set;}
+	string AnimOff         {get;set;}
+	
+	Color Color	        {get;set;}
+	Color ColorHover    {get;set;}
+	Color ColorClick    {get;set;}
+	//Color ColorFocus    {get;set;}
+	Color ColorOff		{get;set;}
+	*/
+
+	bool Clickable {get;set;}
+	/*
+	bool Animating {get;}
+	void PauseAnimation();
+	void ResumeAnimation();
+	void StopAnimation();
+	
+	Coroutine PlayAnimation(string animName);
+	void PlayAnimationBG(string animName) ;
+	void AddAnimationTrigger(string triggerName, bool removeAfterTriggering, System.Action action);
+	void RemoveAnimationTrigger(string triggerName);
+	Coroutine WaitForAnimTrigger(string triggerName);
+		
+	/// Fade the sprite's alpha
+	Coroutine Fade(float start, float end, float duration, eEaseCurve curve = eEaseCurve.Smooth );
+	/// Fade the sprite's alpha (non-blocking)
+	void FadeBG(float start, float end, float duration, eEaseCurve curve = eEaseCurve.InOutSmooth );
+	*/
 }
 
 /// 

@@ -321,14 +321,14 @@ public class AudioCueEditor : Editor {
 			return;
 
 
-		// Sort sprites by name and insert
+		// Sort clips by name and insert
 		using ( PowerTools.Anim.NaturalComparer comparer = new PowerTools.Anim.NaturalComparer() )
 		{
 			System.Array.Sort(clips, (a, b) => comparer.Compare(a.name,b.name) );
 		}
 
 		string path = AssetDatabase.GetAssetPath(clips[0]);
-		path = Path.GetDirectoryName(path) + "/Sound" + Path.GetFileNameWithoutExtension(path) +".prefab";
+		path = Path.GetDirectoryName(path) + "/" + Path.GetFileNameWithoutExtension(path) +".prefab";
 	
 		// Create the audio cue
 		GameObject go = new GameObject();

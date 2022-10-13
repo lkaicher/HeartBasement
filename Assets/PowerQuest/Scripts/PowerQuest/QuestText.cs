@@ -117,15 +117,17 @@ public class QuestText : MonoBehaviour
 		get { return CheckTextMesh() ? m_mesh.color : Color.white; } 
 		set 
 		{ 
-			if ( CheckTextMesh() == false ) 
+			if ( CheckTextMesh() == false )
 				return;
-			bool alphaChange = m_mesh.color.a != value.a;
+			
+			//bool alphaChange = m_mesh.color.a != value.a;
 			m_mesh.color = value;			
+			
 			// update alpha of new color
 			foreach( TextMesh item in m_outlineMeshes) 
 			{
 				if ( item != null)
-					item.color = item.color.WithAlpha(color.a);
+					item.color = item.color.WithAlpha(color.a * m_outline.m_color.a);
 			}
 		}
 	}
@@ -370,7 +372,7 @@ public class QuestText : MonoBehaviour
 						}
 						TextMesh shadowMesh = m_outlineMeshes[meshId];
 						shadowMesh.text = text;
-						shadowMesh.color = m_outline.m_color;
+						shadowMesh.color = m_outline.m_color.WithAlpha(m_outline.m_color.a * color.a);
 
 						meshId++;
 					}

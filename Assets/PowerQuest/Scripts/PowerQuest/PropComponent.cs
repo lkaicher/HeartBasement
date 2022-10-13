@@ -79,7 +79,7 @@ public class PropComponent : MonoBehaviour
 
 	public void PauseAnimation()
 	{
-		if ( m_overrideAnimPlaying )
+		//if ( m_overrideAnimPlaying )
 		{
 			m_spriteAnimator.Pause();
 		}
@@ -87,7 +87,7 @@ public class PropComponent : MonoBehaviour
 
 	public void ResumeAnimation()
 	{
-		if ( m_overrideAnimPlaying )
+		//if ( m_overrideAnimPlaying )
 		{
 			m_spriteAnimator.Resume();
 		}

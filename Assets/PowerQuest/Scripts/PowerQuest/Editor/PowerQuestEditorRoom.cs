@@ -997,7 +997,7 @@ public partial class PowerQuestEditor
 				float totalFixedWidth = 50+50;
 				float offset = rect.x;
 				if ( index == m_selectedRoomPoint )
-					point.m_name = EditorGUI.TextField(new Rect(rect.x, rect.y, rect.width-totalFixedWidth, EditorGUIUtility.singleLineHeight), point.m_name);
+					point.m_name = EditorGUI.TextField(new Rect(rect.x, rect.y, rect.width-totalFixedWidth, EditorGUIUtility.singleLineHeight), point.m_name).Trim();
 				else 
 					EditorGUI.LabelField(new Rect(rect.x, rect.y, rect.width-totalFixedWidth, EditorGUIUtility.singleLineHeight), point.m_name);
 				

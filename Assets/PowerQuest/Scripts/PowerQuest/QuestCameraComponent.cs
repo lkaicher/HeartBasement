@@ -106,6 +106,8 @@ public partial class QuestCameraComponent : MonoBehaviour
 			Snap();
 	}
 
+	public bool GetTransitioning() { return m_posLerpActive || m_zoomLerpActive; } 
+
 	public bool GetHasPositionOverrideOrTransitioning()
 	{
 		return m_data.GetHasPositionOverride() || m_posLerpActive;

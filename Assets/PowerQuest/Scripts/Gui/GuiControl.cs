@@ -87,6 +87,20 @@ public partial class GuiControl : MonoBehaviour, IQuestClickable, IQuestScriptab
 	{
 		CallbackOnDefocus?.Invoke();
 	}
+	
+	// Called when mouse moved over active control (called from PowerQuest)
+	public virtual void OnKeyboardFocus() 
+	{	
+		CallbackOnKeyboardFocus?.Invoke();		
+		PowerQuest.Get.ProcessGuiEvent(PowerQuest.SCRIPT_FUNCTION_ONKBFOCUS, GuiData, this);
+	}
+
+	// Called when focused control stops being focus (called from PowerQuest)
+	public virtual void OnKeyboardDefocus()
+	{
+		CallbackOnKeyboardDefocus?.Invoke();
+		PowerQuest.Get.ProcessGuiEvent(PowerQuest.SCRIPT_FUNCTION_ONKBDEFOCUS, GuiData, this);
+	}
 
 	#endregion
 	#region Funcs: Public
@@ -124,6 +138,9 @@ public partial class GuiControl : MonoBehaviour, IQuestClickable, IQuestScriptab
 	public void Show() { Visible = true; }
 	public void Hide() { Visible = false; }
 
+	
+
+
 	public void SetGui(Gui gui) { m_gui=gui;}
 	public Gui GuiData => m_gui;
 	public GuiComponent GuiComponent 
@@ -149,11 +166,34 @@ public partial class GuiControl : MonoBehaviour, IQuestClickable, IQuestScriptab
 		}	
 	}
 
+	public bool HasKeyboardFocus
+	{
+		// Simply sets state in PowerQuest, which will call back to the control with OnKbFocus or OnKbDefocus
+		get
+		{
+			return PowerQuest.Get.GetKeyboardFocus() == this;
+		}
+		set
+		{
+			if ( value )
+				PowerQuest.Get.SetKeyboardFocus(this);
+			else if ( HasKeyboardFocus )
+				PowerQuest.Get.SetKeyboardFocus(null);
+		}
+		
+	}
+
 	// Callback when control is focused (ie: mouse overs over it)
 	public System.Action CallbackOnFocus = null;
 
 	// Callback when control is un-focused (ie: mouse stops hovering over it)
 	public System.Action CallbackOnDefocus = null;
+
+	// Callback when control gains keyboard focus
+	public System.Action CallbackOnKeyboardFocus = null;
+
+	// Callback when control loses keyboard focus
+	public System.Action CallbackOnKeyboardDefocus = null;
 
 	// Gets all components under this Control, EXCLUDING any nested under other controls. This is for setting sort order of any sprites directly under a Control.
 	List<T> GetThisControlsComponents<T>() where T : Component

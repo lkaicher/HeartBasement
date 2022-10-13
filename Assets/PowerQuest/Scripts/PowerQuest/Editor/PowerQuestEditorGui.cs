@@ -312,16 +312,18 @@ public partial class PowerQuestEditor
 
 			// I guess control should have virtual function for this
 			string controlTypeName = "";
-			if ( itemComponent is Button )
+			if ( itemComponent is IButton )
 				controlTypeName = "Btn";
-			else if ( itemComponent is Label )
+			else if ( itemComponent is ILabel )
 				controlTypeName = "Lbl";	
-			else if ( itemComponent is Image )
+			else if ( itemComponent is IImage )
 				controlTypeName = "Img";		
-			else if ( itemComponent is InventoryPanel )
+			else if ( itemComponent is IInventoryPanel )
 				controlTypeName = "Inv";		
-			else if ( itemComponent is Slider )
+			else if ( itemComponent is ISlider )
 				controlTypeName = "Slr";		
+			else if ( itemComponent is ITextField )
+				controlTypeName = "Txt";		
 			EditorGUI.LabelField(rect, controlTypeName, EditorStyles.miniLabel );
 			
 			rect.x += 25;

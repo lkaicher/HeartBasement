@@ -22,7 +22,7 @@ public partial class QuestScriptEditor
 	static readonly string[] AC_KEYWORDS = 
 		{ 
 			"E", "R", "C", "I", "D", "G", "Plr",
-			"P","H",/*"Hotspots", "Props",*/ "Regions", "Points","Buttons","Labels","Images","Sliders","Controls",
+			"P","H",/*"Hotspots", "Props",*/ "Regions", "Points","Buttons","Labels","Images","Sliders","TextFields","Controls",
 			"Globals","Audio","Camera","Settings","Cursor",
 			"FaceClicked","WalkToClicked", "End", "Return", "Consume",
 			"Display: ", "DisplayBG: ","Section: ",
@@ -33,7 +33,6 @@ public partial class QuestScriptEditor
 	static readonly string[] AC_KEYWORDS_I = { "Active", "Current" };
 	static readonly string[] AC_KEYWORDS_D = { "Current", "Previous" };
 	//static readonly string[] AC_KEYWORDS_G = { "Data", "Gui" };
-
 	public enum eAutoCompleteContext
 	{
 		Ignored, 	  // No longer matching current word (eg: after Display: )
@@ -53,6 +52,7 @@ public partial class QuestScriptEditor
 		Images,		  // Controls. -> list items
 		Labels,		  // Controls. -> list items
 		Sliders,      // Controls. -> list items
+		TextFields,      // Controls. -> list items
 		IEngine,	  // E. -> Engine Funcs
 		ICharacter,   // C.???. -> Char funcs
 		IRoom,		  // R.???. -> Room funcs
@@ -68,6 +68,7 @@ public partial class QuestScriptEditor
 		IImage,
 		ILabel,
 		ISlider,
+		ITextField,
 		Globals,	  // Global script
 		Audio,		  // Audio System
 		ICamera,	  // QuestCamera
@@ -105,6 +106,7 @@ public partial class QuestScriptEditor
 		new Regex( @"^Images\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ),   // eg: Images.??
 		new Regex( @"^Labels\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ),   // eg: Labels.??
 		new Regex( @"^Sliders\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ),   // eg: Sliders.??
+		new Regex( @"^TextFields\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ),   // eg: TextFields.??
 		new Regex( @"^E\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 		// eg: E.??
 		new Regex( @"^(?:C\.\w+|Plr)\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 		// eg: C.Dave.?? or Plr.??
 		new Regex( @"^R\.\w+\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 		// eg: R.Kitchen.??
@@ -120,6 +122,7 @@ public partial class QuestScriptEditor
 		new Regex( @"^(?:Images\.\w+)\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 	// eg: Images.blah.??
 		new Regex( @"^(?:Labels\.\w+)\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 	// eg: Labels.blah.??
 		new Regex( @"^(?:Sliders\.\w+)\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 	// eg: Sliders.blah.??
+		new Regex( @"^(?:TextFields\.\w+)\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 	// eg: TextFields.blah.??
 		new Regex( @"^Globals\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 		// eg: Globals.??
 		new Regex( @"^Audio\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 		// eg: Audio.??
 		new Regex( @"^Camera\.(\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), 		// eg: Camera.??
@@ -153,6 +156,7 @@ public partial class QuestScriptEditor
 		false,	// Images,		
 		false,	// Labels,		
 		false,	// Sliders,		
+		false,	// TextFields,		
 		true,	// IEngine,	
 		true,	// ICharacter, 
 		true,	// IRoom,		
@@ -168,6 +172,7 @@ public partial class QuestScriptEditor
 		true, 	// IImage,	
 		true, 	// ILabel,	
 		true, 	// ISlider,	
+		true, 	// ITextField,	
 		true,	// Globals,	
 		true,	// Audio,		
 		true,	// ICamera,	
@@ -261,6 +266,7 @@ public partial class QuestScriptEditor
 				{
 					// add keywords
 					contextList.AddRange( AC_KEYWORDS );
+					contextList.AddRange( QuestEditorSettings.Get.m_autoCompleteRegexes );
 
 					// add charater dialog entries, eg: 'Dave:'
 					PowerQuestEditor.GetPowerQuest().GetCharacterPrefabs().ForEach( item=> { if ( item != null ) contextList.Add( item.GetData().ScriptName+": "); } );
@@ -388,6 +394,7 @@ public partial class QuestScriptEditor
 			case eAutoCompleteContext.Images:
 			case eAutoCompleteContext.Labels:
 			case eAutoCompleteContext.Sliders:
+			case eAutoCompleteContext.TextFields:
 				{ 
 					if ( gui != null ) 
 						gui.GetControlComponents().ForEach( item=> contextList.Add(item.ScriptName) );
@@ -499,6 +506,13 @@ public partial class QuestScriptEditor
 					System.Array.ForEach(typeof(ISlider).GetMethods( BindingFlags.Public | BindingFlags.Instance),
 						item => {if (item.IsSpecialName == false && item.Name[0] !='<') contextList.Add(item.Name + "(" + (item.GetParameters().Length > 0 ? string.Empty : ")"));} );
 					System.Array.ForEach(typeof(ISlider).GetProperties( BindingFlags.Public | BindingFlags.Instance),
+						item => contextList.Add(item.Name) );
+				} break;
+			case eAutoCompleteContext.ITextField:
+				{
+					System.Array.ForEach(typeof(ITextField).GetMethods( BindingFlags.Public | BindingFlags.Instance),
+						item => {if (item.IsSpecialName == false && item.Name[0] !='<') contextList.Add(item.Name + "(" + (item.GetParameters().Length > 0 ? string.Empty : ")"));} );
+					System.Array.ForEach(typeof(ITextField).GetProperties( BindingFlags.Public | BindingFlags.Instance),
 						item => contextList.Add(item.Name) );
 				} break;
 			case eAutoCompleteContext.Globals:

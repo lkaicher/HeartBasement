@@ -41,7 +41,7 @@ public partial class PowerQuest
 		Dictionary<string, object> data = null;
 		int restoredVersion = -1;
 		bool result = m_saveManager.RestoreSave(SAV_SETTINGS_FILE, SAV_SETTINGS_VER_REQ, out restoredVersion, out data);		
-		if ( result )
+		if ( result && data != null )
 		{
 			if ( data.ContainsKey(SAV_SETTINGS) )
 				m_settings = data[SAV_SETTINGS] as QuestSettings;		
@@ -191,7 +191,7 @@ public partial class PowerQuest
 				Character value = m_characters[i];
 				string name = "Char"+value.GetScriptName();
 				if ( data.ContainsKey(name ) )
-					m_characters[i] = data[name] as Character;
+					m_characters[i] = data[name] as Character;				
 			}
 			m_player = m_characters[0];
 
@@ -335,11 +335,12 @@ public partial class PowerQuest
 			// Call post restore on game scripts
 			{
 				List<IQuestScriptable> scriptables = GetAllScriptables();
-				scriptables.ForEach( item => CallScriptPostRestore(item, onPostRestoreParams) );
+				scriptables.ForEach( item => CallScriptPostRestore(item, onPostRestoreParams) );				
 			}
 
 			// Call post restore on SaveManager (which calls it to custom save data)
 			m_saveManager.OnPostRestore();
+
 
 			// unblock again
 			Unblock();

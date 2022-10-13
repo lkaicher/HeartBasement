@@ -57,6 +57,9 @@ public partial class PowerSpriteImport : ScriptableObject
 	public bool m_isAseprite = false;
 	public bool m_trimSprites = false;
 	public bool m_createSingleSpriteAnims = true;
+	public string[] m_importLayers = null;
+	public string[] m_ignoreLayers = {"Guide","Ignore"};
+	
 
 
 }

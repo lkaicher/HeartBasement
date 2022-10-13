@@ -43,8 +43,8 @@ public partial class PowerQuestEditor
 	#region Public functions
 	
 	public static System.Action OnUpdateScriptColors = null;
-	public QuestScriptEditor.Colors GetScriptEditorColors() { return m_scriptEditorColors; }
-	public string GetScriptEditorFont() { return m_scriptEditorFont; }
+	public QuestScriptEditor.Colors GetScriptEditorColors() { return EditorSettings.m_scriptEditorColors; }
+	public string GetScriptEditorFont() { return EditorSettings.m_scriptEditorFont; }
 
 	#endregion
 	#region GUI Layout: Tools
@@ -202,70 +202,12 @@ public partial class PowerQuestEditor
 		// Editor settings
 		//
 		m_showEditorSettings = EditorGUILayout.Foldout(m_showEditorSettings,"Editor Settings", true, m_showEditorSettings ? new GUIStyle(EditorStyles.foldout) { fontStyle = FontStyle.Bold } : EditorStyles.foldout );
-		if ( m_showEditorSettings )
-		{
-			
-			//
-			// Script colours
-			//
-
+		if ( m_showEditorSettings && EditorSettings != null )
+		{	
+			Editor componentEditor = Editor.CreateEditor(EditorSettings);
 			GUILayout.Space(5);
-
-			GUILayout.Label("Script Editor Style", EditorStyles.boldLabel);
-
-			QuestScriptEditor.Colors.eTheme oldTheme = m_scriptEditorTheme;			
-			m_scriptEditorTheme = (QuestScriptEditor.Colors.eTheme)EditorGUILayout.EnumPopup("Color Theme",m_scriptEditorTheme);
-			if ( oldTheme != m_scriptEditorTheme )
-			{
-				m_scriptEditorColors.SetTheme(m_scriptEditorTheme);
-				OnUpdateScriptColors?.Invoke();	
-			}
-			if ( m_scriptEditorTheme == QuestScriptEditor.Colors.eTheme.Custom )
-			{
-				SerializedObject serializedObj = new SerializedObject(this);
-				SerializedProperty prop = serializedObj.FindProperty("m_scriptEditorColors");
-				EditorGUILayout.PropertyField(prop,new GUIContent("Custom Colors"),true);
-				if ( serializedObj.ApplyModifiedProperties() )
-					OnUpdateScriptColors?.Invoke();
-			}
-			{
-				SerializedObject serializedObj = new SerializedObject(this);
-				SerializedProperty prop = serializedObj.FindProperty("m_scriptEditorFont");
-				EditorGUILayout.PropertyField(prop,new GUIContent("Font"),true);
-				if ( serializedObj.ApplyModifiedProperties() )
-					OnUpdateScriptColors?.Invoke();
-			}
-			EditorGUILayout.HelpBox( "'Ctrl + Scroll Wheel' changes font size in the script editor.", 
-					MessageType.None);
-
-			GUILayout.Space(5);
-
-			GUILayout.Label("Spell Check Settings", EditorStyles.boldLabel);
-			SpellCheckEnabled = GUILayout.Toggle(SpellCheckEnabled, "Enable Spell Check");
-			SpellCheckDictionaryPath =  EditorGUILayout.DelayedTextField("Dictionary Path",SpellCheckDictionaryPath);
-			if ( GUILayout.Button("Clear ignored word list" ) )
-			{
-				SpellCheckIgnoredWords.Clear();
-				QuestScriptEditor.InitSpellCheck(true);
-			}
-
-			GUILayout.Space(5);	
-			
-			//
-			// Auto Compile
-			//
-
-			GUILayout.Label("Smart Compile Settings", EditorStyles.boldLabel);
-			bool toggle = GUILayout.Toggle(m_smartCompile, "Enable Smart Compile");
-			if ( toggle != m_smartCompile )
-				SetSmartCompileEnabled(toggle);
-			if ( m_smartCompile )
-			{
-				EditorGUILayout.HelpBox( "When ticked, unity won't compile whenever you Save a QuestScript or add a Quest Object.\n Instead it'll wait until you hit play, or save the project.\n\nThe drawback is that unity won't import other files that you may have placed in your project directory.\n\nTo manually refresh, press Ctrl+R, or hit the 'Compile'(F7) button in the script editor. If it's grey, then there's nothing to refresh.", 
-					MessageType.Info);
-			}
-
-			GUILayout.Space(5);	
+			componentEditor.OnInspectorGUI();
+			GUILayout.Space(15);
 		}
 
 		GuiLine();

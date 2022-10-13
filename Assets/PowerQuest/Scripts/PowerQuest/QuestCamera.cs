@@ -92,6 +92,9 @@ public partial class QuestCamera : ICamera
 			return m_instance.GetHasPositionOverrideOrTransitioning(); 
 		return m_hasPositionOverride; 
 	}
+	
+	// Returns true if transitioning to/from position override or zoom
+	public bool GetTransitioning() => m_instance == null ? false : m_instance.GetTransitioning();
 
 	public void SetCharacterToFollow(ICharacter character, float overTime = 0) 
 	{ 

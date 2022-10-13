@@ -45,9 +45,15 @@ public class GuiScript<T> : QuestScript where T : QuestScript
 	public IImage Image(string name) { return Data?.GetControl(name) as IImage ?? null; }
 	
 	/// Gets an ISlider from this script's gui.
-	/// eg. `Sliders.Volume.Ratio = Settings.Volume";`
-	/// \sa Control \sa Button \sa Image \sa Label
+	/// eg. `Sliders.Volume.Ratio = Settings.Volume;`
+	/// \sa Control \sa Button \sa Image \sa Label \sa TextField
 	public ISlider Slider(string name) { return Data?.GetControl(name) as ISlider ?? null; }
+	
+	/// Gets a Text Field from this script's gui.
+	/// eg. `TextField.FullName.Text = "Dave Lloyd";`
+	/// eg. `Display: Hello {TextField.FullName.Text}, nice name!`
+	/// \sa Control \sa Button \sa Image \sa Label \sa Slider
+	public ITextField TextField(string name) { return Data?.GetControl(name) as ITextField ?? null; }
 
 	/// Gets an IInventoryPanel from this script's gui.
 	/// eg. `IInventoryPanel.MyInvPanel.ScrollForward();`

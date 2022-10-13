@@ -73,8 +73,6 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	[Tooltip("Set speech style to AboveCharacter to use, and implement ISpeechGui")]
 	[SerializeField] string m_customSpeechGui = "";
 	
-
-
 	[SerializeField] string m_displayBoxGui = "DisplayBox";
 	[SerializeField] string m_dialogTreeGui = "DialogTree";
 
@@ -295,7 +293,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	// Wait for time (or default 0.5 sec). Pressing button will skip the waiting
 	public Coroutine WaitSkip(float time = 0.5f)	{	return StartQuestCoroutine(CoroutineWaitForTime(time, true)); }
 
-	/// Invokes the specified function after the specified time has elapsed (non-blocking). EG: `E.DelayedInvoke(1, ()=/>{ C.Player.FaceLeft(); } );`
+	/// Invokes the specified function after the specified time has elapsed (non-blocking). EG: `E.DelayedInvoke(1, ()=/>{ C.Plr.FaceLeft(); } );`
 	public void DelayedInvoke( float time, System.Action functionToInvoke ) { StartQuestCoroutine(CoroutineDelayedInvoke(time, functionToInvoke)); }
 
 	/// <summary>
@@ -464,7 +462,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	//
 
 
-	/// Change the current room. Alternative to C.Player.Room = room;
+	/// Change the current room. Alternative to C.Plr.Room = room;
 	public void ChangeRoomBG( IRoom room ) { GetPlayer().Room = room; }
 
 	/// Change the current room. Can be yielded too, and blocks until after OnEnterAfterFade of the new room finishes.
@@ -516,7 +514,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		return null;
 	}
 
-	public Room GetCurrentRoom() { return m_currentRoom; }
+	public Room GetCurrentRoom() { return GetSavable(m_currentRoom); }
 	
 	/// Debugging function that overrides the value of `R.Previous`. Useful for testing, paricularly in 'Play from` functions- (when using the [QuestPlayFromFunction] attribute)
 	public void DebugSetPreviousRoom(IRoom room)
@@ -525,15 +523,15 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	}
 
 	public Room GetRoom(string scriptName) 
-	{ 
-		Room result = m_rooms.Find(item=>string.Equals(item.ScriptName, scriptName, System.StringComparison.OrdinalIgnoreCase )); 
+	{ 		
+		Room result = m_rooms.Find(item=>string.Equals(item.ScriptName, scriptName, System.StringComparison.OrdinalIgnoreCase )); 		
 		if ( result == null && string.IsNullOrEmpty(scriptName) == false )
-			Debug.LogError("Room doesn't exist: "+scriptName+". Check for typos and that it's added to PowerQuest");
-		return result;
+			Debug.LogError("Room doesn't exist: "+scriptName+". Check for typos and that it's added to PowerQuest");				
+		return GetSavable(result);
 	}
 
-	public ICharacter Player { get { return m_player; } set { SetPlayer(value, 0.6f); } }
-	public Character GetPlayer() { return m_player; }
+	public ICharacter Player { get { return GetSavable(m_player); } set { SetPlayer(value, 0.6f); } }
+	public Character GetPlayer() { return GetSavable(m_player); }
 	public void SetPlayer(ICharacter character, float cameraTransitionTime = 0) 
 	{ 
 		bool sameRoom = character != null && m_player != null && character.Room == m_player.Room;
@@ -542,14 +540,22 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		GetCamera().SetCharacterToFollow(newPlayer,sameRoom ? cameraTransitionTime : 0 );
 		ChangeRoomBG(m_player.Room);
 	}
-	public Character GetCharacter(string scriptName) { return m_characters.Find(item=>string.Equals(item.ScriptName, scriptName, System.StringComparison.OrdinalIgnoreCase )); }
+	public Character GetCharacter(string scriptName) { return GetSavable(m_characters.Find(item=>string.Equals(item.ScriptName, scriptName, System.StringComparison.OrdinalIgnoreCase ))); }
 	/// Shortcut to the current player's active inventory  
-	public IInventory ActiveInventory { get { return m_player.ActiveInventory; } set { m_player.ActiveInventory = value; } }
+	public IInventory ActiveInventory { get { return GetSavable(m_player.ActiveInventory as Inventory); } set { m_player.ActiveInventory = value; } }
+	// NB: Potential pitfall, if modify items from this list, they aren't marked as dirty for save system.
 	public List<Inventory> GetInventoryItems() { return m_inventoryItems; }
-	public Inventory GetInventory(string scriptName) { return m_inventoryItems.Find(item=>string.Equals(item.ScriptName, scriptName, System.StringComparison.OrdinalIgnoreCase )); }
-	public DialogTree GetCurrentDialog() { return m_currentDialog; }	
-	public DialogTree GetPreviousDialog() { return m_previousDialog; }
-	public DialogTree GetDialogTree(string scriptName) { return m_dialogTrees.Find(item=>string.Equals(item.ScriptName, scriptName, System.StringComparison.OrdinalIgnoreCase)); }
+	public Inventory GetInventory(string scriptName) { return GetSavable(m_inventoryItems.Find(item=>string.Equals(item.ScriptName, scriptName, System.StringComparison.OrdinalIgnoreCase )));	}
+		
+	public static T GetSavable<T>(T savable) where T: IQuestSaveCachable 
+	{ 
+		if ( savable != null )	
+			savable.SaveDirty = true; 
+		return savable; 
+	}
+	public DialogTree GetCurrentDialog() { return GetSavable(m_currentDialog); }	
+	public DialogTree GetPreviousDialog() { return GetSavable(m_previousDialog); }
+	public DialogTree GetDialogTree(string scriptName) { return GetSavable(m_dialogTrees.Find(item=>string.Equals(item.ScriptName, scriptName, System.StringComparison.OrdinalIgnoreCase))); }
 	public Gui GetGui(string scriptName) { return m_guis.Find(item=>string.Equals(item.ScriptName, scriptName, System.StringComparison.OrdinalIgnoreCase)); }
 	public GameObject GetSpawnablePrefab(string name)
 	{
@@ -590,7 +596,26 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 			return m_focusedControl; 
 		return null;
 	}
-	public GuiControl GetFocusedKeyboardControl() { return m_keyboardFocusedControl; }
+
+	public bool GameHasKeyboardFocus => m_keyboardFocusedControl == null;
+	public GuiControl GetKeyboardFocus() { return m_keyboardFocusedControl; }
+	public void SetKeyboardFocus(GuiControl control) 
+	{ 
+		if ( control == m_keyboardFocusedControl )
+			return;
+
+		// Defocus old focused control
+		if ( m_keyboardFocusedControl != null )
+			m_keyboardFocusedControl.OnKeyboardDefocus();
+			
+		// change current focus
+		m_keyboardFocusedControl = control; 
+
+		// Focus new focused control
+		if ( m_keyboardFocusedControl != null )
+			m_keyboardFocusedControl.OnKeyboardFocus();
+	}
+
 
 	/// Returns the current vertical resolution (using room override if one exists)
 	public float VerticalResolution { get 
@@ -1448,18 +1473,34 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		return m_skipCutscene;
 	}
 
+	// Public for character/room script access only.
+	public bool HandleSkipDialogKeyPressed()
+	{
+		// When dialog is skipped, we want the mouse click to be marked as handled. For now just hack the left/right click buttons to do that. Could probably set a flag instead though
+		bool result = m_skipDialog;
+		m_skipDialog = false;
+		m_leftClickPrev = true;
+		m_rightClickPrev = true;
+		if ( CallbackOnDialogSkipped != null )
+			CallbackOnDialogSkipped.Invoke();
+		ExHandleSkipDialogKeyPressed();			
+
+		return result;		
+	}
+
 	public QuestCamera GetCamera() { return m_cameraData; }
 	public QuestCursor GetCursor() { return m_cursor; }
 
 
-	public Pathfinder Pathfinder { get{ return m_currentRoom != null ? m_currentRoom.GetInstance().GetPathfinder() : null; } }
+	public Pathfinder Pathfinder { get{  return GetCurrentRoom() != null ? GetCurrentRoom().GetInstance().GetPathfinder() : null; } }
 
+	// NB: Potential pitfall, if modify items from this list, they aren't marked as dirty for save system.
 	public List<Character> GetCharacters() { return m_characters; }
 	public Character GetCharacter(int id) 
 	{ 
 		List<Character> list = m_characters;
 		if ( id >= 0 && id < list.Count )
-			return list[id];
+			return GetSavable(list[id]);
 		return null;
 	}
 	public int GetCharacterId(Character character) { return m_characters.FindIndex(ch=>ch==character); }
@@ -1468,7 +1509,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	{
 		List<Inventory> list = m_inventoryItems;
 		if ( id >= 0 && id < list.Count )
-			return list[id];
+			return GetSavable(list[id]);
 		return null;
 	}
 
@@ -1477,7 +1518,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	{
 		List<DialogTree> list = m_dialogTrees;
 		if ( id >= 0 && id < list.Count )
-			return list[id];
+			return GetSavable(list[id]);
 		return null;
 	}
 
@@ -1520,7 +1561,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		CancelCurrentInteraction();
 		m_backgroundSequence = null; // This effectively kills any background interaction so it can't be reset back to current
 
-		if ( room != null && (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != room.GetSceneName() || force ))
+		if ( room != null && (SceneManager.GetActiveScene().name != room.GetSceneName() || force ))
 		{	
 			// Fade out then change room
 			StartCoroutine( CoroutineRoomTransition(room, force) ) ;
@@ -1959,7 +2000,6 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		SetSingleton();
 		DontDestroyOnLoad(this);
 
-
 		if ( LAYER_UI < 0 )
 			LAYER_UI = LayerMask.NameToLayer("UI");
 
@@ -2319,12 +2359,12 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		{
 			if ( Input.GetMouseButtonDown(0) )
 				SkipDialog(true); // Skip dialog with click if it's been up for long enough
-			else if ( Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Space) )
+			else if ( Input.GetMouseButtonDown(1) || (GameHasKeyboardFocus && Input.GetKeyDown(KeyCode.Space)) )
 				SkipDialog(false); // Alternate skip buttons don't have the delay built in
-			else if (Input.GetKey(KeyCode.Escape) && m_skipCutsceneButtonConsumed == false)
+			else if (GameHasKeyboardFocus && Input.GetKey(KeyCode.Escape) && m_skipCutsceneButtonConsumed == false)
 				SkipDialog(false); // Skip dialog while esc's held, as long as it wasn't consumed by the skip cutscene
 
-			if ( Input.GetKey(KeyCode.Escape) == false )
+			if ( GameHasKeyboardFocus == false || Input.GetKey(KeyCode.Escape) == false )
 				m_skipCutsceneButtonConsumed = false;
 		}
 		
@@ -2344,7 +2384,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 				SV.m_timers[i].t -= Time.deltaTime;
 			}
 
-			if ( m_customKbShortcuts == false && m_cutscene && Input.GetKeyDown(KeyCode.Escape) )
+			if ( m_customKbShortcuts == false && m_cutscene && GameHasKeyboardFocus && Input.GetKeyDown(KeyCode.Escape) )
 			{
 				SkipCutscene();
 				m_skipCutsceneButtonConsumed = true;
@@ -2506,19 +2546,6 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	#region Functions: Private functions
 
 
-	bool HandleSkipDialogKeyPressed()
-	{
-		// When dialog is skipped, we want the mouse click to be marked as handled. For now just hack the left/right click buttons to do that. Could probably set a flag instead though
-		bool result = m_skipDialog;
-		m_skipDialog = false;
-		m_leftClickPrev = true;
-		m_rightClickPrev = true;
-		if ( CallbackOnDialogSkipped != null )
-			CallbackOnDialogSkipped.Invoke();
-		ExHandleSkipDialogKeyPressed();			
-
-		return result;		
-	}
 
 	void Block()
 	{
@@ -2578,19 +2605,28 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		// Very slightly faster doing it here than in each region's update function, since don't have to re-check each character's room, etc.
 		List<RegionComponent> regionComponents = m_currentRoom.GetInstance().GetRegionComponents();
 		int regionCount = regionComponents.Count;
+		
+		// Start by setting all region character flags false
+		for ( int regionId = 0; regionId < regionCount; ++regionId )
+		{
+			RegionComponent regionComponent = regionComponents[regionId];
+			regionComponent.GetData().GetCharacterOnRegionMask().SetAll(false);
+		}
 
 		for ( int charId = 0; charId < m_characters.Count; ++charId )
 		{
 			Character character = m_characters[charId];
-			if ( character.Room == m_currentRoom )
-			{				
+			bool characterActive = character.Enabled && character.Room == m_currentRoom;
+			if ( characterActive ) // Only process characters that are Enabled and active in the current room
+			{			
 				Vector2 characterPos = character.Position;
 				Color tint = new Color(1,1,1,0);
 				float scale = 1;
+
 				for ( int regionId = 0; regionId < regionCount; ++regionId )
 				{
 					RegionComponent regionComponent = regionComponents[regionId];
-					if ( regionComponent.UpdateCharactersOnRegion(charId, characterPos) )
+					if ( regionComponent.UpdateCharactersOnRegion(charId, characterActive, characterPos) )
 					{	
 						if ( character.UseRegionScaling )
 						{
@@ -2598,7 +2634,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 							if ( tmpScale != 1 )
 								scale = tmpScale;
 						}						
-						if ( character.UseRegionTinting)
+						if ( character.UseRegionTinting )
 						{
 							if ( regionComponent.GetData().Tint.a > 0 )
 							{
@@ -2618,7 +2654,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 					}
 				}
 
-				if ( character.GetInstance() != null )
+				if ( /*characterActive &&*/ character.GetInstance() != null )
 				{
 					CharacterComponent charComponent = character.GetInstance().GetComponent<CharacterComponent>();
 				
@@ -2633,12 +2669,10 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 						if ( spriteComponent != null )
 							spriteComponent.Tint = tint;
 					}
-				}
+				}			
 			}
-
 		}
 	}
-
 
 	// Called when a cutscene ends (either by skipping or when it naturally ends
 	void OnEndCutscene()
@@ -2811,8 +2845,10 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	// Used by clickables to check if usecount should show as incremented yet (makes more sense for it to be 0 until interaction is finished)
 	public bool GetInteractionInProgress( IQuestClickable clickable, eQuestVerb verb )
 	{
-		if ( clickable == null || (m_backgroundSequence == null && m_blocking == false) )
+		// Here we need to be careful, since interaction could have started, but not actually be blocking yet. (Say for 'prop.FirstUse' is used right at start, or after WalkToClicked)
+		if ( clickable == null || (m_backgroundSequence == null && m_blocking == false && m_currentSequence == null ) )
 			return false;
+
 		// note: it's a list to cope with interactions that call 'HandleInteract()'
 		for ( int i = 0; i < m_currentInteractionClickables.Count; ++i ) 
 		{
@@ -3227,18 +3263,18 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	{ 
 		bool first = true; // first frame the mouse will always be down, so don't skip until 2nd
 		while ( condition != null && condition() == false
-				&& PowerQuest.Get.GetSkippingCutscene() == false
-				&& ( skippable == false || PowerQuest.Get.HandleSkipDialogKeyPressed() == false || first ) )
+			&& ( /*skippable == false ||*/ PowerQuest.Get.GetSkippingCutscene() == false ) // (Changed 25/9/22) Note, previsouly- unlike other skippable methods, WaitUntil required skippable flag to be skipped in cutscene.
+			&& ( skippable == false || PowerQuest.Get.HandleSkipDialogKeyPressed() == false || first ) )
 		{
-		first = false;
-		yield return null;
+			first = false;
+			yield return null;
 		}
 	}
 	IEnumerator CoroutineWaitWhile(System.Func<bool> condition, bool skippable = false)
 	{ 
 		bool first = true; // first frame the mouse will always be down, so don't skip until 2nd
 		while ( condition != null && condition() == true 
-			&& PowerQuest.Get.GetSkippingCutscene() == false
+			&& ( /*skippable == false ||*/ PowerQuest.Get.GetSkippingCutscene() == false ) // (Changed 25/9/22) Note, previsouly- unlike other skippable methods, WaitUntil required skippable flag to be skipped in cutscene.
 			&& ( skippable == false || PowerQuest.Get.HandleSkipDialogKeyPressed() == false || first ) )
 		{
 			first = false;

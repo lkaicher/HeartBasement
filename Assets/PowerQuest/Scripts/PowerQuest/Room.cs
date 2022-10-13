@@ -11,7 +11,7 @@ namespace PowerTools.Quest
 // Room Data and functions. Persistant between scenes, as opposed to RoomComponent which lives on a GameObject in a scene.
 //
 [System.Serializable]
-public partial class Room : IQuestScriptable, IRoom
+public partial class Room : IQuestScriptable, IRoom, IQuestSaveCachable
 {
 	
 	#region Definitions
@@ -56,6 +56,7 @@ public partial class Room : IQuestScriptable, IRoom
 	QuestScript m_script = null;
 	GameObject m_prefab = null;
 	int m_timesVisited = 0;	// How many times the room has been visited
+
 
 	//
 	//  Properties
@@ -306,6 +307,9 @@ public partial class Room : IQuestScriptable, IRoom
 			QuestUtils.CopyFields(data, restoredData != null ? restoredData : prefabComponent.GetData() );
 			m_regions.Add(data);	
 		}
+		
+		// Mark as dirty if room is active, otherwise as clean
+		SaveDirty = Active;
 	}
 
 	//
@@ -384,6 +388,12 @@ public partial class Room : IQuestScriptable, IRoom
 	{
 		QuestUtils.InitWithDefaults(this);
 	}
+	
+	//
+	// Implementing IQuestSaveCachable
+	//	
+	bool m_saveDirty = true;
+	public bool SaveDirty { get=>m_saveDirty; set{m_saveDirty=value;} }
 
 	#endregion
 

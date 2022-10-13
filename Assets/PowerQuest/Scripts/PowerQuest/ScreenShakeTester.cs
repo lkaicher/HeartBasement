@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 namespace PowerTools.Quest
@@ -20,7 +20,8 @@ public class ScreenShakeTester : MonoBehaviour
 	// Update is called once per frame
 	void Update () 
 	{
-		if (Input.GetKeyDown(KeyCode.Space))
+
+		if ( PowerQuest.Get.GameHasKeyboardFocus && Input.GetKeyDown(KeyCode.Space))
 		{
 			PowerQuest.Get.GetCamera().Shake(m_intensity,m_duration, m_falloff);
 		}

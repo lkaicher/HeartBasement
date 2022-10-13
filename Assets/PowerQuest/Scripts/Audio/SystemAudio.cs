@@ -113,7 +113,8 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 
 	#endregion
 	#region Public Static Functions
-
+	
+	public static AudioHandle MusicHandle => SystemAudio.Get.GetActiveMusicHandle();
 
 	/// Sets the volume (from 0.0 to 1.0) for audio of a particular type (eg: Sound effects, Music, Dialog) 
 	public static void SetVolume( AudioCue.eAudioType type, float volume )
@@ -396,7 +397,7 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 			}
 		}
 
-		AudioHandle handle = new AudioHandle(source);
+		AudioHandle handle = new AudioHandle(source,cue.name);
 
 		if ( handles != s_defaultAudioHandleList )
 		{
@@ -782,14 +783,23 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 		AudioHandle fireHandle = SystemAudio.GetHandle(cueName);
 		if ( fireHandle == null )
 			return;
-		
+
+		// Query the clip info to see if sound is "fading" if it's fading in or out we want to preserve that
+		ClipInfo clipInfo = m_instance.m_activeAudio.Find(item=>item.handle == fireHandle);
+		if ( clipInfo == null || clipInfo.stopAfterFade ) // NB: once stop after fade is called, don't allow volume changes through this function				
+			return;
+
 		float diff = soundPos.x - listenerPos.x;
 		float vol = Mathf.Lerp(closeVol,farVol, Utils.EaseCubic(
 			Mathf.InverseLerp(closeDist,farDist,Vector2.Distance(soundPos,listenerPos))));
 		float pan = Mathf.Lerp(0,farPan, Utils.EaseCubic(
 			Mathf.InverseLerp(closeDist,farDist,Mathf.Abs(diff))));
 		pan = pan*Mathf.Sign(diff);
-		fireHandle.volume = vol;
+
+		if ( clipInfo.targetVolume != clipInfo.defaultVolume )
+			clipInfo.targetVolume = vol;
+		else 
+			fireHandle.volume = vol;
 		fireHandle.panStereo = pan;
 	}
 
@@ -1307,10 +1317,16 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 		// Update Fading
 		if ( Utils.ApproximatelyZero(audioClip.fadeDelta) == false && Mathf.Approximately(audioClip.targetVolume, audioClip.defaultVolume) == false )
 		{
-			audioClip.defaultVolume = Mathf.MoveTowards(audioClip.defaultVolume,audioClip.targetVolume, audioClip.fadeDelta*Time.deltaTime);
-			// If flagged to stop on fadeout, stop the source
-			if ( audioClip.stopAfterFade && Mathf.Approximately(audioClip.targetVolume, audioClip.defaultVolume) && audioClip.handle.isPlaying  )				
-				audioClip.handle.source.Stop();
+			// if cue has start delay, dont' start fading in yet
+			bool waitingToStart = ( audioClip.defaultVolume == 0 && audioClip.targetVolume > 0 && audioClip.handle.source.time <= 0);
+			if ( waitingToStart == false )
+			{
+				audioClip.defaultVolume = Mathf.MoveTowards(audioClip.defaultVolume,audioClip.targetVolume, audioClip.fadeDelta*Time.deltaTime);
+
+				// If flagged to stop on fadeout, stop the source
+				if ( audioClip.stopAfterFade && Mathf.Approximately(audioClip.targetVolume, audioClip.defaultVolume) && audioClip.handle.isPlaying  )				
+					audioClip.handle.source.Stop();
+			}
 		}
 
 		// Duck music
@@ -1417,7 +1433,7 @@ public class SystemAudio : SingletonAuto<SystemAudio>
  */
 public class AudioHandle
 {
-	public AudioHandle(AudioSource source) { m_source = source; }
+	public AudioHandle(AudioSource source, string fromCue = null ) { m_source = source; m_cueName = fromCue; }
 
 	public static bool IsPlaying( AudioHandle handle ) { return handle != null && handle.isPlaying; }
 	public static bool IsNullOrStopped( AudioHandle handle ) { return handle == null || handle.isPlaying == false; }
@@ -1425,7 +1441,8 @@ public class AudioHandle
 	public static implicit operator AudioSource( AudioHandle handle ) { return handle == null ? null : handle.m_source; }
 
 	/// Retrieves the unity AudioSource this handle is using
-	public AudioSource source { get { return m_source; } }
+	public AudioSource source { get { return m_source; } }	
+	public string cueName { get { return m_cueName; } }	
 	/// Is the clip playing right now? (Read Only). Note: will return false when AudioSource.Pause is called.
 	public bool isPlaying { get { return m_source != null && m_source.isPlaying; } }
 	/// The base volume of clip (0.0 to 1.0) Before falloff, ducking, etc is applied. To get the final volume, use source.volume. 
@@ -1477,9 +1494,9 @@ public class AudioHandle
 		return this;
 	}
 
-
 	// The audio source
 	AudioSource m_source = null;
+	string m_cueName = null;
 }
 #endregion
 

@@ -39,7 +39,7 @@ public class InventoryScript<T> : QuestScript  where T : QuestScript
 // Inventory item Data and functions. Persistant between scenes, as opposed to InventoryItemComponent which just holds default data and isn't ever instantiated
 //
 [System.Serializable] 
-public partial class Inventory : IQuestClickable, IQuestScriptable, IInventory
+public partial class Inventory : IQuestClickable, IQuestScriptable, IInventory, IQuestSaveCachable
 {
 
 	//
@@ -69,7 +69,8 @@ public partial class Inventory : IQuestClickable, IQuestScriptable, IInventory
 	bool m_everCollected = false;	
 	int m_useCount = 0;
 	int m_lookCount = 0;
-	
+		
+
 	//
 	// Partial functions for extentions
 	//
@@ -81,7 +82,17 @@ public partial class Inventory : IQuestClickable, IQuestScriptable, IInventory
 	//  Properties
 	//
 	public eQuestClickableType ClickableType { get{ return eQuestClickableType.Inventory; } }
-	public string Description { get{ return m_description; } set{ m_description = value; } }
+	public string Description { get{ return m_description; } set{ m_description = value; } }	
+	public string Anim 
+	{ 
+		get { return m_animGui; } 
+		set
+		{
+			AnimGui = value;
+			AnimCursor = value;
+			AnimCursorInactive = value;
+		} 
+	}
 	public string AnimGui { get{ return m_animGui; } set{m_animGui = value;} }
 	public string AnimCursor { get{ return m_animCursor; } set{m_animCursor = value;} }
 	public string AnimCursorInactive { get{ return m_animCursorInactive; } set{m_animCursorInactive = value;} }
@@ -93,6 +104,12 @@ public partial class Inventory : IQuestClickable, IQuestScriptable, IInventory
 	public bool FirstLook { get { return LookCount == 0; } }
 	public int UseCount { get { return m_useCount - (PowerQuest.Get.GetInteractionInProgress(this,eQuestVerb.Use) ? 1 : 0); } }
 	public int LookCount { get { return m_lookCount - (PowerQuest.Get.GetInteractionInProgress(this,eQuestVerb.Look) ? 1 : 0); } }
+
+	//
+	// Implementing IQuestSaveCachable
+	//	
+	bool m_saveDirty = true;
+	public bool SaveDirty { get=>m_saveDirty; set{m_saveDirty=value;} }
 
 	//
 	// Implementing IQuestClickable- Mostly n/a
@@ -227,6 +244,9 @@ public partial class Inventory : IQuestClickable, IQuestScriptable, IInventory
 		m_prefab = prefab;
 		if ( m_script == null ) // script could be null if it didn't exist in old save game, but does now.
 			m_script = QuestUtils.ConstructByName<QuestScript>(m_scriptClass);
+
+		// Mark as dirty if inv is active, otherwise as clean
+		SaveDirty = Active;
 	}
 
 	public void Initialise( GameObject prefab )

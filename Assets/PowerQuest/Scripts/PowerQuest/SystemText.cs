@@ -4,8 +4,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using PowerTools;
-using System.Text.RegularExpressions;
-using System;
 #if RUNTIME_CSV_IMPORT_ENABLED
 using System.IO;
 #endif
@@ -169,7 +167,7 @@ public class SystemText : PowerTools.Singleton<SystemText>
 		return defaultText;
 	}
 
-	public static AudioHandle PlayAudio(int id, string characterName = null, Transform emitter = null)
+	public static AudioHandle PlayAudio(int id, string characterName, Transform emitter = null)
 	{
 		TextData data = m_instance.FindTextDataInternal(id, characterName);
 		if ( data == null )
@@ -178,38 +176,9 @@ public class SystemText : PowerTools.Singleton<SystemText>
 				Debug.LogWarning("Text id "+characterName+id.ToString()+" is missing. You need to run 'Process Text From Scripts' to add ids!");
 			return null;
 		}
-
-		//Debug.Log(m_instance.GetLanguageData().m_code);
-		AudioClip clip = m_instance.getVoiceAudioClip(data, id, characterName);
-		return SystemAudio.Play( clip, (int)AudioCue.eAudioType.Dialog, emitter );
-/*		
-		string fullFileName = "Voice/"
-			+ (characterName == null ? "" : data.m_character)
-			+ data.m_id.ToString();
-
-		AudioClip clip = Resources.Load(fullFileName) as AudioClip;
-		return SystemAudio.Play( clip, (int)AudioCue.eAudioType.Dialog, emitter );
-*/
-	}
-
-	public AudioClip getVoiceAudioClip(TextData data, int id, string characterName = null) {
-		string languageCode = m_instance.GetLanguageData().m_code;
 		
-		string fullFileName = "Voice/" + languageCode + '/'
-			+ (characterName == null ? "" : data.m_character)
-			+ data.m_id.ToString();
-
-		
-		//Debug.Log(languageCode);
-		string rootdirectory = "/";
-		Debug.Log(Resources.Load(fullFileName));
-		if ( Resources.Load(fullFileName) == null ) {
-			Debug.Log("File did not exist");
-			fullFileName = Regex.Replace(fullFileName, languageCode + '/', "");
-		}	
-		Debug.Log(fullFileName);
-		return Resources.Load(fullFileName) as AudioClip;
-
+		AudioClip clip = m_instance.GetVoiceAudioClip(id, characterName);
+		return SystemAudio.Play( clip, (int)AudioCue.eAudioType.Dialog, emitter );
 	}
 
 	public static TextData FindTextData(int id, string characterName = null)
@@ -355,24 +324,29 @@ public class SystemText : PowerTools.Singleton<SystemText>
 
 	}
 
-
-
 	/// TODO: This is pretty inefficient, it loads the resource instead of just checking it exists. Should replace with check for file existing at path in editor script
 	public bool EditorHasAudio(int id, string characterName)
 	{
-		TextData data = FindTextDataInternal(id, characterName);
-		if ( data == null )
-			return false;
+		return GetVoiceAudioClip(id, characterName) != null;
+	}
 
-		AudioClip clip = m_instance.getVoiceAudioClip(data, id, characterName);
-		/*
-		string fullFileName = "Voice/"
-			+ (characterName == null ? "" : data.m_character)
-			+ data.m_id.ToString();	
-		
-		AudioClip clip = Resources.Load(fullFileName) as AudioClip;
-		*/
-		return clip != null;
+	// Gets the audio clip for a particular id/data.
+	AudioClip GetVoiceAudioClip(int id, string characterName)
+	{
+		string fileName = characterName + id.ToString();	
+
+		// First try path with language code
+		string filePath = $"Voice/{GetLanguageData().m_code}/";		
+
+		Object clip = Resources.Load(filePath+fileName);		
+		if ( clip == null ) 
+		{
+			// Fall back to path without language code
+			//Debug.Log($"Voice file {fileName} not found for language code '{GetLanguageData().m_code}'");
+			filePath = "Voice/";
+			clip = Resources.Load(filePath+fileName);
+		}			
+		return clip as AudioClip;
 	}
 
 

@@ -145,33 +145,12 @@ public partial class PowerQuestEditor : EditorWindow
 	[SerializeField] GameObject m_questGuiCamera = null;
 	enum eTab { Main,Room,Gui,Tools,Count }
 	[SerializeField] eTab m_selectedTab = eTab.Main;
-
-	[SerializeField] bool m_showRooms = true;
-	[SerializeField] bool m_showCharacters = true;
-	[SerializeField] bool m_showInventory = true;
-	[SerializeField] bool m_showDialogTrees = true;
-	[SerializeField] bool m_showGuis = false;
-	
+		
 	[SerializeField] bool m_smartCompileRequired = false;
 	
-	/* TODO: Move these per-project settings we want to persist to a scriptable asset/gameobject in editor folder so they're saved */
-	[SerializeField] bool m_smartCompile = true;
 	
-	#if UNITY_EDITOR_WIN
-	[SerializeField] string m_scriptEditorFont = "Consolas";
-	#else
-	[SerializeField] string m_scriptEditorFont = "Lucida Grande";		
-	#endif
-
-	[SerializeField] QuestScriptEditor.Colors m_scriptEditorColors =	new QuestScriptEditor.Colors();
-	[SerializeField] QuestScriptEditor.Colors.eTheme m_scriptEditorTheme = QuestScriptEditor.Colors.eTheme.LightMono;
-
-	[SerializeField] bool m_spellCheckEnabled = false;
-	[SerializeField] List<string> m_spellCheckIgnoredWords = new List<string>();
-	[SerializeField] string m_spellCheckDictionaryPath = "Assets/Plugins/PowerQuest/ThirdParty/Editor/SpellCheck/en_US.dic";
-
 	[SerializeField] long m_newVersionCheckTime = 0;
-	/* */
+
 
 	#endregion
 	#region Variables: Private
@@ -858,6 +837,8 @@ public partial class PowerQuestEditor : EditorWindow
 	// Gets the powerquest prefab object if ready
 	public static PowerQuest GetPowerQuest() { return IsReady() ? m_instance.m_powerQuest : null; }
 
+	public static QuestEditorSettings EditorSettings => QuestEditorSettings.Get;
+
 	// Returns selected room
 	public RoomComponent GetSelectedRoom() { return m_selectedRoom; }
 
@@ -1060,7 +1041,7 @@ public partial class PowerQuestEditor : EditorWindow
 	// Does an AssetDatabase.Refresh(), unless set to smart in which case sets Smart Refresh Required flag
 	public void RequestAssetRefresh()
 	{
-		if ( m_smartCompile )
+		if ( EditorSettings.m_smartCompile )
 		{
 			m_smartCompileRequired = true;
 			EditorPrefs.SetBool("kAutoRefresh", false);
@@ -1069,8 +1050,8 @@ public partial class PowerQuestEditor : EditorWindow
 			AssetDatabase.Refresh();
 	}
 	
-	public bool GetSmartCompileRequired() { return m_smartCompile && m_smartCompileRequired; }
-	public bool GetSmartCompileEnabled() { return m_smartCompile; }
+	public bool GetSmartCompileRequired() { return EditorSettings.m_smartCompile && m_smartCompileRequired; }
+	public bool GetSmartCompileEnabled() { return EditorSettings.m_smartCompile; }
 	public void SetSmartCompileEnabled(bool enabled)
 	{
 		if ( enabled == false ) 
@@ -1078,12 +1059,12 @@ public partial class PowerQuestEditor : EditorWindow
 			EditorPrefs.SetBool("kAutoRefresh", true);
 			AssetDatabase.Refresh();
 		}
-		m_smartCompile = enabled;
+		EditorSettings.m_smartCompile = enabled;
 		m_smartCompileRequired = false;
 	}
 	public void PerformSmartCompile()
 	{
-		if ( m_smartCompile == false )
+		if ( EditorSettings.m_smartCompile == false )
 			return;
 			
 		EditorPrefs.SetBool("kAutoRefresh", true);
@@ -1095,23 +1076,23 @@ public partial class PowerQuestEditor : EditorWindow
 	// Get/Set spell check settings	
 	public bool SpellCheckEnabled 
 	{ 
-		get {return m_spellCheckEnabled;} 
+		get {return EditorSettings.m_spellCheckEnabled;} 
 		set 
 		{ 
-			if ( m_spellCheckEnabled == value) 
+			if ( EditorSettings.m_spellCheckEnabled == value) 
 				return;
-			m_spellCheckEnabled = value;  
+			EditorSettings.m_spellCheckEnabled = value;  
 			QuestScriptEditor.InitSpellCheck(true); 
 		} }
-	public List<string> SpellCheckIgnoredWords { get {return m_spellCheckIgnoredWords;} }
+	public List<string> SpellCheckIgnoredWords { get {return EditorSettings.m_spellCheckIgnoredWords;} }
 	public string SpellCheckDictionaryPath 
 	{ 
-		get {return m_spellCheckDictionaryPath;} 
+		get {return EditorSettings.m_spellCheckDictionaryPath;} 
 		set 
 		{			
-			if ( m_spellCheckDictionaryPath.Equals(value) ) 
+			if ( EditorSettings.m_spellCheckDictionaryPath.Equals(value) ) 
 				return;
-			m_spellCheckDictionaryPath = value; 
+			EditorSettings.m_spellCheckDictionaryPath = value; 
 			QuestScriptEditor.InitSpellCheck(true); 
 		} }
 
@@ -1218,6 +1199,7 @@ public partial class PowerQuestEditor : EditorWindow
 			EditorSceneManager.sceneSaving += OnSceneSaving;
 
 			Application.logMessageReceived += OnLogMessageReceived;
+		
 		}
 		m_registered = true;
 		m_instance = this;

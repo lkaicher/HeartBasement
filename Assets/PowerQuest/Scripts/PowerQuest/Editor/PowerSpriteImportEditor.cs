@@ -1,6 +1,6 @@
 // Created by Dave Lloyd (@duzzondrums) for Powerhoof - http://tools.powerhoof.com for updates
 
-//#define SHOW_LOOP_TICKBOX
+#define SHOW_LOOP_TICKBOX
 
 using UnityEditor;
 using UnityEditorInternal;
@@ -26,7 +26,7 @@ public class PowerSpriteImportEditor : Editor
 
 	static readonly string LIST_PROPERTY_NAME = "m_animations";
 	static readonly string REGEX_PNG = @"(?<name>.*)_(?<id>\d+)\.png";
-	static readonly string[] ASEPRITE_PATHS = { @"C:\Program Files (x86)\Steam\SteamApps\common\Aseprite\Aseprite.exe",  @"C:\Program Files\Aseprite\Aseprite.exe", @"C:\Program Files (x86)\Aseprite\Aseprite.exe" };
+	static readonly string[] ASEPRITE_PATHS = { @"C:\Program Files (x86)\Steam\SteamApps\common\Aseprite\Aseprite.exe",  @"C:\Program Files\Aseprite\Aseprite.exe", @"C:\Program Files (x86)\Aseprite\Aseprite.exe", @"/Applications/Aseprite.app/Contents/MacOS/aseprite" };
 	
 	static readonly string PATH_POSTFIX_FULLRECT = "-FullRect";
 
@@ -310,7 +310,12 @@ public class PowerSpriteImportEditor : Editor
 
 		if ( GUILayout.Button("...", EditorStyles.miniButton, GUILayout.Width(25)) )
 		{
-			string result = EditorUtility.OpenFilePanel("Select source PSD",m_component.m_sourcePSD,"");
+			string absPath = Application.dataPath + "/../";
+			try { absPath += Path.GetDirectoryName(m_component.m_sourcePSD); } catch{}
+
+			absPath = Path.GetFullPath(absPath);
+			string result = EditorUtility.OpenFilePanel("Select source PSD",absPath,"");
+
 			if ( string.IsNullOrEmpty(result) == false ) m_component.m_sourcePSD = result;
 			EditorGUIUtility.keyboardControl = -1;
 			m_component.m_isAseprite = ( string.IsNullOrEmpty( m_component.m_sourcePSD ) == false && (m_component.m_sourcePSD.EndsWith(".ase") || m_component.m_sourcePSD.EndsWith(".aseprite")));
@@ -413,6 +418,9 @@ public class PowerSpriteImportEditor : Editor
 			m_component.m_filterMode = (FilterMode)EditorGUILayout.EnumPopup("Filter Mode", (System.Enum)m_component.m_filterMode);
 			m_component.m_compression = (PowerSpriteImport.eTextureCompression)EditorGUILayout.EnumPopup("Compression", (System.Enum)m_component.m_compression);
 			m_component.m_crunchedCompression = EditorGUILayout.Toggle("Crunched Compression", m_component.m_crunchedCompression);
+			
+			EditorGUILayout.PropertyField(serializedObject.FindProperty("m_importLayers"));
+			EditorGUILayout.PropertyField(serializedObject.FindProperty("m_ignoreLayers"));
 
 			m_asepritePath = EditorGUILayout.TextField("Aseprite Path", m_asepritePath);
 		}
@@ -872,7 +880,17 @@ public class PowerSpriteImportEditor : Editor
 				// Was:
 				// process.StartInfo.Arguments = string.Format("-b --ignore-layer \"Guide\" --ignore-layer \"Ignore\" --ignore-layer \"ignore\" \"{0}\" --save-as \"{1}\\{2}_1.png\" --data \"{3}\" --list-tags --format json-array", Path.GetFullPath(m_component.m_sourcePSD), Path.GetFullPath(m_component.m_sourceDirectory), Path.GetFileNameWithoutExtension(m_component.m_sourcePSD),Path.GetFullPath(jsonFile) );
 				string arguments = "-b";
-				arguments += $" --ignore-layer \"Guide\" --ignore-layer \"Ignore\" --ignore-layer \"ignore\"";
+				
+				// Layers to explicitly import
+				if ( m_component.m_importLayers != null )
+					foreach ( string layer in m_component.m_importLayers )
+						arguments += $" --layer \"{layer}\"";
+
+				// Layers to explicitly ignore
+				if ( m_component.m_ignoreLayers  != null  )
+					foreach ( string layer in m_component.m_ignoreLayers )
+						arguments += $" --ignore-layer \"{layer}\"";
+				
 				if ( m_component.m_trimSprites )
 					arguments += $" -trim";
 				arguments += $" \"{Path.GetFullPath(m_component.m_sourcePSD)}\"";

@@ -151,7 +151,7 @@ public class RoomHome : RoomScript<RoomHome>
 				Globals.tutorialStage= tutorialProgress.usedBucket;
 				Globals.gameStage = gameProgress.UsedBucket;
 				yield return StageComplete();
-
+		
 		
 				I.Active = null;
 				yield return E.WaitSkip();
@@ -176,6 +176,7 @@ public class RoomHome : RoomScript<RoomHome>
 				new Vector2(Point("PumpPosition")[0], Point("PumpPosition")[1] + 50)
 			);
 			I.BilgePump.Remove();
+			yield return ChangeWaterStage((int) Globals.gameStage, false);
 			Prop("Pump").Enable();
 			Prop("Handle").Enable();
 			Prop("Hose").Enable();
@@ -719,30 +720,33 @@ public class RoomHome : RoomScript<RoomHome>
 
 	public  IEnumerator ChangeWaterStage(int stageNum, bool animate = true)
 	{
-		Debug.Log("changewaterstage start");	
-
+		//Debug.Log("changewaterstage start");
+		
 		int totalFrames = 20;
 		int framesPerStage = 4;
 		int startingIndex = totalFrames - framesPerStage*(stageNum-1);
 		int endingIndex = startingIndex - framesPerStage;
 		if (!animate)
 			startingIndex = endingIndex;
-		Debug.Log("Start index: "+ startingIndex + " End Index: " + endingIndex);
+		//Debug.Log("Start index: "+ startingIndex + " End Index: " + endingIndex);
 		for(int i = startingIndex; i >= endingIndex; i--){
-			Debug.Log("begin loop iteration "+ i);
+			//Debug.Log("begin loop iteration "+ i);
 			LowerWater(i);
 			LowerWaterShader(i, "CharacterDave");
 			LowerWaterShader(i, "CharacterTony");
+			LowerWaterShader(i, "PropPumpProp");
+			LowerWaterShader(i, "PropHose");
+		
 			yield return new WaitForSeconds((float)0.5);
-			Debug.Log(" end loop iteration "+ i);	
+			//Debug.Log(" end loop iteration "+ i);
 		}
-        //Print the time of when the function is first called.
-        //Debug.Log("Started Coroutine at timestamp : " + Time.time);
-
-        //yield on a new YieldInstruction that waits for 5 seconds.
-
-        //After we have waited 5 seconds print the time again.
-        //Debug.Log("Finished Coroutine at timestamp : " + Time.time);
+		//Print the time of when the function is first called.
+		//Debug.Log("Started Coroutine at timestamp : " + Time.time);
+		
+		//yield on a new YieldInstruction that waits for 5 seconds.
+		
+		//After we have waited 5 seconds print the time again.
+		//Debug.Log("Finished Coroutine at timestamp : " + Time.time);
 		yield return E.Break;
 	}
 

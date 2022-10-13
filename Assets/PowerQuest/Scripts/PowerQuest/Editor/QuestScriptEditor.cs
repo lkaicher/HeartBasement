@@ -15,6 +15,7 @@ namespace PowerTools.Quest
 public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 {
 	#region Variables: Static definitions
+	
 
 	public enum eType
 	{
@@ -84,6 +85,14 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 
 	static Regex[] REGEX_YIELD_STRINGS_LOAD_COMPILED = null; // these are compiled lazily when first used
 	static Regex[] REGEX_YIELD_STRINGS_SAVE_COMPILED = null; // these are compiled lazily when first used
+	static Regex[] REGEX_COLOR_CUSTOM_COMPILED = null; // these are compiled lazily when first used
+
+	public static void OnRegExChanged() 
+	{ 
+		REGEX_YIELD_STRINGS_LOAD_COMPILED = null;
+		REGEX_YIELD_STRINGS_SAVE_COMPILED = null;
+		REGEX_COLOR_CUSTOM_COMPILED = null;		
+	}
 			
 	static readonly string REGEX_SAVE_YIELD_REPLACE = @"yield return $1"; 
 
@@ -115,6 +124,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			new Regex(@"(?<=^|\W)Image\(\s*""(\w+)""\s*\)", RegexOptions.Compiled), 	// Image("blah") -> Images.blah
 			new Regex(@"(?<=^|\W)Label\(\s*""(\w+)""\s*\)", RegexOptions.Compiled), 	// Label("blah") -> Labels.blah
 			new Regex(@"(?<=^|\W)Slider\(\s*""(\w+)""\s*\)", RegexOptions.Compiled), 	// Slider("blah") -> Slider.blah
+			new Regex(@"(?<=^|\W)TextField\(\s*""(\w+)""\s*\)", RegexOptions.Compiled), 	// TextField("blah") -> TextFields.blah
 			new Regex(@"(?<=^|\W)InventoryPanel\(\s*""(\w+)""\s*\)", RegexOptions.Compiled), 	// InventoryPanel("blah") -> InventoryPanels.blah
 			new Regex(@"(?<=^|\W)Option\(\s*""(\w+)""\s*\)", RegexOptions.Compiled), 	// Option("blah") -> O.blah.	
 			new Regex(@"(?<=^|\W)Option\(\s*(\d+)\s*\)", RegexOptions.Compiled), 	// Option(1) -> O.1.
@@ -152,6 +162,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			@"Images.$1",
 			@"Labels.$1",
 			@"Sliders.$1",
+			@"TextFields.$1",
 			@"InventoryPanels.$1",
 			@"O.$1",
 			@"O.$1",
@@ -204,6 +215,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			new Regex(@"(^|[^\w.])Images\.(\w+)", RegexOptions.Compiled),
 			new Regex(@"(^|[^\w.])Labels\.(\w+)", RegexOptions.Compiled),
 			new Regex(@"(^|[^\w.])Sliders\.(\w+)", RegexOptions.Compiled),
+			new Regex(@"(^|[^\w.])TextFields\.(\w+)", RegexOptions.Compiled),
 			new Regex(@"(^|[^\w.])InventoryPanels\.(\w+)", RegexOptions.Compiled),
 			new Regex(@"(^|[^\w.])O\.(\d+)", RegexOptions.Compiled),
 			new Regex(@"(^|[^\w.])O\.(\w+)", RegexOptions.Compiled),
@@ -252,6 +264,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			@"$1Image(""$2"")", // // Image("blah") -> Images.blah.
 			@"$1Label(""$2"")", // // Label("blah") -> Labels.blah.
 			@"$1Slider(""$2"")", // // Slider("blah") -> Sliders.blah.
+			@"$1TextField(""$2"")", // // TextField("blah") -> TextField.blah.
 			@"$1InventoryPanel(""$2"")", // // InventoryPanel("blah") -> InventoryPanels.blah.
 			@"$1Option($2)", // // Option(3) -> O.3.
 			@"$1Option(""$2"")", // // Option("blah") -> O.blah.
@@ -358,7 +371,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 					m_event      = new Color(r: 0.9411765f, g: 0.44313726f, b: 0.47058824f, a: 1	);
 					m_speaker    = new Color(r: 0.78039217f, g: 0.57254905f, b: 0.91764706f, a: 1	);
 					m_dialog     = new Color(r: 0.7647059f, g: 0.9098039f, b: 0.5529412f, a: 1		);
-					m_comment    = new Color(r: 0.40392157f, g: 0.43137255f, b: 0.58431375f, a: 1	);
+					m_comment    = new Color(r: 0.252047f, g: 0.9056604f, b: 0.8406261f, a: 1	);
 					m_background = new Color(r: 0.16078432f, g: 0.1764706f, b: 0.24313726f, a: 1	);
 					m_sidebar    = new Color(r: 0.213452f, g: 0.2284135f, b: 0.292f, a: 1			);
 					m_cursor     = new Color(r: 1f, g: 0.79607844f, b: 0.41960785f, a: 1			);
@@ -1992,9 +2005,11 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			// lazy-compile reg-ex
 			if (REGEX_YIELD_STRINGS_LOAD_COMPILED == null )
 			{				
-				REGEX_YIELD_STRINGS_LOAD_COMPILED = new Regex[REGEX_YIELD_STRINGS.Length];
+				REGEX_YIELD_STRINGS_LOAD_COMPILED = new Regex[REGEX_YIELD_STRINGS.Length+ QuestEditorSettings.Get.m_yieldRegexes.Length];
 				for ( int i = 0; i < REGEX_YIELD_STRINGS.Length; ++i )
-					REGEX_YIELD_STRINGS_LOAD_COMPILED[i] = new Regex(REGEX_YIELD_LINE_START+REGEX_YIELD_STRINGS[i]+')', RegexOptions.Compiled | RegexOptions.Multiline );
+					REGEX_YIELD_STRINGS_LOAD_COMPILED[i] = new Regex(REGEX_YIELD_LINE_START+REGEX_YIELD_STRINGS[i]+')', RegexOptions.Compiled | RegexOptions.Multiline );					
+				for ( int i = 0; i < QuestEditorSettings.Get.m_yieldRegexes.Length; ++i )
+					REGEX_YIELD_STRINGS_LOAD_COMPILED[i+REGEX_YIELD_STRINGS.Length] = new Regex(REGEX_YIELD_LINE_START+QuestEditorSettings.Get.m_yieldRegexes[i]+')', RegexOptions.Compiled | RegexOptions.Multiline );
 			}
 
 			foreach ( Regex regex in REGEX_YIELD_STRINGS_LOAD_COMPILED )
@@ -2007,9 +2022,11 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			//
 			Debug.Assert(REGEX_LOAD_MATCH.Length == REGEX_LOAD_REPLACE.Length);
 			for ( int i = 0; i < REGEX_LOAD_MATCH.Length; ++i )
-			{ 
 				line = REGEX_LOAD_MATCH[i].Replace( line, REGEX_LOAD_REPLACE[i] );
-			}
+
+			foreach( FindReplaceRegexData regex in QuestEditorSettings.Get.m_scriptReplaceRegexes )	
+				line = regex.LoadMatch.Replace(line, regex.LoadReplace);
+
 
 			// Next Line
 			m_text += line+"\n";
@@ -2064,9 +2081,10 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			{
 				Debug.Assert(REGEX_SAVE_MATCH.Length == REGEX_SAVE_REPLACE.Length);
 				for ( int i = 0; i < REGEX_SAVE_MATCH.Length; ++i )
-				{
 					line = REGEX_SAVE_MATCH[i].Replace( line, REGEX_SAVE_REPLACE[i] );
-				}
+		
+				foreach( FindReplaceRegexData regex in QuestEditorSettings.Get.m_scriptReplaceRegexes )	
+					line = regex.SaveMatch.Replace(line, regex.SaveReplace);
 			}
 
 			//
@@ -2078,15 +2096,16 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 				// lazy-compile reg-ex
 				if (REGEX_YIELD_STRINGS_SAVE_COMPILED == null )
 				{				
-					REGEX_YIELD_STRINGS_SAVE_COMPILED = new Regex[REGEX_YIELD_STRINGS.Length];
+					REGEX_YIELD_STRINGS_SAVE_COMPILED = new Regex[REGEX_YIELD_STRINGS.Length+QuestEditorSettings.Get.m_yieldRegexes.Length];
 					for ( int i = 0; i < REGEX_YIELD_STRINGS.Length; ++i )
 						REGEX_YIELD_STRINGS_SAVE_COMPILED[i] = new Regex(@"(?<=^\s*)("+REGEX_YIELD_STRINGS[i]+')', RegexOptions.Compiled | RegexOptions.Multiline );
+					for ( int i = 0; i < QuestEditorSettings.Get.m_yieldRegexes.Length; ++i )					
+						REGEX_YIELD_STRINGS_SAVE_COMPILED[i+REGEX_YIELD_STRINGS.Length] = new Regex(@"(?<=^\s*)("+QuestEditorSettings.Get.m_yieldRegexes[i]+')', RegexOptions.Compiled | RegexOptions.Multiline );
 				}
 
 				foreach ( Regex regexStr in REGEX_YIELD_STRINGS_SAVE_COMPILED )
 				{
 					line = regexStr.Replace(line,REGEX_SAVE_YIELD_REPLACE);
-
 				}
 			}
 
@@ -2222,6 +2241,22 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 		{
 			m_richText = pattern.Replace(m_richText, STR_REPLACE_COLOR);
 		}
+		
+		if ( REGEX_COLOR_CUSTOM_COMPILED == null )
+		{
+			// Lazy compile custom colour regexes
+			REGEX_COLOR_CUSTOM_COMPILED = new Regex[QuestEditorSettings.Get.m_colorRegexes.Length];
+			for ( int i = 0; i < QuestEditorSettings.Get.m_colorRegexes.Length; ++i )
+			{
+				REGEX_COLOR_CUSTOM_COMPILED[i] = new Regex($"({QuestEditorSettings.Get.m_colorRegexes[i]})", RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.IgnoreCase );
+			}
+		}
+		
+		foreach( Regex pattern in REGEX_COLOR_CUSTOM_COMPILED )
+		{
+			m_richText = pattern.Replace(m_richText, STR_REPLACE_COLOR);
+		}
+		
 	}
 
 	T WithoutSelectAll<T>(System.Func<T> guiCall)
@@ -2381,6 +2416,75 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 		}
 		return col;
 	}
+	
+	#endregion
+	#region Class: Regex data
+
+	[System.Serializable]
+	public class FindReplaceRegexData
+	{
+		public enum eMatchAt {Anywhere,StartOfLineOnly,Custom}
+
+		public FindReplaceRegexData() {}
+		public FindReplaceRegexData(string saveMatch, string saveReplace, string loadMatch, string loadReplace, bool ignoreCase = false ) 
+		{
+			m_saveMatch = saveMatch;
+			m_saveReplace = saveReplace;
+			m_loadMatch = loadMatch;
+			m_loadReplace = loadReplace;
+			m_ignoreCase = ignoreCase;
+			Recompile();
+		}
+
+		[Tooltip(@"Name just for Display. Tooltip examples will convert 'Pose- Angry' to 'C.Player.PlayAnimationBG(""Angry"");'")]
+		public string m_name = null;
+		[Tooltip(@"Regex to match when saving to c#. eg: 'Pose- (\w+)'")]
+		[SerializeField] string m_saveMatch=null;
+		[Tooltip("Replace string used when saving to c#. Use $1,$2 etc to match regex 'groups'. Eg. 'C.Player.PlayAnimationBG(\"$1\");'")]
+		[SerializeField] string m_saveReplace=null;
+		[Tooltip(@"Regex to match when loading from c#. Eg: 'C\.Player\.PlayAnimationBG\(""(\w+)""\);'")]
+		[SerializeField] string m_loadMatch=null;
+		[Tooltip(@"Replace string used when loading from c#. Use $1,$2 etc to match regex 'groups'.. eg 'Pose- $1")]
+		[SerializeField] string m_loadReplace=null;	
+
+		[Tooltip("Whether case is ignored when saving")]
+		[SerializeField] bool m_ignoreCase = false;
+		
+		[Tooltip("Whether the expression will only match if at the start of the line, or anywhere. Custom does no check at all")]
+		[SerializeField] eMatchAt m_matchAt = eMatchAt.Anywhere;
+
+		Regex m_saveMatchRegex = null;
+		Regex m_loadMatchRegex = null;		
+
+		public Regex SaveMatch {get {if (m_saveMatchRegex == null) Recompile(); return m_saveMatchRegex;} }
+		public string SaveReplace => m_saveReplace;
+		
+		public Regex LoadMatch {get {if (m_loadMatchRegex == null) Recompile(); return m_loadMatchRegex;} }
+		public string LoadReplace => m_loadReplace;
+
+		public void Recompile()
+		{
+			string saveMatch = m_saveMatch;
+			string loadMatch = m_loadMatch;
+			if ( m_matchAt == eMatchAt.Anywhere )
+			{				
+				saveMatch = @"(?<=^|\W)"+saveMatch;				
+				loadMatch = @"(?<=^|\W)"+loadMatch;				
+			}
+			else if ( m_matchAt == eMatchAt.StartOfLineOnly )
+			{
+				saveMatch = @"(?<=^\s*)"+saveMatch;
+				loadMatch = @"(?<=^\s*)"+loadMatch;
+			}
+
+			if ( m_ignoreCase )
+				m_saveMatchRegex = new Regex(saveMatch, RegexOptions.Compiled | RegexOptions.IgnoreCase );
+			else
+				m_saveMatchRegex = new Regex(saveMatch, RegexOptions.Compiled );
+
+			m_loadMatchRegex = new Regex(loadMatch, RegexOptions.Compiled );
+		}
+	}
 
 	#endregion
 }
@@ -2464,6 +2568,7 @@ public class NewFunctionWindow : PopupWindowContent
 		}
 
 	}
+
 
 }
 

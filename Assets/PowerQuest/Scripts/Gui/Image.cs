@@ -43,8 +43,8 @@ public partial class Image : GuiControl, IImage
 		{ 
 			if ( m_anim != value )
 			{
-				OnAnimationChanged(); 
 				m_anim = value;
+				OnAnimationChanged(); 
 			}
 		} 
 	}
