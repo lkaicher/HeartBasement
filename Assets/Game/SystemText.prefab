@@ -1502,69 +1502,50 @@ MonoBehaviour:
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 1
-  - m_character: Tony
-    m_id: 1
+  - m_character: Dave
+    m_id: 106
     m_orderId: 129
-    m_string: Uhh... Now?
-    m_sourceFile: Dialog- GetHelpBob
-    m_sourceFunction: Option1
-    m_translations:
-    - 
-    - 
+    m_string: ' Do you have any larger options?'
+    m_sourceFile: Dialog- BuyOptions
+    m_sourceFunction: Option6
+    m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 1
-  - m_character: Dave
-    m_id: 25
+  - m_character: HardwareClerk
+    m_id: 9
     m_orderId: 130
-    m_string: ' Yeah...'
-    m_sourceFile: Dialog- GetHelpBob
-    m_sourceFunction: Option1
-    m_translations:
-    - 
-    - 
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: Tony
-    m_id: 2
-    m_orderId: 131
-    m_string: I dunno man...
-    m_sourceFile: Dialog- GetHelpBob
-    m_sourceFunction: Option1
-    m_translations:
-    - 
-    - 
+    m_string: Nope.
+    m_sourceFile: Dialog- BuyOptions
+    m_sourceFunction: Option6
+    m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 1
   - m_character: Dave
-    m_id: 26
-    m_orderId: 132
-    m_string: ' I have beer'
-    m_sourceFile: Dialog- GetHelpBob
-    m_sourceFunction: Option1
-    m_translations:
-    - 
-    - 
+    m_id: 107
+    m_orderId: 131
+    m_string: Can you check the back?
+    m_sourceFile: Dialog- BuyOptions
+    m_sourceFunction: Option6
+    m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 1
-  - m_character: Tony
-    m_id: 3
-    m_orderId: 133
-    m_string: 'Alright, I''ll see what I can do. '
-    m_sourceFile: Dialog- GetHelpBob
-    m_sourceFunction: Option1
-    m_translations:
-    - 
-    - 
+  - m_character: HardwareClerk
+    m_id: 10
+    m_orderId: 132
+    m_string: Alright, alright, you got me. These are the biggest handles and hoses
+      we have in stock.
+    m_sourceFile: Dialog- BuyOptions
+    m_sourceFunction: Option6
+    m_translations: []
     m_phonesTime: []
     m_phonesCharacter: 
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 27
-    m_orderId: 134
+    m_orderId: 133
     m_string: Hey Tony. My basement is flooded, I've got this pump but I need more
       muscle!
     m_sourceFile: Dialog- UsePhone
@@ -1577,7 +1558,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 17
-    m_orderId: 135
+    m_orderId: 134
     m_string: Again?! Alright, I'll be right over
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option1
@@ -1589,7 +1570,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Tony
     m_id: 1
-    m_orderId: 136
+    m_orderId: 135
     m_string: Ay Dave, I'm here to he-
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option1
@@ -1600,20 +1581,8 @@ MonoBehaviour:
     m_phonesCharacter: 
     m_changedSinceImport: 1
   - m_character: Tony
-    m_id: 2
-    m_orderId: 137
-    m_string: ...
-    m_sourceFile: Dialog- UsePhone
-    m_sourceFunction: Option1
-    m_translations:
-    - 
-    - 
-    m_phonesTime: []
-    m_phonesCharacter: 
-    m_changedSinceImport: 1
-  - m_character: Tony
     m_id: 3
-    m_orderId: 138
+    m_orderId: 136
     m_string: Oh boy.
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option1
@@ -1625,7 +1594,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 29
-    m_orderId: 139
+    m_orderId: 137
     m_string: The bucket is located on the shelf above the laundry machine. Click
       on it to add it to your toolbox.
     m_sourceFile: Dialog- UsePhone
@@ -1636,7 +1605,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 31
-    m_orderId: 140
+    m_orderId: 138
     m_string: Your toolbox is located at the bottom left. Move the mouse down to
       the lower left, and the toolbox will slide up. Then, click on the bucket icon
       to select it.
@@ -1648,7 +1617,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 35
-    m_orderId: 141
+    m_orderId: 139
     m_string: With the bucket selected, use it on the water by clicking anywhere
       on the water.
     m_sourceFile: Dialog- UsePhone
@@ -1659,7 +1628,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 38
-    m_orderId: 142
+    m_orderId: 140
     m_string: To move around the room, click the spot you would like to walk to.
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option3
@@ -1669,7 +1638,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 39
-    m_orderId: 143
+    m_orderId: 141
     m_string: Now the fun begins!
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option3
@@ -1679,7 +1648,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 40
-    m_orderId: 144
+    m_orderId: 142
     m_string: Try scooping up some of the water with a bucket.
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option3
@@ -1689,7 +1658,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 41
-    m_orderId: 145
+    m_orderId: 143
     m_string: ' Now that you have a pump, you can select it from your toolbox and
       use it on the water in your basement.'
     m_sourceFile: Dialog- UsePhone
@@ -1700,7 +1669,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 42
-    m_orderId: 146
+    m_orderId: 144
     m_string: ' You should go back home. Walk all the way to the left and click on
       the door.'
     m_sourceFile: Dialog- UsePhone
@@ -1711,7 +1680,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 43
-    m_orderId: 147
+    m_orderId: 145
     m_string: Now that you've placed the pump, time to try it out! Click on the pump
       to give it a go.
     m_sourceFile: Dialog- UsePhone
@@ -1722,7 +1691,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 44
-    m_orderId: 148
+    m_orderId: 146
     m_string: I hear Doc over at the hardware store is running a big sale on pumps.
       I bet one of those would help you.
     m_sourceFile: Dialog- UsePhone
@@ -1733,7 +1702,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 45
-    m_orderId: 149
+    m_orderId: 147
     m_string: ' You can leave your basement by clicking on the door, located all
       the way to the right. If you cannot see it, keep walking to the right.'
     m_sourceFile: Dialog- UsePhone
@@ -1744,7 +1713,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 46
-    m_orderId: 150
+    m_orderId: 148
     m_string: You should go back to Doc at his hardware store. Maybe he has something
       else that could help.
     m_sourceFile: Dialog- UsePhone
@@ -1755,7 +1724,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 47
-    m_orderId: 151
+    m_orderId: 149
     m_string: You could use some extra muscle. Try calling a friend, maybe they could
       help out.
     m_sourceFile: Dialog- UsePhone
@@ -1766,7 +1735,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 48
-    m_orderId: 152
+    m_orderId: 150
     m_string: Tony is tired, he needs something to boost his energy. That pizza place
       delivers, try giving them a call.
     m_sourceFile: Dialog- UsePhone
@@ -1777,7 +1746,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 49
-    m_orderId: 153
+    m_orderId: 151
     m_string: Thank for for calling the Hint Hotline. Our lines our busy at the moment,
       please call back later.
     m_sourceFile: Dialog- UsePhone
@@ -1788,7 +1757,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 28
-    m_orderId: 154
+    m_orderId: 152
     m_string: Hi, I'd like to order a large cheese and pepporini pizza for delivery
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option2
@@ -1801,7 +1770,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 18
-    m_orderId: 155
+    m_orderId: 153
     m_string: ' Okay, anything else?'
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option2
@@ -1813,7 +1782,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 105
-    m_orderId: 156
+    m_orderId: 154
     m_string: Yeah, a 6 pack of beer.
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option2
@@ -1823,7 +1792,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 50
-    m_orderId: 157
+    m_orderId: 155
     m_string: Got it, what is the address?
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option2
@@ -1833,7 +1802,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Dave
     m_id: 29
-    m_orderId: 158
+    m_orderId: 156
     m_string: ' 22 Hart Street'
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option2
@@ -1845,7 +1814,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 19
-    m_orderId: 159
+    m_orderId: 157
     m_string: ' Your order will be there in 30 minutes.'
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option2
@@ -1857,7 +1826,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 51
-    m_orderId: 160
+    m_orderId: 158
     m_string: 30 minutes later...
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option2
@@ -1867,7 +1836,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 52
-    m_orderId: 161
+    m_orderId: 159
     m_string: Pizza & Beer have been added to your inventory
     m_sourceFile: Dialog- UsePhone
     m_sourceFunction: Option2
@@ -1877,7 +1846,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 20
-    m_orderId: 162
+    m_orderId: 160
     m_string: You can't use that
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledInteract
@@ -1889,7 +1858,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 21
-    m_orderId: 163
+    m_orderId: 161
     m_string: That doesn't work
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledInteract
@@ -1901,7 +1870,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 22
-    m_orderId: 164
+    m_orderId: 162
     m_string: Nothing happened
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledInteract
@@ -1913,7 +1882,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 23
-    m_orderId: 165
+    m_orderId: 163
     m_string: 'It''s nothing interesting '
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledLookAt
@@ -1925,7 +1894,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 24
-    m_orderId: 166
+    m_orderId: 164
     m_string: You don't see anything
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledLookAt
@@ -1937,7 +1906,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 25
-    m_orderId: 167
+    m_orderId: 165
     m_string: The "+ mouseOver.Description.ToLower() + " isn't very interesting
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledLookAt
@@ -1949,7 +1918,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 26
-    m_orderId: 168
+    m_orderId: 166
     m_string: You can't use those together
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledUseInvInv
@@ -1961,7 +1930,7 @@ MonoBehaviour:
     m_changedSinceImport: 1
   - m_character: Narr
     m_id: 27
-    m_orderId: 169
+    m_orderId: 167
     m_string: You can't use that
     m_sourceFile: Global Script
     m_sourceFunction: UnhandledUseInv

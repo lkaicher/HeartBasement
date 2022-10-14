@@ -91,14 +91,14 @@ public class DialogBuyOptions : DialogTreeScript<DialogBuyOptions>
 
 	IEnumerator Option6( IDialogOption option )
 	{
-		yield return C.Dave.Say(" Do you have any larger options?");
+		yield return C.Dave.Say(" Do you have any larger options?", 106);
 		
-		yield return C.HardwareClerk.Say("Nope.");
+		yield return C.HardwareClerk.Say("Nope.", 9);
 		yield return E.WaitSkip();
 		yield return E.WaitSkip();
-		yield return C.Dave.Say("Can you check the back?");
+		yield return C.Dave.Say("Can you check the back?", 107);
 		
-		yield return C.HardwareClerk.Say("Alright, alright, you got me. These are the biggest handles and hoses we have in stock.");
+		yield return C.HardwareClerk.Say("Alright, alright, you got me. These are the biggest handles and hoses we have in stock.", 10);
 		
 		
 		D.BuyOptions.OptionOn(2);

@@ -128,15 +128,13 @@ Character,ID,File,Context,English,PhaseOne,PhaseTwo
 "Dave","24","Dialog- BuyOptions","Option4","I'll take a large diameter hose.","","Excellent choice, this is equivlent physiologically to AFTERLOAD REDUCTION"
 "Narr","16","Dialog- BuyOptions","Option4","Large Hose added to  your inventory.","",""
 "HardwareClerk","8","Dialog- BuyOptions","Option4","Anything else?","An excellent choice sir! Anything else?",""
-"Tony","1","Dialog- GetHelpBob","Option1","Uhh... Now?","",""
-"Dave","25","Dialog- GetHelpBob","Option1"," Yeah...","",""
-"Tony","2","Dialog- GetHelpBob","Option1","I dunno man...","",""
-"Dave","26","Dialog- GetHelpBob","Option1"," I have beer","",""
-"Tony","3","Dialog- GetHelpBob","Option1","Alright, I'll see what I can do. ","",""
+"Dave","106","Dialog- BuyOptions","Option6"," Do you have any larger options?",,
+"HardwareClerk","9","Dialog- BuyOptions","Option6","Nope.",,
+"Dave","107","Dialog- BuyOptions","Option6","Can you check the back?",,
+"HardwareClerk","10","Dialog- BuyOptions","Option6","Alright, alright, you got me. These are the biggest handles and hoses we have in stock.",,
 "Dave","27","Dialog- UsePhone","Option1","Hey Tony. My basement is flooded, I've got this pump but I need more muscle!","",""
 "Narr","17","Dialog- UsePhone","Option1","Again?! Alright, I'll be right over","","This would be like increasing the dose of the diuretic"
 "Tony","1","Dialog- UsePhone","Option1","Ay Dave, I'm here to he-","",""
-"Tony","2","Dialog- UsePhone","Option1","...","",""
 "Tony","3","Dialog- UsePhone","Option1","Oh boy.","",""
 "Narr","29","Dialog- UsePhone","Option3","The bucket is located on the shelf above the laundry machine. Click on it to add it to your toolbox.",,
 "Narr","31","Dialog- UsePhone","Option3","Your toolbox is located at the bottom left. Move the mouse down to the lower left, and the toolbox will slide up. Then, click on the bucket icon to select it.",,
