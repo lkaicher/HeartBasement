@@ -23,4 +23,10 @@ public class InventoryBucket : InventoryScript<InventoryBucket>
 		}
 		yield return E.Break;
 	}
+
+	IEnumerator OnUseInvInventory( IInventory thisItem, IInventory item )
+	{
+
+		yield return E.Break;
+	}
 }
