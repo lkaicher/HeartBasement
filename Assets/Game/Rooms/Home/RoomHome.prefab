@@ -67,7 +67,7 @@ MonoBehaviour:
     m_activeWalkableArea: 0
     m_bounds:
       m_min: {x: -1000, y: -270}
-      m_max: {x: 1000, y: 270}
+      m_max: {x: 0, y: 270}
     m_scrollBounds:
       m_min: {x: 0, y: 0}
       m_max: {x: 0, y: 0}
