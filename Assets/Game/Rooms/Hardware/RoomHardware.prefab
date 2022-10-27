@@ -1687,8 +1687,8 @@ MonoBehaviour:
     m_verticalResolution: 0
     m_activeWalkableArea: 0
     m_bounds:
-      m_min: {x: -501, y: -270}
-      m_max: {x: 499, y: 270}
+      m_min: {x: -500, y: -270}
+      m_max: {x: 500, y: 270}
     m_scrollBounds:
       m_min: {x: 0, y: 0}
       m_max: {x: 0, y: 0}
