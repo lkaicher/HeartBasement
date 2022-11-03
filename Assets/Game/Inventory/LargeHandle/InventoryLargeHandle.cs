@@ -17,7 +17,7 @@ public class InventoryLargeHandle : InventoryScript<InventoryLargeHandle>
 
 	IEnumerator OnInteractInventory( IInventory thisItem )
 	{
-
+		Prop("Handle").Clickable = true;
 		yield return E.Break;
 	}
 

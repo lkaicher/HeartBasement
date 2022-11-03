@@ -16,7 +16,7 @@ public class InventoryMediumHandle : InventoryScript<InventoryMediumHandle>
 
 	IEnumerator OnInteractInventory( IInventory thisItem )
 	{
-
+		Prop("Handle").Clickable = true;
 		yield return E.Break;
 	}
 }

@@ -10,7 +10,7 @@ public class InventoryLargeHose : InventoryScript<InventoryLargeHose>
 	public bool isHose = true;
 	IEnumerator OnInteractInventory( IInventory thisItem )
 	{
-
+		Prop("Hose").Clickable = true;
 		yield return E.Break;
 	}
 }

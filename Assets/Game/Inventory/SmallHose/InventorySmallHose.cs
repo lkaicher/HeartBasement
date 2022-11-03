@@ -10,7 +10,7 @@ public class InventorySmallHose : InventoryScript<InventorySmallHose>
 
 	IEnumerator OnInteractInventory( IInventory thisItem )
 	{
-
+		Prop("Hose").Clickable = true;
 		yield return E.Break;
 	}
 }

@@ -180,6 +180,7 @@ public class RoomHome : RoomScript<RoomHome>
 			Prop("Pump").Enable();
 			Prop("Handle").Enable();
 			Prop("Hose").Enable();
+			Prop("Hose").Clickable = false;
 			// FaceClicked
 		
 			/*
@@ -370,8 +371,6 @@ public class RoomHome : RoomScript<RoomHome>
     {
 			int handleInt = 0;
 			int hoseInt = 0;
-			IInventory itembuf = item;
-			Debug.Log(item.ScriptName);
 
 			switch(item.ScriptName){	
 
@@ -399,13 +398,25 @@ public class RoomHome : RoomScript<RoomHome>
 
 				default:
 					break;
+			}
 
+			yield return E.Break;
+		
+ 		}
+
+		IEnumerator OnUseInvPropHandle(IProp prop, IInventory item)
+		{
+			yield return OnUseInvPropPump(prop, item);
+			yield return E.Break;
 		}
-		Debug.Log("HANDLE Type:" + (int)currentHandle);
-		
-		yield return E.Break;
-		
- }
+	
+		IEnumerator OnUseInvPropHose(IProp prop, IInventory item)
+		{
+			yield return OnUseInvPropPump(prop, item);
+			prop.Clickable = false;
+			yield return E.Break;
+		}
+	
 
     private void returnHandleToInv()
     {
@@ -772,6 +783,18 @@ public class RoomHome : RoomScript<RoomHome>
 	IEnumerator OnLookAtCharacterTony( ICharacter character )
 	{
 
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtPropHandle( IProp prop )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractPropHandle( IProp prop )
+	{
+		yield return OnInteractPropPump(prop);
 		yield return E.Break;
 	}
 }
