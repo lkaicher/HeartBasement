@@ -125,7 +125,7 @@ public class RoomHome : RoomScript<RoomHome>
 
     IEnumerator OnInteractHotspotDoor(IHotspot hotspot)
     {
-		
+		yield return C.Dave.WalkTo(Point("HomeDoorPosition"));
 		C.Dave.ChangeRoomBG(R.Map);
 		yield return E.Break;
 		

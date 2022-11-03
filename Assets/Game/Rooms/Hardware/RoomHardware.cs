@@ -13,16 +13,18 @@ public class RoomHardware : RoomScript<RoomHardware>
 		if (Globals.gameStage == gameProgress.None) {
 		
 			if (I.BilgePump.Owned){
-			
+		
 				yield return C.Dave.Say("Let's take this back home and see how it works!", 10);
+				yield return C.Dave.WalkTo(Point("HWDoorPosition"));
 				C.Dave.ChangeRoomBG(R.Map);
 			} else {
 				yield return C.Dave.Say("I need to buy a pump.", 11);
 			}
 		} else {
+			yield return C.Dave.WalkTo(Point("HWDoorPosition"));
 			C.Dave.ChangeRoomBG(R.Map);
 		}
-			
+		
 		yield return E.Break;
 	}
 
