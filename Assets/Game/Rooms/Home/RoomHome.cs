@@ -242,6 +242,7 @@ public class RoomHome : RoomScript<RoomHome>
 		if ((int)Globals.gameStage == 5){
 			yield return C.Dave.Say(" Finally! I got that dang water outta my dang basement!", 46);
 			yield return C.Dave.Say(" I sure hope that never happens again!", 47);
+			Globals.gameStage = 0;
 			C.Dave.ChangeRoom(R.Cutscene);
 		}
 		
@@ -295,7 +296,13 @@ public class RoomHome : RoomScript<RoomHome>
 				"This is too hard! I think the handle is too short and the diameter of the hose is too small, I need to go back to the hardware store.", 4);
 			yield return C.Dave.FaceDown();
 		}
-		
+		else if (Globals.gameStage >= gameProgress.RightParts) {
+			C.Dave.StopAnimation();
+			Prop("Pump").Visible = true;
+			Prop("Handle").Visible = true;
+			yield return C.Dave.Say("I'm pooped! I need some extra muscle.");
+			yield return C.Dave.Say("I bet my friend Tony could help out, I should give him a call.");
+		}
 		else if (currentHandle == handleType.large && currentHose == hoseType.large)
 		{
 			Globals.gameStage = gameProgress.RightParts;
