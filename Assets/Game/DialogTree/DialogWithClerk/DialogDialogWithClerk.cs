@@ -10,11 +10,12 @@ public class DialogDialogWithClerk : DialogTreeScript<DialogDialogWithClerk>
 	{
 		//Globals.gameStage = gameProgress.TriedPump1;
 		
-
-
+		
+		
 		if (Globals.gameStage <= gameProgress.UsedBucket) {
 			D.DialogWithClerk.OptionOff(2);
 			D.DialogWithClerk.OptionOn(1);
+		 //   D.DialogWithClerk.GetOption(1).Start();
 		} else {
 			D.DialogWithClerk.OptionOff(1);
 			D.DialogWithClerk.OptionOn(2);

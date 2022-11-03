@@ -269,6 +269,8 @@ public class RoomHome : RoomScript<RoomHome>
     {
 		string[] pumpAnims = { "PumpingS", "PumpingM", "PumpingL" };
 		
+		float pumpAnimTime = (float) (1.75 +  ((float)currentHandle * 0.5) );
+		
 		yield return C.Dave.WalkTo(Point("PumpPosition"));
 		Prop("Pump").Visible = false;
 		Prop("Handle").Visible = false;
@@ -308,6 +310,8 @@ public class RoomHome : RoomScript<RoomHome>
 		}
 		else
 		{
+		
+			yield return E.Wait(pumpAnimTime);
 			C.Dave.StopAnimation();
 			Prop("Pump").Visible = true;
 			Prop("Handle").Visible = true;
@@ -331,76 +335,79 @@ public class RoomHome : RoomScript<RoomHome>
 
     IEnumerator OnUseInvPropPump(IProp prop, IInventory item)
     {
-        if (item == I.SmallHandle)
-        {
-            string prevHandle = sizeString[(int)currentHandle];
-            returnHandleToInv();
-            currentHandle = handleType.small;
-            I.SmallHandle.Remove();
-            yield return C.Display(
-                prevHandle + " Handle replaced with " + sizeString[(int)currentHandle] + " Handle"
-            );
-            Prop("Handle").SetPosition(-310, -81);
-        }
-        else if (item == I.MediumHandle)
-        {
-            string prevHandle = sizeString[(int)currentHandle];
-            returnHandleToInv();
-            currentHandle = handleType.medium;
-            I.MediumHandle.Remove();
-            yield return C.Display(
-                prevHandle + " Handle replaced with " + sizeString[(int)currentHandle] + " Handle"
-            );
-            Prop("Handle").SetPosition(-310, -71);
-        }
-        else if (item == I.LargeHandle)
-        {
-            string prevHandle = sizeString[(int)currentHandle];
-            returnHandleToInv();
-            currentHandle = handleType.large;
-            I.LargeHandle.Remove();
-            yield return C.Display(
-                prevHandle + " Handle replaced with " + sizeString[(int)currentHandle] + " Handle"
-            );
-            Prop("Handle").SetPosition(-310, -61);
-        }
-        else if (item == I.SmallHose)
-        {
-            string prevHose = sizeString[(int)currentHose];
-            returnHoseToInv();
-            currentHose = hoseType.small;
-            I.SmallHose.Remove();
-            yield return C.Display(
-                prevHose + " Hose replaced with " + sizeString[(int)currentHose] + " Hose"
-            );
-            Prop("Hose").Animation = "HoseS";
-        }
-        else if (item == I.MediumHose)
-        {
-            string prevHose = sizeString[(int)currentHose];
-            returnHoseToInv();
-            currentHose = hoseType.medium;
-            I.MediumHose.Remove();
-            yield return C.Display(
-                prevHose + " Hose replaced with " + sizeString[(int)currentHose] + " Hose"
-            );
-            Prop("Hose").Animation = "HoseM";
-        }
-        else if (item == I.LargeHose)
-        {
-            string prevHose = sizeString[(int)currentHose];
-            returnHoseToInv();
-            currentHose = hoseType.large;
-            I.LargeHose.Remove();
-            yield return C.Display(
-                prevHose + " Hose replaced with " + sizeString[(int)currentHose] + " Hose"
-            );
-            Prop("Hose").Animation = "HoseL";
-        }
-        else { }
-
-        yield return E.Break;
-    }
+		if (item == I.SmallHandle)
+		{
+			string prevHandle = sizeString[(int)currentHandle];
+			returnHandleToInv();
+			currentHandle = handleType.small;
+			I.SmallHandle.Remove();
+			yield return C.Display(
+				prevHandle + " Handle replaced with " + sizeString[(int)currentHandle] + " Handle"
+			);
+			Prop("Handle").SetPosition(190, -81);
+		}
+		else if (item == I.MediumHandle)
+		{
+			string prevHandle = sizeString[(int)currentHandle];
+			returnHandleToInv();
+			currentHandle = handleType.medium;
+			I.MediumHandle.Remove();
+			yield return C.Display(
+				prevHandle + " Handle replaced with " + sizeString[(int)currentHandle] + " Handle"
+			);
+			Prop("Handle").SetPosition(190, -71);
+		}
+		else if (item == I.LargeHandle)
+		{
+			string prevHandle = sizeString[(int)currentHandle];
+			returnHandleToInv();
+			currentHandle = handleType.large;
+			I.LargeHandle.Remove();
+			yield return C.Display(
+				prevHandle + " Handle replaced with " + sizeString[(int)currentHandle] + " Handle"
+			);
+			Prop("Handle").SetPosition(190, -61);
+		}
+		else if (item == I.SmallHose)
+		{
+			string prevHose = sizeString[(int)currentHose];
+			returnHoseToInv();
+			currentHose = hoseType.small;
+			I.SmallHose.Remove();
+			yield return C.Display(
+				prevHose + " Hose replaced with " + sizeString[(int)currentHose] + " Hose"
+			);
+			Prop("Hose").Animation = "HoseS";
+		}
+		else if (item == I.MediumHose)
+		{
+			string prevHose = sizeString[(int)currentHose];
+			returnHoseToInv();
+			currentHose = hoseType.medium;
+			I.MediumHose.Remove();
+			yield return C.Display(
+				prevHose + " Hose replaced with " + sizeString[(int)currentHose] + " Hose"
+			);
+			Prop("Hose").Animation = "HoseM";
+		}
+		else if (item == I.LargeHose)
+		{
+			string prevHose = sizeString[(int)currentHose];
+			returnHoseToInv();
+			currentHose = hoseType.large;
+			I.LargeHose.Remove();
+			yield return C.Display(
+				prevHose + " Hose replaced with " + sizeString[(int)currentHose] + " Hose"
+			);
+			Prop("Hose").Animation = "HoseL";
+		}
+		else { }
+		
+		Debug.Log("HANDLE Type:" + (int)currentHandle);
+		
+		yield return E.Break;
+		
+ }
 
     private void returnHandleToInv()
     {

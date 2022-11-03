@@ -36,25 +36,30 @@ public class InventoryBilgePump : InventoryScript<InventoryBilgePump>
 	IEnumerator OnUseInvInventory( IInventory thisItem, IInventory item )
 	{ 
 		
+		
+		
 		if (item == I.SmallHandle) {
 			string prevHandle = sizeString[(int)currentHandle];
 			returnHandleToInv();
 			currentHandle = handleType.small;
+		
 			I.SmallHandle.Remove();
-			yield return C.Display(prevHandle + " Handle replaced with " + sizeString[(int)currentHandle] + " Handle");  
+			yield return C.Display(prevHandle + " Handle replaced with " + sizeString[(int)currentHandle] + " Handle");
 		} else if (item == I.MediumHandle) {
 			string prevHandle = sizeString[(int)currentHandle];
 			returnHandleToInv();
 			currentHandle = handleType.medium;
+		
 			I.MediumHandle.Remove();
-			yield return C.Display(prevHandle + " Handle replaced with " + sizeString[(int)currentHandle] + " Handle");  
+			yield return C.Display(prevHandle + " Handle replaced with " + sizeString[(int)currentHandle] + " Handle");
 		} else if (item == I.LargeHandle) {
 			string prevHandle = sizeString[(int)currentHandle];
 			returnHandleToInv();
 			currentHandle = handleType.large;
+		
 			I.LargeHandle.Remove();
-			yield return C.Display(prevHandle + " Handle replaced with " + sizeString[(int)currentHandle] + " Handle");  
-		} else if (item == I.SmallHose) { 
+			yield return C.Display(prevHandle + " Handle replaced with " + sizeString[(int)currentHandle] + " Handle");
+		} else if (item == I.SmallHose) {
 			string prevHose = sizeString[(int)currentHose];
 			returnHoseToInv();
 			currentHose = hoseType.small;
@@ -88,7 +93,7 @@ public class InventoryBilgePump : InventoryScript<InventoryBilgePump>
 			handle.Add();
 			handle = item;
 			item.Remove();
-		} else if (item == I.SmallHose) { 
+		} else if (item == I.SmallHose) {
 			hose.Add();
 			hose = item;
 			item.Remove();
