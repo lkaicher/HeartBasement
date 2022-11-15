@@ -245,8 +245,10 @@ public class RoomHome : RoomScript<RoomHome>
 		if ((int)Globals.gameStage == 5){
 			yield return C.Dave.Say(" Finally! I got that dang water outta my dang basement!", 46);
 			yield return C.Dave.Say(" I sure hope that never happens again!", 47);
-			Globals.gameStage = 0;
-			C.Dave.ChangeRoom(R.Cutscene);
+			yield return E.FadeOut(1);
+			//Globals.gameStage = 0;
+			C.Dave.ChangeRoom(R.Map);
+			E.FadeIn(1);
 		}
 		
 		yield return E.Break;

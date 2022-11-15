@@ -9,14 +9,14 @@ public class RoomMap : RoomScript<RoomMap>
 
 	
 	
-	
 	void OnEnterRoom()
 	{
 		
 		
-		Debug.Log(C.Dave.LastRoom.ScriptName);
+		
 		C.Dave.SetPosition(Point(string.Format("{0}Point",C.Dave.LastRoom.ScriptName)));
 		
+
 		
 		// if (C.Dave.LastRoom == R.Hardware) {
 		//	 C.Dave.SetPosition(Point("HardwarePoint"));
@@ -154,6 +154,25 @@ public class RoomMap : RoomScript<RoomMap>
 	IEnumerator OnLookAtCharacterNeighbor2( ICharacter character )
 	{
 
+		yield return E.Break;
+	}
+
+	public IEnumerator Thunderstorm()
+	{
+		C.Dave.Visible = false;
+		yield return E.FadeIn(1);
+		yield return Prop("Back").Fade(255, 155, 5);
+		
+		yield return E.Break;
+	}
+
+	IEnumerator OnEnterRoomAfterFade()
+	{
+		if(Globals.gameStage == gameProgress.TonyAte){
+			yield return Thunderstorm();
+		
+		}
+		
 		yield return E.Break;
 	}
 }
