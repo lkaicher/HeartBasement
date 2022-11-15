@@ -88,6 +88,7 @@ public class RoomHome : RoomScript<RoomHome>
 			Prop("Hose").Disable();
 		
 			Prop("ElectricPump").Disable();
+			Prop("Box").Disable();
 		}
 		
 		

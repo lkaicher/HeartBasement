@@ -160,15 +160,15 @@ public class RoomMap : RoomScript<RoomMap>
 	public IEnumerator Thunderstorm()
 	{
 		C.Dave.Visible = false;
-		yield return E.FadeIn(1);
-		yield return Prop("Back").Fade(255, 155, 5);
-		
+		//yield return E.FadeIn(1);
+		yield return Prop("Back").Fade(1,(float) 0.50, 3,eEaseCurve.Smooth);
+		Debug.Log("HEY");
 		yield return E.Break;
 	}
 
 	IEnumerator OnEnterRoomAfterFade()
 	{
-		if(Globals.gameStage == gameProgress.TonyAte){
+		if((int)Globals.gameStage == 5){
 			yield return Thunderstorm();
 		
 		}
