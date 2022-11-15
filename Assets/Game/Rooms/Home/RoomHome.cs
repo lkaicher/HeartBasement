@@ -86,6 +86,8 @@ public class RoomHome : RoomScript<RoomHome>
 			Prop("Pump").Disable();
 			Prop("Handle").Disable();
 			Prop("Hose").Disable();
+		
+			Prop("ElectricPump").Disable();
 		}
 		
 		
@@ -523,7 +525,7 @@ public class RoomHome : RoomScript<RoomHome>
     {
 		I.Bucket.Add();
 		Prop("Bucket").Disable();
-		yield return C.Display("Bucket added to  your toolbox.", 34);
+		yield return C.Display("Bucket added to your toolbox.", 34);
 		
 		if (Globals.tutorialStage== tutorialProgress.start)
 		{
@@ -795,6 +797,15 @@ public class RoomHome : RoomScript<RoomHome>
 	IEnumerator OnInteractPropHandle( IProp prop )
 	{
 		yield return OnInteractPropPump(prop);
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractPropBox( IProp prop )
+	{
+		Prop("Box").Disable();
+		Prop("ElectricPump").Enable();
+		C.Dave.AddInventory(I.RepairKit);
+		yield return C.Display("Repair Kit added to your toolbox.");
 		yield return E.Break;
 	}
 }

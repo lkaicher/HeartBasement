@@ -132,8 +132,11 @@ MonoBehaviour:
   - {fileID: 871485924275079629, guid: f7a7bc7a25fd6c041abb82e20366868e, type: 3}
   - {fileID: 3021927386199317300, guid: 4e056deb48906394d92086ef652a183e, type: 3}
   - {fileID: 4039372558538899296, guid: 8dc06dc05388dd94490858c5da43a77d, type: 3}
+  - {fileID: 7958664658725197107, guid: ed307b40afe879443a9ffa6584f110d9, type: 3}
+  - {fileID: 8035120979859859466, guid: 271aca2975c2e494abb1ee83fe668911, type: 3}
   m_inventoryAnimations:
   - {fileID: 7400000, guid: 96a451a2543d7d44c815093b445695c8, type: 2}
+  - {fileID: 7400000, guid: df75e17ade9bcce4fa4f0244c39be7d8, type: 2}
   - {fileID: 7400000, guid: 10822a91df65a9848bc7a7d939c1897f, type: 2}
   - {fileID: 7400000, guid: fce68055d987bd74689d9a5bf8e2e515, type: 2}
   - {fileID: 7400000, guid: 2d57f5d8a52fcd44091ca8e253d946d6, type: 2}
@@ -147,7 +150,25 @@ MonoBehaviour:
   - {fileID: 7400000, guid: 3c8f45148fb260a4596cbb94a575f6d2, type: 2}
   - {fileID: 7400000, guid: 1e01d18b78c056746ae8904d1a6b8318, type: 2}
   - {fileID: 7400000, guid: 29f1260f6e39e2342a915c3f5781592f, type: 2}
-  m_inventorySprites: []
+  - {fileID: 7400000, guid: ce06231a1c59e9e4483a491a45df3bc3, type: 2}
+  m_inventorySprites:
+  - {fileID: 21300000, guid: 3922c0a8c80dd8f4099e6aaa35b4cde7, type: 3}
+  - {fileID: 21300000, guid: 1061dc069dcba0047a6738bdeb8dd2a9, type: 3}
+  - {fileID: 21300000, guid: b3a84eb010030704a9dbff797e24b370, type: 3}
+  - {fileID: 21300000, guid: 715f2475c5ab93b468836b59ddd3dcb5, type: 3}
+  - {fileID: 21300000, guid: cd806b6065e242241a2aca03a3c34464, type: 3}
+  - {fileID: 21300000, guid: 1744e6a839a0a8b4fbb613a7bf51e636, type: 3}
+  - {fileID: 21300000, guid: 92d6e8e94d4ba1141954063e34890398, type: 3}
+  - {fileID: 21300000, guid: 92271031da468814da0e3096a5a116a5, type: 3}
+  - {fileID: 21300000, guid: 179eed34d3c4b7141a068a013240456f, type: 3}
+  - {fileID: 21300000, guid: 68239c3b6ce2a7548893e26b49103e60, type: 3}
+  - {fileID: 21300000, guid: d453c0f0cb66ea345b8f57dfbfe7c122, type: 3}
+  - {fileID: 21300000, guid: 0a555dffd00b58a40925aa5c8391ec54, type: 3}
+  - {fileID: 21300000, guid: 3128a95e76c6adf44a7ffde8daa56743, type: 3}
+  - {fileID: 21300000, guid: ec776f3b5fec3a941ab98531e422d41c, type: 3}
+  - {fileID: 21300000, guid: 004fc181b8727fa4d94f991626b1afd1, type: 3}
+  - {fileID: 21300000, guid: 5f59617f85a0b3f4f9e5765c92254ace, type: 3}
+  - {fileID: 21300000, guid: c38fba680eab5fb4b88c22d3d9013293, type: 3}
   m_guiAnimations: []
   m_guiSprites:
   - {fileID: 21300000, guid: 6a87f4e540b9ead4ab036f0197dec31e, type: 3}
