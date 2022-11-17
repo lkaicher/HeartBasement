@@ -27,6 +27,9 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		RightParts,
 		TonyPumped,
 		TonyAte,
+		SecondFlood,
+		UsedElectricPump,
+		RepairedPump,
 		WonGame
 	};
 	

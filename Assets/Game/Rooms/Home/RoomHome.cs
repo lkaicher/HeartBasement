@@ -80,15 +80,17 @@ public class RoomHome : RoomScript<RoomHome>
     public IEnumerator OnEnterRoomAfterFade()
     {
 		
+		if (Globals.gameStage <= gameProgress.TonyAte){
+			Prop("ElectricPump").Disable();
+			Prop("Box").Disable();
+		}
 		// Put things here that happen when you enter a room
 		if ((Globals.gameStage <= gameProgress.UsedBucket))
 		{
 			Prop("Pump").Disable();
 			Prop("Handle").Disable();
 			Prop("Hose").Disable();
-		
-			Prop("ElectricPump").Disable();
-			Prop("Box").Disable();
+			
 		}
 		
 		
@@ -244,12 +246,15 @@ public class RoomHome : RoomScript<RoomHome>
 		}
 		
 		if ((int)Globals.gameStage == 5){
+			Globals.gameStage = gameProgress.SecondFlood;
 			yield return C.Dave.Say(" Finally! I got that dang water outta my dang basement!", 46);
 			yield return C.Dave.Say(" I sure hope that never happens again!", 47);
+			yield return E.Wait(1);
 			yield return E.FadeOut(1);
+			yield return C.Display(" Two weeks later...");
 			//Globals.gameStage = 0;
 			C.Dave.ChangeRoom(R.Map);
-			E.FadeIn(1);
+			yield return E.FadeIn(1);
 		}
 		
 		yield return E.Break;

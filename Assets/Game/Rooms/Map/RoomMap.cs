@@ -11,7 +11,8 @@ public class RoomMap : RoomScript<RoomMap>
 	
 	void OnEnterRoom()
 	{
-		
+		//GameObject.Find("Rain").SetActive(false);
+
 		
 		
 		C.Dave.SetPosition(Point(string.Format("{0}Point",C.Dave.LastRoom.ScriptName)));
@@ -159,16 +160,24 @@ public class RoomMap : RoomScript<RoomMap>
 
 	public IEnumerator Thunderstorm()
 	{
+		//GameObject.Find("Rain").SetActive(true);
 		C.Dave.Visible = false;
 		//yield return E.FadeIn(1);
 		yield return Prop("Back").Fade(1,(float) 0.50, 3,eEaseCurve.Smooth);
-		Debug.Log("HEY");
+		yield return E.Wait(3);
+		yield return E.FadeOut(1);
+		//GameObject.Find("Rain").SetActive(false);
+
+		C.Dave.Visible = true;
+		C.Dave.ChangeRoom(R.Home);
+		yield return E.FadeIn(1);
+		//Debug.Log("HEY");
 		yield return E.Break;
 	}
 
 	IEnumerator OnEnterRoomAfterFade()
 	{
-		if((int)Globals.gameStage == 5){
+		if((int)Globals.gameStage == 6){
 			yield return Thunderstorm();
 		
 		}
