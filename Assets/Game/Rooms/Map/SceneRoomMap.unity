@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 302914423}
   - component: {fileID: 302914422}
   m_Layer: 0
-  m_Name: Rain Generator
+  m_Name: Rain
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -236,7 +236,7 @@ ParticleSystem:
   startDelay:
     serializedVersion: 2
     minMaxState: 0
-    scalar: 10
+    scalar: 15
     minScalar: 0
     maxCurve:
       serializedVersion: 2
@@ -349,7 +349,7 @@ ParticleSystem:
     startSpeed:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 20
+      scalar: 10
       minScalar: 5
       maxCurve:
         serializedVersion: 2

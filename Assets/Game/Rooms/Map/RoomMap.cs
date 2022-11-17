@@ -7,11 +7,12 @@ using static GlobalScript;
 public class RoomMap : RoomScript<RoomMap>
 {
 
-	
+	GameObject rain;
 	
 	void OnEnterRoom()
 	{
-		//GameObject.Find("Rain").SetActive(false);
+		rain = GameObject.Find("Rain");
+		rain.SetActive(false);
 
 		
 		
@@ -160,13 +161,13 @@ public class RoomMap : RoomScript<RoomMap>
 
 	public IEnumerator Thunderstorm()
 	{
-		//GameObject.Find("Rain").SetActive(true);
+		rain.SetActive(true);
 		C.Dave.Visible = false;
 		//yield return E.FadeIn(1);
 		yield return Prop("Back").Fade(1,(float) 0.50, 3,eEaseCurve.Smooth);
 		yield return E.Wait(3);
 		yield return E.FadeOut(1);
-		//GameObject.Find("Rain").SetActive(false);
+		rain.SetActive(false);
 
 		C.Dave.Visible = true;
 		C.Dave.ChangeRoom(R.Home);
