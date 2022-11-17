@@ -169,7 +169,7 @@ public class RoomMap : RoomScript<RoomMap>
 		yield return E.FadeOut(1);
 		rain.SetActive(false);
 
-		C.Dave.Visible = true;
+		//C.Dave.Visible = true;
 		C.Dave.ChangeRoom(R.Home);
 		yield return E.FadeIn(1);
 		//Debug.Log("HEY");

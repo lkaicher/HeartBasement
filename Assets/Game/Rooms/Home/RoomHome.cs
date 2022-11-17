@@ -80,10 +80,7 @@ public class RoomHome : RoomScript<RoomHome>
     public IEnumerator OnEnterRoomAfterFade()
     {
 		
-		if (Globals.gameStage <= gameProgress.TonyAte){
-			Prop("ElectricPump").Disable();
-			Prop("Box").Disable();
-		}
+
 		// Put things here that happen when you enter a room
 		if ((Globals.gameStage <= gameProgress.UsedBucket))
 		{
@@ -113,9 +110,24 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return C.Dave.Face(eFace.Left, true);
 		}
 		
-		// sets water level according to the stage of the game
-		yield return ChangeWaterStage((int) Globals.gameStage, false);
-		
+
+		if (Globals.gameStage <= gameProgress.TonyAte){
+			// sets water level according to the stage of the game		
+			yield return ChangeWaterStage((int) Globals.gameStage, false);
+			Prop("ElectricPump").Disable();
+			Prop("Box").Disable();
+		} else if (Globals.gameStage == gameProgress.SecondFlood){
+			//C.Dave.Visible = false;
+			yield return FloodBasement();
+			yield return E.FadeOut(1);
+			C.Dave.Visible = true;
+			yield return E.FadeIn(1);
+		} else if (Globals.gameStage == gameProgress.UsedElectricPump){
+			yield return ChangeWaterStage(2, false);
+		}
+
+
+
 		
 		
 		yield return E.Break;
@@ -774,6 +786,20 @@ public class RoomHome : RoomScript<RoomHome>
 		//After we have waited 5 seconds print the time again.
 		//Debug.Log("Finished Coroutine at timestamp : " + Time.time);
 		yield return E.Break;
+	}
+
+	public IEnumerator FloodBasement() {
+		for(int i = 1; i <= 20; i++){
+			//Debug.Log("begin loop iteration "+ i);
+			LowerWater(i);
+			LowerWaterShader(i, "CharacterDave");
+			LowerWaterShader(i, "CharacterTony");
+			LowerWaterShader(i, "PropPumpProp");
+			LowerWaterShader(i, "PropHose");
+		
+			yield return new WaitForSeconds((float)0.1);
+			//Debug.Log(" end loop iteration "+ i);
+		}
 	}
 
 
