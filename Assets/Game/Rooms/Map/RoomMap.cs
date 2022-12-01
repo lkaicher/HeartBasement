@@ -168,10 +168,11 @@ public class RoomMap : RoomScript<RoomMap>
 		yield return E.Wait(3);
 		yield return E.FadeOut(1);
 		rain.SetActive(false);
-
+		
 		//C.Dave.Visible = true;
 		C.Dave.ChangeRoom(R.Home);
-		yield return E.FadeIn(1);
+		
+		E.FadeInBG(1);
 		//Debug.Log("HEY");
 		yield return E.Break;
 	}
@@ -183,6 +184,12 @@ public class RoomMap : RoomScript<RoomMap>
 		
 		}
 		
+		yield return E.Break;
+	}
+
+	IEnumerator OnExitRoom( IRoom oldRoom, IRoom newRoom )
+	{
+		G.Inventory.Show();
 		yield return E.Break;
 	}
 }

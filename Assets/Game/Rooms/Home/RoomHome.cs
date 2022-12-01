@@ -262,16 +262,19 @@ public class RoomHome : RoomScript<RoomHome>
 				"Walk all the way to the right and click the door to leave your basement.", 36);
 		}
 		
-		if ((int)Globals.gameStage == 11){
+		if ((int)Globals.gameStage == 5){
 			Globals.gameStage = gameProgress.SecondFlood;
 			yield return C.Dave.Say(" Finally! We got that dang water outta my dang basement!", 46);
 			yield return C.Dave.Say(" I sure hope that never happens again!", 47);
 			yield return E.Wait(1);
 			yield return E.FadeOut(1);
+			Prop("Pump").Disable();
+			Prop("Hose").Disable();
+			Prop("Handle").Disable();
 			yield return C.Display(" Two weeks later...");
 			//Globals.gameStage = 0;
 			C.Dave.ChangeRoom(R.Map);
-			yield return E.FadeIn(1);
+			E.FadeInBG(1);
 		}
 		
 		yield return E.Break;
@@ -720,15 +723,7 @@ public class RoomHome : RoomScript<RoomHome>
 		C.Tony.StopAnimation();
 		Prop("Pump").Visible = true;
 		Prop("Handle").Visible = true;
-			Globals.gameStage = gameProgress.SecondFlood;
-			yield return C.Dave.Say(" Finally! We got that dang water outta my dang basement!", 46);
-			yield return C.Dave.Say(" I sure hope that never happens again!", 47);
-			yield return E.Wait(1);
-			yield return E.FadeOut(1);
-			yield return C.Display(" Two weeks later...");
-			//Globals.gameStage = 0;
-			C.Dave.ChangeRoom(R.Map);
-			yield return E.FadeIn(1);
+		
 		}
 		yield return E.Break;
 	}

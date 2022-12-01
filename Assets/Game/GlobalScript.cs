@@ -59,13 +59,13 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	public void OnGameStart()
 	{     
 		// GAME STAGE
-		Globals.gameStage = gameProgress.RightParts;
+		Globals.gameStage = gameProgress.TonyAte;
 		
 		
 		
 		I.CellPhone.Add();
 		SetInventory();
-		C.Tony.Disable();
+		//C.Tony.Disable();
 		
 		//
 		
@@ -74,9 +74,9 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		
 		// I.BilgePump.Add();
 		 // C.Tony.Enable();
-		  //C.Tony.ChangeRoom(R.Home);
+		 // C.Tony.ChangeRoom(R.Home);
 		
-		
+		//I.Beer.Add();
 		/*
 		
 		 I.BilgePump.Add();
