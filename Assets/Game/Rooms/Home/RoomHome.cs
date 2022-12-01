@@ -80,14 +80,14 @@ public class RoomHome : RoomScript<RoomHome>
     public IEnumerator OnEnterRoomAfterFade()
     {
 		
-
+		
 		// Put things here that happen when you enter a room
 		if ((Globals.gameStage <= gameProgress.UsedBucket))
 		{
 			Prop("Pump").Disable();
 			Prop("Handle").Disable();
 			Prop("Hose").Disable();
-			
+		
 		}
 		
 		
@@ -110,24 +110,29 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return C.Dave.Face(eFace.Left, true);
 		}
 		
-
+		
 		if (Globals.gameStage <= gameProgress.TonyAte){
-			// sets water level according to the stage of the game		
-			yield return ChangeWaterStage((int) Globals.gameStage, false);
-			Prop("ElectricPump").Disable();
+			// sets water level according to the stage of the game
+				Prop("ElectricPump").Disable();
 			Prop("Box").Disable();
+			yield return ChangeWaterStage((int) Globals.gameStage, false);
+		
 		} else if (Globals.gameStage == gameProgress.SecondFlood){
+			C.Tony.Disable();
 			//C.Dave.Visible = false;
 			yield return FloodBasement();
-			yield return E.FadeOut(1);
+			yield return E.FadeOut((float)0.25);
 			C.Dave.Visible = true;
-			yield return E.FadeIn(1);
+			yield return E.FadeIn((float)0.25);
+			yield return E.Break;
+		
+		
 		} else if (Globals.gameStage == gameProgress.UsedElectricPump){
 			yield return ChangeWaterStage(2, false);
 		}
-
-
-
+		
+		
+		
 		
 		
 		yield return E.Break;
@@ -257,9 +262,9 @@ public class RoomHome : RoomScript<RoomHome>
 				"Walk all the way to the right and click the door to leave your basement.", 36);
 		}
 		
-		if ((int)Globals.gameStage == 5){
+		if ((int)Globals.gameStage == 11){
 			Globals.gameStage = gameProgress.SecondFlood;
-			yield return C.Dave.Say(" Finally! I got that dang water outta my dang basement!", 46);
+			yield return C.Dave.Say(" Finally! We got that dang water outta my dang basement!", 46);
 			yield return C.Dave.Say(" I sure hope that never happens again!", 47);
 			yield return E.Wait(1);
 			yield return E.FadeOut(1);
@@ -702,6 +707,7 @@ public class RoomHome : RoomScript<RoomHome>
 	IEnumerator OnUseInvCharacterTony( ICharacter character, IInventory item )
 	{
 		if (item == I.Beer) {
+		item.Remove();
 		yield return C.Tony.Say("Pizza AND beer?!", 5);
 		yield return C.Tony.Say("Just what I needed!", 6);
 		Prop("Pump").Visible = false;
@@ -714,7 +720,15 @@ public class RoomHome : RoomScript<RoomHome>
 		C.Tony.StopAnimation();
 		Prop("Pump").Visible = true;
 		Prop("Handle").Visible = true;
-		
+			Globals.gameStage = gameProgress.SecondFlood;
+			yield return C.Dave.Say(" Finally! We got that dang water outta my dang basement!", 46);
+			yield return C.Dave.Say(" I sure hope that never happens again!", 47);
+			yield return E.Wait(1);
+			yield return E.FadeOut(1);
+			yield return C.Display(" Two weeks later...");
+			//Globals.gameStage = 0;
+			C.Dave.ChangeRoom(R.Map);
+			yield return E.FadeIn(1);
 		}
 		yield return E.Break;
 	}

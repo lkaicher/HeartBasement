@@ -453,7 +453,7 @@ MonoBehaviour:
     m_animation: ElectricPump
     m_alpha: 1
     m_position: {x: 0, y: 0}
-    m_baseline: 0
+    m_baseline: -83
     m_baselineFixed: 0
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: 0, y: 0}
@@ -570,7 +570,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1080
+  m_SortingOrder: 1910
   m_Sprite: {fileID: 21300000, guid: 995e78df5e844a649a2ce3ce2f3f7b1e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -1580,7 +1580,7 @@ MonoBehaviour:
     m_animation: Box
     m_alpha: 1
     m_position: {x: 0, y: 0}
-    m_baseline: 0
+    m_baseline: -57
     m_baselineFixed: 0
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: 0, y: 0}
@@ -1692,7 +1692,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1518
+  m_SortingOrder: 2088
   m_Sprite: {fileID: 21300000, guid: 1061dc069dcba0047a6738bdeb8dd2a9, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

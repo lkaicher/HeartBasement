@@ -59,7 +59,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	public void OnGameStart()
 	{     
 		// GAME STAGE
-		Globals.gameStage = gameProgress.TonyAte;
+		Globals.gameStage = gameProgress.RightParts;
 		
 		
 		

@@ -165,4 +165,28 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 		
 		yield return E.Break;
 	}
+
+	IEnumerator Option5( IDialogOption option )
+	{
+		yield return C.Display("You've reached PumpCo, how may I help you?");
+		yield return C.Dave.Say(" I need the biggest, baddest pump you've got.");
+		yield return C.Display(" That would be the Pump-o-matic 5000.");
+		yield return C.Display(" It's our top of the line model, all electric.");
+		yield return C.Dave.Say(" I'll take it.");
+		yield return C.Dave.Say(" And make that express delivery.");
+		yield return C.Display("Ok, it will be there pronto.");
+		
+		
+		yield return E.FadeOut(1);
+		yield return C.Display("3 minutes later");
+		Prop("Box").Enable();
+		Prop("Pump").Disable();
+		Prop("Handle").Disable();
+		Prop("Hose").Disable();
+		Stop();
+		yield return E.FadeIn(1);
+		yield return C.Dave.Say("Wow.");
+		yield return E.Wait();
+		yield return C.Dave.Say("That was fast.");
+	}
 }
