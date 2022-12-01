@@ -23,11 +23,15 @@ public class CharacterHardwareClerk : CharacterScript<CharacterHardwareClerk>
 		
 		
 		 if (D.DialogWithClerk.GetOption(2).Used) {
+		
 			 D.BuyOptions.Start();
 		 } else if (D.DialogWithClerk.GetOption(1).Used && Globals.gameStage <= gameProgress.UsedBucket) {
 			 yield return C.HardwareClerk.Say("Good luck.", 0);
+		 } else if (D.DialogWithClerk.GetOption(1).Used){
+			 yield return E.HandleOption( D.DialogWithClerk, "2");
 		 } else {
-			 D.DialogWithClerk.Start();
+			 yield return E.HandleOption( D.DialogWithClerk, "1");
+		
 		 }
 		
 		
