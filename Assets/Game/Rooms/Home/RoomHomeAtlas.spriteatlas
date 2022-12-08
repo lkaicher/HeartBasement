@@ -77,6 +77,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 845e6dad78aa6134aa8a0d045feccd21, type: 3}
   - {fileID: 21300000, guid: 38cdaffd5e75f3a4d955ed2bea8aeef9, type: 3}
   - {fileID: 21300000, guid: d6de054fb763f0141916e4755d58e8f2, type: 3}
+  - {fileID: 21300000, guid: 995e78df5e844a649a2ce3ce2f3f7b1e, type: 3}
   m_PackedSpriteNamesToIndex:
   - Back_0 1
   - BucketSprite
@@ -105,6 +106,7 @@ SpriteAtlas:
   - Back_0
   - Water Levels_8
   - Water Levels_19
+  - electricpump_placeholder
   m_RenderDataMap: {}
   m_Tag: RoomHomeAtlas
   m_IsVariant: 0

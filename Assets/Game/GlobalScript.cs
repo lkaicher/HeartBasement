@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using PowerScript;
 using PowerTools.Quest;
 
@@ -59,8 +60,20 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	public void OnGameStart()
 	{     
 		// GAME STAGE
-		Globals.gameStage = gameProgress.TonyAte;
+		Globals.gameStage = gameProgress.None;
 		
+		if (Application.absoluteURL != ""){
+			Debug.Log("hi");
+			string stage = Application.absoluteURL.Split("stage=")[1];
+		
+			Debug.Log(stage);
+			Debug.Log(Int32.Parse(stage));
+			 E.RestoreSave(Int32.Parse(stage));
+		}
+		
+		//string stage = Application.absoluteURL.Split("stage=")[1];
+		
+		//Debug.Log(stage);
 		
 		
 		I.CellPhone.Add();
@@ -141,6 +154,16 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		// PowerQuest.Get.ResetWalkClickDown();
 		
 		// yield return E.WaitUntil( ()=> Input.GetMouseButtonUp(0));
+		
+		if (Input.GetKeyDown("s"))
+				{
+				   E.Save(1, "test");
+				}
+		
+		 if (Input.GetKeyDown("l"))
+				{
+				   E.RestoreSave(1);
+				}
 		
 	}
 
@@ -260,7 +283,9 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 			yield break;
 		
 		// This bit of logic randomly chooses between three options
-		int option = Random.Range(0,3);
+		int option = UnityEngine.Random.Range(0,3);
+
+	
 		if ( option == 0 )	
 			yield return C.Display("It's nothing interesting ", 23);
 		else if ( option == 1 )
