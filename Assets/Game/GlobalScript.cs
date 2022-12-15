@@ -62,16 +62,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		// GAME STAGE
 		Globals.gameStage = gameProgress.None;
 		
-		if (Application.absoluteURL != ""){
-			Debug.Log("hi");
-			string stage = Application.absoluteURL.Split("stage=")[1];
-		
-			Debug.Log(stage);
-			Debug.Log(Int32.Parse(stage));
-			 E.RestoreSave(Int32.Parse(stage));
-		}
-		
-		//string stage = Application.absoluteURL.Split("stage=")[1];
+
 		
 		//Debug.Log(stage);
 		
