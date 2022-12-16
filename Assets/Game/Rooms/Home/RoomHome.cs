@@ -84,9 +84,14 @@ public class RoomHome : RoomScript<RoomHome>
 		// Put things here that happen when you enter a room
 		if ((Globals.gameStage <= gameProgress.UsedBucket))
 		{
+		
 			Prop("Pump").Disable();
 			Prop("Handle").Disable();
 			Prop("Hose").Disable();
+		
+			  Prop("ElectricPump").Disable();
+			Prop("Box").Disable();
+		
 		
 		}
 		
@@ -111,7 +116,7 @@ public class RoomHome : RoomScript<RoomHome>
 		}
 		
 		
-		if (Globals.gameStage <= gameProgress.TonyAte){
+		if ((Globals.gameStage <= gameProgress.TonyAte)){
 			// sets water level according to the stage of the game
 				Prop("ElectricPump").Disable();
 			Prop("Box").Disable();
@@ -271,7 +276,7 @@ public class RoomHome : RoomScript<RoomHome>
 			Prop("Pump").Disable();
 			Prop("Hose").Disable();
 			Prop("Handle").Disable();
-			yield return C.Display(" Two weeks later...");
+			yield return C.Display(" Two weeks later...", 53);
 			//Globals.gameStage = 0;
 			C.Dave.ChangeRoom(R.Map);
 			E.FadeInBG(1);
@@ -331,8 +336,8 @@ public class RoomHome : RoomScript<RoomHome>
 			C.Dave.StopAnimation();
 			Prop("Pump").Visible = true;
 			Prop("Handle").Visible = true;
-			yield return C.Dave.Say("I'm pooped! I need some extra muscle.");
-			yield return C.Dave.Say("I bet my friend Tony could help out, I should give him a call.");
+			yield return C.Dave.Say("I'm pooped! I need some extra muscle.", 25);
+			yield return C.Dave.Say("I bet my friend Tony could help out, I should give him a call.", 26);
 		}
 		else if (currentHandle == handleType.large && currentHose == hoseType.large)
 		{
@@ -848,7 +853,7 @@ public class RoomHome : RoomScript<RoomHome>
 		Prop("Box").Disable();
 		Prop("ElectricPump").Enable();
 		C.Dave.AddInventory(I.RepairKit);
-		yield return C.Display("Repair Kit added to your toolbox.");
+		yield return C.Display("Repair Kit added to your toolbox.", 54);
 		yield return E.Break;
 	}
 }

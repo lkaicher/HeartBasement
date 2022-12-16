@@ -11,10 +11,13 @@ Character,ID,File,Context,English,PhaseOne,PhaseTwo
 "Dave","4","Room- Home","OnUseInvPropWater","This is too hard! I think the handle is too short and the diameter of the hose is too small, I need to go back to the hardware store.","","The stroke volume isn't enough! What about afterload??"
 "Dave","5","Room- Home","OnLookAtPropWater","That's a lot of water!","",""
 "Narr","36","Room- Home","UpdateBlocking","Walk all the way to the right and click the door to leave your basement.","",""
-"Dave","46","Room- Home","UpdateBlocking"," Finally! I got that dang water outta my dang basement!",,
+"Dave","46","Room- Home","UpdateBlocking"," Finally! We got that dang water outta my dang basement!",,
 "Dave","47","Room- Home","UpdateBlocking"," I sure hope that never happens again!",,
+"Narr","53","Room- Home","UpdateBlocking"," Two weeks later...",,
 "Narr","2","Room- Home","OnInteractPropPump","Congratulations! The water level has decreased. However, it is not enough...","",""
 "Dave","4","Room- Home","OnInteractPropPump","This is too hard! I think the handle is too short and the diameter of the hose is too small, I need to go back to the hardware store.","","The stroke volume isn't enough! What about afterload??"
+"Dave","25","Room- Home","OnInteractPropPump","I'm pooped! I need some extra muscle.",,
+"Dave","26","Room- Home","OnInteractPropPump","I bet my friend Tony could help out, I should give him a call.",,
 "Narr","3","Room- Home","OnInteractPropPump","You've chosen the correct parts for the pump and the water level has decreased.","","By using the Large Handle, you have increased the stroke volume of the pump (heart)"
 "Dave","7","Room- Home","OnInteractPropPump","Still not enough... I could use some extra hands.","","One of the ways to improve heart failure is to recruit more muscle with medication or other methods"
 "Dave","8","Room- Home","OnInteractPropPump"," This isn't any better. I should try different parts.","","Physiologically speaking, what else can you do to improve heart function?"
@@ -25,7 +28,7 @@ Character,ID,File,Context,English,PhaseOne,PhaseTwo
 "Narr","6","Room- Home","OnInteractCharacterNeighbor2"," 30 minutes later...","",""
 "Neighbor2","0","Room- Home","OnInteractCharacterNeighbor2","Phew, I'm exhausted","",""
 "Dave","9","Room- Home","OnInteractCharacterNeighbor2"," Me too. We could use some extra muscle.","",""
-"Narr","34","Room- Home","OnInteractPropBucket","Bucket added to  your toolbox.","",""
+"Narr","34","Room- Home","OnInteractPropBucket","Bucket added to your toolbox.","",""
 "Dave","42","Room- Home","OnInteractPropBucket"," There it is! Now I can scoop up some of this water.","",""
 "Narr","32","Room- Home","OnInteractPropBucket"," Click on the bucket icon in your toolbox to select it.","",""
 "Dave","43","Room- Home","OnLookAtPropBucket"," There's my bucket! I can use that to scoop out the water.","","Medically, consider the bucket to be a Diuretic "
@@ -48,7 +51,8 @@ Character,ID,File,Context,English,PhaseOne,PhaseTwo
 "Dave","60","Room- Home","OnInteractHotspotCouch"," I can?t believe I thought this looked good.",,
 "Tony","5","Room- Home","OnUseInvCharacterTony","Pizza AND beer?!",,
 "Tony","6","Room- Home","OnUseInvCharacterTony","Just what I needed!",,
-"Dave","32","Room- Map","OnLookAtCharacterTony"," What a trip!",,
+"Narr","54","Room- Home","OnInteractPropBox","Repair Kit added to your toolbox.",,
+"Dave","32","Room- Map","OnInteractPropBox"," What a trip!",,
 "Narr","7","Room- Map","OnLookAtPropHardware"," The Hardware Store","",""
 "Narr","8","Room- Map","OnLookAtPropHome"," Home","",""
 "Narr","9","Room- Map","OnLookAtPropNeighbor1"," Jim's House","",""
@@ -159,6 +163,16 @@ Character,ID,File,Context,English,PhaseOne,PhaseTwo
 "Narr","19","Dialog- UsePhone","Option2"," Your order will be there in 30 minutes.","",""
 "Narr","51","Dialog- UsePhone","Option2","30 minutes later...",,
 "Narr","52","Dialog- UsePhone","Option2","Pizza & Beer have been added to your inventory",,
+"Narr","55","Dialog- UsePhone","Option5","You've reached PumpCo, how may I help you?",,
+"Dave","108","Dialog- UsePhone","Option5"," I need the biggest, baddest pump you've got.",,
+"Narr","56","Dialog- UsePhone","Option5"," That would be the Pump-o-matic 5000.",,
+"Narr","57","Dialog- UsePhone","Option5"," It's our top of the line model, all electric.",,
+"Dave","109","Dialog- UsePhone","Option5"," I'll take it.",,
+"Dave","110","Dialog- UsePhone","Option5"," And make that express delivery.",,
+"Narr","58","Dialog- UsePhone","Option5","Ok, it will be there pronto.",,
+"Narr","59","Dialog- UsePhone","Option5","3 minutes later",,
+"Dave","111","Dialog- UsePhone","Option5","Wow.",,
+"Dave","112","Dialog- UsePhone","Option5","That was fast.",,
 "Narr","20","Global Script","UnhandledInteract","You can't use that","",""
 "Narr","21","Global Script","UnhandledInteract","That doesn't work","",""
 "Narr","22","Global Script","UnhandledInteract","Nothing happened","",""

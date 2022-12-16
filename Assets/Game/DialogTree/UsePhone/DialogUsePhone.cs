@@ -10,6 +10,7 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 	{
 		D.UsePhone.OptionOff(1);
 		D.UsePhone.OptionOff(2);
+		D.UsePhone.OptionOff(5);
 		
 		if (Globals.gameStage >= gameProgress.TriedPump1){
 			D.UsePhone.OptionOn(1);
@@ -17,6 +18,10 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 		}
 		if (Globals.gameStage == gameProgress.TonyPumped) {
 			D.UsePhone.OptionOn(2);
+			}
+		
+		if (Globals.gameStage == gameProgress.TonyAte) {
+			D.UsePhone.OptionOn(5);
 			}
 		
 		
@@ -168,25 +173,25 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 
 	IEnumerator Option5( IDialogOption option )
 	{
-		yield return C.Display("You've reached PumpCo, how may I help you?");
-		yield return C.Dave.Say(" I need the biggest, baddest pump you've got.");
-		yield return C.Display(" That would be the Pump-o-matic 5000.");
-		yield return C.Display(" It's our top of the line model, all electric.");
-		yield return C.Dave.Say(" I'll take it.");
-		yield return C.Dave.Say(" And make that express delivery.");
-		yield return C.Display("Ok, it will be there pronto.");
+		yield return C.Display("You've reached PumpCo, how may I help you?", 55);
+		yield return C.Dave.Say(" I need the biggest, baddest pump you've got.", 108);
+		yield return C.Display(" That would be the Pump-o-matic 5000.", 56);
+		yield return C.Display(" It's our top of the line model, all electric.", 57);
+		yield return C.Dave.Say(" I'll take it.", 109);
+		yield return C.Dave.Say(" And make that express delivery.", 110);
+		yield return C.Display("Ok, it will be there pronto.", 58);
 		
 		
 		yield return E.FadeOut(1);
-		yield return C.Display("3 minutes later");
+		yield return C.Display("3 minutes later", 59);
 		Prop("Box").Enable();
 		Prop("Pump").Disable();
 		Prop("Handle").Disable();
 		Prop("Hose").Disable();
 		Stop();
 		yield return E.FadeIn(1);
-		yield return C.Dave.Say("Wow.");
+		yield return C.Dave.Say("Wow.", 111);
 		yield return E.Wait();
-		yield return C.Dave.Say("That was fast.");
+		yield return C.Dave.Say("That was fast.", 112);
 	}
 }

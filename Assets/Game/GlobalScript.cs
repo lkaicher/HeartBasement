@@ -62,14 +62,14 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		// GAME STAGE
 		Globals.gameStage = gameProgress.None;
 		
-
+		
 		
 		//Debug.Log(stage);
 		
 		
 		I.CellPhone.Add();
 		SetInventory();
-		//C.Tony.Disable();
+		C.Tony.Disable();
 		
 		//
 		
