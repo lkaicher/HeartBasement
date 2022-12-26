@@ -1673,18 +1673,11 @@ MonoBehaviour:
   - {fileID: 3776840236462207789}
   m_animations: []
   m_sprites:
-  - {fileID: 21300000, guid: 2b81211b59a62ba4c85702f7b1ecc72e, type: 3}
   - {fileID: 21300000, guid: 00234bed2c99fba49a7649d430d26ac8, type: 3}
-  - {fileID: 21300000, guid: 9759e64b36cb7974aacc50f578447d5d, type: 3}
-  - {fileID: 21300000, guid: 0f78c4f23ae87b94ea5bafe5928371c1, type: 3}
-  - {fileID: 21300000, guid: 644ebaab8b82d8747946e583321867a9, type: 3}
-  - {fileID: 21300000, guid: d9a415e880ca645458ead0ad9bad03c2, type: 3}
   - {fileID: 21300000, guid: 53d01dc81eac9f94db942e1dd8f3a2f2, type: 3}
   - {fileID: 21300000, guid: 3491c3b818831194d80ab44d0bbfdde0, type: 3}
   - {fileID: 21300000, guid: d39c9af15ce3f6046890fea10f8f35e5, type: 3}
   - {fileID: 21300000, guid: a21da2fb8df4e5749a0dff3b8cad6720, type: 3}
-  - {fileID: 21300000, guid: fbfbd598f53afdd4f8a2c9dbc7c69dd3, type: 3}
-  - {fileID: 21300000, guid: f9fb5e1fbeea3844ca2587f2e906bd16, type: 3}
 --- !u!1 &6204995005782182605
 GameObject:
   m_ObjectHideFlags: 0
