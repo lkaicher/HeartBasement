@@ -523,34 +523,6 @@ public class RoomHome : RoomScript<RoomHome>
 		
  }
 
-    IEnumerator OnInteractCharacterNeighbor2(ICharacter character)
-    {
-        Camera.SetCharacterToFollow(C.Neighbor2, 200);
-
-        C.Neighbor2.WalkToBG(Point("WindowPosition"));
-        yield return C.Dave.WalkTo(Point("PumpPosition"));
-
-        yield return E.WaitUntil(() => C.Neighbor2.Position == Point("WindowPosition"));
-
-        yield return C.Display(
-            "Jim helps get some more water out by scooping it out the window with his bucket. Equivalent to using a diuretic.", 5);
-
-        Globals.gameStage = gameProgress.TonyPumped;
-        // lowerWater();
-
-        yield return E.Wait(2);
-        yield return E.FadeOut();
-        yield return C.Display(" 30 minutes later...", 6);
-        yield return E.FadeIn();
-
-        yield return C.Neighbor2.Say("Phew, I'm exhausted", 0);
-
-        yield return C.Dave.Say(" Me too. We could use some extra muscle.", 9);
-
-        Camera.SetCharacterToFollow(C.Dave, 200);
-
-        yield return E.Break;
-    }
 
     // void OnPostRestore(int version) { }
 
