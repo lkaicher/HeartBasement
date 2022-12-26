@@ -97,11 +97,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 		yield return E.Break;
 	}
 
-	IEnumerator OnInteractCharacterNeighbor2( ICharacter character )
-	{
 
-		yield return E.Break;
-	}
 
 	IEnumerator OnEnterRegionScale( IRegion region, ICharacter character )
 	{

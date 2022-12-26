@@ -56,11 +56,7 @@ public class RoomMap : RoomScript<RoomMap>
 		yield return E.Break;
 	}
 
-	IEnumerator OnInteractPropNeighbor2( IProp prop )
-	{
 
-		yield return E.Break;
-	}
 
 	IEnumerator OnInteractPropNeighbor1( IProp prop )
 	{
@@ -87,11 +83,6 @@ public class RoomMap : RoomScript<RoomMap>
 		yield return E.Break;
 	}
 
-	IEnumerator OnLookAtPropNeighbor2( IProp prop )
-	{
-		yield return C.Display(" Bob's House", 10);
-		yield return E.Break;
-	}
 
 	IEnumerator OnLookAtCharacterDave( ICharacter character )
 	{
@@ -141,23 +132,6 @@ public class RoomMap : RoomScript<RoomMap>
 		yield return E.Break;
 	}
 
-	IEnumerator OnUseInvCharacterNeighbor2( ICharacter character, IInventory item )
-	{
-
-		yield return E.Break;
-	}
-
-	IEnumerator OnInteractCharacterNeighbor2( ICharacter character )
-	{
-
-		yield return E.Break;
-	}
-
-	IEnumerator OnLookAtCharacterNeighbor2( ICharacter character )
-	{
-
-		yield return E.Break;
-	}
 
 	public IEnumerator Thunderstorm()
 	{
