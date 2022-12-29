@@ -49,6 +49,7 @@ namespace PowerScript
 		public static IGui SpeechBox		{ get{return PowerQuest.Get.GetGui("SpeechBox"); } }
 		public static IGui Options        { get { return PowerQuest.Get.GetGui("Options"); } }
 		public static IGui Save           { get { return PowerQuest.Get.GetGui("Save"); } }
+		public static IGui Menu           { get { return PowerQuest.Get.GetGui("Menu"); } }
 		// #GUI# - Do not edit this line, it's used by the system to insert rooms for easy access
 	}
 
@@ -59,6 +60,7 @@ namespace PowerScript
 		public static IRoom Map		{ get{return PowerQuest.Get.GetRoom("Map"); } }
 		public static IRoom Hardware		{ get{return PowerQuest.Get.GetRoom("Hardware"); } }
 		public static IRoom Cutscene		{ get{return PowerQuest.Get.GetRoom("Cutscene"); } }
+		public static IRoom Menu           { get { return PowerQuest.Get.GetRoom("Menu"); } }
 		// #ROOM# - Do not edit this line, it's used by the system to insert rooms for easy access
 	}
 

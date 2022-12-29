@@ -100,17 +100,18 @@ MonoBehaviour:
   - {fileID: 6691753714027150367, guid: 7c0ae79c116ab474698aa2d37b3a1399, type: 3}
   - {fileID: 3733532514121063368, guid: 23fdac69010168444a76818029d7630a, type: 3}
   - {fileID: 707601457055817731, guid: 44651c51f21780a4ca86fbfaede30fb2, type: 3}
+  - {fileID: 8215673016122429824, guid: 2ad501e2f7cb3974f8a56bdd98126f06, type: 3}
   m_characterPrefabs:
   - {fileID: 114953134120639602, guid: b4910caf4195aeb45895069ad277b9fd, type: 3}
   - {fileID: 6035720155002498351, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
   - {fileID: 114894982771319608, guid: 65de018bf92bf6a4088d8c3f977119e7, type: 3}
-  - {fileID: 4870277455036649029, guid: ef96f9240e30bc64a8ab75184977f7b2, type: 3}
   m_guiPrefabs:
   - {fileID: 114997530584156344, guid: 411a5d13109ce024888cfebc375721e4, type: 3}
   - {fileID: 11415644, guid: d8cae87a9052f7b4eaaa6894c6d8a869, type: 3}
   - {fileID: 11402302, guid: d4cb4513b770e8043a8c9d7b13ecb928, type: 3}
   - {fileID: 11409846, guid: 91c75eda8b79c5e4d8831c7d8f32fa41, type: 3}
   - {fileID: 11470062, guid: e86f1d97230418f4fb0a3da974facc78, type: 3}
+  - {fileID: 5693220643866207397, guid: df4af45eb64ca82429c7368e8cf8c48b, type: 3}
   - {fileID: 2352130863124800982, guid: 09b12e39d168bdf41b05dbc3a73c4ec9, type: 3}
   - {fileID: 6917939254628468773, guid: ee4ca9a030a8fb1429ec3aab2b38301f, type: 3}
   - {fileID: 8608667894250024884, guid: 2f4aa3f9ba456f34782aaea4044bddaf, type: 3}

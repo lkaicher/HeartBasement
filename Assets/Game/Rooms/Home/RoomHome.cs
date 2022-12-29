@@ -108,6 +108,8 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return E.WaitSkip();
 			yield return C.Display(
 				"Your bucket is over on the shelf. Click on it to add it to your inventory.", 30);
+			yield return E.WaitSkip();
+		
 		}
 		else
 		{
@@ -264,7 +266,7 @@ public class RoomHome : RoomScript<RoomHome>
 			Globals.gameStage = gameProgress.UsedBucket;
 		
 			yield return C.Display(
-				"Walk all the way to the right and click the door to leave your basement.", 36);
+				"Click the door to leave your basement.", 36);
 		}
 		
 		if ((int)Globals.gameStage == 5){

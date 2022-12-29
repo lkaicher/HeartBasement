@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System;
 using PowerScript;
 using PowerTools.Quest;
+using static RoomHome;
 
 ///	Global Script: The home for your game specific logic
 /**		
@@ -155,6 +156,25 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 				{
 				   E.RestoreSave(1);
 				}
+		
+		// set game stage
+		// set to beginning of game
+		if (Input.GetKeyDown(KeyCode.Alpha1)){
+			E.Restart();
+		}
+		// set to end of tutorial
+		if (Input.GetKeyDown(KeyCode.Alpha2)){
+			E.FadeOut();
+			Globals.gameStage = gameProgress.UsedBucket;
+			Globals.tutorialStage = tutorialProgress.complete;
+			//StageComplete();
+			C.Dave.ClearInventory();
+			I.CellPhone.Add();
+			I.Bucket.Add();
+			C.Dave.ChangeRoomBG(R.Home);
+			E.FadeIn();
+		}
+		
 		
 	}
 
