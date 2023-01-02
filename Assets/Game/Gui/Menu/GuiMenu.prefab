@@ -61,8 +61,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_data:
     m_baseline: -1
-    m_visible: 1
-    m_visibleInCutscenes: 1
+    m_visible: 0
+    m_visibleInCutscenes: 0
     m_modal: 0
     m_pauseGame: 0
     m_hideObscuredGuis: 0

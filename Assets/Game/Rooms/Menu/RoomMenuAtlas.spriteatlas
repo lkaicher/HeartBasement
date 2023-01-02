@@ -49,8 +49,10 @@ SpriteAtlas:
     isAtlasV2: 0
     cachedData: {fileID: 0}
   m_MasterAtlas: {fileID: 0}
-  m_PackedSprites: []
-  m_PackedSpriteNamesToIndex: []
+  m_PackedSprites:
+  - {fileID: 21300000, guid: dd6e28f3a372a5c4086576ce8e15ef90, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - title
   m_RenderDataMap: {}
   m_Tag: RoomMenuAtlas
   m_IsVariant: 0

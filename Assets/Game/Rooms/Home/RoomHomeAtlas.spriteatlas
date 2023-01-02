@@ -50,7 +50,6 @@ SpriteAtlas:
     cachedData: {fileID: 0}
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
-  - {fileID: 21300000, guid: 1e57463098e48654e9f0e560017f15ad, type: 3}
   - {fileID: 21300000, guid: 7a785040b5041074f82f5bc8e6000f89, type: 3}
   - {fileID: 21300000, guid: 2cdc31b04a3259041a9c5e83380b8535, type: 3}
   - {fileID: 21300000, guid: f91541f0cac0aab4bbc83cdc29dcaf4d, type: 3}
@@ -79,7 +78,6 @@ SpriteAtlas:
   - {fileID: 21300000, guid: d6de054fb763f0141916e4755d58e8f2, type: 3}
   - {fileID: 21300000, guid: 995e78df5e844a649a2ce3ce2f3f7b1e, type: 3}
   m_PackedSpriteNamesToIndex:
-  - Back_0 1
   - BucketSprite
   - Water Levels_6
   - PumpBase
