@@ -8,15 +8,16 @@ public class GuiChapterSelect : GuiScript<GuiChapterSelect>
 {
 
 
-	IEnumerator OnClickSelectStage( IGuiControl control )
-	{
-		Control("MainGrid").Hide();
-		Control("ChapterGrid").Show();
-		yield return E.Break;
-	}
 
 	void OnShow()
 	{
-		Container("ChapterGrid").Hide();
+		
+	}
+
+	IEnumerator OnClickBack( IGuiControl control )
+	{
+		G.ChapterSelect.Hide();
+		G.TitleMenu.Show();
+		yield return E.Break;
 	}
 }

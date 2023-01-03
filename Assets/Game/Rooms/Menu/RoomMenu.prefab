@@ -142,8 +142,7 @@ MonoBehaviour:
   m_regionComponents: []
   m_walkableAreas:
   - {fileID: 3628566914623175966}
-  m_animations:
-  - {fileID: 7400000, guid: 949d200669e793949aa47801b55b2540, type: 2}
+  m_animations: []
   m_sprites:
   - {fileID: 21300000, guid: dd6e28f3a372a5c4086576ce8e15ef90, type: 3}
 --- !u!1 &8234865408355761746
@@ -201,7 +200,7 @@ MonoBehaviour:
     m_animation: Back
     m_alpha: 1
     m_position: {x: 0, y: 0}
-    m_baseline: 270
+    m_baseline: -281
     m_baselineFixed: 0
     m_walkToPoint: {x: 0, y: 0}
     m_lookAtPoint: {x: 0, y: 0}
@@ -281,7 +280,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -2700
+  m_SortingOrder: 2810
   m_Sprite: {fileID: 21300000, guid: dd6e28f3a372a5c4086576ce8e15ef90, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
