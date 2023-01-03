@@ -50,6 +50,7 @@ namespace PowerScript
 		public static IGui Options        { get { return PowerQuest.Get.GetGui("Options"); } }
 		public static IGui Save           { get { return PowerQuest.Get.GetGui("Save"); } }
 		public static IGui ChapterSelect           { get { return PowerQuest.Get.GetGui("ChapterSelect"); } }
+		public static IGui TitleMenu      { get { return PowerQuest.Get.GetGui("TitleMenu"); } }
 		// #GUI# - Do not edit this line, it's used by the system to insert rooms for easy access
 	}
 
