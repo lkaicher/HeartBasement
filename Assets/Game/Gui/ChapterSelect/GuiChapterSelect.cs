@@ -4,7 +4,7 @@ using PowerTools.Quest;
 using PowerScript;
 using static GlobalScript;
 
-public class GuiMenu : GuiScript<GuiMenu>
+public class GuiChapterSelect : GuiScript<GuiChapterSelect>
 {
 
 
