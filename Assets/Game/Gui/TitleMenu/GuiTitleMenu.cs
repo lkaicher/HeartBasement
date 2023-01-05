@@ -18,7 +18,9 @@ public class GuiTitleMenu : GuiScript<GuiTitleMenu>
 	IEnumerator OnClickStartGame( IGuiControl control )
 	{
 		G.TitleMenu.Hide();
-		C.Dave.ChangeRoomBG(R.Home);
+		if (!E.RestoreSave(1)){
+			C.Dave.ChangeRoomBG(R.Home);
+		}
 		yield return E.Break;
 	}
 }

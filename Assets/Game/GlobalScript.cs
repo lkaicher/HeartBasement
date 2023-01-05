@@ -161,7 +161,17 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 				   E.RestoreSave(1);
 				}
 		
+		if (Input.GetKeyDown(KeyCode.Escape))
+				{
+				   E.Save(1, "test");
+				   C.Dave.ChangeRoom(R.Menu);
+				}
+		
+		
+		
+		/*
 		// set game stage
+		
 		// set to beginning of game
 		if (Input.GetKeyDown(KeyCode.Alpha1)){
 			E.Restart();
@@ -178,7 +188,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 			C.Dave.ChangeRoomBG(R.Home);
 			E.FadeIn();
 		}
-		
+		*/
 		
 	}
 
