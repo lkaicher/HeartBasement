@@ -53,7 +53,7 @@ MonoBehaviour:
   m_data:
     m_description: '&11 Dave'
     m_cursor: 
-    m_room: Home
+    m_room: Menu
     m_position: {x: -301, y: -173}
     m_faceDirection: 1
     m_clickable: 0

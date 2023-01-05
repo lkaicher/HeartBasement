@@ -11,14 +11,14 @@ public class RoomMenu : RoomScript<RoomMenu>
 	void OnEnterRoom()
 	{
 		
-		G.Inventory.Hide();
+		//G.Inventory.Hide();
 		G.TitleMenu.Show();
 	}
 
 	IEnumerator OnExitRoom( IRoom oldRoom, IRoom newRoom )
 	{
 		G.TitleMenu.Hide();
-		G.Inventory.Show();
+		//G.Inventory.Show();
 		
 		yield return E.Break;
 	}

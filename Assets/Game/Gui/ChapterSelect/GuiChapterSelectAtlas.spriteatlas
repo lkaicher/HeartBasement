@@ -52,5 +52,5 @@ SpriteAtlas:
   m_PackedSprites: []
   m_PackedSpriteNamesToIndex: []
   m_RenderDataMap: {}
-  m_Tag: GuiMenuAtlas
+  m_Tag: GuiChapterSelectAtlas
   m_IsVariant: 0

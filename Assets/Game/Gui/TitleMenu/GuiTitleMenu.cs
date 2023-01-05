@@ -14,4 +14,11 @@ public class GuiTitleMenu : GuiScript<GuiTitleMenu>
 		G.ChapterSelect.Show();
 		yield return E.Break;
 	}
+
+	IEnumerator OnClickStartGame( IGuiControl control )
+	{
+		G.TitleMenu.Hide();
+		C.Dave.ChangeRoomBG(R.Home);
+		yield return E.Break;
+	}
 }

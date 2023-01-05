@@ -51,11 +51,15 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	
 	/// Called when game first starts
 	
-	public void SetPhase(int PhaseId){
-		
+	public void SetPhase(int PhaseId, bool changeText = true){
+		Debug.Log(PhaseId);
 		Settings.LanguageId = PhaseId;
-		IButton button = (IButton)G.Toolbar.GetControl("ChangePhaseButton");
-		button.Text = Settings.LanguageData.m_description;
+		if (changeText) {
+			IButton button = (IButton)G.Toolbar.GetControl("ChangePhaseButton");
+			button.Text = Settings.LanguageData.m_description;
+		}
+		
+		
 		
 	}
 	public void OnGameStart()
@@ -72,7 +76,10 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		SetInventory();
 		C.Tony.Disable();
 		
-		//
+		// GUI
+		//G.Toolbar.Hide();
+		
+		SetPhase(1,false);
 		
 		// temporary
 		
@@ -93,10 +100,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		
 		*/
 		
-		// GUI
-		//G.Toolbar.Hide();
 		
-		//SetPhase(1);
 		
 		
 		
