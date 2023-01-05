@@ -204,7 +204,7 @@ SpriteRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1363936703}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -285,7 +285,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 424708, guid: dba8cdb55bc7ac6458f9a539610fe130, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 454
       objectReference: {fileID: 0}
     - target: {fileID: 424708, guid: dba8cdb55bc7ac6458f9a539610fe130, type: 3}
       propertyPath: m_LocalPosition.z
@@ -449,7 +449,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 88843971871600342, guid: 2ad501e2f7cb3974f8a56bdd98126f06, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 88843971871600342, guid: 2ad501e2f7cb3974f8a56bdd98126f06, type: 3}
       propertyPath: m_LocalRotation.w
