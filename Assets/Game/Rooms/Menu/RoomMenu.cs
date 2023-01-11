@@ -18,6 +18,7 @@ public class RoomMenu : RoomScript<RoomMenu>
 	IEnumerator OnExitRoom( IRoom oldRoom, IRoom newRoom )
 	{
 		G.TitleMenu.Hide();
+		G.ChapterSelect.Hide();
 		//G.Inventory.Show();
 		
 		yield return E.Break;

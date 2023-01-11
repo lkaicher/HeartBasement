@@ -66,7 +66,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	{     
 		// GAME STAGE
 		Globals.gameStage = gameProgress.None;
-		
+		E.DeleteSave(1);
 		
 		
 		//Debug.Log(stage);
@@ -358,6 +358,8 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 
 	public void SetInventory()
 	{
+		C.Dave.ClearInventory();
+		I.CellPhone.Add();
 		switch((int)Globals.gameStage)
 		{
 			case(0):

@@ -101,7 +101,7 @@ public class RoomHome : RoomScript<RoomHome>
 		
 			C.Dave.SetPosition(Point("StartPosition"));
 			C.Dave.Moveable = false;
-		
+			yield return E.WaitSkip();
 			yield return C.Dave.Say("Oh no! My basement is flooded!", 0);
 			yield return E.WaitSkip();
 			yield return C.Dave.Say("Good thing I have my trusty bucket!", 41);
@@ -828,6 +828,12 @@ public class RoomHome : RoomScript<RoomHome>
 		Prop("ElectricPump").Enable();
 		C.Dave.AddInventory(I.RepairKit);
 		yield return C.Display("Repair Kit added to your toolbox.", 54);
+		yield return E.Break;
+	}
+
+	IEnumerator OnUseInvHotspotWashingMachine( IHotspot hotspot, IInventory item )
+	{
+
 		yield return E.Break;
 	}
 }
