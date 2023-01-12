@@ -41,6 +41,8 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	// tutorial sequence variables
 	public enum tutorialProgress {start, clickedBucket, selectedBucket, usedBucket, complete};
 	public tutorialProgress tutorialStage= tutorialProgress.start;
+
+	public bool LoadingChapter = false;
 	
 	/// Just an example of using a global variable that can be accessed in any room with `Globals.m_spokeToBarney`.
 	/// All variables like this in Quest Scripts are automatically saved

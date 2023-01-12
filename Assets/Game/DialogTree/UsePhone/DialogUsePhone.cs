@@ -20,7 +20,7 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 			D.UsePhone.OptionOn(2);
 			}
 		
-		if (Globals.gameStage == gameProgress.TonyAte) {
+		if (Globals.gameStage >= gameProgress.TonyAte) {
 			D.UsePhone.OptionOn(5);
 			}
 		

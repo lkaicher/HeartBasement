@@ -60,7 +60,23 @@ public class RoomHome : RoomScript<RoomHome>
 		// Put things here that you need to set up BEFORE the room fades in (but nothing "blocking")
 		// Note, you can also just do this at the top of OnEnterRoomAfterFade
 		
+		// Set
 		
+		
+		if (Globals.LoadingChapter) {
+			Globals.LoadingChapter = false;
+			// Disable bucket if past tutorial
+			if (Globals.gameStage > gameProgress.None){
+				Prop("Bucket").Disable();
+			}
+			// Set proper hoses and pump if past replacing parts chapter
+			if (Globals.gameStage >= gameProgress.RightParts) {
+				currentHandle = handleType.large;
+				currentHose = hoseType.large;
+				Prop("Handle").SetPosition(190, -81 + (int)currentHandle*10);
+				Prop("Hose").Animation ="HoseL";
+			}
+		}
 		
 		
 		

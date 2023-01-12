@@ -8,6 +8,7 @@ public class GuiChapterSelect : GuiScript<GuiChapterSelect>
 {
 
 	void LoadChapter(int chapter){
+		Globals.LoadingChapter = true;
 		Globals.gameStage = (gameProgress) chapter;
 		Globals.SetInventory();
 		C.Dave.ChangeRoom(R.Home);
