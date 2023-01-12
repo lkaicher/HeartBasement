@@ -872,4 +872,10 @@ public class RoomHome : RoomScript<RoomHome>
 
 		yield return E.Break;
 	}
+
+	IEnumerator OnUseInvPropElectricPump( IProp prop, IInventory item )
+	{
+
+		yield return E.Break;
+	}
 }
