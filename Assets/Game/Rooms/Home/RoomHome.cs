@@ -193,7 +193,7 @@ public class RoomHome : RoomScript<RoomHome>
 				I.Bucket.AnimCursorInactive = "bucketFull";
 				I.Bucket.AnimGui = "bucketFull";
 				// Display: You scoop some water up.
-				Globals.tutorialStage= tutorialProgress.usedBucket;
+				Globals.tutorialStage= tutorialProgress.complete;
 				Globals.gameStage = gameProgress.UsedBucket;
 				yield return StageComplete();
 		
@@ -204,7 +204,7 @@ public class RoomHome : RoomScript<RoomHome>
 				yield return C.Dave.Say(
 					"Maybe there's something at Doc's hardware store that can help.", 45);
 				yield return E.WaitSkip();
-				yield return C.Display("Click on a space in the room to walk to it.", 28);
+				yield return C.Display("Click on the door to the right to leave your basement.", 28);
 				C.Dave.Moveable = true;
 		
 				// I.Bucket.SetActive();
@@ -557,6 +557,7 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return C.Dave.Say(" There it is! Now I can scoop up some of this water.", 42);
 			yield return E.WaitSkip();
 			yield return C.Display(" Click on the bucket icon in your toolbox to select it.", 32);
+			yield return C.Display("You also have a cell phone, which you can use to call the Hint Hotline.");
 		}
 		
 		yield return E.Break;
