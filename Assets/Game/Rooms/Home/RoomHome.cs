@@ -866,4 +866,10 @@ public class RoomHome : RoomScript<RoomHome>
 
 		yield return E.Break;
 	}
+
+	IEnumerator OnInteractPropElectricPump( IProp prop )
+	{
+
+		yield return E.Break;
+	}
 }

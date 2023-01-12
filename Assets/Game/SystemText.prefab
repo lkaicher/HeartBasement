@@ -76,7 +76,7 @@ MonoBehaviour:
     m_sourceFile: Room- Home
     m_sourceFunction: OnEnterRoomAfterFade
     m_translations:
-    - I think I have a bucket ?round here somewhere?
+    - I think I have a bucket 'round here somewhere...
     - If you were treating heart failure, you might consider using a Diuretic! This
       would improve urine output
     m_phonesTime: []
@@ -515,7 +515,7 @@ MonoBehaviour:
   - m_character: Dave
     m_id: 48
     m_orderId: 37
-    m_string: It?s a window. Yup.
+    m_string: It's a window. Yup.
     m_sourceFile: Room- Home
     m_sourceFunction: OnLookAtHotspotWindow
     m_translations:
@@ -527,7 +527,7 @@ MonoBehaviour:
   - m_character: Dave
     m_id: 49
     m_orderId: 38
-    m_string: It?s bleach, fer cleanin? yer clothes.
+    m_string: It's bleach, fer cleanin' yer clothes.
     m_sourceFile: Room- Home
     m_sourceFunction: OnLookAtHotspotBleach
     m_translations:
@@ -539,7 +539,7 @@ MonoBehaviour:
   - m_character: Dave
     m_id: 50
     m_orderId: 39
-    m_string: It?s a can of Mach brand orange spray paint.
+    m_string: It's a can of Mach brand orange spray paint.
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractHotspotSprayPaint
     m_translations:
@@ -551,7 +551,7 @@ MonoBehaviour:
   - m_character: Dave
     m_id: 51
     m_orderId: 40
-    m_string: It?s a can of Mach brand orange spray paint.
+    m_string: It's a can of Mach brand orange spray paint.
     m_sourceFile: Room- Home
     m_sourceFunction: OnLookAtHotspotSprayPaint
     m_translations:
@@ -563,7 +563,7 @@ MonoBehaviour:
   - m_character: Dave
     m_id: 52
     m_orderId: 41
-    m_string: It?s my trusty old washing machine. Although at this point I probably
+    m_string: It's my trusty old washing machine. Although at this point I probably
       could just throw some detergent in the water and make my whole basement the
       washing machine.
     m_sourceFile: Room- Home
@@ -577,8 +577,8 @@ MonoBehaviour:
   - m_character: Dave
     m_id: 53
     m_orderId: 42
-    m_string: This clunker of a boiler is from the 1940?s. It works, but it makes
-      the worst darn noises you?ve ever dun heard.
+    m_string: This clunker of a boiler is from the 1940's. It works, but it makes
+      the worst darn noises you've ever dun heard.
     m_sourceFile: Room- Home
     m_sourceFunction: OnLookAtHotspotBoiler
     m_translations:
@@ -590,8 +590,8 @@ MonoBehaviour:
   - m_character: Dave
     m_id: 54
     m_orderId: 43
-    m_string: Haven?t used this in a while. For all you kids out there, this is what
-      TV?s looked like in the stone age.
+    m_string: Haven't used this in a while. For all you kids out there, this is what
+      TV's looked like in the stone age.
     m_sourceFile: Room- Home
     m_sourceFunction: OnLookAtHotspotTV
     m_translations:
@@ -603,7 +603,7 @@ MonoBehaviour:
   - m_character: Dave
     m_id: 55
     m_orderId: 44
-    m_string: I can?t believe I thought this looked good.
+    m_string: I can't believe I thought this looked good.
     m_sourceFile: Room- Home
     m_sourceFunction: OnLookAtHotspotCouch
     m_translations:
@@ -615,7 +615,7 @@ MonoBehaviour:
   - m_character: Dave
     m_id: 56
     m_orderId: 45
-    m_string: It?s bleach, fer cleanin? yer clothes.
+    m_string: It's bleach, fer cleanin' yer clothes.
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractHotspotBleach
     m_translations:
@@ -627,7 +627,7 @@ MonoBehaviour:
   - m_character: Dave
     m_id: 57
     m_orderId: 46
-    m_string: It?s my trusty old washing machine. Although at this point I probably
+    m_string: It's my trusty old washing machine. Although at this point I probably
       could just throw some detergent in the water and make my whole basement the
       washing machine.
     m_sourceFile: Room- Home
@@ -641,8 +641,8 @@ MonoBehaviour:
   - m_character: Dave
     m_id: 58
     m_orderId: 47
-    m_string: This clunker of a boiler is from the 1940?s. It works, but it makes
-      the worst darn noises you?ve ever dun heard.
+    m_string: This clunker of a boiler is from the 1940's. It works, but it makes
+      the worst darn noises you've ever dun heard.
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractHotspotBoiler
     m_translations:
@@ -654,8 +654,8 @@ MonoBehaviour:
   - m_character: Dave
     m_id: 59
     m_orderId: 48
-    m_string: Haven?t used this in a while. For all you kids out there, this is what
-      TV?s looked like in the stone age.
+    m_string: Haven't used this in a while. For all you kids out there, this is what
+      TV's looked like in the stone age.
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractHotspotTV
     m_translations:
@@ -667,7 +667,7 @@ MonoBehaviour:
   - m_character: Dave
     m_id: 60
     m_orderId: 49
-    m_string: I can?t believe I thought this looked good.
+    m_string: I can't believe I thought this looked good.
     m_sourceFile: Room- Home
     m_sourceFunction: OnInteractHotspotCouch
     m_translations:
@@ -823,7 +823,7 @@ MonoBehaviour:
   - m_character: Dave
     m_id: 62
     m_orderId: 62
-    m_string: I wonder what?s in there.
+    m_string: I wonder what's in there.
     m_sourceFile: Room- Hardware
     m_sourceFunction: OnLookAtHotspotQuestionBox
     m_translations:
@@ -859,7 +859,7 @@ MonoBehaviour:
   - m_character: Dave
     m_id: 65
     m_orderId: 65
-    m_string: I wonder what?s in there.
+    m_string: I wonder what's in there.
     m_sourceFile: Room- Hardware
     m_sourceFunction: OnInteractHotspotQuestionBox
     m_translations:
@@ -943,7 +943,7 @@ MonoBehaviour:
   - m_character: Dave
     m_id: 72
     m_orderId: 72
-    m_string: Oh. That?s a pipe bomb.
+    m_string: Oh. That's a pipe bomb.
     m_sourceFile: Room- Hardware
     m_sourceFunction: OnInteractHotspotPipeBomb
     m_translations:
@@ -1027,7 +1027,7 @@ MonoBehaviour:
   - m_character: Dave
     m_id: 79
     m_orderId: 79
-    m_string: It?s filled to the brim with lightning bolts.
+    m_string: It's filled to the brim with lightning bolts.
     m_sourceFile: Room- Hardware
     m_sourceFunction: OnLookAtHotspotBolts
     m_translations:
@@ -1039,7 +1039,7 @@ MonoBehaviour:
   - m_character: Dave
     m_id: 80
     m_orderId: 80
-    m_string: It?s filled to the brim with lightning bolts.
+    m_string: It's filled to the brim with lightning bolts.
     m_sourceFile: Room- Hardware
     m_sourceFunction: OnInteractHotspotBolts
     m_translations:
@@ -1051,7 +1051,7 @@ MonoBehaviour:
   - m_character: Dave
     m_id: 81
     m_orderId: 81
-    m_string: It?s filled with banjos and kazoos. My favorite instruments!
+    m_string: It's filled with banjos and kazoos. My favorite instruments!
     m_sourceFile: Room- Hardware
     m_sourceFunction: OnLookAtHotspotBanjosAndKazoos
     m_translations:
@@ -1063,7 +1063,7 @@ MonoBehaviour:
   - m_character: Dave
     m_id: 82
     m_orderId: 82
-    m_string: It?s filled with banjos and kazoos. My favorite instruments!
+    m_string: It's filled with banjos and kazoos. My favorite instruments!
     m_sourceFile: Room- Hardware
     m_sourceFunction: OnInteractHotspotBanjosAndKazoos
     m_translations:
@@ -1453,7 +1453,7 @@ MonoBehaviour:
     m_sourceFile: Dialog- DialogWithClerk
     m_sourceFunction: Option1
     m_translations:
-    - My basement?s flooded. Got anything to help with that?
+    - My basement's flooded. Got anything to help with that'
     - 
     m_phonesTime: []
     m_phonesCharacter: 
@@ -1461,12 +1461,11 @@ MonoBehaviour:
   - m_character: HardwareClerk
     m_id: 2
     m_orderId: 115
-    m_string: We?ve got a special Pumps 4 Chumps promotion going on! It?ll be sure
-      to unflood your flood, no money back guarantee!
+    m_string: Oh. That's a pipe bomb.
     m_sourceFile: Dialog- DialogWithClerk
     m_sourceFunction: Option1
     m_translations:
-    - We?ve got a special Pumps 4 Chumps promotion going on! It?ll be sure to unflood
+    - We've got a special Pumps 4 Chumps promotion going on! It'll be sure to unflood
       your flood, no money back guarantee!
     - 
     m_phonesTime: []
@@ -1479,7 +1478,7 @@ MonoBehaviour:
     m_sourceFile: Dialog- DialogWithClerk
     m_sourceFunction: Option1
     m_translations:
-    - I hate everything you just said, but I guess I?ll take it.
+    - I hate everything you just said, but I guess I'll take it.
     - 
     m_phonesTime: []
     m_phonesCharacter: 
@@ -1503,7 +1502,7 @@ MonoBehaviour:
     m_sourceFile: Dialog- DialogWithClerk
     m_sourceFunction: Option2
     m_translations:
-    - Cut the crap, carpetbagger! That pump didn?t do squat!
+    - Cut the crap, carpetbagger! That pump didn't do squat!
     - 
     m_phonesTime: []
     m_phonesCharacter: 
@@ -1515,8 +1514,8 @@ MonoBehaviour:
     m_sourceFile: Dialog- DialogWithClerk
     m_sourceFunction: Option2
     m_translations:
-    - I?m so sorry to hear that! I recommend upgrading to a higher end model handle
-      and hose. We?re running a 25% off special on all pump accessories!
+    - I'm so sorry to hear that! I recommend upgrading to a higher end model handle
+      and hose. We're running a 25% off special on all pump accessories!
     - 
     m_phonesTime: []
     m_phonesCharacter: 

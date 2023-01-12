@@ -12,6 +12,7 @@ public class RoomMenu : RoomScript<RoomMenu>
 	{
 		
 		//G.Inventory.Hide();
+		G.MenuButton.Hide();
 		G.TitleMenu.Show();
 	}
 
@@ -19,6 +20,7 @@ public class RoomMenu : RoomScript<RoomMenu>
 	{
 		G.TitleMenu.Hide();
 		G.ChapterSelect.Hide();
+		G.MenuButton.Show();
 		//G.Inventory.Show();
 		
 		yield return E.Break;

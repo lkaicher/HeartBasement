@@ -21,6 +21,9 @@ public class GuiTitleMenu : GuiScript<GuiTitleMenu>
 		if (!E.RestoreSave(1)){
 			C.Dave.ChangeRoomBG(R.Home);
 		}
+		IButton startButton = (IButton) G.TitleMenu.GetControl("StartGame");
+		startButton.Text = "Continue";
+		
 		yield return E.Break;
 	}
 }
