@@ -138,12 +138,17 @@ public class RoomMap : RoomScript<RoomMap>
 		rain.SetActive(true);
 		C.Dave.Visible = false;
 		//yield return E.FadeIn(1);
-		yield return Prop("Back").Fade(1,(float) 0.50, 3,eEaseCurve.Smooth);
+		
+		yield return Prop("Back").Fade(1,(float) 0.75, 1.5f,eEaseCurve.Smooth);
+		AudioHandle RainAudio = Audio.Play("Rain");
+		yield return Prop("Back").Fade(0.75f,(float) 0.50, 1.5f,eEaseCurve.Smooth);
+		
 		yield return E.Wait(3);
 		yield return E.FadeOut(1);
 		rain.SetActive(false);
 		
 		//C.Dave.Visible = true;
+		RainAudio.volume = 0.1f;
 		C.Dave.ChangeRoom(R.Home);
 		
 		E.FadeInBG(1);

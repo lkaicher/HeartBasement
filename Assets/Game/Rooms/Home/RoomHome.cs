@@ -65,6 +65,7 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		if (Globals.LoadingChapter) {
 			Globals.LoadingChapter = false;
+			// Prop("Box").Disable();
 			// Disable bucket if past tutorial
 			if (Globals.gameStage > gameProgress.None){
 				Prop("Bucket").Disable();
@@ -75,6 +76,10 @@ public class RoomHome : RoomScript<RoomHome>
 				currentHose = hoseType.large;
 				Prop("Handle").SetPosition(190, -81 + (int)currentHandle*10);
 				Prop("Hose").Animation ="HoseL";
+			}
+			if (Globals.gameStage <= gameProgress.SecondFlood){
+			 Prop("ElectricPump").Disable();
+			Prop("Box").Disable();
 			}
 		}
 		
@@ -144,9 +149,8 @@ public class RoomHome : RoomScript<RoomHome>
 			C.Tony.Disable();
 			//C.Dave.Visible = false;
 			yield return FloodBasement();
-			yield return E.FadeOut((float)0.25);
+		
 			C.Dave.Visible = true;
-			yield return E.FadeIn((float)0.25);
 			yield return E.Break;
 		
 		
@@ -856,8 +860,12 @@ public class RoomHome : RoomScript<RoomHome>
 	{
 		Prop("Box").Disable();
 		Prop("ElectricPump").Enable();
+		yield return C.Dave.Say(" It's beautiful!");
+		yield return E.WaitSkip();
+		yield return C.Dave.Say("What's this?");
 		C.Dave.AddInventory(I.RepairKit);
 		yield return C.Display("Repair Kit added to your toolbox.", 54);
+		
 		yield return E.Break;
 	}
 
@@ -869,7 +877,8 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnInteractPropElectricPump( IProp prop )
 	{
-
+		Audio.Play("Motor");
+		//LowerWater(4);
 		yield return E.Break;
 	}
 
