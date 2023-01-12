@@ -765,9 +765,22 @@ public class RoomHome : RoomScript<RoomHome>
 		//Debug.Log("changewaterstage start");
 		
 		int totalFrames = 20;
-		int framesPerStage = 4;
-		int startingIndex = totalFrames - framesPerStage*(stageNum-1);
-		int endingIndex = startingIndex - framesPerStage;
+		int framesPerStage = 5;
+		int startingIndex, endingIndex;
+		
+		if (stageNum == 0){
+			startingIndex = 20;
+			endingIndex = 20;
+		} else if (stageNum == 1){
+			startingIndex = 20;
+			endingIndex = 19;
+		} else if (stageNum == 2){
+		   startingIndex = 19;
+			endingIndex = 16;
+		} else {
+			 startingIndex = totalFrames - framesPerStage*(stageNum-2) + 1;
+			endingIndex = startingIndex - framesPerStage;
+		 }
 		if (!animate)
 			startingIndex = endingIndex;
 		//Debug.Log("Start index: "+ startingIndex + " End Index: " + endingIndex);
