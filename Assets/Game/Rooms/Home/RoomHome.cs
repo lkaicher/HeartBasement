@@ -145,11 +145,11 @@ public class RoomHome : RoomScript<RoomHome>
 			Prop("Box").Disable();
 			yield return ChangeWaterStage((int) Globals.gameStage, false);
 		
-		} else if (Globals.gameStage == gameProgress.SecondFlood){
+		} else if (!Globals.rained && Globals.gameStage == gameProgress.SecondFlood){
 			C.Tony.Disable();
 			//C.Dave.Visible = false;
 			yield return FloodBasement();
-		
+			Globals.rained = true;
 			C.Dave.Visible = true;
 			yield return E.Break;
 		

@@ -6,7 +6,7 @@ using static GlobalScript;
 
 public class RoomMap : RoomScript<RoomMap>
 {
-
+	
 	GameObject rain;
 	
 	void OnEnterRoom()
@@ -152,15 +152,16 @@ public class RoomMap : RoomScript<RoomMap>
 		C.Dave.ChangeRoom(R.Home);
 		
 		E.FadeInBG(1);
+		Prop("Back").FadeBG(1,1, 0,eEaseCurve.Smooth);
+		
 		//Debug.Log("HEY");
 		yield return E.Break;
 	}
 
 	IEnumerator OnEnterRoomAfterFade()
 	{
-		if((int)Globals.gameStage == 6){
+		if(!Globals.rained && (int)Globals.gameStage == 6){
 			yield return Thunderstorm();
-		
 		}
 		
 		yield return E.Break;

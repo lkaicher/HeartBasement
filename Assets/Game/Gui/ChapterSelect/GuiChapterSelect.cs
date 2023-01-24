@@ -10,6 +10,9 @@ public class GuiChapterSelect : GuiScript<GuiChapterSelect>
 	void LoadChapter(int chapter){
 		Globals.LoadingChapter = true;
 		Globals.gameStage = (gameProgress) chapter;
+		if(chapter <= 5){
+			Globals.rained = false;
+		}
 		Globals.SetInventory();
 		C.Dave.ChangeRoom(R.Home);
 	}
