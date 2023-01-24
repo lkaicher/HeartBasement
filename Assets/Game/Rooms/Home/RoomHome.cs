@@ -65,10 +65,12 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		if (Globals.LoadingChapter) {
 			Globals.LoadingChapter = false;
-			// Prop("Box").Disable();
+			Prop("Box").Disable();
 			// Disable bucket if past tutorial
 			if (Globals.gameStage > gameProgress.None){
 				Prop("Bucket").Disable();
+			} else {
+				Prop("Bucket").Enable();
 			}
 			// Set proper hoses and pump if past replacing parts chapter
 			if (Globals.gameStage >= gameProgress.RightParts) {
@@ -77,10 +79,37 @@ public class RoomHome : RoomScript<RoomHome>
 				Prop("Handle").SetPosition(190, -81 + (int)currentHandle*10);
 				Prop("Hose").Animation ="HoseL";
 			}
+			// set electric pump
 			if (Globals.gameStage <= gameProgress.SecondFlood){
 			 Prop("ElectricPump").Disable();
-			Prop("Box").Disable();
+			} else {
+			Prop("ElectricPump").Enable();
+			Prop("Pump").Disable();
+			Prop("Hose").Disable();
+			Prop("Handle").Disable();
 			}
+		
+			// set pump
+			if (Globals.gameStage > gameProgress.UsedBucket && Globals.gameStage < gameProgress.SecondFlood){
+				Prop("Pump").Enable();
+				Prop("Hose").Enable();
+				Prop("Handle").Enable();
+			} else {
+				Prop("Pump").Disable();
+				Prop("Hose").Disable();
+				Prop("Handle").Disable();
+			}
+		
+			// set tony to pump position
+			if(Globals.gameStage == gameProgress.TonyPumped || Globals.gameStage== gameProgress.TonyAte){
+				C.Tony.Enable();
+				C.Tony.SetPosition(Point("PumpPosition"));
+		
+			} else{
+				C.Tony.Disable();
+			}
+		
+		
 		}
 		
 		
@@ -763,9 +792,19 @@ public class RoomHome : RoomScript<RoomHome>
 	
 	}
 
-	
+	private IEnumerator AnimateUnflooding(int startingIndex, int endingIndex, float interval = 0.5f){
+		for(int i = startingIndex; i >= endingIndex; i--){
+			LowerWater(i);
+			LowerWaterShader(i, "CharacterDave");
+			LowerWaterShader(i, "CharacterTony");
+			LowerWaterShader(i, "PropPumpProp");
+			LowerWaterShader(i, "PropHose");
+		
+			yield return new WaitForSeconds(interval);
+		}
+	}
 
-	public  IEnumerator ChangeWaterStage(int stageNum, bool animate = true)
+	public  IEnumerator ChangeWaterStage(int stageNum, bool animate = true, bool full = false)
 	{
 		//Debug.Log("changewaterstage start");
 		
@@ -788,25 +827,9 @@ public class RoomHome : RoomScript<RoomHome>
 		 }
 		if (!animate)
 			startingIndex = endingIndex;
-		//Debug.Log("Start index: "+ startingIndex + " End Index: " + endingIndex);
-		for(int i = startingIndex; i >= endingIndex; i--){
-			//Debug.Log("begin loop iteration "+ i);
-			LowerWater(i);
-			LowerWaterShader(i, "CharacterDave");
-			LowerWaterShader(i, "CharacterTony");
-			LowerWaterShader(i, "PropPumpProp");
-			LowerWaterShader(i, "PropHose");
+
+		yield return AnimateUnflooding(startingIndex, endingIndex);
 		
-			yield return new WaitForSeconds((float)0.5);
-			//Debug.Log(" end loop iteration "+ i);
-		}
-		//Print the time of when the function is first called.
-		//Debug.Log("Started Coroutine at timestamp : " + Time.time);
-		
-		//yield on a new YieldInstruction that waits for 5 seconds.
-		
-		//After we have waited 5 seconds print the time again.
-		//Debug.Log("Finished Coroutine at timestamp : " + Time.time);
 		yield return E.Break;
 	}
 
@@ -817,11 +840,16 @@ public class RoomHome : RoomScript<RoomHome>
 			LowerWaterShader(i, "CharacterDave");
 			LowerWaterShader(i, "CharacterTony");
 			LowerWaterShader(i, "PropPumpProp");
+			LowerWaterShader(i, "PropElectricPump");
 			LowerWaterShader(i, "PropHose");
 		
 			yield return new WaitForSeconds((float)0.1);
 			//Debug.Log(" end loop iteration "+ i);
 		}
+	}
+
+	public IEnumerator UnfloodBasement() {
+		yield return AnimateUnflooding(20, 1, 0.2f);
 	}
 
 
@@ -878,6 +906,9 @@ public class RoomHome : RoomScript<RoomHome>
 	IEnumerator OnInteractPropElectricPump( IProp prop )
 	{
 		Audio.Play("Motor");
+		yield return UnfloodBasement();
+		Audio.Stop("Motor");
+		Globals.gameStage = gameProgress.UsedElectricPump;
 		//LowerWater(4);
 		yield return E.Break;
 	}
