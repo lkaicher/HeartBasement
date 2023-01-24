@@ -35,6 +35,8 @@ namespace PowerScript
 		public static IInventory Bucket         { get { return PowerQuest.Get.GetInventory("Bucket"); } }
 		public static IInventory ElectricPump   { get { return PowerQuest.Get.GetInventory("ElectricPump"); } }
 		public static IInventory RepairKit      { get { return PowerQuest.Get.GetInventory("RepairKit"); } }
+		public static IInventory Washer         { get { return PowerQuest.Get.GetInventory("Washer"); } }
+		public static IInventory Wrench         { get { return PowerQuest.Get.GetInventory("Wrench"); } }
 		// #INVENTORY# - Do not edit this line, it's used by the system to insert rooms for easy access
 	}
 
