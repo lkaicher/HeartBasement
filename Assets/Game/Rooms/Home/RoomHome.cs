@@ -399,6 +399,10 @@ public class RoomHome : RoomScript<RoomHome>
 			Prop("Handle").Visible = true;
 			yield return C.Display(
 				"You've chosen the correct parts for the pump and the water level has decreased.", 3);
+		
+		
+			G.Explanation.Show();
+		
 			yield return C.Dave.Say("Still not enough... I could use some extra hands.", 7);
 			// C.Dave.ChangeRoom(R.Cutscene);
 		}
