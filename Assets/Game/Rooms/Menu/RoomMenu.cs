@@ -25,4 +25,16 @@ public class RoomMenu : RoomScript<RoomMenu>
 		
 		yield return E.Break;
 	}
+
+	IEnumerator OnInteractCharacterTony( ICharacter character )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnUseInvCharacterTony( ICharacter character, IInventory item )
+	{
+
+		yield return E.Break;
+	}
 }

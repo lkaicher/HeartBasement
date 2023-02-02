@@ -180,6 +180,10 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return FloodBasement();
 			Globals.rained = true;
 			C.Dave.Visible = true;
+			yield return E.WaitSkip();
+			yield return C.Dave.Say(" Not again!");
+			yield return E.WaitSkip();
+		
 			yield return E.Break;
 		
 		
@@ -324,9 +328,9 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return C.Dave.Say(" I sure hope that never happens again!", 47);
 			yield return E.Wait(1);
 			yield return E.FadeOut(1);
-			Prop("Pump").Disable();
-			Prop("Hose").Disable();
-			Prop("Handle").Disable();
+			//Prop("Pump").Disable();
+			//Prop("Hose").Disable();
+			//Prop("Handle").Disable();
 			yield return C.Display(" Two weeks later...", 53);
 			//Globals.gameStage = 0;
 			C.Dave.ChangeRoom(R.Map);
@@ -382,6 +386,14 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return C.Dave.Say(
 				"This is too hard! I think the handle is too short and the diameter of the hose is too small, I need to go back to the hardware store.", 4);
 			yield return C.Dave.FaceDown();
+		}
+		else if (Globals.gameStage >= gameProgress.SecondFlood){
+			yield return E.Wait(10f);
+			C.Dave.StopAnimation();
+			Prop("Pump").Visible = true;
+			Prop("Handle").Visible = true;
+			yield return C.Dave.Say("This water ain't goin nowhere!");
+			yield return C.Dave.Say("I'm gonna need a better pump.");
 		}
 		else if (Globals.gameStage >= gameProgress.RightParts) {
 			C.Dave.StopAnimation();
@@ -918,6 +930,12 @@ public class RoomHome : RoomScript<RoomHome>
 	}
 
 	IEnumerator OnUseInvPropElectricPump( IProp prop, IInventory item )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtPropElectricPump( IProp prop )
 	{
 
 		yield return E.Break;

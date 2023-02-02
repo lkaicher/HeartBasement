@@ -189,6 +189,7 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 		Prop("Handle").Disable();
 		Prop("Hose").Disable();
 		Stop();
+		C.Dave.SetPosition(Point("HomeDoorPosition"));
 		yield return E.FadeIn(1);
 		yield return C.Dave.Say("Wow.", 111);
 		yield return E.Wait();
