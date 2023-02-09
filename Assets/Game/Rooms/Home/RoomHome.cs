@@ -183,7 +183,7 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return E.WaitSkip();
 			yield return C.Dave.Say(" Not again!");
 			yield return E.WaitSkip();
-		
+		  G.Explanation.Show();
 			yield return E.Break;
 		
 		
@@ -237,7 +237,12 @@ public class RoomHome : RoomScript<RoomHome>
 		
 				I.Active = null;
 				yield return E.WaitSkip();
+		
+		
 				yield return C.Dave.Say("Oh man... this is going to take forever.", 44);
+		
+				  G.Explanation.Show();
+		
 				yield return C.Dave.Say(
 					"Maybe there's something at Doc's hardware store that can help.", 45);
 				yield return E.WaitSkip();
@@ -383,6 +388,7 @@ public class RoomHome : RoomScript<RoomHome>
 			Prop("Handle").Visible = true;
 			yield return C.Display(
 				"Congratulations! The water level has decreased. However, it is not enough...", 2);
+		   G.Explanation.Show();
 			yield return C.Dave.Say(
 				"This is too hard! I think the handle is too short and the diameter of the hose is too small, I need to go back to the hardware store.", 4);
 			yield return C.Dave.FaceDown();
@@ -584,6 +590,7 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		yield return C.Display(" The recruited muscle has helped bring the water level down.", 4);
 		}
+		  G.Explanation.Show();
 		yield return C.Tony.Say(" Phew... I'm wiped out. Got any grub?", 4);
 		
 		yield return E.Break;
@@ -769,6 +776,8 @@ public class RoomHome : RoomScript<RoomHome>
 		Prop("Pump").Visible = true;
 		Prop("Handle").Visible = true;
 		
+		 G.Explanation.Show();
+		
 		}
 		yield return E.Break;
 	}
@@ -937,6 +946,7 @@ public class RoomHome : RoomScript<RoomHome>
 		yield return UnfloodBasement();
 		Audio.Stop("Motor");
 		Globals.gameStage = gameProgress.UsedElectricPump;
+		  G.Explanation.Show();
 		//LowerWater(4);
 		yield return E.Break;
 	}
