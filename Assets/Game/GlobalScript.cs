@@ -43,6 +43,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	public tutorialProgress tutorialStage= tutorialProgress.start;
 
 	public bool LoadingChapter = false;
+	public int ChapterToLoad = -1;
 
 	public bool rained = false;
 	

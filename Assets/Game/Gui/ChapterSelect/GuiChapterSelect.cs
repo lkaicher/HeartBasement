@@ -14,6 +14,7 @@ public class GuiChapterSelect : GuiScript<GuiChapterSelect>
 			Globals.rained = false;
 		}
 		Globals.SetInventory();
+		//E.Restart(R.Home);
 		C.Dave.ChangeRoom(R.Home);
 	}
 
@@ -31,16 +32,22 @@ public class GuiChapterSelect : GuiScript<GuiChapterSelect>
 
 	IEnumerator OnClick0( IGuiControl control )
 	{
+		//Globals.ChapterToLoad = 0;
+		//E.Restart(R.Home,"LoadChapter(0)");
+		
 		LoadChapter(0);
 		yield return E.Break;
 	}
 	IEnumerator OnClick1( IGuiControl control )
 	{
+		//Globals.ChapterToLoad = 1;
+		//E.Restart(R.Home,"LoadChapter(1)");		
 		LoadChapter(1);
 		yield return E.Break;
 	}
 	IEnumerator OnClick2( IGuiControl control )
 	{
+		//E.Restart(R.Home,"GuiChapterSelect.LoadChapter(2)");
 		LoadChapter(2);
 		yield return E.Break;
 	}

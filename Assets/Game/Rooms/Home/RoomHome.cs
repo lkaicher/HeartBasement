@@ -868,6 +868,18 @@ public class RoomHome : RoomScript<RoomHome>
 		yield return AnimateUnflooding(20, 1, 0.2f);
 	}
 
+	private void LoadChapter(int chapter){
+		Globals.LoadingChapter = true;
+		Globals.gameStage = (gameProgress) chapter;
+		if(chapter <= 5){
+			Globals.rained = false;
+		}
+		Globals.SetInventory();
+		Debug.Log(Globals.gameStage);
+		//E.Restart(R.Home);
+		//C.Dave.ChangeRoom(R.Home);
+	}
+
 
 
 	public IEnumerator StageComplete()
