@@ -20,4 +20,11 @@ public class GuiExplanation : GuiScript<GuiExplanation>
 		
 		yield return E.Break;
 	}
+
+	void OnShow()
+	{
+		string image = "Slide" + (int) Globals.gameStage;
+		Image("EndChapter2").Anim = image;
+		Debug.Log(image);
+	}
 }

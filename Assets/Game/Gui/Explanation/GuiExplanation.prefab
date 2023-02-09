@@ -120,7 +120,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6690161430560335701, guid: 74607e6814f3be547bab0095e3b1fd0b, type: 3}
       propertyPath: m_anim
-      value: chap2
+      value: Slides
       objectReference: {fileID: 0}
     - target: {fileID: 6690161430560335701, guid: 74607e6814f3be547bab0095e3b1fd0b, type: 3}
       propertyPath: m_visible
@@ -247,7 +247,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: a996375d4b23946afb72f61f1c0515dd, type: 3}
+  m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -255,7 +255,7 @@ SpriteRenderer:
   m_Size: {x: 2174.8672, y: 1200}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &8513774959631486883 stripped
