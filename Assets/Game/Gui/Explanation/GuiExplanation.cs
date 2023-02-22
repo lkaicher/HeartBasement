@@ -10,7 +10,7 @@ public class GuiExplanation : GuiScript<GuiExplanation>
 
 	IEnumerator OnAnyClick( IGuiControl control )
 	{
-		//G.Explanation.Hide();
+		G.Explanation.Hide();
 		yield return E.Break;
 	}
 
