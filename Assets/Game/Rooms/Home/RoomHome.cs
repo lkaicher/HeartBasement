@@ -237,11 +237,11 @@ public class RoomHome : RoomScript<RoomHome>
 		
 				I.Active = null;
 				yield return E.WaitSkip();
-		
-		
+		 		G.Explanation.Show();	
+				yield return E.WaitSkip();
 				yield return C.Dave.Say("Oh man... this is going to take forever.", 44);
 		
-				  G.Explanation.Show();
+				
 		
 				yield return C.Dave.Say(
 					"Maybe there's something at Doc's hardware store that can help.", 45);

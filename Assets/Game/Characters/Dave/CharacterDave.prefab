@@ -134,7 +134,7 @@ PolygonCollider2D:
       - {x: 57.609406, y: -122.83024}
 --- !u!95 &95575645197976436
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -151,7 +151,7 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
 --- !u!212 &2849470158332228860
 SpriteRenderer:
   m_ObjectHideFlags: 0
