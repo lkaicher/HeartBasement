@@ -389,6 +389,7 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return C.Display(
 				"Congratulations! The water level has decreased. However, it is not enough...", 2);
 		   G.Explanation.Show();
+		   yield return E.WaitSkip();
 			yield return C.Dave.Say(
 				"This is too hard! I think the handle is too short and the diameter of the hose is too small, I need to go back to the hardware store.", 4);
 			yield return C.Dave.FaceDown();
