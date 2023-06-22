@@ -43,7 +43,6 @@ public class QuestText : MonoBehaviour
 	static readonly string STR_SHADER_PIXEL = "Powerhoof/Sharp Text Shader";
 	#endif
 	static readonly string STR_SHADER = "GUI/Text Shader";
-	static readonly Vector2 SCREEN_PADDING = new Vector2(8,8);
 
 	static readonly Vector3[] SHADOW_OFFSETS = new Vector3[]	
 	{
@@ -85,8 +84,10 @@ public class QuestText : MonoBehaviour
 	[SerializeField, Delayed] float m_wrapWidthMin = 0.0f;
 	[Tooltip("Ensures the dialog is on screen when created (eg. offscreen character dialog)")]
 	[SerializeField] bool m_keepOnScreen = false;
+	[SerializeField] Padding m_screenPadding = new Padding(8,8,8,8);
 	//[Header("Appearance")]
 	[SerializeField] Shader m_shaderOverride = null;
+	[SerializeField] bool m_setFiltering = true;
 	[SerializeField] TextOutline m_outline = null;	
 
 	static Shader s_shader = null;
@@ -241,31 +242,29 @@ public class QuestText : MonoBehaviour
 					// Work out how to best keep the text on screen
 
 					float finalWidth = m_wrapWidth;
-					Rect bounds = new Rect( (Vector2)(transform.position), Vector2.zero );
-					Rect cameraBounds = new Rect();
+					RectCentered bounds = new RectCentered( transform.position, transform.position );
+					RectCentered cameraBounds = new RectCentered();
 
-					if ( Application.isPlaying )
+					if ( Application.isPlaying && PowerQuest.Exists )
 					{
 						// First, adjust wrap width so that it's on screen if possible
 						Camera camera = PowerQuest.Get.GetCameraGui();
-						bounds.width = m_wrapWidth;
-						if ( m_mesh.alignment == TextAlignment.Center )
-							bounds.center = bounds.position;
-						else if ( m_mesh.alignment == TextAlignment.Right )
-							bounds.x += m_wrapWidth;
+						bounds.Width = m_wrapWidth;
+						if ( m_mesh.anchor == TextAnchor.LowerLeft || m_mesh.anchor == TextAnchor.MiddleLeft || m_mesh.anchor == TextAnchor.UpperLeft )
+							bounds.CenterX = bounds.MaxX;
+						else if ( m_mesh.anchor == TextAnchor.LowerRight || m_mesh.anchor == TextAnchor.MiddleRight || m_mesh.anchor == TextAnchor.UpperRight )
+							bounds.CenterX = bounds.MaxX;
 
-						cameraBounds = new Rect(camera.transform.position.x, camera.transform.position.y, camera.orthographicSize * 2.0f * camera.aspect - SCREEN_PADDING.x, camera.orthographicSize * 2.0f - SCREEN_PADDING.y);
-						cameraBounds.x -= cameraBounds.width*0.5f;
-						cameraBounds.y -= cameraBounds.height*0.5f;
-
+						cameraBounds = new RectCentered(camera.transform.position.x, camera.transform.position.y, camera.orthographicSize * 2.0f * camera.aspect, camera.orthographicSize * 2.0f);
+						cameraBounds.RemovePadding(m_screenPadding);
 
 						// If wrap width is adjustable, shrink it 
 						if ( m_wrapWidthMin > 0 )
 						{
-							if ( bounds.xMin < cameraBounds.xMin )
-								finalWidth -= cameraBounds.xMin -  bounds.xMin;
-							if ( bounds.xMax > cameraBounds.xMax )
-								finalWidth -= bounds.xMax - cameraBounds.xMax;
+							if ( bounds.MinX < cameraBounds.MinX )
+								finalWidth -= cameraBounds.MinX -  bounds.MinX;
+							if ( bounds.MaxX > cameraBounds.MaxX )
+								finalWidth -= bounds.MaxX - cameraBounds.MaxX;
 							finalWidth = Mathf.Max(m_wrapWidthMin+1, finalWidth);
 						}
 					}
@@ -284,26 +283,27 @@ public class QuestText : MonoBehaviour
 
 					if ( Application.isPlaying )
 					{
-						bounds.Set(m_textWrapper.Bounds.min.x, m_textWrapper.Bounds.min.y, m_textWrapper.Bounds.size.x, m_textWrapper.Bounds.size.y);
+						bounds = new RectCentered(m_textWrapper.Bounds);
 
 						// Get the text height from the textwrapper
 						Vector2 offset = Vector2.zero;
-						if ( bounds.xMin < cameraBounds.xMin )
-							offset.x += cameraBounds.xMin - bounds.xMin;
-						if ( bounds.xMax > cameraBounds.xMax )
-							offset.x += cameraBounds.xMax - bounds.xMax;
-						if ( bounds.yMin < cameraBounds.yMin )
-							offset.y += cameraBounds.yMin - bounds.yMin;
-						if ( bounds.yMax > cameraBounds.yMax )
-							offset.y += cameraBounds.yMax - bounds.yMax;
+						if ( bounds.MinX < cameraBounds.MinX )
+							offset.x += cameraBounds.MinX - bounds.MinX;
+						if ( bounds.MaxX > cameraBounds.MaxX )
+							offset.x += cameraBounds.MaxX - bounds.MaxX;
+						if ( bounds.MinY < cameraBounds.MinY )
+							offset.y += cameraBounds.MinY - bounds.MinY;
+						if ( bounds.MaxY > cameraBounds.MaxY)
+							offset.y += cameraBounds.MaxY - bounds.MaxY;
 
-						if ( m_attachWorldPos != Vector2.zero )
+						if ( m_attachWorldPos != Vector2.zero && PowerQuest.Exists)
 						{
 							#if FONT_SNAPPING
-							m_attachOffset = Utils.Snap(offset, PowerQuest.Get.SnapAmount);
+							m_attachOffset = Utils.SnapRound(offset, PowerQuest.Get.SnapAmount);
 							#else
 							m_attachOffset = offset;
 							#endif
+							LateUpdate();
 						}
 						else 
 						{
@@ -312,7 +312,7 @@ public class QuestText : MonoBehaviour
 					}
 
 					
-					m_rectSize = bounds.size;
+					m_rectSize = bounds.Size;
 
 				}
 			}
@@ -454,14 +454,14 @@ public class QuestText : MonoBehaviour
 			return;
 		if ( m_attachObject != null || m_attachWorldPos != Vector2.zero )
 		{
-			if ( PowerQuest.GetValid() == false || PowerQuest.Get.GetCamera() == null || PowerQuest.Get.GetCameraGui() == null )
+			if ( PowerQuest.Exists == false || PowerQuest.Get.GetCamera() == null || PowerQuest.Get.GetCameraGui() == null )
 				return;
 			QuestCamera questCam = PowerQuest.Get.GetCamera();
 			Camera cam = questCam.GetInstance().GetComponent<Camera>();
 			Camera guiCam = PowerQuest.Get.GetCameraGui();
 			
 			if ( m_attachObject != null )
-				m_attachWorldPos = m_attachObjOffset + Utils.Snap((Vector2)m_attachObject.position, PowerQuest.Get.SnapAmount);
+				m_attachWorldPos = m_attachObjOffset + Utils.SnapRound((Vector2)m_attachObject.position, PowerQuest.Get.SnapAmount);
 
 			// Need to add the difference between camera offset and actual position to account for the amount the camera has snapped.
 			Vector2 camSnapOffset = ((Vector2)cam.transform.position - questCam.GetPosition());
@@ -477,7 +477,7 @@ public class QuestText : MonoBehaviour
 				// finally we snap so that the text verts don't jiggle around
 				// The snap amount is modified by the current camera zoom to account for resolution differences in the game camera and the gui camera (stops pixel text jiggling)
 				float snapAmount = PowerQuest.Get.SnapAmount * Mathf.Max(questCam.GetZoom(),1);
-				transform.position = Utils.Snap(guiSpacePosition, snapAmount )+new Vector2(0.001f,0.001f);
+				transform.position = Utils.SnapRound(guiSpacePosition, snapAmount )+new Vector2(0.001f,0.001f);
 			
 				// Offset by amount camera has moved so vertexes snap internally, but text still scrolls smoothly
 				Vector2 offset = guiSpacePosition-(Vector2)transform.position;
@@ -510,27 +510,25 @@ public class QuestText : MonoBehaviour
 	// Calcs offset to keep text on screen, applied in LateUpdate
 	Vector2 GetOnScreenPosition(Vector2 position)
 	{
-		if ( Application.isPlaying == false || m_rectSize.x <= 0 )
+		if ( Application.isPlaying == false || m_rectSize.x <= 0 || PowerQuest.Exists == false)
 			return position;
 
 		Camera camera = PowerQuest.Get.GetCameraGui();
 
 		RectCentered bounds = new RectCentered(position.x,  position.y, m_rectSize.x, m_rectSize.y );
-
-		Rect cameraBounds = new Rect(camera.transform.position.x, camera.transform.position.y, camera.orthographicSize * 2.0f * camera.aspect - SCREEN_PADDING.x, camera.orthographicSize * 2.0f - SCREEN_PADDING.y);
-		cameraBounds.x -= cameraBounds.width*0.5f;
-		cameraBounds.y -= cameraBounds.height*0.5f;
+		RectCentered cameraBounds = new RectCentered(camera.transform.position.x, camera.transform.position.y, camera.orthographicSize * 2.0f * camera.aspect, camera.orthographicSize * 2.0f);
+		cameraBounds.RemovePadding(m_screenPadding);
 
 		// Get the text height from the textwrapper
 		Vector2 offset = Vector2.zero;
-		if ( bounds.MinX < cameraBounds.xMin )
-			offset.x += cameraBounds.xMin - bounds.MinX;
-		if ( bounds.MaxX > cameraBounds.xMax )
-			offset.x += cameraBounds.xMax - bounds.MaxX;
-		if ( bounds.MinY < cameraBounds.yMin )
-			offset.y += cameraBounds.yMin - bounds.MinY;
-		if ( bounds.MaxY > cameraBounds.yMax )
-			offset.y += cameraBounds.yMax - bounds.MaxY;
+		if ( bounds.MinX < cameraBounds.MinX )
+			offset.x += cameraBounds.MinX - bounds.MinX;
+		if ( bounds.MaxX > cameraBounds.MaxX )
+			offset.x += cameraBounds.MaxX - bounds.MaxX;
+		if ( bounds.MinY < cameraBounds.MinY )
+			offset.y += cameraBounds.MinY - bounds.MinY;
+		if ( bounds.MaxY > cameraBounds.MaxY)
+			offset.y += cameraBounds.MaxY - bounds.MaxY;
 
 		return position+offset;
 	}
@@ -557,7 +555,7 @@ public class QuestText : MonoBehaviour
 			return false;
 			
 		bool snap = true;
-		if ( Application.isPlaying )
+		if ( Application.isPlaying && PowerQuest.Exists )
 			snap = PowerQuest.Get.GetSnapToPixel();
 
 		if ( s_shader == null )
@@ -574,8 +572,8 @@ public class QuestText : MonoBehaviour
 			{
 				mat = new Material(mat);
 				mat.shader = m_shaderOverride;
-				mat.mainTexture.filterMode = snap ? FilterMode.Point : FilterMode.Bilinear;
-				mat.mainTexture. anisoLevel = snap ? 0 : 1;
+				mat.mainTexture.filterMode = snap && m_setFiltering ? FilterMode.Point : FilterMode.Bilinear;
+				mat.mainTexture. anisoLevel = snap && m_setFiltering ? 0 : 1;
 				if ( Application.isPlaying )
 					m_meshRenderer.material = mat;
 
@@ -592,8 +590,8 @@ public class QuestText : MonoBehaviour
 				if ( m_mesh.font.material.shader != s_shader || Application.isPlaying == false )
 				{					
 					m_mesh.font.material.shader = s_shader;
-					m_mesh.font.material.mainTexture.filterMode = snap ? FilterMode.Point : FilterMode.Bilinear;
-					m_mesh.font.material.mainTexture.anisoLevel = snap ? 0 : 1;
+					m_mesh.font.material.mainTexture.filterMode = snap && m_setFiltering ? FilterMode.Point : FilterMode.Bilinear;
+					m_mesh.font.material.mainTexture.anisoLevel = snap && m_setFiltering ? 0 : 1;
 				}
 				if ( Application.isPlaying == false )
 					m_materialSet = true;
@@ -643,7 +641,7 @@ public class QuestText : MonoBehaviour
 	string EvaluateImageTagMatch( Match match )
 	{	
 		string result = string.Empty;	
-		if ( match.Groups == null || match.Groups.Count < 2)
+		if ( match.Groups == null || match.Groups.Count < 2 || PowerQuest.Exists== false)
 			return result;
 
 		string tag = match.Groups[1].Value;

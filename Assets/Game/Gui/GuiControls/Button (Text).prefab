@@ -61,6 +61,8 @@ MonoBehaviour:
   m_colorHover: {r: 0.22352943, g: 0.4156863, b: 0.7803922, a: 1}
   m_colorClick: {r: 1, g: 1, b: 1, a: 1}
   m_colorOff: {r: 0.22352943, g: 0.4156863, b: 0.7803922, a: 1}
+  m_soundHover: 
+  m_soundClick: 
   m_hotspotPadding:
     left: 0
     right: 0
@@ -376,7 +378,13 @@ MonoBehaviour:
   m_wrapUniformLineWidth: 0
   m_wrapWidthMin: 0
   m_keepOnScreen: 0
+  m_screenPadding:
+    left: 8
+    right: 8
+    top: 8
+    bottom: 8
   m_shaderOverride: {fileID: 0}
+  m_setFiltering: 1
   m_outline:
     m_directions: 0
     m_width: 1

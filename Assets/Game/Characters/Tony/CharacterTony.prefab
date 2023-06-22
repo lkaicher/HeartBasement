@@ -76,6 +76,7 @@ MonoBehaviour:
     m_useRegionScaling: 1
     m_textOffset: {x: 0, y: 0}
     m_LipSyncEnabled: 0
+    m_antiGlide: 0
     m_footstepSound: 
     m_useSpriteAsHotspot: 0
     m_baseline: 0

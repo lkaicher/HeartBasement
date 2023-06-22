@@ -75,6 +75,9 @@ public partial class QuestCameraComponent : MonoBehaviour
 	Vector2 m_parallaxPos = Vector2.zero;
 	Vector2 m_parallaxTargetPos = Vector2.zero;
 	RectCentered m_parallaxOffsetLimits = new RectCentered();
+
+	// Camera's current velocity (or its velocity last frame at least...)
+	Vector2 m_velocity = Vector2.zero;
 	
 	public QuestCamera GetData() { return m_data; }
 	public void SetData(QuestCamera data) { m_data = data; }
@@ -199,14 +202,14 @@ public partial class QuestCameraComponent : MonoBehaviour
 	// Quest Scripts can use this to find where the camera would be when overrideing the position.
 	public Vector2 GetCameraFollowTargetPosition( StateData s, bool disablePixelSnap = false )
 	{
-		if ( PowerQuest.Get == null || m_data == null )
+		if ( PowerQuest.Get == null && m_data == null )
 			return Vector2.zero;
 		
-		Vector2 position = s.position;//m_data.GetPosition(); //Vector2 position = m_data.GetPosition();
+		Vector2 position = s.position;
 		
 		ICharacter character = m_data.GetCharacterToFollow();
-		if ( character != null || PowerQuest.Get.GetCurrentRoom() != character.Room )
-		{			
+		if ( character != null && PowerQuest.Get.GetCurrentRoom() == character.Room )
+		{
 			Vector2 characterPos = GetCharacterTargetPos(s);
 
 			// When player moves back/forth quickly, don't scroll the room
@@ -285,6 +288,9 @@ public partial class QuestCameraComponent : MonoBehaviour
 	}
 
 	public bool GetTargetChangedLastUpdate()  { return m_targetPositionChanged; } 
+	public float GetTransitionTime()  { return m_lerpTime; } 
+
+	public Vector2 Velocity => m_velocity;
 	
 	// Use this for initialization
 	void Awake() 
@@ -305,6 +311,8 @@ public partial class QuestCameraComponent : MonoBehaviour
 			// Set this camera to only render HighRes stuff
 			m_camera.cullingMask = 1<<layerHighRes;
 		}
+		// Removed this again- since it's probably trying to render over the top of hi-res background
+		//m_pixelCam.GetComponent<Camera>().backgroundColor = GetComponent<Camera>().backgroundColor;
 
 		// Start with lerp change true so camera state data gets set up first time
 		m_onLerpChange = true;
@@ -328,6 +336,18 @@ public partial class QuestCameraComponent : MonoBehaviour
 			m_pixelCam.transform.position = Utils.Snap(transform.position).WithZ(m_pixelCam.transform.position.z);
 	}
 
+	// Used when changing bounds to keep parallax locked in same position... maybe unnecessary...
+	bool m_lockParallaxAlignment = false;
+	public bool LockParallaxAlignment 
+	{ 
+		get { return m_lockParallaxAlignment;} 
+		set 
+		{
+			m_lockParallaxAlignment=value;	
+			m_parallaxOffsetLimits = CalcOffsetLimits(1);
+		} 
+	}
+
 	
 	void UpdatePos(bool snap)
 	{
@@ -346,6 +366,10 @@ public partial class QuestCameraComponent : MonoBehaviour
 		Vector2 parallaxTargetPos = position;
 		float zoomMultiplier = 1;
 		float orthoSize = PowerQuest.Get.VerticalResolution*0.5f;
+		if ( snap )
+			m_velocity = Vector2.zero;
+		else 
+			m_velocity = (position-oldPosition) / Time.deltaTime;
 		
 		m_targetPositionChanged = false; // this gets set true again 
 
@@ -362,6 +386,15 @@ public partial class QuestCameraComponent : MonoBehaviour
 			// Set up new state data			
 			if ( m_data.GetHasPositionOverride() )
 			{
+				if ( m_statePrev.followPlayer == false )
+				{
+					// Chaining position overrides, so use the current camera position as the previous target pos
+					m_statePrev.position = position;
+					m_statePrev.targetPosition = position;
+					m_stateParallaxPrev.position = position;
+					m_stateParallaxPrev.targetPosition = position;
+				}
+
 				m_stateParallax.followPlayer = false;
 				m_stateParallax.position = ClampPositionToRoomBounds(1, m_data.GetPositionOverride());
 				m_stateParallax.targetPosition = m_stateParallax.position;
@@ -430,8 +463,9 @@ public partial class QuestCameraComponent : MonoBehaviour
 		position = ClampPositionToRoomBounds(zoomMultiplier,position);
 
 		m_parallaxPos = Vector2.Lerp( m_stateParallaxPrev.position, m_stateParallax.position, ratio);
-		m_parallaxTargetPos = Vector2.Lerp( m_stateParallaxPrev.targetPosition, m_stateParallax.targetPosition, ratio);
-		m_parallaxOffsetLimits = CalcOffsetLimits(1);
+		m_parallaxTargetPos = m_stateParallax.targetPosition;//Vector2.Lerp( m_stateParallaxPrev.targetPosition, m_stateParallax.targetPosition, ratio);
+		if ( LockParallaxAlignment == false )
+			m_parallaxOffsetLimits = CalcOffsetLimits(1);
 		
 
 		//

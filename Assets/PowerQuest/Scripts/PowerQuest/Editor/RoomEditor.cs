@@ -64,6 +64,10 @@ public class RoomComponentEditor : Editor
 		{
 			QuestScriptEditor.Open( component, QuestScriptEditor.eType.Room, "OnAnyClick");
 		}
+		if ( GUILayout.Button("After Any Click") )
+		{
+			QuestScriptEditor.Open( component, QuestScriptEditor.eType.Room, "AfterAnyClick");
+		}
 		if ( GUILayout.Button("On Walk To") )
 		{
 			QuestScriptEditor.Open( component, QuestScriptEditor.eType.Room, "OnWalkTo");
@@ -72,7 +76,14 @@ public class RoomComponentEditor : Editor
 		{
 			QuestScriptEditor.Open( component, QuestScriptEditor.eType.Room, "OnPostRestore", " int version ", false);
 		}
-
+		if ( GUILayout.Button("Unhandled Interact") )
+		{
+			QuestScriptEditor.Open( component, QuestScriptEditor.eType.Room, "UnhandledInteract", " IQuestClickable mouseOver ");
+		}
+		if ( GUILayout.Button("Unhandled Use Inv") )
+		{
+			QuestScriptEditor.Open( component, QuestScriptEditor.eType.Room, "UnhandledUseInv", " IQuestClickable mouseOver, IInventory item ");
+		}
 
 		GUILayout.Space(5);
 		EditorGUILayout.LabelField("Utils", EditorStyles.boldLabel);
@@ -87,6 +98,8 @@ public class RoomComponentEditor : Editor
 	public void OnSceneGUI()
 	{
 		GUIStyle textStyle = new GUIStyle(EditorStyles.boldLabel);
+		
+		float scale = QuestEditorUtils.GameResScale;
 
 		RoomComponent component = (RoomComponent)target;
 		RectCentered roomBounds = component.GetData().Bounds;
@@ -103,23 +116,23 @@ public class RoomComponentEditor : Editor
 				textStyle.normal.textColor = GUI.color;
 				{
 					Vector3 position =  new Vector3( roomScrollBounds.MinX, roomScrollBounds.MinY, 0);
-					position = Handles.FreeMoveHandle( position+Vector3.one, Quaternion.identity,1.0f,new Vector3(0,1,0),Handles.DotHandleCap)-Vector3.one;
-					Handles.Label(position + new Vector3(5,0,0), "Scroll", textStyle);
+					position = Handles.FreeMoveHandle( position+Vector3.one*scale, Quaternion.identity,1.0f*scale,new Vector3(1,1,0),Handles.DotHandleCap)-Vector3.one*scale;
+					Handles.Label(position + new Vector3(5*scale,0,0), "Scroll", textStyle);
 					position.x = Mathf.Min(position.x,roomScrollBounds.MaxX);
 					position.y = Mathf.Min(position.y,roomScrollBounds.MaxY);
 					position.x = Mathf.Clamp(position.x,roomBounds.MinX, roomBounds.MaxX);
 					position.y = Mathf.Clamp(position.y,roomBounds.MinY, roomBounds.MaxY);
-					roomScrollBounds.Min = Utils.Snap(position,PowerQuestEditor.SnapAmount*0.5f);
+					roomScrollBounds.Min = Utils.SnapRound(position,PowerQuestEditor.SnapAmount*0.5f);
 				}
 				{
 					Vector3 position =  new Vector3( roomScrollBounds.MaxX, roomScrollBounds.MaxY, 0);
-					position = Handles.FreeMoveHandle( position-Vector3.one, Quaternion.identity,1.0f,new Vector3(0,1,0),Handles.DotHandleCap)+Vector3.one;
+					position = Handles.FreeMoveHandle( position-Vector3.one*scale, Quaternion.identity,1.0f*scale,new Vector3(1,1,0),Handles.DotHandleCap)+Vector3.one*scale;
 
 					position.x = Mathf.Max(position.x,roomScrollBounds.MinX);
 					position.y = Mathf.Max(position.y,roomScrollBounds.MinY);
 					position.x = Mathf.Clamp(position.x,roomBounds.MinX, roomBounds.MaxX);
 					position.y = Mathf.Clamp(position.y,roomBounds.MinY, roomBounds.MaxY);
-					roomScrollBounds.Max = Utils.Snap(position,PowerQuestEditor.SnapAmount*0.5f);
+					roomScrollBounds.Max = Utils.SnapRound(position,PowerQuestEditor.SnapAmount*0.5f);
 				}
 
 				Handles.DrawLine( roomScrollBounds.Min, new Vector2(roomScrollBounds.Min.x,roomScrollBounds.Max.y) );
@@ -134,20 +147,20 @@ public class RoomComponentEditor : Editor
 			textStyle.normal.textColor = GUI.color;
 			{
 				Vector3 position =  new Vector3( roomBounds.MinX, roomBounds.MinY, 0);
-				position = Handles.FreeMoveHandle( position+Vector3.one, Quaternion.identity,1.0f,new Vector3(0,1,0),Handles.DotHandleCap)-Vector3.one;
-				Handles.Label(position + new Vector3(5,0,0), "Bounds", textStyle );
+				position = Handles.FreeMoveHandle( position+Vector3.one*scale, Quaternion.identity,1.0f*scale,new Vector3(0,1,0),Handles.DotHandleCap)-Vector3.one*scale;
+				Handles.Label(position + new Vector3(5*scale,0,0), "Bounds", textStyle );
 				//Handles.color = Color.yellow.WithAlpha(0.5f);
 				position.x = Mathf.Min(position.x,roomBounds.MaxX);
 				position.y = Mathf.Min(position.y,roomBounds.MaxY);
-				roomBounds.Min = Utils.Snap(position,PowerQuestEditor.SnapAmount);
+				roomBounds.Min = Utils.SnapRound(position,PowerQuestEditor.SnapAmount);
 			}
 			{
 				Vector3 position =  new Vector3( roomBounds.MaxX, roomBounds.MaxY, 0);
-				position = Handles.FreeMoveHandle( position-Vector3.one, Quaternion.identity,1.0f,new Vector3(0,1,0),Handles.DotHandleCap)+Vector3.one;
+				position = Handles.FreeMoveHandle( position-Vector3.one*scale, Quaternion.identity,1.0f*scale,new Vector3(0,1,0),Handles.DotHandleCap)+Vector3.one*scale;
 
 				position.x = Mathf.Max(position.x,roomBounds.MinX);
 				position.y = Mathf.Max(position.y,roomBounds.MinY);
-				roomBounds.Max = Utils.Snap(position,PowerQuestEditor.SnapAmount);
+				roomBounds.Max = Utils.SnapRound(position,PowerQuestEditor.SnapAmount);
 			}
 
 			Handles.DrawLine( roomBounds.Min, new Vector2(roomBounds.Min.x,roomBounds.Max.y) );

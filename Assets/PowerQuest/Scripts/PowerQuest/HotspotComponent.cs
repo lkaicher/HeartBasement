@@ -123,7 +123,7 @@ public partial class Hotspot : IQuestClickable, IHotspot, IQuestScriptable
 
 	// Doesn't use all functions
 	public string GetScriptName() { return m_scriptName; }
-	public string GetScriptClassName() { return "Hotspot"+m_scriptName; }
+	public string GetScriptClassName() { return PowerQuest.STR_HOTSPOT+m_scriptName; }
 	public void HotLoadScript(System.Reflection.Assembly assembly) { /*No-op*/ }
 
 
@@ -147,7 +147,7 @@ public partial class Hotspot : IQuestClickable, IHotspot, IQuestScriptable
 //
 // The component on the hotspot in scene
 //
-public class HotspotComponent : MonoBehaviour 
+public partial class HotspotComponent : MonoBehaviour 
 {
 
 	[SerializeField] Hotspot m_data = new Hotspot();

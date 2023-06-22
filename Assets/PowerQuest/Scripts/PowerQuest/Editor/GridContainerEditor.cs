@@ -31,7 +31,7 @@ public class GridContainerEditor : ControlEditorBase
 		SerializedObject serializedObj = new SerializedObject(grid);
 		EditorGUI.BeginChangeCheck();
 
-		m_rect.Size = Utils.SnapRound(EditorGUILayout.Vector2Field("Size:", m_rect.Size));
+		m_rect.Size = Utils.Snap(EditorGUILayout.Vector2Field("Size:", m_rect.Size));
 
 		if (EditorGUI.EndChangeCheck() )
 		{

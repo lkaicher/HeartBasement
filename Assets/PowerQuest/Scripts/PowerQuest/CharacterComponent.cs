@@ -90,6 +90,7 @@ public partial class CharacterComponent : MonoBehaviour
 	Vector2[] m_path = null;
 	int m_pathPointNext = -1;
 	bool m_turningToWalk = false;
+	Sprite m_lastSprite = null;
 
 	eFace m_facing = eFace.Up;	// Used to check if facing has changed in an update facing call
 	string m_currAnimBaseName = null; // Used to change animation when face direction changes
@@ -189,23 +190,43 @@ public partial class CharacterComponent : MonoBehaviour
 		return null;
 	}
 	
+	
+	public void OnRestoreSpriteOffset()
+	{
+		// Need to immediately switch to new animation when restoring sprite offset
+		m_playIdleDelayFrames = 1;
+		Update();		
+	}
+
 	string GetTurnAnim(eFace oldFacingVerticalFallback)
 	{
+		// TODO: Base this on actual direction of animations, rather than in-game directions
+
 		if ( m_facing == m_data.GetTargetFaceDirection() || string.IsNullOrEmpty(m_currAnimBaseName) )
 			return null;
-		
+		//Debug.Log($"Faced from {m_facing} to {m_data.GetTargetFaceDirection()}");
 		TurnAnim result = System.Array.Find(m_turnAnims, item=> 
 			{
 				eFace facing = m_facing;
 				
-				if ( item.m_mirror )
+				//if ( item.m_mirror )
 				{
-					// Hackery to allow "down" facing to play the anim if animation is actually the "right" or "downright" anim
+					// Hackery to allow "down/Up" facing to play the anim if animation is actually the "right" or "downright" anim
 					if ( BitMask.IsSet(item.fromDirection, (int)eFace.Down) && m_facing == eFace.Down)				
 						facing = oldFacingVerticalFallback;
 
 					// More hackery-  When target facing is "down" the previous cardinal will always be the same, so no transition when mirrored
 					if ( m_data.GetTargetFaceDirection() == eFace.Down ) 
+						return false;
+				}
+				//if ( item.m_mirror )
+				{
+					// Hackery to allow "down/Up" facing to play the anim if animation is actually the "right" or "downright" anim
+					if ( BitMask.IsSet(item.fromDirection, (int)eFace.Up) && m_facing == eFace.Up)				
+						facing = oldFacingVerticalFallback;
+
+					// More hackery-  When target facing is "Up" the previous cardinal will always be the same, so no transition when mirrored
+					if ( m_data.GetTargetFaceDirection() == eFace.Up ) 
 						return false;
 				}
 
@@ -256,13 +277,14 @@ public partial class CharacterComponent : MonoBehaviour
 	{
 		if ( m_data == null )
 			return;
+		m_playIdleDelayFrames=0; // Show new idle anim on first frame of visibility
 		bool shouldShow = m_data.Visible;
-		if ( GetSpriteAnimator() != null )
-			GetSpriteAnimator().enabled = shouldShow;
+		if ( GetSpriteAnimator() != null && GetSpriteAnimator().Animator != null )
+			GetSpriteAnimator().Animator.enabled = shouldShow;
 		Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
 		System.Array.ForEach(renderers, renderer => 
 		{
-				renderer.enabled = shouldShow;
+			renderer.enabled = shouldShow;
 		});
 	}
 
@@ -302,7 +324,7 @@ public partial class CharacterComponent : MonoBehaviour
 		UpdateSolid();
 	}	
 
-	// Calculates and returns the polygon for the solid collider that other characters cant walk through. Public for editor
+	// Calculates and returns the polygon for the solid collider that other characters can't walk through. Public for editor
 	public Vector2[] CalcSolidPoly()
 	{
 		Vector2 halfSize = GetData().SolidSize * 0.5f;
@@ -446,6 +468,13 @@ public partial class CharacterComponent : MonoBehaviour
 		m_data.LoopEndTime = -1;	
 
 		PlayAnimInternal(queuedAnim, true);
+		
+		// Hack- If transitioning into "Walking" state, restart the "WalkToInternal" so that it still does the turn to face.
+		if ( Walking )
+		{			
+			m_walking = false;
+			WalkToInternal(m_targetPos);
+		}
 	}
 	
 	// When something changes the animation state, 
@@ -613,6 +642,7 @@ public partial class CharacterComponent : MonoBehaviour
 			
 			m_lastHotspotSprite = sprite;
 		}
+		m_skipTransitionNextFrame=false;
 		ExUpdate();
 	}
 
@@ -621,7 +651,13 @@ public partial class CharacterComponent : MonoBehaviour
 		if ( Animating == false )
 			return;
 
-		// If animation has finished, return to idle. 
+		/*
+		// If anim has hit a LoopStart tag and has finished, jump back to start tag
+		if ( m_spriteAnimator.Playing == false && m_data.LoopStartTime >= 0 )
+		{
+			m_spriteAnimator.NormalizedTime = m_data.LoopStartTime;	
+		} else */
+		// If animation has finished, return to idle. 		
 		if ( m_spriteAnimator.Playing == false && m_data.PauseAnimAtEnd == false )
 		{
 			m_data.Animation = null; // NB: this calls back to CharacterComponent.StopAnimation();
@@ -632,6 +668,7 @@ public partial class CharacterComponent : MonoBehaviour
 		{
 			m_data.StopAnimation(); // When a cutscene's skipped, assume that any non-looping animation should be ended.
 		}
+		
 	}
 
 
@@ -645,6 +682,10 @@ public partial class CharacterComponent : MonoBehaviour
 		Vector2 position = m_data.GetPosition();
 
 		bool reachedTarget = false;
+		
+		// When transitioning, wait for transition to finish before doing the walk 
+		if ( GetPlayingTransition() )
+			return true;
 		
 		if ( m_turningToWalk )
 		{
@@ -723,7 +764,17 @@ public partial class CharacterComponent : MonoBehaviour
 		}
 
 		// Finally, set the position! yaay!
-		m_data.SetPosition(position);
+		if ( GetData().AntiGlide && reachedTarget == false )
+		{
+			Vector2 oldPos = transform.position;
+			m_data.SetPosition(position);
+			transform.position=oldPos;
+		}
+		else 
+		{
+			m_data.SetPosition(position);
+		}
+
 		
 		if ( reachedTarget )
 		{		
@@ -740,6 +791,13 @@ public partial class CharacterComponent : MonoBehaviour
 
 	void LateUpdate()
 	{	
+
+		if ( m_data != null && (m_flippedLastUpdate != Flipped() || m_lastSprite != m_sprite.sprite) )
+		{
+			transform.position = m_data.Position;
+			m_lastSprite = m_sprite.sprite;
+		}
+		
 		m_flippedLastUpdate = Flipped();
 	}
 
@@ -747,6 +805,10 @@ public partial class CharacterComponent : MonoBehaviour
 	{
 		eFace targetDirection = m_data.GetTargetFaceDirection();
 		if ( targetDirection == eFace.None )
+			return;
+
+		// Wait for any existing transition to finsh first
+		if ( IsString.Set(m_transitioningToAnim)  )
 			return;
 
 		bool facingTarget = targetDirection == m_data.Facing;
@@ -850,7 +912,7 @@ public partial class CharacterComponent : MonoBehaviour
 
 	public void PauseAnimation()
 	{
-		if ( m_state == eState.Animate )
+		if ( m_spriteAnimator != null && m_state == eState.Animate )
 		{
 			m_spriteAnimator.Pause();
 		}
@@ -858,7 +920,7 @@ public partial class CharacterComponent : MonoBehaviour
 
 	public void ResumeAnimation()
 	{
-		if ( m_state == eState.Animate )
+		if ( m_spriteAnimator != null && m_state == eState.Animate )
 		{
 			m_spriteAnimator.Resume();
 		}
@@ -866,33 +928,51 @@ public partial class CharacterComponent : MonoBehaviour
 
 	public void StopAnimation()
 	{
+		if ( m_animating == false )
+			return;
+
 		// If transitioning to something already, set that as current anim so we can transition out		
 		if ( string.IsNullOrEmpty(m_transitioningToAnim) == false )
 			OnTransitionAnimComplete();
+		
 		m_animating = false;
 		OnAnimStateChange();
 	}
 
+	bool m_skipTransitionNextFrame = false;
+
 	// Skip animation transition and/or turning anim
 	public void SkipTransition()
-	{
-		// Update transitional anims
-		if ( string.IsNullOrEmpty(m_transitioningToAnim) == false )
-		{			
-			// Clears transtition data and starts the queued transition animation.			
-			OnTransitionAnimComplete();
+	{		
+		m_skipTransitionNextFrame = true;
+		if ( m_data.LoopStartTime >= 0 && m_data.AnimationTime < m_data.LoopStartTime )
+		{
+			//  Transitioning IN to animation, simply set time ahead
+			m_spriteAnimator.NormalizedTime = m_data.LoopStartTime-0.002f; // set just before so it still hits "Loop" tag
+		}
+		else 
+		{
+			// Update transitional anims
+			if ( string.IsNullOrEmpty(m_transitioningToAnim) == false )
+			{			
+				// Clears transtition data and starts the queued transition animation.			
+				OnTransitionAnimComplete();
+			}
+
+			// Update turn anims
+			if ( string.IsNullOrEmpty(m_playAfterTurnAnim) == false)
+			{
+				string queuedAnim = m_playAfterTurnAnim;
+				m_playAfterTurnAnim = null;
+				PlayAnimInternal(queuedAnim, true);
+			}
 		}
 
-		// Update turn anims
-		if ( string.IsNullOrEmpty(m_playAfterTurnAnim) == false)
-		{
-			string queuedAnim = m_playAfterTurnAnim;
-			m_playAfterTurnAnim = null;
-			PlayAnimInternal(queuedAnim, true);
-		}
 	}
 	public bool GetPlayingTransition()
 	{
+		if ( m_data.LoopStartTime >= 0 && m_spriteAnimator.NormalizedTime < m_data.LoopStartTime-0.01f )
+			return true;
 		return IsString.Set(m_transitioningToAnim) || IsString.Set(m_playAfterTurnAnim);
 	}
 
@@ -931,7 +1011,7 @@ public partial class CharacterComponent : MonoBehaviour
 		}
 	}
 
-	void UpdateMouthAnim()
+	public void UpdateMouthAnim()
 	{
 		if ( m_mouth != null )
 		{
@@ -1182,6 +1262,12 @@ public partial class CharacterComponent : MonoBehaviour
 
 		bool wasWalking = m_walking;
 		m_walking = true;
+
+
+		// When transitioning, wait for transition to finish before doing the walk. This function is called again when transition ends
+		if ( IsString.Set(m_transitioningToAnim) )//if ( GetPlayingTransition() )
+			return;
+
 		OnAnimStateChange();
 
 		if ( Animating == false && m_playWalkAnim && wasWalking == false )
@@ -1291,8 +1377,12 @@ public partial class CharacterComponent : MonoBehaviour
 	
 	// Plays directional anim and handles flipping. Returns false if anim not found
 	bool PlayAnimInternal(string animName, bool fromStart = true)
-	{	
-		//Debug.Log("PlayAnim: "+animName);
+	{		
+		// If player isn't visible, don't start the anim (it'll play in the background and fire anim events off)... buuut this causes other issues... so leave it out for now
+		//if ( m_data == null || m_data.VisibleInRoom == false )
+		//	return false;
+
+		//Debug.Log("PlayAnimInternal: "+animName);
 		string animNameNoPrefix = animName;
 		if ( string.IsNullOrEmpty(GetData().AnimPrefix) == false )
 			animName = GetData().AnimPrefix + animName;
@@ -1311,6 +1401,9 @@ public partial class CharacterComponent : MonoBehaviour
 
 		string oldClipName = m_spriteAnimator.ClipName;		
 
+		bool skipTransition = m_skipTransitionNextFrame;
+		m_skipTransitionNextFrame = false;
+
 		bool flip;
 		AnimationClip clip = FindDirectionalAnimation( animName, out flip );
 	
@@ -1323,7 +1416,7 @@ public partial class CharacterComponent : MonoBehaviour
 
 		// Experimental "Transition" code. Not really working for flipping and stuff
 		
-		if ( IsString.Set(m_transitionAnim) && m_transitionAnim.StartsWith(animName, System.StringComparison.OrdinalIgnoreCase) == false && oldClipName != clip.name )
+		if ( skipTransition == false && IsString.Set(m_transitionAnim) && m_transitionAnim.StartsWith(animName, System.StringComparison.OrdinalIgnoreCase) == false && oldClipName != clip.name )
 		{
 			string newTransitionName = GetTransitionAnim(m_transitioningFromAnim, m_flippedLastUpdate, clip.name, flip);			
 			if ( m_animChangeTime < 0.05f && IsString.Set(newTransitionName) && m_transitionAnim.StartsWith(newTransitionName, System.StringComparison.OrdinalIgnoreCase) )
@@ -1348,7 +1441,7 @@ public partial class CharacterComponent : MonoBehaviour
 		}
 
 		// Experimental "Transition" code.
-		if ( clip != null && oldClipName != clip.name ) // ignore transitions to same animation
+		if ( skipTransition == false && clip != null && oldClipName != clip.name ) // ignore transitions to same animation
 		{
 			string transitionName = GetTransitionAnim(oldClipName, m_flippedLastUpdate, clip.name, flip);
 			if ( IsString.Set(transitionName) )
@@ -1373,6 +1466,8 @@ public partial class CharacterComponent : MonoBehaviour
 				m_transitioningFromAnim = oldClipName;
 				m_transitionAnim = oldClipName;
 				m_transitioningToAnim = animName;
+				if ( m_spriteAnimator.Paused ) // Loop tag pauses
+					m_spriteAnimator.Resume();
 
 				m_animChangeTime = 0; // treat this like an anim change							
 				return true; // return so we just keep playing the current anim
@@ -1403,12 +1498,15 @@ public partial class CharacterComponent : MonoBehaviour
 					m_spriteAnimator.Play(clip);
 					m_spriteAnimator.NormalizedTime = animTime;					
 				}
+
+				// Check for Loop tags to see if we're transitioning in
+				m_data.LoopStartTime = FindLoopStartEvent();
 			}
 		}
 		if ( flip != Flipped() )
 			transform.localScale = new Vector3(-transform.localScale.x,transform.localScale.y,transform.localScale.z);
 
-		if ( clip == null && Debug.isDebugBuild && animName != "Idle" && animName != "Talk"  && animName != "Walk" && string.IsNullOrEmpty(animName) == false )
+		if ( clip == null && PowerQuest.Get.IsDebugBuild && animName != "Idle" && animName != "Talk"  && animName != "Walk" && string.IsNullOrEmpty(animName) == false )
 			Debug.Log("Failed to find animation: "+animName, gameObject);
 		
 		return clip != null;
@@ -1681,20 +1779,25 @@ public partial class CharacterComponent : MonoBehaviour
 
 	void AnimSound(Object obj)
 	{
-	    if ( obj != null && (obj as GameObject) != null )
-	    {
-			SystemAudio.Play((obj as GameObject).GetComponent<AudioCue>());
-	    }
+	    if ( obj == null || (obj as GameObject) == null )
+			return;
+		if ( m_data == null || m_data.VisibleInRoom == false )
+			return;
+		SystemAudio.Play((obj as GameObject).GetComponent<AudioCue>(), transform);
 	}
 
 	void AnimSound(string sound)
 	{
-		SystemAudio.Play(sound);	    
+		if ( m_data == null || m_data.VisibleInRoom == false )
+			return;
+		SystemAudio.Play(sound, transform);	    
 	}
 
 	void AnimFootstep()
 	{
-		SystemAudio.Play(m_data.FootstepSound);
+		if ( m_data == null || m_data.VisibleInRoom == false )
+			return;
+		SystemAudio.Play(m_data.FootstepSound, transform);
 	}
 
 	void AnimMouth(string animName)
@@ -1702,20 +1805,74 @@ public partial class CharacterComponent : MonoBehaviour
 		m_data.AnimMouth = animName;
 	}
 
+	// Called when anim is started to find when the loop starts, so we know if teh anim has a transition built in. LoopStartTime is then set
+	float FindLoopStartEvent()
+	{		
+		if ( m_spriteAnimator.ClipName == m_transitionAnim )
+			return -1; // don't loop when transitioning
+		foreach( AnimationEvent ev in m_spriteAnimator.Clip.events )
+		{			
+			if ( ev.functionName.Contains("Loop") || ev.stringParameter.Contains("Loop") )
+			{
+				return (ev.time / m_spriteAnimator.Clip.length)+0.001f;
+			}
+		}
+		return -1;
+	}
 
 	void AnimLoopStart()
 	{
 		if ( m_spriteAnimator.ClipName == m_transitionAnim )
 			return; // don't loop when transitioning
 		m_data.LoopStartTime = m_spriteAnimator.NormalizedTime;
+		foreach( AnimationEvent ev in m_spriteAnimator.Clip.events )
+		{			
+			if ( ev.functionName.Contains("LoopEnd") || ev.stringParameter.Contains("LoopEnd") )
+			{
+				float time = (ev.time / m_spriteAnimator.Clip.length)+0.001f;				
+				if ( time >= m_data.LoopStartTime )
+				{
+					m_data.LoopEndTime = time;
+					break;
+				}
+			}
+		}
 	}
 
 	void AnimLoopEnd()
 	{
 		if ( m_spriteAnimator.ClipName == m_transitionAnim )
 			return; // don't loop when transitioning
-		m_data.LoopEndTime = m_spriteAnimator.NormalizedTime;
+		if ( m_data.LoopEndTime <= 0 )
+			m_data.LoopEndTime = m_spriteAnimator.NormalizedTime;
 		m_spriteAnimator.NormalizedTime = m_data.LoopStartTime;		
+	}
+
+	// At loop tag, pause at this frame until transition out
+	void AnimLoop()
+	{
+		if ( m_spriteAnimator.ClipName == m_transitionAnim )
+			return; // don't loop when transitioning
+		
+		m_data.LoopStartTime = m_spriteAnimator.NormalizedTime+0.001f;
+		m_data.LoopEndTime = m_spriteAnimator.NormalizedTime+0.001f;
+		foreach( AnimationEvent ev in m_spriteAnimator.Clip.events )
+		{
+			if ( ev.functionName.Contains("Loop") || ev.stringParameter.Contains("Loop") )
+			{
+				float time = (ev.time / m_spriteAnimator.Clip.length)+0.001f;
+				if ( time >= m_data.LoopStartTime )
+				{
+					m_data.LoopEndTime = time;
+					break;
+				}
+			}
+		}
+		m_spriteAnimator.NormalizedTime=m_data.LoopEndTime;
+		
+		// Pause here
+		m_spriteAnimator.Pause();
+
 	}
 	
 	/// Offset character from node 1 to node 2	

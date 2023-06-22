@@ -28,7 +28,7 @@ class PowerQuestAssetPostProcessor : AssetPostprocessor
 		if ( importer == null )
 			return;
 
-		bool pixelSnap = ( PowerQuestEditor.GetPowerQuest() != null && PowerQuestEditor.GetPowerQuest().GetSnapToPixel() );
+		bool pixelSnap = ( PowerQuestEditor.IsReady() && PowerQuestEditor.GetPowerQuest().GetSnapToPixel() );
 				
 		#if UNITY_2019_3_OR_NEWER		
 			// Ok, so the check to avoid forcing settings is broken for unity 2019.3 and above. Great.
@@ -43,7 +43,7 @@ class PowerQuestAssetPostProcessor : AssetPostprocessor
 
 		importer.textureType = TextureImporterType.Sprite;
 		importer.mipmapEnabled = false;
-		importer.spritePixelsPerUnit = PowerQuestEditor.GetPowerQuestEditor() != null ? PowerQuestEditor.GetPowerQuest().EditorGetDefaultPixelsPerUnit() : 1;
+		importer.spritePixelsPerUnit = PowerQuestEditor.IsReady() ? PowerQuestEditor.GetPowerQuest().EditorGetDefaultPixelsPerUnit() : 1;
 		importer.textureCompression = TextureImporterCompression.Uncompressed;
 		if (pixelSnap)
 			importer.filterMode = FilterMode.Point;

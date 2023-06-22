@@ -1126,6 +1126,7 @@ sealed class QuestSaveSurrogateSelector  : ISerializationSurrogate , ISurrogateS
 			       || type == typeof(Coroutine)
 			       || type == typeof(AudioHandle)
 			       || type.IsSubclassOf(typeof(Component))
+				   || type.IsSubclassOf(typeof(Texture))
 			       || type.IsSubclassOf(typeof(MulticastDelegate)) // Eg: Action, Action<object>, Action<object, object> etc etc
 			       || Attribute.IsDefined(type, TYPE_COMPILERGENERATED) 
 				   /*#if ENABLE_DONTSAVE_ATTRIB

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using System.Reflection;
 using PowerTools;
+using UnityEngine.U2D;
 
 
 //
@@ -19,13 +20,16 @@ public partial class PowerQuest
 
 	#region Coroutine: Load Room
 
+
 	IEnumerator LoadRoomSequence( string sceneName )
 	{
 		/* Order Here:
+			- Create/Setup Camera, Guis, Cursor
+			- Call OnGameStart (first time only. Dependent on guis existing)
 			- Create Room
 			- Set m_currentRoom
-			- Create/Setup Camera, Guis, Cursor
 			- Spawn and position characters
+			- Camera start following player
 			- m_initialised = true
 			- Room instance OnLoadComplete
 			- Debug Play-From function
@@ -44,6 +48,7 @@ public partial class PowerQuest
 			- Start MainLoop()
 		*/
 		bool firstRoomLoad = (m_initialised == false);
+
 
 		// Set up flag for save/restore during "OnEnter" - Moved to onTransition
 		//if ( m_restoring == false )
@@ -81,24 +86,14 @@ public partial class PowerQuest
 		
 
 		//
-		// Set up room object
-		//
-		RoomComponent roomInstance = GameObject.FindObjectOfType<RoomComponent>();
-		Debug.Assert(roomInstance != null, "Failed to find room instance in scene");
-		string roomName = roomInstance.GetData().ScriptName;
-		// Find the room's data
-		Room room = m_rooms.Find( item=> string.Equals(item.ScriptName, roomName, System.StringComparison.OrdinalIgnoreCase) );
-		Debug.Assert(room != null, "Failed to load room '"+roomName+"'");
-		m_currentRoom = room;
-		room.SetInstance(roomInstance);
-
-		//
 		// Set up camera object (after room so room is set up right)
 		//
 		QuestCameraComponent cameraInstance = GameObject.FindObjectOfType<QuestCameraComponent>();
 		Debug.Assert(cameraInstance != null);
 		m_cameraData.SetInstance(cameraInstance);
-		m_cameraData.SetCharacterToFollow(GetPlayer());
+
+		// Update camera letterboxing now camera is setup
+		UpdateCameraLetterboxing();
 
 		//
 		// Setup GUIs (First time only)
@@ -128,6 +123,15 @@ public partial class PowerQuest
 			}
 			//DontDestroyOnLoad(guiInstance);
 		}
+		
+		//
+		// Call OnGameStart (first time only)
+		//
+		if ( firstRoomLoad )
+		{
+			System.Reflection.MethodInfo method = m_globalScript.GetType().GetMethod( "OnGameStart", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
+			if ( method != null ) method.Invoke(m_globalScript,null);
+		}
 
 		// 
 		// Set up cursor object
@@ -138,6 +142,22 @@ public partial class PowerQuest
 			QuestCursorComponent cursorInstance = cursorObj.GetComponent<QuestCursorComponent>();
 			m_cursor.SetInstance(cursorInstance);
 		}
+		
+
+		//
+		// Set up room object
+		//
+		RoomComponent roomInstance = GameObject.FindObjectOfType<RoomComponent>();
+		Debug.Assert(roomInstance != null, "Failed to find room instance in scene");
+		string roomName = roomInstance.GetData().ScriptName;
+		// Find the room's data
+		Room room = m_rooms.Find( item=> string.Equals(item.ScriptName, roomName, System.StringComparison.OrdinalIgnoreCase) );
+		Debug.Assert(room != null, "Failed to load room '"+roomName+"'");
+		m_currentRoom = room;
+		room.SetInstance(roomInstance);
+		
+		// Load the rooms atlas if it's in resources. Now done in Room transition as game is fading out
+		//LoadAtlas(room.ScriptName,false);
 
 		//
 		// Spawn and position characters
@@ -166,6 +186,9 @@ public partial class PowerQuest
 			}
 		}
 		
+		// Get camera following correct player
+		m_cameraData.SetCharacterToFollow(GetPlayer());
+		
 		// Now rooms and characters, etc are set up, mark as initialised (this is done once per application load)
 		m_initialised = true;
 
@@ -173,13 +196,15 @@ public partial class PowerQuest
 
 		if ( m_restoring && SV.m_callEnterOnRestore == false )
 		{
-			// When restoring a game, the scene is reloaded, but we don't call onEnterRoom, unless we saved FROM onEnterRoom
-			FadeInBG(TransitionFadeTime/2.0f, "ENTER");
+			
+			yield return null;
 
-			yield return new WaitForSeconds(0.05f);// Wait(0.05f); Game might start paused- dont' do this.
-			m_restoring = false;
-			SV.m_callEnterOnRestore = false;
+			// When restoring a game, the scene is reloaded, but we don't call onEnterRoom, unless we saved FROM onEnterRoom
+			FadeInBG(TransitionFadeTime/2.0f, "RoomChange");
+			
 			m_transitioning = false;
+			m_restoring = false; // Now this is false, next update will be called through to game scripts
+
 		}
 		else 
 		{
@@ -187,7 +212,7 @@ public partial class PowerQuest
 			// Check for and call Debug Startup Function.
 			//
 			bool debugSkipEnter = false;
-			if ( firstRoomLoad && Debug.isDebugBuild && room != null && room.GetScript() != null )
+			if ( firstRoomLoad && PowerQuest.Get.IsDebugBuild && room != null && room.GetScript() != null )
 			{
 				// If 'has restarted' then use the restartPlayFrom function, not the one set in the editor. This is used when the E.Restart function is called with a PlayFrom function
 				string restartFunction = null;
@@ -231,12 +256,16 @@ public partial class PowerQuest
 				method = room.GetScript().GetType().GetMethod( "OnEnterRoom", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
 				if ( method != null ) method.Invoke(room.GetScript(),null);
 			}	
-			SV.m_callEnterOnRestore = false;
+			// SV.m_callEnterOnRestore = false; // jan 23- moved this after OnEnterAfterFade
 			
+			//
 			// Start actual fade in
-			FadeInBG(TransitionFadeTime/2.0f, "ENTER");
+			//
+			FadeInBG(TransitionFadeTime/2.0f, "RoomChange");
 			
+			//
 			// Now call OnEnterRoomAfterFade functions, but without yielding yet. That way, plrs can be positioned here and camera will still snap to correct position.
+			//
 			Coroutine onEnter = StartScriptInteractionCoroutine(GetScript(), "OnEnterRoomAfterFade");
 			Coroutine onEnterRoom = null;
 			if ( room != null && room.GetScript() != null && debugSkipEnter == false )
@@ -251,20 +280,13 @@ public partial class PowerQuest
 			// Moved Camera's OnEnterRoom to after OnEnterRoomAfterFade is called (but before yielding), incase you set plr pos in that.
 			m_cameraData.GetInstance().OnEnterRoom();
 
-			//
-			//	Room transition - yield until complete 
-			//
-
-			// Start actual fade in - Moved 2021/26/11
-			//FadeInBG(TransitionFadeTime/2.0f, "ENTER");			
-
+			SV.m_callEnterOnRestore = false; // jan 23- moved this after OnEnterAfterFade
 			m_transitioning = false;
 			m_restoring = false;
 
 			//
-			// on enter room after fadein
+			// Yield to OnEnterRoomAfterFade
 			//
-			/* 5/1/2021 - moved onEnterRoomAfteFade functions from here to before region/camera stuff */
 			SetAutoLoadScript( this, "OnEnterRoomAfterFade", onEnter != null, false );
 			if ( onEnter != null )
 				yield return onEnter;
@@ -286,7 +308,8 @@ public partial class PowerQuest
 
 		// There might be a previous current sequenced running, stopping the previous main loop from stopping. In which case we don't want to start the new loop yet.
 		Block();
-		yield return WaitUntil( ()=>m_currentSequence == null );
+		while ( m_currentSequence != null )
+			yield return null;
 		Unblock();
 
 		m_coroutineMainLoop = StartCoroutine( MainLoop() );
@@ -308,8 +331,7 @@ public partial class PowerQuest
 			bool yielded = false;
 
 			if ( SystemTime.Paused == false)
-			{
-
+			{			
 				//
 				// Finish Current Sequence
 				//
@@ -337,6 +359,7 @@ public partial class PowerQuest
 					}
 				}
 				m_queuedScriptInteractions.Clear();
+
 
 				//
 				// Mouse triggered sequences
@@ -379,7 +402,7 @@ public partial class PowerQuest
 					System.Reflection.MethodInfo method = null;
 					if ( m_globalScript != null )
 					{
-						method = m_globalScript.GetType().GetMethod( "OnMouseClick", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
+						method = m_globalScript.GetType().GetMethod( SCRIPT_FUNCTION_ONMOUSECLICK, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
 						if ( method != null ) 
 							method.Invoke(m_globalScript,new object[]{ leftClick,rightClick });
 						else 
@@ -486,6 +509,16 @@ public partial class PowerQuest
 
 			}
 
+			
+			if ( yielded )
+			{
+				// Run 'AfterAnyClick'
+				if ( StartScriptInteraction(m_currentRoom, SCRIPT_FUNCTION_AFTERANYCLICK ) )
+				{
+					yielded = true;
+					yield return CoroutineWaitForCurrentSequence();
+				}
+			}
 
 			//
 			// end of the main loop sequences

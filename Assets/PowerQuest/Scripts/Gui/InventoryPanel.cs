@@ -141,14 +141,14 @@ public partial class InventoryPanel : GuiControl, IInventoryPanel
 
 	bool IsMouseOverItem()
 	{
-		if ( PowerQuest.Get.GetMouseOverType() == eQuestClickableType.Inventory && PowerQuest.Get.GetFocusedGui() == m_gui )
+		if ( PowerQuest.Get.GetMouseOverType() == eQuestClickableType.Inventory && PowerQuest.Get.GetFocusedGui() == (IGui)m_gui )
 		{			
 			for (int i = 0; i < m_grid.Items.Count; ++i )
 			{
 				if ( m_grid.GetItemVisible(i) )
 				{
 					Transform trans = m_grid.Items[i];
-					if ( trans == PowerQuest.Get.GetFocusedGuiControl().transform )
+					if ( trans == PowerQuest.Get.GetFocusedGuiControl().Instance.transform )
 					{
 						return true;
 					}
@@ -162,14 +162,14 @@ public partial class InventoryPanel : GuiControl, IInventoryPanel
 	Transform GetMouseOverItem()
 	{
 		
-		if ( PowerQuest.Get.GetMouseOverType() == eQuestClickableType.Inventory && PowerQuest.Get.GetFocusedGuiControl() )
+		if ( PowerQuest.Get.GetMouseOverType() == eQuestClickableType.Inventory && PowerQuest.Get.GetFocusedGuiControl() != null )
 		{
 			for (int i = 0; i < m_grid.Items.Count; ++i )
 			{
 				if ( m_grid.GetItemVisible(i) )
 				{
 					Transform trans = m_grid.Items[i];
-					if ( trans == PowerQuest.Get.GetFocusedGuiControl().transform )
+					if ( trans == PowerQuest.Get.GetFocusedGuiControl().Instance.transform )
 					{
 						return trans;
 					}

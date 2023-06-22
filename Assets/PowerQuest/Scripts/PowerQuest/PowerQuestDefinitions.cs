@@ -92,6 +92,8 @@ public enum eEaseCurve
 	InExp,     OutExp,    InOutExp, 
 	InElastic, OutElastic,InOutElastic }
 
+// Enum for keyboard/controller navigation of menus
+public enum eGuiNav { Left, Right, Up, Down, Ok, Cancel }
 
 #endregion
 #region Interfaces
@@ -132,7 +134,7 @@ public interface IQuestScriptable
 	void EditorRename(string name);
 }
 
-public interface IQuestClickableInterface
+public partial interface IQuestClickableInterface
 {
 	IQuestClickable IClickable {get;}
 }
@@ -172,23 +174,30 @@ public partial class PowerQuest
 	public static readonly string SCRIPT_FUNCTION_DIALOG_START = "OnStart";
 	public static readonly string SCRIPT_FUNCTION_DIALOG_STOP = "OnStop";
 	public static readonly string SCRIPT_FUNCTION_DIALOG_OPTION = "Option";
-	public static readonly string SCRIPT_FUNCTION_INTERACT_PROP = SCRIPT_FUNCTION_INTERACT+"Prop";
-	public static readonly string SCRIPT_FUNCTION_INTERACT_HOTSPOT = SCRIPT_FUNCTION_INTERACT+"Hotspot";
-	public static readonly string SCRIPT_FUNCTION_INTERACT_INVENTORY = SCRIPT_FUNCTION_INTERACT+"Inventory";
-	public static readonly string SCRIPT_FUNCTION_INTERACT_CHARACTER = SCRIPT_FUNCTION_INTERACT+"Character";
-	public static readonly string SCRIPT_FUNCTION_LOOKAT_PROP = SCRIPT_FUNCTION_LOOKAT+"Prop";
-	public static readonly string SCRIPT_FUNCTION_LOOKAT_HOTSPOT = SCRIPT_FUNCTION_LOOKAT+"Hotspot";
-	public static readonly string SCRIPT_FUNCTION_LOOKAT_INVENTORY = SCRIPT_FUNCTION_LOOKAT+"Inventory";
-	public static readonly string SCRIPT_FUNCTION_LOOKAT_CHARACTER = SCRIPT_FUNCTION_LOOKAT+"Character";
-	public static readonly string SCRIPT_FUNCTION_USEINV_PROP = SCRIPT_FUNCTION_USEINV+"Prop";
-	public static readonly string SCRIPT_FUNCTION_USEINV_HOTSPOT = SCRIPT_FUNCTION_USEINV+"Hotspot";
-	public static readonly string SCRIPT_FUNCTION_USEINV_INVENTORY = SCRIPT_FUNCTION_USEINV+"Inventory";
-	public static readonly string SCRIPT_FUNCTION_USEINV_CHARACTER = SCRIPT_FUNCTION_USEINV+"Character";
+	public static readonly string STR_HOTSPOT = "Hotspot";
+	public static readonly string STR_PROP = "Prop";
+	public static readonly string STR_REGION = "Region";
+	public static readonly string STR_CHARACTER = "Character";
+	public static readonly string STR_INVENTORY = "Inventory";
+	public static readonly string SCRIPT_FUNCTION_INTERACT_PROP = SCRIPT_FUNCTION_INTERACT+STR_PROP;
+	public static readonly string SCRIPT_FUNCTION_INTERACT_HOTSPOT = SCRIPT_FUNCTION_INTERACT+STR_HOTSPOT;
+	public static readonly string SCRIPT_FUNCTION_INTERACT_INVENTORY = SCRIPT_FUNCTION_INTERACT+STR_INVENTORY;
+	public static readonly string SCRIPT_FUNCTION_INTERACT_CHARACTER = SCRIPT_FUNCTION_INTERACT+STR_CHARACTER;
+	public static readonly string SCRIPT_FUNCTION_LOOKAT_PROP = SCRIPT_FUNCTION_LOOKAT+STR_PROP;
+	public static readonly string SCRIPT_FUNCTION_LOOKAT_HOTSPOT = SCRIPT_FUNCTION_LOOKAT+STR_HOTSPOT;
+	public static readonly string SCRIPT_FUNCTION_LOOKAT_INVENTORY = SCRIPT_FUNCTION_LOOKAT+STR_INVENTORY;
+	public static readonly string SCRIPT_FUNCTION_LOOKAT_CHARACTER = SCRIPT_FUNCTION_LOOKAT+STR_CHARACTER;
+	public static readonly string SCRIPT_FUNCTION_USEINV_PROP = SCRIPT_FUNCTION_USEINV+STR_PROP;
+	public static readonly string SCRIPT_FUNCTION_USEINV_HOTSPOT = SCRIPT_FUNCTION_USEINV+STR_HOTSPOT;
+	public static readonly string SCRIPT_FUNCTION_USEINV_INVENTORY = SCRIPT_FUNCTION_USEINV+STR_INVENTORY;
+	public static readonly string SCRIPT_FUNCTION_USEINV_CHARACTER = SCRIPT_FUNCTION_USEINV+STR_CHARACTER;
 	public static readonly string SCRIPT_FUNCTION_ENTER_REGION = "OnEnterRegion";
 	public static readonly string SCRIPT_FUNCTION_EXIT_REGION = "OnExitRegion";
 	public static readonly string SCRIPT_FUNCTION_GETCURSOR = "GetCursor";
+	public static readonly string SCRIPT_FUNCTION_ONMOUSECLICK= "OnMouseClick";
 	public static readonly string SCRIPT_FUNCTION_ONWALKTO = "OnWalkTo";
 	public static readonly string SCRIPT_FUNCTION_ONANYCLICK= "OnAnyClick";
+	public static readonly string SCRIPT_FUNCTION_AFTERANYCLICK= "AfterAnyClick";
 	public static readonly string SCRIPT_FUNCTION_CLICKGUI = "OnClick";
 	public static readonly string SCRIPT_FUNCTION_DRAGGUI = "OnDrag";
 	public static readonly string SCRIPT_FUNCTION_ONKBFOCUS = "OnKeyboardFocus";

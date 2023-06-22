@@ -13,9 +13,8 @@ namespace PowerTools.Quest
 
 #region Component
 
-//[SelectionBase]
-//[HelpURL("http://powerquest.powerhoof.com")]
-public class PropComponent : MonoBehaviour 
+
+public partial class PropComponent : MonoBehaviour 
 {
 	#endregion
 	#region Component: Variables
@@ -37,6 +36,8 @@ public class PropComponent : MonoBehaviour
 	VideoPlayer m_video = null;
 	#endif
 
+	bool m_moving = false;
+
 	bool m_overrideAnimPlaying = false;
 	int m_stopOverrideAnimDelay = -1;
 
@@ -46,6 +47,7 @@ public class PropComponent : MonoBehaviour
 	Renderer[] m_renderers = null;
 	SpriteRenderer[] m_sprites = null; 
 	QuestText[] m_questTexts = null; 
+	bool m_hasCollider = false;
 	
 	#endregion
 	#region Component: Functions: Public
@@ -58,6 +60,7 @@ public class PropComponent : MonoBehaviour
 		transform.position = m_data.Position.WithZ(transform.position.z);
 		OnAnimationChanged();
 		OnSetVisible();
+		m_moving = false;		
 	}
 
 	public SpriteRenderer GetSprite() { return m_sprite; }
@@ -72,7 +75,7 @@ public class PropComponent : MonoBehaviour
 
 	public void PlayAnimation(string animName)
 	{
-		if ( PlayAnimInternal(animName,true) == false && Debug.isDebugBuild )
+		if ( PlayAnimInternal(animName,true) == false && PowerQuest.Get.IsDebugBuild )
 			Debug.LogWarning("Failed to find prop animation: "+animName); // warn when trying to play anim
 		m_overrideAnimPlaying = true;
 	}
@@ -113,8 +116,11 @@ public class PropComponent : MonoBehaviour
 	public VideoPlayer GetVideoPlayer() { return m_video; }
 	#endif
 
+	public bool Moving => m_moving;
+
 	#endregion
 	#region Component: Functions: Unity 
+
 
 	// Use this for initialization
 	void Awake() 
@@ -131,6 +137,7 @@ public class PropComponent : MonoBehaviour
 		m_renderers = GetComponentsInChildren<Renderer>(true);		
 		m_sprite = GetComponentInChildren<SpriteRenderer>(true);
 		m_particle = GetComponentInChildren<ParticleSystem>();
+		m_hasCollider = GetComponentInChildren<Collider2D>(true) != null;
 
 		if ( m_sprite != null )
 			m_spriteAnimator = m_sprite.GetComponent<SpriteAnim>();
@@ -156,6 +163,15 @@ public class PropComponent : MonoBehaviour
 		OnSetVisible();
 	}
 	public float GetParallax() { return m_parallaxDepth; }
+	public Vector2 ParallaxOffset {get{return m_parallaxAlignment;} set{m_parallaxAlignment = value;}}
+	/*
+	public void OnRoomBoundsChange()
+	{
+		if ( m_parallaxDepth != 0.0f )
+		{
+			// Update parallax values so that props are in same position in 
+		}
+	}*/
 
 	public void OnSetVisible()
 	{
@@ -174,6 +190,13 @@ public class PropComponent : MonoBehaviour
 		{
 			UpdateBaseline();
 			UpdateAlpha();
+			
+			// Resume animation if there is one
+			ResumeAnimation();
+		}
+		else 
+		{
+			PauseAnimation();
 		}
 		
 		if ( m_particle != null )
@@ -219,11 +242,18 @@ public class PropComponent : MonoBehaviour
 	// Called once room and everything in it has been created and PowerQuest has initialised references. After Start, Before OnEnterRoom.
 	public void OnLoadComplete()
 	{
+		// Check if it has a collider, and if not, ensure it's non-clickable
+		m_hasCollider = GetComponentInChildren<Collider2D>(true) != null;
+		if ( m_data != null && m_hasCollider == false && m_data.Clickable )
+ 			m_data.Clickable=false; // Props shouldn't be clickable if have no collider
+
 		// Get Room pos
 		//RoomComponent room = GetComponentInParent<RoomComponent>();
 		LateUpdate();
 	}
 
+	// Returns true if the prop had any colliders when it was created
+	public bool GetHasCollider() { return m_hasCollider; }
 
 	void Update()
 	{
@@ -259,27 +289,37 @@ public class PropComponent : MonoBehaviour
 		{			
 			float snapAmount = 0;// PowerQuest.Get.SnapAmount;
 			RectCentered maxOffset = PowerQuest.Get.GetCamera().GetInstance().GetParallaxOffsetLimits();
-			Vector2 parallaxCameraOffset = Utils.Snap(new Vector2(
+			Vector2 parallaxCameraOffset = Utils.SnapRound(new Vector2(
 				maxOffset.Center.x + (m_parallaxAlignment.x * maxOffset.Width*0.5f),
 				maxOffset.Center.y + (m_parallaxAlignment.y * maxOffset.Height*0.5f)), snapAmount);
 			
+			QuestCamera camera = PowerQuest.Get.GetCamera();
+
 			if ( PowerQuest.Get.UseFancyParalaxSnapping && PowerQuest.Get.GetSnapToPixel() && PowerQuest.Get.Camera.GetHasZoomOrTransition() == false )
 			{
 				// Do some fancy stuff with a "SnapOffset" so the prop will land on a snapped to pixel position, but will smoothly transition from previous position
 				Vector2 snapOffsetTarget = m_data.Position + ((PowerQuest.Get.GetCamera().GetInstance().GetParallaxTargetPosition() - parallaxCameraOffset)*m_parallaxDepth); // Target parallax position
-				snapOffsetTarget = Utils.Snap(snapOffsetTarget) - snapOffsetTarget;	// Difference between target parallax pos, and current pos
+				snapOffsetTarget = Utils.SnapRound(snapOffsetTarget) - snapOffsetTarget;	// Difference between target parallax pos, and current pos
 				if ( PowerQuest.Get.GetCamera().GetSnappedLastUpdate() )
 				{
 					m_snapOffset = snapOffsetTarget;
 				}
-				else if ( PowerQuest.Get.GetCamera().GetTargetPosChangedLastUpdate() == false ) // Move towards offset only when camera target's not still moving
+				else if ( camera.GetTargetPosChangedLastUpdate() == false ) // Move towards offset only when camera target's not still moving
 				{
-					m_snapOffset = Vector2.MoveTowards(m_snapOffset, snapOffsetTarget, 2.0f * Time.deltaTime ); // Move an offset towards the target snapped offset smoothly.
+					if ( camera.GetTransitioning() && camera.GetTransitionTime() > 0 ) // When transitioning we can do this over the camera's transition time
+						m_snapOffset = Vector2.MoveTowards(m_snapOffset, snapOffsetTarget, (1.0f/camera.GetTransitionTime()) * Time.deltaTime ); // Move an offset towards the target snapped offset smoothly.
+					else 				
+					{
+						 // Move an offset towards the target snapped offset smoothly.
+						m_snapOffset.x = Mathf.MoveTowards(m_snapOffset.x, snapOffsetTarget.x, Mathf.Max(1.0f,Mathf.Abs(camera.Velocity.x*1.8f)) * Time.deltaTime );
+						m_snapOffset.y = Mathf.MoveTowards(m_snapOffset.y, snapOffsetTarget.y, Mathf.Max(1.0f,Mathf.Abs(camera.Velocity.y*1.8f)) * Time.deltaTime );
+					}
 				}
 				else
 				{
-					// While camera's moving, lerp back slowly to zero offeset slowly to reduce cases where going from different offset extremes (-1 to 1)
-					m_snapOffset = Vector2.MoveTowards(m_snapOffset, Vector2.zero, 0.5f * Time.deltaTime );
+					// While camera target's moving, lerp backwards slowly to zero offeset slowly to reduce cases of overshooting then settling backwards
+					m_snapOffset.x = Mathf.MoveTowards(m_snapOffset.x, -Mathf.Sign(camera.Velocity.x), Mathf.Abs(camera.Velocity.x) * Time.deltaTime * 2.5f );
+					m_snapOffset.y = Mathf.MoveTowards(m_snapOffset.y, -Mathf.Sign(camera.Velocity.y), Mathf.Abs(camera.Velocity.y) * Time.deltaTime * 2.5f );
 				}
 			}
 			else 
@@ -346,6 +386,29 @@ public class PropComponent : MonoBehaviour
 	}
 	
 
+	public IEnumerator CoroutineMoveTo(Vector2 toPos, float speed, eEaseCurve curve = eEaseCurve.None)
+	{
+		Debug.Assert(speed>0,"Prop move speed must be greater than zero");
+
+		m_moving = true;
+
+		Vector2 startPos = m_data.Position;
+		float time = Vector2.Distance(startPos,toPos)/speed;
+		float currTime = 0;
+		while ( currTime < time && PowerQuest.Get.GetSkippingCutscene() == false )
+		{			
+			if ( SystemTime.Paused == false )			
+			{
+				currTime += Time.deltaTime;
+			}
+			m_data.Position = Vector2.Lerp(startPos,toPos, QuestUtils.Ease(currTime/time,curve) );
+			
+			yield return new WaitForEndOfFrame();
+		}
+		m_data.Position = toPos;
+		m_moving = false;
+	}
+
 	#endregion
 	#region Functions: Anim Events
 
@@ -403,7 +466,6 @@ public partial class Prop : IQuestClickable, IProp, IQuestScriptable
 	[SerializeField] bool m_visible = true;
 	[Tooltip("Whether clicking on hotspot triggers an event")]
 	[SerializeField] bool m_clickable = true;
-	//[SerializeField] bool m_collidable = false;
 	[SerializeField] string m_animation = null;	
 	[SerializeField] float m_alpha = 1;
 	[Header("Editable in Scene")]
@@ -439,8 +501,20 @@ public partial class Prop : IQuestClickable, IProp, IQuestScriptable
 		get{return m_visible;} 
 		set	{m_visible = value;	if ( m_instance ) m_instance.OnSetVisible(); }
 	}
-	//public bool Collidable { get{ return m_collidable;} set{ m_collidable = value;} }
-	public bool Clickable { get{ return m_clickable;} set{m_clickable = value;} }
+	public bool Clickable 
+	{ 
+		get
+		{ 
+			return m_clickable; 
+		} 
+		set
+		{ 
+			if ( value == true && Instance != null && m_instance.GetHasCollider() == false )
+				return; // Don't set as clickable if has no collider.  Note that if set to clickable from different room, this will be updated when prop is spawned
+			m_clickable = value; 
+		} 
+	}
+
 	/// Set's visible & clickable (same as `Enable()`)
 	public void Show( bool clickable = true ) { Enable( clickable ); }
 	/// Set's invisible & non-clickable (same as `Disable()`)
@@ -508,7 +582,7 @@ public partial class Prop : IQuestClickable, IProp, IQuestScriptable
 	public void SetInstance(PropComponent instance) 
 	{ 
 		m_instance = instance; 
-		instance.SetData(this);
+		instance.SetData(this);		
 	}
 	// Return room's script
 	public QuestScript GetScript() { return (PowerQuest.Get.GetCurrentRoom() == null) ? null : PowerQuest.Get.GetCurrentRoom().GetScript(); } 
@@ -567,11 +641,17 @@ public partial class Prop : IQuestClickable, IProp, IQuestScriptable
 	}
 
 	public Coroutine WaitForAnimTrigger(string triggerName) { return PowerQuest.Get.StartCoroutine(CoroutineWaitForAnimTrigger(triggerName)); }
+	
+	public bool Moving => Instance == null ? false : m_instance.Moving;
 
-	// NB: These don't save/load correctly, or handle changing room, etc. They should store their state ("TargetPosition" and "Speed") and handle movement in update.
+	// NB: These don't save/load correctly, or handle changing room, etc. They should store their state ("TargetPosition" and "Speed") in a separate class and handle movement in update.
 	public Coroutine MoveTo(float x, float y, float speed, eEaseCurve curve = eEaseCurve.None) {  return MoveTo(new Vector2(x,y),speed, curve); }
-	public Coroutine MoveTo(Vector2 toPos, float speed, eEaseCurve curve = eEaseCurve.None) {  return PowerQuest.Get.StartQuestCoroutine(CoroutineMoveTo(toPos,speed, curve)); }
-	public void MoveToBG(Vector2 toPos, float speed, eEaseCurve curve = eEaseCurve.None) {  PowerQuest.Get.StartQuestCoroutine(CoroutineMoveTo(toPos,speed, curve)); }
+	public Coroutine MoveTo(Vector2 toPos, float speed, eEaseCurve curve = eEaseCurve.None) 
+	{
+		if ( m_instance == null ) return null;
+		return PowerQuest.Get.StartQuestCoroutine(m_instance.CoroutineMoveTo(toPos,speed, curve)); 
+	}
+	public void MoveToBG(Vector2 toPos, float speed, eEaseCurve curve = eEaseCurve.None) { MoveTo(toPos,speed,curve); }
 
 	#if ( UNITY_SWITCH == false )
 
@@ -690,27 +770,6 @@ public partial class Prop : IQuestClickable, IProp, IQuestScriptable
 		yield break;
 	}
 	#endif
-
-	IEnumerator CoroutineMoveTo(Vector2 toPos, float speed, eEaseCurve curve = eEaseCurve.None)
-	{
-		Debug.Assert(speed>0,"Prop move speed must be greater than zero");
-
-		Vector2 startPos = Position;
-		float time = Vector2.Distance(startPos,toPos)/speed;
-		float currTime = 0;
-		while ( currTime < time && PowerQuest.Get.GetSkippingCutscene() == false )
-		{			
-			if ( SystemTime.Paused == false )			
-			{
-				currTime += Time.deltaTime;
-			}
-			Position = Vector2.Lerp(startPos,toPos, QuestUtils.Ease(currTime/time,curve) );
-			
-			yield return new WaitForEndOfFrame();
-		}
-		Position = toPos;
-	}
-
 	
 
 	IEnumerator CoroutineFade(float start, float end, float duration, eEaseCurve curve = eEaseCurve.Smooth )
@@ -748,7 +807,7 @@ public partial class Prop : IQuestClickable, IProp, IQuestScriptable
 
 	// Doesn't use all functions
 	public string GetScriptName() { return m_scriptName; }
-	public string GetScriptClassName() { return "Prop"+m_scriptName; }
+	public string GetScriptClassName() { return PowerQuest.STR_PROP+m_scriptName; }
 	public void HotLoadScript(System.Reflection.Assembly assembly) { /*No-op*/ }
 
 	#endregion

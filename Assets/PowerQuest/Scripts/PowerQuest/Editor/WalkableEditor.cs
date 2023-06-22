@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
 using System.IO;
@@ -94,7 +94,7 @@ public class WalkableComponentEditor : Editor
 
 		PolygonCollider2D collider = gameObject.GetComponent<PolygonCollider2D>();
 		collider.isTrigger = true;
-		collider.points = PowerQuestEditor.DEFAULT_COLLIDER_POINTS;
+		collider.points = PowerQuestEditor.DefaultColliderPoints;
 
 		RoomComponentEditor.ApplyInstancePrefab(component.gameObject);
 

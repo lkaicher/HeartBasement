@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -37,6 +37,7 @@ public partial class PowerQuestEditor
 	System.Diagnostics.Process m_rhubarbProcess = null;
 
 	static Vector2 m_mousePos = Vector2.zero;
+	static Vector2 m_mousePosPrev = Vector2.zero;
 	static string m_mousePosCopied = "";
 	
 	#endregion
