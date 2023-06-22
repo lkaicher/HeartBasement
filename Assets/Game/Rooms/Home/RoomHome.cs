@@ -963,4 +963,10 @@ public class RoomHome : RoomScript<RoomHome>
 
 		yield return E.Break;
 	}
+
+	IEnumerator OnUseInvHotspotBoiler( IHotspot hotspot, IInventory item )
+	{
+
+		yield return E.Break;
+	}
 }

@@ -83,7 +83,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		
 		// GUI
 		//G.Toolbar.Hide();
-		
+		G.Explanation.Show();
 		SetPhase(1,false);
 		
 		// temporary
