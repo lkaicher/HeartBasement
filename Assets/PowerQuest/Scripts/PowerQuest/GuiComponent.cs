@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 using PowerTools;
 using PowerTools.QuestGui;
 
+
 namespace PowerTools.Quest
 {
 
@@ -130,6 +131,13 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 	//List<string> m_hiddenGuis = new List<string>();
 	
 	List<GuiControl> m_controls = new List<GuiControl>();
+	
+	// Keyboard control vars
+	IGuiControl m_lastFocusedControl = null;	
+	//bool m_kbFocus = false; // Whether mouse or keyboard is used for focus
+	//Vector2 m_cachedMousePos = Vector2.zero;
+	//static bool s_ignoreNextKeypress = false;
+	
 
 	//
 	//  Properties
@@ -151,6 +159,10 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 		if ( result == null )
 			Debug.LogError("Gui Control '"+name+"' doesn't exist in " +ScriptName);
 		return result;
+	}
+	public bool HasControl(string name) 
+	{ 
+		return m_controls.Exists(prop=>prop !=null && string.Equals(prop.ScriptName, name, System.StringComparison.OrdinalIgnoreCase )); 
 	}
 
 	public bool Visible 
@@ -206,7 +218,12 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 	}
 	public bool AllowInventoryCursor { get { return m_allowInventoryCursor; } }
 	
-	public void Show() { Visible=true; Clickable=true; }
+	public void Show() 
+	{
+		ResetNavigation();
+		QuestMenuManager.Get.IgnoreNextKeypress(); //  When showing/hiding menus, wait for key to be released before processing it again)
+		Visible=true; Clickable=true; 
+	}
 	
 	/// Shows the gui, in front of all others.
 	public void ShowAtFront()
@@ -246,11 +263,32 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 
 	public void Hide() 
 	{
+		QuestMenuManager.Get.IgnoreNextKeypress(); //  When showing/hiding menus, wait for key to be released before processing it again)
 		Visible=false;
 		Clickable=false;
 	}
 
 	public bool HasFocus { get { return PowerQuest.Get.GetFocusedGui()== this; } }
+	public void OnFocus()
+	{
+		if (Instance != null )
+			(Instance as GuiComponent).OnFocus();
+
+		// If keyboard is active, start with last focused control, or first control if none was focused previously
+		if ( QuestMenuManager.Get.KeyboardActive )
+		{			
+			if ( m_lastFocusedControl != null)
+				NavigateToControl(m_lastFocusedControl);
+			else
+				NavigateToControl(GetFirstClickableControl());
+		}
+	}
+	
+	public void OnDefocus()
+	{
+		if (Instance != null )
+			(Instance as GuiComponent).OnDefocus();
+	}
 
 	//
 	// Getters/Setters - These are used by the engine. Scripts mainly use the properties
@@ -357,6 +395,27 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 			
 		}
 	}
+		
+	// Returns true
+	public bool Navigate( eGuiNav key )
+	{		
+		// Process the keyboard input with menu manager. Returns true if key should be used
+		if ( QuestMenuManager.Get.ProcessKeyboardInput(key) == false )
+			return false;
+
+		GuiControl focusedControl = PowerQuest.Get.GetFocusedGuiControl() as GuiControl;
+		if ( focusedControl != null && focusedControl.isActiveAndEnabled && focusedControl.HandleKeyboardInput(key) )
+			return true;
+		
+		if ( key == eGuiNav.Up 
+			|| key == eGuiNav.Down 
+			|| key == eGuiNav.Left 
+			|| key == eGuiNav.Right )
+		{
+			NavigateToControl(GetNextNavControl(key));		
+		}	
+		return true;
+	}
 
 	bool IsActuallyVisible() { return Visible && HiddenBySystem == false; }
 
@@ -374,7 +433,179 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 			else
 				PowerQuest.Get.UnPause(m_scriptName);
 		}
+			
 	}
+
+	//
+	//  Handle keyboard/controller input
+	//
+
+	// Set in update if a control was focused
+	public IGuiControl LastFocusedControl {get {return m_lastFocusedControl;} set{ m_lastFocusedControl=value; } }
+
+	public void ResetNavigation() { m_lastFocusedControl = null; }
+
+	public IGuiControl GetNextNavControl(eGuiNav dir)
+	{				
+		ClearRemovedControls(); // incase any have been removed
+
+		GuiControl focusedControl = PowerQuest.Get.GetFocusedGuiControl() as GuiControl;
+
+		// If no current focused control, get the last focused control
+		if ( focusedControl == null && m_lastFocusedControl != null)
+			return m_lastFocusedControl;
+
+		// If still no current focused control, select first clickable control
+		if ( focusedControl == null )
+			return GetFirstClickableControl();
+
+		// If control is in a grid container, then use grid container to find next available	
+
+
+
+		// Loop through all grid containers and find one that contains the control			
+		Container container = null;
+		foreach ( GuiControl control in m_controls)
+		{
+			Container cntr = ( control as Container );
+			if ( cntr != null && cntr.GetIsControlInGrid(focusedControl) )
+			{
+				container = cntr;
+				IGuiControl result = cntr.GetNextControl(focusedControl, dir);
+				if ( result != null )
+					return result;
+				break;
+			}
+		}
+
+		// Try and guess where to go from focused control
+		GuiControl closest = null;
+		float closestDist = float.MaxValue;
+		float closestSecondary = float.MaxValue;
+		
+		RectCentered myRect = GetNavHotspotRect(focusedControl);
+		
+		foreach ( GuiControl control in m_controls )
+		{
+			if ( control == focusedControl )
+				continue;
+			if ( control.Clickable == false )
+				continue;
+			// Check that control isn't in same grid as us
+			if ( container != null && container.GetIsControlInGrid(control) )
+				continue;
+
+			RectCentered otherRect = GetNavHotspotRect(control);
+
+			if ( dir == eGuiNav.Right )
+			{
+				// For right/left we check that Y bounds overlap
+				if ( otherRect.MaxY < myRect.MinY || otherRect.MinY < myRect.MaxY )
+				{
+					float dist = otherRect.MinX - myRect.MaxX ;
+					if( dist > 0 && dist < closestDist )
+					{
+						closestDist = dist;
+						closest = control;
+					}				
+				}					
+			}
+			if ( dir == eGuiNav.Left )
+			{
+				// For right/left we check that Y bounds overlap
+				if ( otherRect.MaxY < myRect.MinY || otherRect.MinY < myRect.MaxY )
+				{
+					float dist = -(otherRect.MaxX - myRect.MinX);
+					if( dist > 0 && dist < closestDist )
+					{
+						closestDist = dist;
+						closest = control;
+					}				
+				}					
+			}
+			if ( dir == eGuiNav.Up )
+			{
+				// For up/down we dont' care if X bounds overlap, just that its completely above or below.				
+				float dist = otherRect.MinY - myRect.MaxY;
+				if ( Utils.Approximately(dist,closestDist,1) )
+				{
+					// if bnoth ahve same height dist, Take one with closest total distance
+					float totalDist = (myRect.Center - otherRect.Center).sqrMagnitude;
+					if ( totalDist < closestSecondary )
+					{
+						closestDist = dist;
+						closest = control;
+						closestSecondary = totalDist;
+					}					
+				}
+				else if( dist > 0 && dist < closestDist )
+				{
+					closestDist = dist;
+					closest = control;
+					closestSecondary = (myRect.Center - otherRect.Center).sqrMagnitude;
+				}	
+								
+			}
+			if ( dir == eGuiNav.Down )
+			{
+				// For up/down we dont' care if X bounds overlap, just that its completely above or below.				
+				float dist = myRect.MinY - otherRect.MaxY;
+				if ( Utils.Approximately(dist,closestDist,1) )
+				{
+					// if bnoth ahve same height dist, Take one with closest total distance
+					float totalDist = (myRect.Center - otherRect.Center).sqrMagnitude;
+					if ( totalDist < closestSecondary )
+					{
+						closestDist = dist;
+						closest = control;
+						closestSecondary = totalDist;
+					}					
+				}	
+				else if( dist > 0 && dist < closestDist )
+				{
+					closestDist = dist;
+					closest = control;
+					closestSecondary = (myRect.Center - otherRect.Center).sqrMagnitude;
+				}		
+								
+			}
+		}
+		if ( closest != null )
+			return closest;
+
+		return focusedControl;
+	}	
+
+	RectCentered GetNavHotspotRect(GuiControl control)
+	{		
+		if ( control is Button || control is Slider || control is TextField ) // Hack
+		{
+			Collider2D box = control.GetComponent<Collider2D>();
+			if ( box != null )
+				return new RectCentered(box.bounds);
+		}
+		return control.GetRect();
+	}
+	
+	public void NavigateToControl(IGuiControl control)
+	{		
+		m_lastFocusedControl = control;
+		QuestMenuManager.Get.SetKeyboardFocus(control);		
+	}
+	
+	GuiControl GetFirstClickableControl()
+	{
+		return m_controls.Find(item=>item != null && item.Clickable);
+	}
+
+	void ClearRemovedControls()
+	{
+		m_controls.RemoveAll(item=>item == null);
+	}
+
+	//
+	//
+	//
 
 	// Handles setting up defaults incase items have been added or removed since last loading a save file
 	[System.Runtime.Serialization.OnDeserializing]
@@ -480,12 +711,19 @@ public class GuiComponent : MonoBehaviour
 
 
 	// Update is called once per frame
-	void Update () 
+	void Update() 
 	{
 		// Handle mouse clicks for the gui itself
-		if ( PowerQuest.Get.GetFocusedGui() == GetData() && PowerQuest.Get.GetFocusedGuiControl() == null && (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1)) )
-		{			
-			PowerQuest.Get.ProcessGuiClick(GetData());
+		if ( GetData().HasFocus )
+		{
+			if ( PowerQuest.Get.GetFocusedGuiControl() == null && (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1)) )
+			{			
+				PowerQuest.Get.ProcessGuiClick(GetData());
+			}
+		
+			// When a control is hovered over, set it
+			if ( PowerQuest.Get.GetFocusedGuiControl() != null )
+				GetData().LastFocusedControl = PowerQuest.Get.GetFocusedGuiControl();
 		}
 
 	}

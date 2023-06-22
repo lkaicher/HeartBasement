@@ -30,7 +30,7 @@ public partial class Slider : GuiControl, ISlider
 	[Tooltip("Whether button can be clicked. When false, the button's anim/colour is set to the 'Inactive' one")]
 	[SerializeField] bool m_clickable = true;
 	[SerializeField] eDirection m_direction = eDirection.Horizontal;
-	[SerializeField/*, HideInInspector*/] RectCentered m_customSize = RectCentered.zero;
+	[SerializeField, HideInInspector] RectCentered m_customSize = RectCentered.zero;
 
 	
 	[Header("Mouse-over Defaults")]
@@ -55,9 +55,15 @@ public partial class Slider : GuiControl, ISlider
 	[SerializeField] Color m_colorHover = new Color(0,0,0,0);
 	[SerializeField] Color m_colorClick = new Color(0,0,0,0);
 	[SerializeField] Color m_colorOff = new Color(0,0,0,0);
+	
+	[Header("Audio")]
+	[SerializeField] string m_soundHover = string.Empty;
+	[SerializeField] string m_soundClick = string.Empty;
+	[SerializeField] string m_soundSlide = string.Empty;
 
 	[Header("Hotspot size")]
 	[SerializeField] Padding m_hotspotPadding = Padding.zero;
+	[SerializeField, Tooltip("Padding on the handle to stop it going too far of edges of hotspot")] Padding m_handlePadding = Padding.zero;
 	//[SerializeField, HideInInspector] eSizeSetting m_sizeSetting = eSizeSetting.Image; 
 
 	// Callback on mouse released: void OnClick(GuiControl slider)
@@ -80,6 +86,8 @@ public partial class Slider : GuiControl, ISlider
 		
 	float m_ratio = -1.0f;
 
+	float m_keyboardIncrement = 0.1f;
+
 	#endregion
 	#region Funcs: IButton interface
 	
@@ -99,7 +107,8 @@ public partial class Slider : GuiControl, ISlider
 				m_ratio = value;
 				
 				RectCentered rect = m_customSize;
-				rect.AddPadding(m_hotspotPadding);
+				rect.AddPadding(m_hotspotPadding);						
+				rect.RemovePadding(m_handlePadding);
 				if ( m_direction == eDirection.Horizontal )
 				{				
 					m_handleSprite.transform.localPosition = m_handleSprite.transform.localPosition.WithX(Utils.SnapRound(Mathf.Lerp(rect.MinX,rect.MaxX,m_ratio)));
@@ -112,6 +121,9 @@ public partial class Slider : GuiControl, ISlider
 			}
 		}
 	}
+
+	/// How much to move the slider when arrow keys are pressed (ratio from 0 to 1. Default is 0.1f)
+	public float KeyboardIncrement { get { return m_keyboardIncrement; } set { m_keyboardIncrement = value; } }
 
 	public string Text 
 	{
@@ -217,6 +229,46 @@ public partial class Slider : GuiControl, ISlider
 		}
 		return RectCentered.zero;
 	}
+
+	// Call to have a control handle a keyboard input. Return true if the button was 'used'.
+	public override bool HandleKeyboardInput(eGuiNav input)
+	{
+		
+		if ( m_direction == eDirection.Horizontal && input != eGuiNav.Left && input != eGuiNav.Right )
+			return false;
+		if ( m_direction == eDirection.Vertical && input != eGuiNav.Up && input != eGuiNav.Down )
+			return false;
+
+		float newRatio = m_ratio;
+		if ( input == eGuiNav.Left || input == eGuiNav.Down )			
+			newRatio -= m_keyboardIncrement;
+		else 
+			newRatio += m_keyboardIncrement;
+			
+		// Set the ratio- this updates the visuals and calls through to script functions
+		if ( m_ratio != newRatio )
+		{
+			
+			if ( IsString.Valid(m_soundSlide) )
+				SystemAudio.Play(m_soundSlide);	
+
+			// update the ratio, also sets the visuals
+			Ratio = newRatio;
+
+			// Call script 'onDrag' functions
+			PowerQuest.Get.ProcessGuiEvent(PowerQuest.SCRIPT_FUNCTION_DRAGGUI, GuiData, this);
+
+			// Also send a message upwards for gui components to use
+			SendMessageUpwards(PowerQuest.SCRIPT_FUNCTION_DRAGGUI+ScriptName, this, SendMessageOptions.DontRequireReceiver );
+			OnDrag?.Invoke(this);
+			
+			PowerQuest.Get.ProcessGuiClick(GuiData, this);
+			// Also send a message upwards for gui components to use
+			SendMessageUpwards(PowerQuest.SCRIPT_FUNCTION_CLICKGUI+ScriptName, this, SendMessageOptions.DontRequireReceiver );
+			OnClick?.Invoke(this);
+		}
+		return true;
+	}
 	
 	#endregion
 	#region Component: Functions: Unity
@@ -225,6 +277,7 @@ public partial class Slider : GuiControl, ISlider
 	void Awake() 
 	{	
 		InitComponentReferences();
+		ExAwake();
 	}
 
 	void InitComponentReferences()
@@ -256,10 +309,10 @@ public partial class Slider : GuiControl, ISlider
 		if ( Ratio < 0 )
 			Ratio = 0;
 
-		/*if ( m_sizeSetting == eSizeSetting.FitText || m_sizeSetting == eSizeSetting.Image )
+		//if ( m_sizeSetting == eSizeSetting.FitText || m_sizeSetting == eSizeSetting.Image )
 		{
 			UpdateHotspot();
-		}*/
+		}
 	}	
 
 	void Update()
@@ -291,7 +344,7 @@ public partial class Slider : GuiControl, ISlider
 				{
 					float newRatio = 0;
 					RectCentered rect = m_customSize;
-					rect.AddPadding(m_hotspotPadding);
+					rect.AddPadding(m_hotspotPadding);	
 					if ( m_direction == eDirection.Horizontal )					
 						newRatio = Mathf.InverseLerp( rect.MinX, rect.MaxX, PowerQuest.Get.GetMousePositionGui().x-transform.position.x );
 					else
@@ -335,10 +388,22 @@ public partial class Slider : GuiControl, ISlider
 			// Handle right clicking when focused
 			PowerQuest.Get.ProcessGuiClick(GuiData, this);
 		}
+
+		ExUpdate();
 	}
 
 	void SetState(eState newState)
 	{
+		if ( m_state != newState )
+		{
+			if ( newState == eState.Hover && IsString.Valid(m_soundHover) )
+				SystemAudio.Play(m_soundHover);
+			if ( newState == eState.Click && IsString.Valid(m_soundClick) )
+				SystemAudio.Play(m_soundClick);	
+		}
+
+		ExOnSetState(newState);
+
 		m_state = newState;
 		UpdateColor();
 		StartStateAnimation();		
@@ -455,6 +520,15 @@ public partial class Slider : GuiControl, ISlider
 		return false;
 	}
 	
+	
+	#endregion
+	#region Partial Functions for extentions
+	
+	partial void ExAwake();
+	//partial void ExOnDestroy();
+	partial void ExUpdate();
+	partial void ExOnSetState(eState newState);
+
 	#endregion	
 	#region Implementing IQuestClickable
 	

@@ -56,6 +56,7 @@ MonoBehaviour:
     m_animationOverGui: Idle
     m_animationWait: Wait
     m_inventoryOutlineColor: {r: 1, g: 1, b: 1, a: 0}
+    m_inventoryOutlineOnGui: 1
     m_hideWhenBlocking: 1
   m_inventoryOverrideAnims:
   - Left

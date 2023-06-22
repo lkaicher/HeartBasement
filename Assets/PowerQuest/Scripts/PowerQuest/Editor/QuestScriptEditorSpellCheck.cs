@@ -143,7 +143,7 @@ public partial class QuestScriptEditor
 						yMin+lineHeight * item.line,
 						4 + item.length * charWidth,
 						lineHeight
-						), Color.red.WithAlpha(0.1f));					
+						), Color.magenta.WithAlpha(0.35f));					
 				});
 			}
 		}

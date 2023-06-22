@@ -40,6 +40,8 @@ public partial class PowerQuestEditor
 
 	// list of functions you can start he game with
 	List<string> m_playFromFuncs = new List<string>();
+	
+	bool m_editingPointMouseDown = false;
 
 	#endregion
 	#region Functions: Quest Room
@@ -149,7 +151,7 @@ public partial class PowerQuestEditor
 		GameObject walkableAreaObj = new GameObject("WalkableArea",typeof(WalkableComponent)) as GameObject;
 		walkableAreaObj.transform.parent = gameObject.transform;
 		walkableAreaObj.name = "WalkableArea";
-		walkableAreaObj.GetComponent<PolygonCollider2D>().points = DEFAULT_COLLIDER_POINTS;
+		walkableAreaObj.GetComponent<PolygonCollider2D>().points = DefaultColliderPoints;
 		walkableAreaObj.GetComponent<PolygonCollider2D>().isTrigger = true;
 
 		// turn game object into prefab
@@ -193,14 +195,14 @@ public partial class PowerQuestEditor
 			return;
 
 		// Create game object
-		GameObject gameObject = new GameObject("Hotspot"+name, typeof(HotspotComponent), typeof(PolygonCollider2D)) as GameObject; 
+		GameObject gameObject = new GameObject(PowerQuest.STR_HOTSPOT+name, typeof(HotspotComponent), typeof(PolygonCollider2D)) as GameObject; 
 
 		//CharacterComponent character = gameObject.GetComponent<CharacterComponent>();
 		//character.GetData().EditorInitialise(name);
 
 		PolygonCollider2D collider = gameObject.GetComponent<PolygonCollider2D>();
 		collider.isTrigger = true;		 
-		collider.points = PowerQuestEditor.DEFAULT_COLLIDER_POINTS;
+		collider.points = PowerQuestEditor.DefaultColliderPoints;
 
 
 		HotspotComponent hotspotComponent = gameObject.GetComponent<HotspotComponent>();
@@ -279,7 +281,7 @@ public partial class PowerQuestEditor
 			return;
 
 		// Create game object
-		GameObject gameObject = new GameObject("Prop"+name, typeof(PropComponent) ) as GameObject; 
+		GameObject gameObject = new GameObject(PowerQuest.STR_PROP+name, typeof(PropComponent) ) as GameObject; 
 
 
 		PropComponent propComponent = gameObject.GetComponent<PropComponent>();
@@ -290,7 +292,7 @@ public partial class PowerQuestEditor
 		{
 			PolygonCollider2D collider = gameObject.AddComponent<PolygonCollider2D>();
 			collider.isTrigger = true;
-			collider.points = DEFAULT_COLLIDER_POINTS;
+			collider.points = DefaultColliderPoints;
 		}
 		gameObject.AddComponent<SpriteAnim>();
 
@@ -368,14 +370,14 @@ public partial class PowerQuestEditor
 			return;
 
 		// Create game object
-		GameObject gameObject = new GameObject("Region"+name, typeof(RegionComponent), typeof(PolygonCollider2D)) as GameObject; 
+		GameObject gameObject = new GameObject(PowerQuest.STR_REGION+name, typeof(RegionComponent), typeof(PolygonCollider2D)) as GameObject; 
 
 		//CharacterComponent character = gameObject.GetComponent<CharacterComponent>();
 		//character.GetData().EditorInitialise(name);
 
 		PolygonCollider2D collider = gameObject.GetComponent<PolygonCollider2D>();
 		collider.isTrigger = true;
-		collider.points = DEFAULT_COLLIDER_POINTS;
+		collider.points = DefaultColliderPoints;
 
 		RegionComponent regionComponent = gameObject.GetComponent<RegionComponent>();
 		regionComponent.GetData().EditorInitialise(name);
@@ -454,7 +456,7 @@ public partial class PowerQuestEditor
 		GameObject walkableAreaObj = new GameObject("WalkableArea",typeof(WalkableComponent)) as GameObject;
 		walkableAreaObj.transform.parent = powerQuestEditor.m_selectedRoom.transform;
 		walkableAreaObj.name = "WalkableArea";
-		walkableAreaObj.GetComponent<PolygonCollider2D>().points = DEFAULT_COLLIDER_POINTS;
+		walkableAreaObj.GetComponent<PolygonCollider2D>().points = DefaultColliderPoints;
 		walkableAreaObj.GetComponent<PolygonCollider2D>().isTrigger = true;
 
 		Selection.activeObject = walkableAreaObj;
@@ -566,7 +568,7 @@ public partial class PowerQuestEditor
 						onReorderCallback =     (ReorderableList list)=>UpdateRoomObjectOrder(),
 						onAddCallback = 		(ReorderableList list) => 	
 						{ 
-							ScriptableObject.CreateInstance< CreateRoomObjectWindow >().ShowQuestWindow( eQuestObjectType.Hotspot, "Hotspot", "'Shrubbery' or 'DistantCity'",  PowerQuestEditor.CreateHotspot);
+							ScriptableObject.CreateInstance< CreateRoomObjectWindow >().ShowQuestWindow( eQuestObjectType.Hotspot, PowerQuest.STR_HOTSPOT, "'Shrubbery' or 'DistantCity'",  PowerQuestEditor.CreateHotspot);
 						},
 						onRemoveCallback = 		(ReorderableList list) => { DeleteHotspot(list.index); }
 					};
@@ -593,7 +595,7 @@ public partial class PowerQuestEditor
 						onReorderCallback =     (ReorderableList list)=>UpdateRoomObjectOrder(),
 						onAddCallback = 		(ReorderableList list) => 	
 						{ 
-							ScriptableObject.CreateInstance< CreateRoomObjectWindow >().ShowQuestWindow( eQuestObjectType.Region, "Region", "'Puddle' or 'Quicksand'",  PowerQuestEditor.CreateRegion);
+							ScriptableObject.CreateInstance< CreateRoomObjectWindow >().ShowQuestWindow( eQuestObjectType.Region, PowerQuest.STR_REGION, "'Puddle' or 'Quicksand'",  PowerQuestEditor.CreateRegion);
 						},
 						onRemoveCallback = 		(ReorderableList list) => { DeleteRegion(list.index); }
 					};
@@ -822,56 +824,52 @@ public partial class PowerQuestEditor
 				int actionCount = (PowerQuestEditor.GetActionEnabled(eQuestVerb.Look)?1:0)
 					+ (PowerQuestEditor.GetActionEnabled(eQuestVerb.Use)?1:0)
 					+ (PowerQuestEditor.GetActionEnabled(eQuestVerb.Inventory)?1:0);
-				float totalFixedWidth = (34 *actionCount);//+22;
-				//actionCount++;
-				float offset = rect.x;
-				float fixedWidth = 34;
-				EditorGUI.LabelField(new Rect(rect.x, rect.y+2, rect.width-totalFixedWidth, EditorGUIUtility.singleLineHeight), itemComponent.GetData().ScriptName );
+					
+				EditorLayouter layout = new EditorLayouter(new Rect(rect){y= rect.y+2,height=EditorGUIUtility.singleLineHeight});
+				layout.Variable(1);
+				for (int i = 0; i< actionCount; ++i)
+					layout.Fixed(34);
+				// layout.Fixed(22); // for '...'
 
-				offset += rect.width - totalFixedWidth;
+				EditorGUI.LabelField(layout, itemComponent.GetData().ScriptName );
+
 				int actionNum = 0;
 				if ( PowerQuestEditor.GetActionEnabled(eQuestVerb.Look) )
 				{
-					if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "Look", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
+					if ( GUI.Button(layout, "Look", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
 					{
 						// Lookat
 						QuestScriptEditor.Open( m_selectedRoom, QuestScriptEditor.eType.Hotspot,
 							PowerQuest.SCRIPT_FUNCTION_LOOKAT_HOTSPOT+ itemComponent.GetData().ScriptName,
 							PowerQuestEditor.SCRIPT_PARAMS_LOOKAT_HOTSPOT);
 					}
-					offset += fixedWidth;
 				}
 				if ( PowerQuestEditor.GetActionEnabled(eQuestVerb.Use) )
 				{
-					if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "Use", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
+					if ( GUI.Button(layout, "Use", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
 					{
 						// Interact
 						QuestScriptEditor.Open( m_selectedRoom, QuestScriptEditor.eType.Hotspot,
 							PowerQuest.SCRIPT_FUNCTION_INTERACT_HOTSPOT+ itemComponent.GetData().ScriptName,
 							PowerQuestEditor.SCRIPT_PARAMS_INTERACT_HOTSPOT);
 					}
-					offset += fixedWidth;
 				}
 
 				if ( PowerQuestEditor.GetActionEnabled(eQuestVerb.Inventory) )
 				{
-					if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "Inv", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
+					if ( GUI.Button(layout, "Inv", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
 					{
 						// UseItem
 						QuestScriptEditor.Open( m_selectedRoom, QuestScriptEditor.eType.Hotspot,
 							PowerQuest.SCRIPT_FUNCTION_USEINV_HOTSPOT+ itemComponent.GetData().ScriptName,
 							PowerQuestEditor.SCRIPT_PARAMS_USEINV_HOTSPOT);
 					}
-					offset += fixedWidth;
 				}
 				
-				/* Not sure if want this for hotspots/props yet
-				fixedWidth = 22;
-				if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "...", EditorStyles.miniButtonRight ) )
-					QuestEditorUtils.LayoutQuestObjectContextMenu( eQuestObjectType.Hotspot, m_listHotspots, itemComponent.GetData().GetScriptName(), itemComponent.gameObject, rect, index,false );
-				offset += fixedWidth;
+				/* Not sure if want this for hotspots/props yet				
+				if ( GUI.Button(layout, "...", EditorStyles.miniButtonRight ) )
+					QuestEditorUtils.LayoutQuestObjectContextMenu( eQuestObjectType.Hotspot, m_listHotspots, itemComponent.GetData().GetScriptName(), itemComponent.gameObject, rect, index,false );				
 				*/
-
 
 			}
 		}
@@ -891,18 +889,20 @@ public partial class PowerQuestEditor
 				int actionCount = (PowerQuestEditor.GetActionEnabled(eQuestVerb.Look)?1:0)
 					+ (PowerQuestEditor.GetActionEnabled(eQuestVerb.Use)?1:0)
 					+ (PowerQuestEditor.GetActionEnabled(eQuestVerb.Inventory)?1:0);
-				float totalFixedWidth = (34 *actionCount);
-				float offset = rect.x;
-				float fixedWidth = 34;
-				int actionNum = 0;
-				EditorGUI.LabelField(new Rect(rect.x, rect.y+2, rect.width-totalFixedWidth, EditorGUIUtility.singleLineHeight), itemComponent.GetData().ScriptName);
+					
+				EditorLayouter layout = new EditorLayouter(new Rect(rect){y= rect.y+2,height=EditorGUIUtility.singleLineHeight});
+				layout.Variable(1);
+				for (int i = 0; i< actionCount; ++i)
+					layout.Fixed(34);
 
+				EditorGUI.LabelField(layout, itemComponent.GetData().ScriptName);
+
+				int actionNum = 0;
 				if ( hasCollider )
 				{
-					offset += rect.width - totalFixedWidth;
 					if ( PowerQuestEditor.GetActionEnabled(eQuestVerb.Look) )
 					{
-						if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "Look", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
+						if ( GUI.Button(layout, "Look", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
 						{
 							// Lookat
 							QuestScriptEditor.Open( 
@@ -910,12 +910,10 @@ public partial class PowerQuestEditor
 								PowerQuest.SCRIPT_FUNCTION_LOOKAT_PROP+ itemComponent.GetData().ScriptName,
 								PowerQuestEditor.SCRIPT_PARAMS_LOOKAT_PROP);
 						}
-					
-						offset += fixedWidth;
 					}
 					if ( PowerQuestEditor.GetActionEnabled(eQuestVerb.Use) )
 					{
-						if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "Use", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
+						if ( GUI.Button(layout, "Use", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
 						{
 							// Interact
 							QuestScriptEditor.Open( 
@@ -923,11 +921,10 @@ public partial class PowerQuestEditor
 								PowerQuest.SCRIPT_FUNCTION_INTERACT_PROP+ itemComponent.GetData().ScriptName,
 								PowerQuestEditor.SCRIPT_PARAMS_INTERACT_PROP);
 						}
-						offset += fixedWidth;
 					}
 					if ( PowerQuestEditor.GetActionEnabled(eQuestVerb.Inventory) )
 					{
-						if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "Inv", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
+						if ( GUI.Button(layout, "Inv", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
 						{
 							// UseItem
 							QuestScriptEditor.Open( 
@@ -935,7 +932,6 @@ public partial class PowerQuestEditor
 								PowerQuest.SCRIPT_FUNCTION_USEINV_PROP+ itemComponent.GetData().ScriptName,
 								PowerQuestEditor.SCRIPT_PARAMS_USEINV_PROP);
 						}
-						offset += fixedWidth;
 					}
 				}
 			}
@@ -952,33 +948,28 @@ public partial class PowerQuestEditor
 			{
 				QuestEditorUtils.LayoutQuestObjectContextMenu( eQuestObjectType.Region, m_listRegions, itemComponent.GetData().GetScriptName(), itemComponent.gameObject, rect, index, true );
 
+				EditorLayouter layout = new EditorLayouter(new Rect(rect){y= rect.y+2,height=EditorGUIUtility.singleLineHeight});
+				layout.Variable().Fixed(45).Fixed(45);
+
 				int actionCount = 2;
-				float fixedWidth = 45;
-				float totalFixedWidth = (fixedWidth *actionCount);
-				float offset = rect.x;
-				EditorGUI.LabelField(new Rect(rect.x, rect.y+2, rect.width-totalFixedWidth, EditorGUIUtility.singleLineHeight), itemComponent.GetData().ScriptName);
+				EditorGUI.LabelField(layout, itemComponent.GetData().ScriptName);
 
-				offset += rect.width - totalFixedWidth;
 				int actionNum = 0;
-
-				if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "Enter", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
+				if ( GUI.Button(layout, "Enter", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
 				{
 					// Lookat
 					QuestScriptEditor.Open( m_selectedRoom, QuestScriptEditor.eType.Region,
 						PowerQuest.SCRIPT_FUNCTION_ENTER_REGION+ itemComponent.GetData().ScriptName,
 						PowerQuestEditor.SCRIPT_PARAMS_ENTER_REGION);
 				}
-				offset += fixedWidth;
 
-
-				if ( GUI.Button(new Rect(offset, rect.y, fixedWidth, EditorGUIUtility.singleLineHeight), "Exit", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
+				if ( GUI.Button(layout, "Exit", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
 				{
 					// Interact
 					QuestScriptEditor.Open( m_selectedRoom, QuestScriptEditor.eType.Region,
 						PowerQuest.SCRIPT_FUNCTION_EXIT_REGION+ itemComponent.GetData().ScriptName,
 						PowerQuestEditor.SCRIPT_PARAMS_EXIT_REGION);
 				}
-				offset += fixedWidth;
 
 
 			}
@@ -994,26 +985,25 @@ public partial class PowerQuestEditor
 			{
 				Undo.RecordObject(m_selectedRoom,"Point Changed");
 				EditorGUI.BeginChangeCheck();
-				float totalFixedWidth = 50+50;
-				float offset = rect.x;
+				EditorLayouter layout = new EditorLayouter(new Rect(rect){y=rect.y+2,height=EditorGUIUtility.singleLineHeight});
+				layout.Variable().Fixed(100);
+
 				if ( index == m_selectedRoomPoint )
-					point.m_name = EditorGUI.TextField(new Rect(rect.x, rect.y, rect.width-totalFixedWidth, EditorGUIUtility.singleLineHeight), point.m_name).Trim();
+					point.m_name = EditorGUI.TextField(layout, point.m_name).Trim();
 				else 
-					EditorGUI.LabelField(new Rect(rect.x, rect.y, rect.width-totalFixedWidth, EditorGUIUtility.singleLineHeight), point.m_name);
+					EditorGUI.LabelField(layout, point.m_name);
 				
 				float x = point.m_position.x;
 				float y = point.m_position.y;
-				offset += rect.width - totalFixedWidth;
 
 				//position.m_name = EditorGUI.DelayedTextField(new Rect(rect.x, rect.y, rect.width-totalFixedWidth, EditorGUIUtility.singleLineHeight), position.m_name);
 				float[] xy = new float[] {x,y};
 				GUIContent[] xyLbl = new GUIContent[] {new GUIContent("x"),new GUIContent("y")};
-				offset += rect.width - totalFixedWidth;
 
-				EditorGUI.MultiFloatField(new Rect(rect.x+rect.width-totalFixedWidth, rect.y, totalFixedWidth, EditorGUIUtility.singleLineHeight),xyLbl,xy);
+				EditorGUI.MultiFloatField(layout,xyLbl,xy);
 				if ( EditorGUI.EndChangeCheck() )
 				{
-					point.m_position = Utils.Snap(new Vector2(xy[0],xy[1]),PowerQuestEditor.SnapAmount);
+					point.m_position = Utils.SnapRound(new Vector2(xy[0],xy[1]),PowerQuestEditor.SnapAmount);
 					EditorUtility.SetDirty(m_selectedRoom);
 					SceneView.RepaintAll();
 				}
@@ -1133,9 +1123,7 @@ public partial class PowerQuestEditor
 
 	#endregion 
 	#region Funcs: Layout Scene
-
-	bool m_editingPointMouseDown = false;
-
+	
 	void OnSceneRoom(SceneView sceneView)
 	{
 		// Repaint if mouse moved in scene view
@@ -1144,6 +1132,8 @@ public partial class PowerQuestEditor
 			if ( m_selectedTab == eTab.Room )
 				PowerQuestEditor.Get.Repaint();
 		}
+
+		float scale = QuestEditorUtils.GameResScale;
 
 		// Update walkable area editor
 		if ( m_walkableAreaEditor != null && m_walkableAreaEditor.target != null )
@@ -1154,9 +1144,9 @@ public partial class PowerQuestEditor
 				Handles.color = Color.yellow;
 				Vector2[] walkablePoints = m_selectedRoom.GetWalkableAreas()[m_listWalkableAreas.index].Points;
 				Vector2 offset = m_selectedRoom.GetWalkableAreas()[m_listWalkableAreas.index].PolygonCollider.offset;
-				Handles.DrawAAPolyLine(4f,System.Array.ConvertAll<Vector2,Vector3>(walkablePoints, item=>item+offset));	
+				Handles.DrawAAPolyLine(4*scale,System.Array.ConvertAll<Vector2,Vector3>(walkablePoints, item=>item+offset));	
 				if (  walkablePoints.Length > 2 )
-					Handles.DrawAAPolyLine(4f,walkablePoints[walkablePoints.Length-1]+offset, walkablePoints[0]+offset);	
+					Handles.DrawAAPolyLine(4*scale,walkablePoints[walkablePoints.Length-1]+offset, walkablePoints[0]+offset);	
 			}
 			
 			
@@ -1183,7 +1173,7 @@ public partial class PowerQuestEditor
 				Vector3 position = point.m_position.WithZ(0);
 				if ( m_selectedRoomPoint == i )
 				{						
-					Vector2 newPos = Utils.Snap(Handles.PositionHandle( position, Quaternion.identity),PowerQuestEditor.SnapAmount );//,2.0f,new Vector3(0,1,0),Handles.DotHandleCap));										
+					Vector2 newPos = Utils.SnapRound(Handles.PositionHandle( position, Quaternion.identity),PowerQuestEditor.SnapAmount );//,2.0f,new Vector3(0,1,0),Handles.DotHandleCap));										
 					if ( point.m_position != newPos )
 					{
 						Undo.RecordObject(m_selectedRoom,"Point moved");
@@ -1211,8 +1201,8 @@ public partial class PowerQuestEditor
 				else 
 				{
 					Handles.color = Color.yellow;
-					Handles.DrawLine( position + (Vector3.left * 2), position + (Vector3.right * 2) );
-					Handles.DrawLine( position + (Vector3.up * 2), position + (Vector3.down * 2) );
+					Handles.DrawLine( position + (Vector3.left * 2*scale), position + (Vector3.right * 2*scale) );
+					Handles.DrawLine( position + (Vector3.up * 2*scale), position + (Vector3.down * 2*scale) );
 					
 					if ( Event.current != null && Event.current.type == EventType.MouseDown && Event.current.button == 0 && Tools.current != Tool.Custom )
 					{
@@ -1229,7 +1219,7 @@ public partial class PowerQuestEditor
 				}
 				GUI.color = Color.yellow;
 
-				Handles.Label(position + new Vector3(1,0,0), point.m_name, new GUIStyle(EditorStyles.boldLabel) {normal = { textColor = Color.yellow } } );
+				Handles.Label(position + new Vector3(1*scale,0,0), point.m_name, new GUIStyle(EditorStyles.boldLabel) {normal = { textColor = Color.yellow } } );
 
 			}
 		}

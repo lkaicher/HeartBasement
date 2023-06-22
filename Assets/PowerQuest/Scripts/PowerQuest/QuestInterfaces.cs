@@ -51,6 +51,9 @@ public partial interface IPowerQuest
 	/// yield return this if nothing is happening in a function, but you don't want to fall back to an Unhandled Event
 	YieldInstruction ConsumeEvent { get; }
 
+	/// Returns true for developer builds, or if QUESTDEBUG is defined in player settings. Alternative to Debug.isDebugBuild, so you can have debug features enabled in non-developer builds.
+	bool IsDebugBuild {get;}
+
 	//
 	// Access to other objects
 	//
@@ -71,13 +74,16 @@ public partial interface IPowerQuest
 	/// Wait for time (or default 0.5 sec). Pressing button will skip the waiting
 	Coroutine WaitSkip(float time = 0.5f);
 
+	// Wait for a timer to expire (use the name used with E.SetTimer()). Will remove the timer on complete, even if skipped.
+	Coroutine WaitForTimer(string timerName, bool skippable = false);
+
 	/// <summary>
 	/// Use this when you want to yield to another function that returns an IEnumerator
 	/// Usage: yield return E.WaitFor( SimpleExampleFunction ); or yield return E.WaitFor( ()=>ExampleFunctionWithParams(C.Dave, "lol") );
 	/// </summary>
 	/// 
 	/// <param name="functionToWaitFor">A function that returns IEnumerator. Eg: `SimpleExampleFunction` or, `()=/>ExampleFunctionWithParams(C.Dave, 69)` if it has params</param>
-	Coroutine WaitFor( PowerQuest.DelegateWaitForFunction functionToWaitFor );
+	Coroutine WaitFor( PowerQuest.DelegateWaitForFunction functionToWaitFor, bool autoLoadQuestScript = true );
 
 	/// Use this when you want to wait until a condition is net. You need the ()=> to 
 	/// Usage: yield return E.WaitWhile( ()=> C.Player.Walking )
@@ -107,6 +113,21 @@ public partial interface IPowerQuest
 
 	/// Returns true if keyboard events should be processed by the game scripts. If a gui control is capturing keyboard, it returns false
 	bool GameHasKeyboardFocus {get;}
+	
+	/// Returns the currently focused gui
+	IGui GetFocusedGui();
+	
+	/** Allows navigation of gui by keyboard/controller. 
+		Call from UpdateNoPause in GlobalScript when an input is held down. Eg.
+		~~~
+        if ( Input.GetKey(KeyCode.Right) || MyControllerSytem.LeftJoystick.x > 0.5f )
+			E.NavigateGui(eGuiNav.Right);
+		~~~
+
+		This calls through to the Focused Gui's Navigate function, so alternatively you could call this yourself. Eg. `E.MyGui.Navigate(eGuiNav.Right)`
+		
+	*/
+	bool NavigateGui(eGuiNav input = eGuiNav.Ok);
 
 	//
 	// Narrator 
@@ -189,7 +210,7 @@ public partial interface IPowerQuest
 		
 		__Example:__
 
-		    `E.SetTimer("egg",6) );`
+		    E.SetTimer("egg",6) );
 
 		Will set the timer "egg" to expire after 6 seconds.
 
@@ -211,6 +232,7 @@ public partial interface IPowerQuest
 				if ( m_myTimer <= 0 ) // Check if the timer's elapsed
 				{
 					// The timer has elapsed! Do something!
+					
 				}
 			}
 		
@@ -430,7 +452,7 @@ public partial interface IPowerQuest
 	 */
 	bool FirstOccurrence(string uniqueString);
 
-	/// Registers something "occuring", and returns the number of time's it's occurred. Returns 0 the first time, then 1, etc.
+	/// Registers something "occurring", and returns the number of time's it's occurred. Returns 0 the first time, then 1, etc.
 	/**
 	 * Usage:
 	 * if ( Occurrence("knocked on door") < 3 )
@@ -813,7 +835,7 @@ public partial interface ICharacter : IQuestClickableInterface
 	Coroutine WalkToClicked(bool anywhere = false);
 	
 	/// Stop the character walking or moving. Also clears any waypoints.
-	Coroutine StopWalking();
+	void StopWalking();
 
 	/// Tells the character to move to a location directly, after it has finished its current move. Ignores walkable areas.
 	/** This function allows you to queue up a series of moves for the character to make, if you want them to take a preset path around the screen. Note that any moves made with this command ignore walkable areas.
@@ -1093,10 +1115,10 @@ public partial interface ICharacter : IQuestClickableInterface
 	Coroutine WaitForAnimTrigger(string eventName);
 		
 	/// Waits until a character has finished their transition and/or turning animation
-	Coroutine WaitForTransition(bool skippable = true);
+	Coroutine WaitForTransition(bool skippable = false);
 
 	/// Waits until a character is idle. ie: Not Walking,Talking,Animating,Turning, or Transitioning
-	Coroutine WaitForIdle(bool skippable = true);
+	Coroutine WaitForIdle(bool skippable = false);
 
 	/// Players can have more than one polygon collider for clicking on. Add them in the Character Component, and set which is active with this function
 	int ClickableColliderId { get; set; }
@@ -1277,6 +1299,8 @@ public partial interface IProp : IQuestClickableInterface
 	Vector2 Position { get; set; }
 	/// Set the location of the prop
 	void SetPosition(float x, float y);
+	/// Returns true while the prop is moving
+	bool Moving {get;}
 	/// Move the prop over time
 	Coroutine MoveTo(float x, float y, float speed, eEaseCurve curve = eEaseCurve.None);
 	/// Move the prop over time
@@ -1422,9 +1446,9 @@ public partial interface IHotspot : IQuestClickableInterface
 
 /** Region: Contains functions and data for manipluating Regions in rooms - Eg.
 
-			if ( R.DiscoFloor.GetCharacterOnRegion( C.Dave ) )
-				R.DiscoFloor.Tint = Color.blue;
-			R.Chasm.Walkable = false;				
+			if ( Regions.DiscoFloor.GetCharacterOnRegion( C.Dave ) )
+				Regions.DiscoFloor.Tint = Color.blue;
+			Regions.Chasm.Walkable = false;
 */
 public partial interface IRegion
 {
@@ -1446,6 +1470,18 @@ public partial interface IRegion
 		Note that if a character has changed room or been Enabled/Disabled this frame, this function can return the old result.
 	*/
 	bool GetCharacterOnRegion(ICharacter character = null);
+	
+	/// Returns true if the specified character is standing inside the region. 
+	/**
+		If null is passed as the chracter, the function returns true for ANY character standing inside the region.
+		
+		Note that if a character has changed room or been Enabled/Disabled this frame, this function can return the old result.
+	*/
+	bool ContainsCharacter(ICharacter character = null);
+
+	/// Returns true if the specified position is inside the region. 
+	bool ContainsPoint(Vector2 position);
+	
 
 	/// Access to the base class with extra functionality used by the PowerQuest
 	Region Data {get;}
@@ -1540,9 +1576,9 @@ public partial interface IDialogTree
 	void Stop();
 
 	/// Finds a dialog option with the specified name
-	DialogOption GetOption(string option);
+	IDialogOption GetOption(string option);
 	/// Finds a dialog option with the specified id
-	DialogOption GetOption(int option);
+	IDialogOption GetOption(int option);
 
 	//
 	// AGS style option on/off functions
@@ -1579,7 +1615,7 @@ public partial interface IDialogTree
 	///////////
 
 	/// Shortcut access to options eg: `D.MeetSarah["hello"].Off();`. Note that from dialog tree scripts you can access their options with `O.hello` instead
-	DialogOption this[string option] {get;}
+	IDialogOption this[string option] {get;}
 
 	/// PowerQuest internal function: Access to the specific quest script for the object. Use the specific dialog class as the templated parameter so you can access specific members of the script. Eg: GetScript<DialogSister>().m_saidHi = true;
 	T GetScript<T>() where T : DialogTreeScript<T>;
@@ -1823,8 +1859,15 @@ public partial interface IGui
 	Vector2 Position { get;set; }
 	/// Gets or sets the baseline used for sorting. Just like with hotspots/charcters, LOWER is in-front (eg: -4 is in-front of 6)
 	float Baseline { get;set; }
-	// Sets a cursor to show when hovering over the gui's hotspot (or anywhere if its a modal gui). Can be overriden by specific controls
+	/// Sets a cursor to show when hovering over the gui's hotspot (or anywhere if its a modal gui). Can be overriden by specific controls
 	string Cursor { get;set;}
+	/// Tells the gui to handle a keyboard or controller input. eg. Left/Right/Up/Down inputs will navigate between controls, or slide sliders, and 'Ok' will press buttons.	
+	/// Call this from your gui script or global script if the gui is focused. Returns true if button did something
+	bool Navigate( eGuiNav button );
+	// Call this to specify which control should be navigated to. When using keyboard/controller for menues.
+	void NavigateToControl(IGuiControl control);
+	// Resets any control that's been focused by navigation. The 
+	void ResetNavigation();		
 	
 	/** Retreives a specific IGuiControl from the gui. 
 	 
@@ -1836,6 +1879,8 @@ public partial interface IGui
 		NB: The gui must be instantiated for this to work. It might not work in scene loading scripts.
 	*/
 	GuiControl GetControl(string name );
+	/// Returns true if the control exists
+	bool HasControl(string name);
 	
 	/// PowerQuest internal function: Access to the specific quest script for the room. Use the specific room script as the templated parameter so you can access specific members of the script. Eg: GetScript<GuiPrompt>().Show("Blah");	
 	T GetScript<T>() where T : GuiScript<T>;
@@ -1847,6 +1892,7 @@ public partial interface IGui
 
 #endregion
 #region Gui controls
+
 
 /** All gui controls inherit from IGuiControl. (Buttons, Labels, etc)
 	
@@ -1872,8 +1918,11 @@ public partial interface IGuiControl
 	void SetPosition(float x, float y);
 	// Gets/Sets the position of the control. Note that this will be overridden if using AlignTo or FitTo component
 	Vector2 Position {get;set;}
+	// Gets/Sets whether this control is focused (ie: the mouse is hovering over it, or it's selected with keyboard)
+	bool Focused {get;}
 	// Gets/Sets whether this control has the current keyboard focus (can also be used for specifying which control has 'controller' focus)
-	bool HasKeyboardFocus { get; set; }
+	bool HasKeyboardFocus { get; set; }	
+
 }
 
 /** Gui Button
@@ -2026,6 +2075,8 @@ public partial interface ISlider : IGuiControl
 	Color ColorOff {get;set;}
 	
 	bool Clickable {get;set;}
+
+	float KeyboardIncrement { get; set; }
 	
 }
 /** Gui Text Field

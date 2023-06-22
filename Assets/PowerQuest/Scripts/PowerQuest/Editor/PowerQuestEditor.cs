@@ -85,13 +85,19 @@ public partial class PowerQuestEditor : EditorWindow
 	public static readonly string[] STR_SCRIPT_FOLDERS = {"Assets/Game"};
 	public static readonly string STR_SCRIPT_TYPE = " t:script";
 
-	public static readonly Vector2[] DEFAULT_COLLIDER_POINTS = new Vector2[]
+	static readonly Vector2[] DEFAULT_COLLIDER_POINTS = new Vector2[]
 	{
 		new Vector2(-10,-10),
 		new Vector2(-10,10),
 		new Vector2(10,10),
 		new Vector2(10,-10)
 	};
+
+	// Returns default collider points multiplied by game scale
+	public static Vector2[] DefaultColliderPoints { get {
+		float scale = QuestEditorUtils.GameResScale;
+		return System.Array.ConvertAll(DEFAULT_COLLIDER_POINTS, item=> item*scale);
+	} }
 
 
 	// Aligned with eQuestObjectType
@@ -109,13 +115,13 @@ public partial class PowerQuestEditor : EditorWindow
 	static readonly string[] RENAME_QO_LONG =
 	{
 		"Room",		 
-		"Character",
-		"Inventory",
+		PowerQuest.STR_CHARACTER,
+		PowerQuest.STR_INVENTORY,
 		"DialogTree",
 		"Gui",
-		"Prop",
-		"Hotspot",
-		"Region",
+		PowerQuest.STR_PROP,
+		PowerQuest.STR_HOTSPOT,
+		PowerQuest.STR_REGION,
 	};
 	static readonly string RENAME_SCRIPT_REGEX = @"(?<=<SHORTTYPE>\.)(<SCRIPTNAME>)(?=\W)|(?<=<LONGTYPE>\("")(<SCRIPTNAME>)(?=""\))|(?<=<TYPE>)(<SCRIPTNAME>)(?=\W)|(?<=I<LONGTYPE>\s+)(<SCRIPTNAME>)(?=\W)";
 
@@ -205,7 +211,7 @@ public partial class PowerQuestEditor : EditorWindow
 	private static void CreateInventoryItem()
 	{
 		ScriptableObject.CreateInstance< CreateQuestObjectWindow >().ShowQuestWindow(
-			eQuestObjectType.Inventory,	"Inventory", 
+			eQuestObjectType.Inventory,	PowerQuest.STR_INVENTORY, 
 			"'RubberChicken' or 'TreasureMap'",
 			CreateInventory);//new CreateQuestObjectWindow<InventoryComponent>.DelegateCreateFunction(CreateInventory));
 	}
@@ -474,14 +480,14 @@ public partial class PowerQuestEditor : EditorWindow
 		QuestEditorUtils.CreateSpriteAtlas($"{path}/Character{name}Atlas.spriteatlas",$"{path}/Sprites",GetPowerQuest().GetSnapToPixel(),false,false);
 
 		// Create game object
-		GameObject gameObject = new GameObject("Character"+name, typeof(CharacterComponent), typeof(PolygonCollider2D), typeof(PowerSprite), typeof(SpriteAnim)) as GameObject; 
+		GameObject gameObject = new GameObject(PowerQuest.STR_CHARACTER+name, typeof(CharacterComponent), typeof(PolygonCollider2D), typeof(PowerSprite), typeof(SpriteAnim)) as GameObject; 
 
 		CharacterComponent component = gameObject.GetComponent<CharacterComponent>();
 		component.GetData().EditorInitialise(name);
 
 		PolygonCollider2D collider = gameObject.GetComponent<PolygonCollider2D>();
 		collider.isTrigger = true;
-		collider.points = DEFAULT_COLLIDER_POINTS;
+		collider.points = DefaultColliderPoints;
 		/* Sprites now use PowerSprite tool
 		GameObject spriteObj = new GameObject("Sprite", typeof(SpriteAnim)) as GameObject;
 		spriteObj.transform.parent = gameObject.transform;
@@ -724,10 +730,10 @@ public partial class PowerQuestEditor : EditorWindow
 
 	#endregion
 	#region Functions: Delete Quest Objects
-
+	
 	void DeleteQuestObject( int index, string typeName, List<CharacterComponent> prefabs )
 	{
-		string scriptName = GetQuestObjectToDelete( prefabs, ref index )?.GetData()?.ScriptName ?? null;
+		string scriptName = GetQuestObjectToDelete( prefabs, ref index )?.GetData()?.ScriptName ?? null;		
 		DeleteQuestObject( index, prefabs, typeName, scriptName );
 	}
 	void DeleteQuestObject( int index, string typeName, List<InventoryComponent> prefabs )
@@ -773,6 +779,16 @@ public partial class PowerQuestEditor : EditorWindow
 			return null;
 		return components[index];
 	}
+
+	bool DeleteTemplateGameQuestObject(string name)
+	{
+		if ( EditorUtility.DisplayDialog("Really remove example object?", 
+		$"{name} is part of the template game.\n\nIt's recommended to keep these around for reference, or rename them and re-use them.\n\nIf you really want to delete them, make sure you remove all of them (Rooms, Dialogs, and Characters), or you'll get compile errors you'll have to fix yourself ;)",
+		"Yeah yeah, I know...", "Cancel") == false )
+			return false;
+		return true;
+	}
+
 	bool DeleteQuestObject<T>( int index, List<T> components, string typename, string name ) where T : Component
 	{
 		T component = components[index];
@@ -782,6 +798,20 @@ public partial class PowerQuestEditor : EditorWindow
 			EditorUtility.SetDirty(m_powerQuest);
 			return false;
 		}
+		
+		if ( component is CharacterComponent && (name == "Dave" || name == "Barney") )
+			if ( DeleteTemplateGameQuestObject(name) == false )
+				return false;
+		if ( component is RoomComponent && (name == "Title" || name == "Forest") )
+			if ( DeleteTemplateGameQuestObject(name) == false )
+				return false;
+		if ( component is DialogTreeComponent && (name == "ChatWithBarney") )
+			if ( DeleteTemplateGameQuestObject(name) == false )
+				return false;
+		if ( component is InventoryComponent && (name == "Bucket") )
+			if ( DeleteTemplateGameQuestObject(name) == false )
+				return false;
+
 
 		if ( EditorUtility.DisplayDialog("Really Remove?", "Yo, you sure you wanna remove "+name+"?\n\nThis can't be undone.", "Yeah yeah", "Hmm, Nah") == false )
 			return false;
@@ -916,9 +946,10 @@ public partial class PowerQuestEditor : EditorWindow
 		// Load the scene, or if the game's being played, change rooms
 		if ( Application.isPlaying )
 		{
-			// Get powerquest  in the scene and call change room
+			// Get powerquest in the scene and call change room
 			if ( PowerQuest.Exists )
-				PowerQuest.Get.ChangeRoomBG(room.GetData());
+				PowerQuest.Get.StartRoomTransition( room.GetData(), true );			
+			// PowerQuest.Get.ChangeRoomBG(room.GetData());
 		}
 		else if ( askToSave == false || EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo() )
 		{			
@@ -1151,6 +1182,8 @@ public partial class PowerQuestEditor : EditorWindow
 		// TODO: If in open quest script, open it?		
 	}
 
+	PowerTools.SpriteAnimator m_animatorWindow = null;
+
 	void Update()
 	{
 		UpdateCheckInitialSetup();
@@ -1164,9 +1197,25 @@ public partial class PowerQuestEditor : EditorWindow
 
 		UpdateQuestEditorTools();
 		CheckVersion();
+
+		// Register with animator window for anim tag callbacks
+		if ( m_animatorWindow == null && EditorWindow.HasOpenInstances<SpriteAnimator>() )
+		{
+			m_animatorWindow = EditorWindow.GetWindow<SpriteAnimator>();
+		}		
+		else if ( m_animatorWindow != null && EditorWindow.HasOpenInstances<SpriteAnimator>() == false )
+		{
+			//Debug.Log("Removed editor");
+			//m_animatorWindow.CallbackOnAnimEvent -= OnAnimatorWindowEvent;
+			m_animatorWindow = null;
+		}
+
+		// Register callback with animator window once found
+		if ( m_animatorWindow != null && m_animatorWindow.CallbackOnAnimEvent == null ) // add event if window crea
+		{
+			m_animatorWindow.CallbackOnAnimEvent += OnAnimatorWindowEvent;
+		}
 	}
-
-
 
 	#endregion
 	#region Functions: Messages
@@ -1336,6 +1385,56 @@ public partial class PowerQuestEditor : EditorWindow
 			EditorPrefs.SetBool("kAutoRefresh", true);
 		}
 	}
+
+	
+	public void CreateTempAudioSystem()
+	{
+		if ( SystemAudio.HasInstance() && SystemAudio.Get.EditorGetAudioCues().Count > 0 )
+			return;
+		if ( SystemAudio.HasInstance() )
+			GameObject.DestroyImmediate(SystemAudio.Get.gameObject); // Remove non-PQ audio cue
+		
+		GameObject systemAudio = GameObject.Instantiate(m_systemAudio.gameObject) as GameObject;
+		systemAudio.hideFlags = HideFlags.HideAndDontSave;
+	
+	}
+
+	partial void exOnAnimatorWindowEvent( SpriteAnimator.AnimEventData ev );
+	void OnAnimatorWindowEvent( SpriteAnimator.AnimEventData ev )
+	{
+		if ( m_powerQuest == null )
+			return;
+
+		//Debug.Log(ev.m_functionName);
+		if (string.Equals(ev.m_functionName, "Sound", System.StringComparison.OrdinalIgnoreCase) )
+		{
+			if ( ev.m_paramType == SpriteAnimator.eAnimEventParameter.String )
+			{
+				CreateTempAudioSystem();
+				SystemAudio.Play(ev.m_paramString);
+			}
+			else if ( ev.m_paramType == SpriteAnimator.eAnimEventParameter.Object )
+			{
+				if ( ev.m_paramObjectReference == null )
+					return;				
+				AudioCue cue =  (ev.m_paramObjectReference as GameObject).GetComponent<AudioCue>();
+				if ( cue )
+				{
+					CreateTempAudioSystem();
+					SystemAudio.Play(cue);
+				}
+
+			}
+		}
+		else if ( string.Equals(ev.m_functionName, "Footstep", System.StringComparison.OrdinalIgnoreCase) && m_listCharacterPrefabs.Count > 0)
+		{	
+			CreateTempAudioSystem();			
+			SystemAudio.Play(m_listCharacterPrefabs[0].GetData().FootstepSound);
+		}
+
+		// For extentions
+		exOnAnimatorWindowEvent(ev);
+	}	
 
 	//
 	// GUI Layout
@@ -1507,10 +1606,13 @@ public partial class PowerQuestEditor : EditorWindow
 	[MenuItem("Edit/Copy Cursor Position To Clipboard %m")]
 	static void CopyPositionToClipboard()
 	{
+		Vector2 diff = m_mousePosPrev - m_mousePos;
+		float dist = diff.magnitude;
+		m_mousePosPrev = m_mousePos;
 		m_mousePosCopied = Mathf.RoundToInt(m_mousePos.x).ToString() +", " + Mathf.RoundToInt(m_mousePos.y).ToString();
 		EditorGUIUtility.systemCopyBuffer = m_mousePosCopied;
 		//System.Windows.Clipboard.SetText( Mathf.RoundToInt(m_mousePos.x).ToString() +", " + Mathf.RoundToInt(m_mousePos.y).ToString())
-		Debug.Log("Copied coords to clipboard: " + m_mousePosCopied);
+		Debug.Log($"Copied coords to clipboard: {m_mousePosCopied} - Offset from previous: {diff}, distance: {dist}");
 		PowerQuestEditor window = GetWindow<PowerQuestEditor>();
 		if ( window != null ) 
 		{
@@ -1563,6 +1665,17 @@ public partial class PowerQuestEditor : EditorWindow
 			return;
 
 		//QuestUtils.StopwatchStart();
+				
+		/*/ Update PowerQuest prefab to stop weird errors where list items go missing when the prefab has changed outside unity while unity's open. But don't think we want to do this all the time. Needs looking at more closely.
+		if ( PowerQuestAssetPostProcessor.HasPostProcessed("PowerQuest.prefab")  )
+		{
+			Debug.Log("Refreshing PowerQuest prefab on post process all assets...");
+			GameObject obj = AssetDatabase.LoadAssetAtPath(m_powerQuestPath, typeof(GameObject)) as GameObject;
+			if ( obj != null )
+				m_powerQuest = obj.GetComponent<PowerQuest>();
+		}
+		/**/
+		
 			
 		/* Tried removing this since not sure what it actually does anymore. maybe fix for when the "room" would get deselected sometimes?? not sure...
 		// Update room selection. TODO: Work out when this is actually necessary. Only if current room changed?
@@ -1579,10 +1692,10 @@ public partial class PowerQuestEditor : EditorWindow
 		
 		UpdateGuiSelectionFromStage();
 		// UpdateGuiSelection(GameObject.FindObjectOfType<GuiComponent>(), true );
-
 		PostProcessAnimationLists(); 		
 		PostProcessQuestObjectLists();		
 		PostProcessAudioCueLists();
+
 		//QuestUtils.StopwatchStop("OnPostProcessAllAssets: ");
 		//Debug.Log("OnPostProcessAllAssets");
 
@@ -1665,6 +1778,7 @@ public partial class PowerQuestEditor : EditorWindow
 		catch{}
 	}
 
+
 	// Updates list with objects of specified type in the path, returns true if it changed.
 	bool RefreshObjectList<T>( List<T> list, string path ) where T : MonoBehaviour
 	{
@@ -1716,8 +1830,8 @@ public partial class PowerQuestEditor : EditorWindow
 
 			if ( anim )
 			{			
-				if ( PowerQuestAssetPostProcessor.HasPostProcessed("Inventory") )
-					if ( PostProcessRefreshAnimationList( m_powerQuest.GetInventoryAnimations(), m_gamePath+"Inventory" ) )
+				if ( PowerQuestAssetPostProcessor.HasPostProcessed(PowerQuest.STR_INVENTORY) )
+					if ( PostProcessRefreshAnimationList( m_powerQuest.GetInventoryAnimations(), m_gamePath+PowerQuest.STR_INVENTORY ) )
 						EditorUtility.SetDirty(m_powerQuest);
 					
 				if ( PowerQuestAssetPostProcessor.HasPostProcessed("Gui/GuiAnims") )

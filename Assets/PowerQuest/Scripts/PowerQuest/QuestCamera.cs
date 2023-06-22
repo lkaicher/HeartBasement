@@ -84,7 +84,7 @@ public partial class QuestCamera : ICamera
 	public bool GetHasPositionOverride() { return m_hasPositionOverride; }
 
 	public Vector2 GetPositionOverride() { return m_positionOverride; }
-	public Vector2 GetPositionOverridePrev() { return m_positionOverridePrev; }
+	//public Vector2 GetPositionOverridePrev() { return m_positionOverridePrev; }
 
 	public bool GetHasPositionOverrideOrTransition() 
 	{ 
@@ -111,8 +111,8 @@ public partial class QuestCamera : ICamera
 	}
 	public void SetPositionOverride	(float x, float y = 0, float transitionTime = 0 ) 
 	{ 
-		if ( m_hasPositionOverride )
-			m_positionOverridePrev = m_positionOverride;
+		//if ( m_hasPositionOverride )
+		//	m_positionOverridePrev = m_positionOverride;
 		m_hasPositionOverride = true; 
 		m_positionOverride = new Vector2(x,y);  
 		if ( m_instance != null )
@@ -121,7 +121,7 @@ public partial class QuestCamera : ICamera
 	public void SetPositionOverride	(Vector2 positionOverride, float transitionTime = 0 ) { SetPositionOverride(positionOverride.x, positionOverride.y, transitionTime); }
 	public void ResetPositionOverride(float transitionTime = 0)
 	{ 
-		m_positionOverridePrev = new Vector2(float.MaxValue,float.MaxValue);
+		//m_positionOverridePrev = new Vector2(float.MaxValue,float.MaxValue);
 		m_hasPositionOverride = false;  
 		if ( m_instance != null) 
 			m_instance.OnOverridePosition(transitionTime); 
@@ -177,8 +177,10 @@ public partial class QuestCamera : ICamera
 	public void SetTargetPosition(Vector2 position) { m_targetPosition = position; }
 
 	public bool GetSnappedLastUpdate() { return m_instance == null ? true : m_instance.GetSnappedLastUpdate(); }
-	public bool GetTargetPosChangedLastUpdate() { return m_instance == null ? true : m_instance.GetTargetChangedLastUpdate(); }
-		
+	public bool GetTargetPosChangedLastUpdate() { return m_instance == null ? true : m_instance.GetTargetChangedLastUpdate(); }	
+	public float GetTransitionTime() { return m_instance == null ? 0 : m_instance.GetTransitionTime(); }	
+	
+	public Vector2 Velocity => m_instance == null ? Vector2.zero : m_instance.Velocity;
 
 	public void Shake(float intensity, float duration = 0.1f, float falloff = 0.15f)
 	{

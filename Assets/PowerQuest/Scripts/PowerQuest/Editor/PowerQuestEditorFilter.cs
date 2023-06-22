@@ -31,23 +31,33 @@ public partial class PowerQuestEditor
 		All,
 		Highlighted,
 		Unparented,
-		Parented
+		Parented,
+		Searched // never set, returns automatically if a SearchString is set
 	}
 
 	[Serializable]
 	private class FilterContext 
 	{
+		FilterState _state = FilterState.All;
+
 		public bool Show;
 
-		public FilterState State;
+		public FilterState State { get{ return IsString.Empty(SearchString) ? _state : FilterState.Searched; } set { _state=value; } }
 		/**
 		 * Only valid when FilterState == FilterState.Parented
 		 */
 		public string ParentPath;
+		
+		/**
+		 * Only valid when FilterState == FilterState.Parented
+		 */
+		public string SearchString;
 
 		public FilterContext(bool showByDefault = true) {
 			Show = showByDefault;
 		}
+
+		
 	}	
 
 	class PathsDropdown : AdvancedDropdown 
@@ -218,34 +228,41 @@ public partial class PowerQuestEditor
 
 	void ApplyFilter<T>( List<T> prefabList, ref List<T> list, FilterContext filterCtx) where T : MonoBehaviour 
 	{
-		switch (filterCtx.State) {
-			case FilterState.All:
+		if ( IsString.Valid(filterCtx.SearchString) ) {
+			// Build list from any that match			 
+			list = prefabList.FindAll(item=>item.name.IndexOf(filterCtx.SearchString, StringComparison.OrdinalIgnoreCase) >= 0);
+		}
+		else {
+			switch (filterCtx.State) {
+				case FilterState.All:
+					list = prefabList;
+					break;
+
+				case FilterState.Highlighted:
+					list = prefabList.FindAll(IsHighlighted);
+					break;
+
+				case FilterState.Unparented:
+					list = prefabList.FindAll(item => string.IsNullOrEmpty(GetAssetParentPath(m_gamePath, item)));
+					break;
+
+				case FilterState.Parented:
+					list = prefabList.FindAll(item => GetAssetParentPath(m_gamePath, item) == filterCtx.ParentPath);
+					break;
+
+				default:
+					throw new ArgumentOutOfRangeException(nameof(filterCtx.State), filterCtx.State, null);
+			}
+
+			if (list.Count == 0) {
 				list = prefabList;
-				break;
-
-			case FilterState.Highlighted:
-				list = prefabList.FindAll(IsHighlighted);
-				break;
-
-			case FilterState.Unparented:
-				list = prefabList.FindAll(item => string.IsNullOrEmpty(GetAssetParentPath(m_gamePath, item)));
-				break;
-
-			case FilterState.Parented:
-				list = prefabList.FindAll(item => GetAssetParentPath(m_gamePath, item) == filterCtx.ParentPath);
-				break;
-
-			default:
-				throw new ArgumentOutOfRangeException(nameof(filterCtx.State), filterCtx.State, null);
+				filterCtx.State = FilterState.All;
+			}
 		}
 
-		if (list.Count == 0) {
-			list = prefabList;
-			filterCtx.State = FilterState.All;
-		}
 	}
 
-	static string GetFilterName(FilterContext filterCtx) => filterCtx.State == FilterState.Parented ? filterCtx.ParentPath : filterCtx.State.ToString();
+	static string GetFilterName(FilterContext filterCtx) => IsString.Valid(filterCtx.SearchString) ? $"Containing '{filterCtx.SearchString}'" : (filterCtx.State == FilterState.Parented ? filterCtx.ParentPath : filterCtx.State.ToString());
 
 	void LayoutListHeader<T>(List<T> allPrefabs, string name, FilterContext filterContext, Rect rect) where T : MonoBehaviour 
 	{
@@ -304,6 +321,7 @@ public partial class PowerQuestEditor
 			ReorderableList.RemoveCallbackDelegate onRemoveCallback
 		) where T : MonoBehaviour 
 	{
+		filterCtx.SearchString=m_searchString;
 		ApplyFilter(allPrefabs, ref listPrefabs, filterCtx);
 
 		// FIXME(arcnor): We should support adding and removing scenes when filtered (path to create stuff in is in `FilterContext.ParentPath` when state is `Parent`)

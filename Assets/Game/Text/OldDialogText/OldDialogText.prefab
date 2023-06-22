@@ -58,7 +58,13 @@ MonoBehaviour:
   m_wrapUniformLineWidth: 0
   m_wrapWidthMin: 120
   m_keepOnScreen: 1
+  m_screenPadding:
+    left: 8
+    right: 8
+    top: 8
+    bottom: 8
   m_shaderOverride: {fileID: 0}
+  m_setFiltering: 1
   m_outline:
     m_directions: 68
     m_width: 1

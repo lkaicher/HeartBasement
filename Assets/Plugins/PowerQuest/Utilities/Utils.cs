@@ -428,6 +428,15 @@ public static class IsString
 	public static bool There(string str) => string.IsNullOrEmpty(str) == false;
 	public static bool Ok(string str) => string.IsNullOrEmpty(str) == false;
 
+	public static bool EqualIgnoreCase(string first, string second)
+	{
+		if ( first == null || second == null )
+			return first == second;
+		else 
+		{
+			return first.EqualsIgnoreCase(second);
+		}
+	}
 }
 
 public static class ExtentionMethods
@@ -663,6 +672,24 @@ public static class ExtentionMethods
 	{
        return ((mask.value & (1 << obj.layer)) > 0);
     }
+
+	// Same as first.Equals(second, StringComparison.OrdinalIgnoreCase)
+	public static bool EqualsIgnoreCase(this string first, string second)
+	{
+		return first.Equals(second, System.StringComparison.OrdinalIgnoreCase);
+	}
+	// Same as first.StartsWith(second, StringComparison.OrdinalIgnoreCase)
+	public static bool StartsWithIgnoreCase(this string first, string second)
+	{
+		return first.StartsWith(second, System.StringComparison.OrdinalIgnoreCase);
+	}
+	// Same as first.Contains(second, StringComparison.OrdinalIgnoreCase)
+	public static bool ContainsIgnoreCase(this string first, string second)
+	{
+		return first.IndexOf(second, System.StringComparison.OrdinalIgnoreCase) >= 0;
+	}
+
+
 		
 	public static Quaternion GetDirectionRotation( this Vector2 direction )
 	{		

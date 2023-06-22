@@ -56,7 +56,7 @@ public partial class Image : GuiControl, IImage
 
 	public void PauseAnimation()
 	{
-		if ( m_overrideAnimPlaying )
+		if ( m_spriteAnimator != null && m_overrideAnimPlaying )
 		{
 			m_spriteAnimator.Pause();
 		}
@@ -64,7 +64,7 @@ public partial class Image : GuiControl, IImage
 
 	public void ResumeAnimation()
 	{
-		if ( m_overrideAnimPlaying )
+		if ( m_spriteAnimator != null && m_overrideAnimPlaying )
 		{
 			m_spriteAnimator.Resume();
 		}
@@ -73,7 +73,7 @@ public partial class Image : GuiControl, IImage
 	// Return to current animation set in data
 	public void StopAnimation()
 	{
-		if ( m_overrideAnimPlaying )
+		if ( m_spriteAnimator != null && m_overrideAnimPlaying )
 			PlayAnimInternal(m_anim);		
 		m_overrideAnimPlaying = false;
 	}
@@ -191,7 +191,7 @@ public partial class Image : GuiControl, IImage
 	{
 		m_stopOverrideAnimDelay = 0;
 		
-		if ( string.IsNullOrEmpty( animName ) )
+		if ( string.IsNullOrEmpty( animName ) || GuiComponent == null )
 			return false;
 
 		// Find anim in gui's list of anims
@@ -253,7 +253,7 @@ public partial class Image : GuiControl, IImage
 
 	void PlayOverrideAnim(string animName)
 	{
-		if ( PlayAnimInternal(animName,true) == false && Debug.isDebugBuild )
+		if ( PlayAnimInternal(animName,true) == false && PowerQuest.Get.IsDebugBuild )
 			Debug.LogWarning("Failed to find Gui Image animation: "+animName); // warn when trying to play anim
 		m_overrideAnimPlaying = true;
 	}

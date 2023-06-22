@@ -36,7 +36,16 @@ public class LanguageData
 
 public class SystemText : PowerTools.Singleton<SystemText>
 { 
-	enum eDefaultTextSource
+	public enum ePlayerName
+	{
+		Character,
+		Plr,
+		Player,
+		Ego
+	}
+
+
+	public enum eDefaultTextSource
 	{
 		Script, ImportedText
 	}
@@ -52,8 +61,9 @@ public class SystemText : PowerTools.Singleton<SystemText>
 
 	// Master list of all strings
 	[SerializeField, HideInInspector] List<TextData> m_strings = new List<TextData>(); 
-	
 
+	[SerializeField] System.Text.Encoding m_csvEncoding = System.Text.Encoding.Default; 
+	
 	// Dictionary of character to string for quick lookup
 	CharacterTextDataList m_characterStrings = null;
 
@@ -67,6 +77,8 @@ public class SystemText : PowerTools.Singleton<SystemText>
 	// cache whether the X shape is used for lipsync
 	bool m_lipSyncUsesXShape = false;
 	
+	ePlayerName m_lastPlayerName = ePlayerName.Character;
+	
 
 	public int GetNumLanguages() { return m_languages.Length; }
 	// Returns the currently selected language id
@@ -77,6 +89,7 @@ public class SystemText : PowerTools.Singleton<SystemText>
 	public LanguageData GetLanguageData(int id) { return m_languages[id]; }
 	public LanguageData GetLanguageData(string languageCode) { return m_languages[GetLanguageId(languageCode)]; }
 	/// NB: You should usually set the language via PowerQuest.Settings so it will be saved.
+
 	public void SetLanguage(int languageId) 
 	{
 		m_currLanguage = languageId; 
@@ -104,8 +117,7 @@ public class SystemText : PowerTools.Singleton<SystemText>
 	public bool GetLipsyncUsesXShape() { return m_lipSyncUsesXShape; }
 	public string GetLipsyncExtendedMouthShapes()  { return m_lipSyncExtendedShapes; }
 	public void SetLipsyncExtendedMouthShapes(string value)  { m_lipSyncExtendedShapes = value; }
-
-
+	
 	public static string Localize( string defaultText, int id = -1, string characterName = null )
 	{
 		return GetDisplayText(defaultText, id, characterName);
@@ -129,11 +141,17 @@ public class SystemText : PowerTools.Singleton<SystemText>
 		}
 		else 
 		{
+			// Handle cases where character dialog is mixed between 'Plr', 'Player', 'Ego' and the characters actual name, by overriding the character name based on the function that was used to call it.
+			if ( isPlayer && m_instance.LastPlayerName != ePlayerName.Character )
+				characterName = m_instance.LastPlayerName.ToString();
+
 			// Otherwise find the string in the character data. If character's null it could be a "Display" string
 			data = m_instance.FindTextDataInternal(id, characterName);
+
+			/* This was the old way to check character names, but depended on the imported text matching the text in the script. /
 			if (isPlayer) 
 			{
-				// If scripts have mixed refences for dialogs for the main character, like
+				// If scripts have mixed references for dialogs for the main character, like
 				// "Dave: ", "Player: ", "Plr: ", etc, and the current character is the player,
 				// we may find the wrong string due to overlapping ids.
 				// We check the original string matches and try some fallbacks...
@@ -144,9 +162,10 @@ public class SystemText : PowerTools.Singleton<SystemText>
 				if (data?.m_string != defaultText)
 					data = m_instance.FindTextDataInternal(id, "Ego");
 			}
-			// a translation has been found but it's for "someone else". Erase it.
+			// a translation has been found but it's for "someone else". Ignore it.
 			if (data?.m_string != defaultText)
 				data = null;
+			/**/
 		}
 
 		if ( data == null )
@@ -295,7 +314,9 @@ public class SystemText : PowerTools.Singleton<SystemText>
 
 	}
 	
-	public bool EditorGetShouldImportDefaultStringFromCSV() { return m_defaultTextSource == eDefaultTextSource.ImportedText; }
+	 // NB: Now always importing default text from CSV
+	public bool EditorGetShouldImportDefaultStringFromCSV() { return true; } // m_defaultTextSource == eDefaultTextSource.ImportedText; }
+	public eDefaultTextSource EditorDefaultTextSource { get { return m_defaultTextSource; } set{ m_defaultTextSource = value; } }
 
 	public List<TextData> EditorGetTextDataOrdered()
 	{
@@ -314,7 +335,7 @@ public class SystemText : PowerTools.Singleton<SystemText>
 		TextData result = null;
 
 		if ( id < 0 )
-			id = m_instance.ParseIdFromText(ref defaultText); 
+			id = ParseIdFromText(ref defaultText); 
 		
 		if ( id < 0 )
 			m_textOnlyStrings.TryGetValue(defaultText,out result);
@@ -329,6 +350,9 @@ public class SystemText : PowerTools.Singleton<SystemText>
 	{
 		return GetVoiceAudioClip(id, characterName) != null;
 	}
+	
+	// This is used to specify which "name" a player is using (eg: Plr, Player, Ego, or the character's ScriptName), so it can be retrieved from the text system correctly
+	public ePlayerName LastPlayerName { get{ return m_lastPlayerName; } set{ m_lastPlayerName=value; } }
 
 	// Gets the audio clip for a particular id/data.
 	AudioClip GetVoiceAudioClip(int id, string characterName)
@@ -450,7 +474,7 @@ public class SystemText : PowerTools.Singleton<SystemText>
 		try
 		{
 			stream = File.OpenRead(scriptPath);
-			streamReader = new StreamReader(stream, System.Text.Encoding.Default);
+			streamReader = new StreamReader(stream, System.Text.Encoding.Default, true);
 
 			using ( CSVFile.CSVReader reader = new CSVFile.CSVReader(streamReader, new CSVFile.CSVSettings() { HeaderRowIncluded = false }) )
 			{

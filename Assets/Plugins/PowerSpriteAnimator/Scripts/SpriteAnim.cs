@@ -55,6 +55,8 @@ public class SpriteAnim : SpriteAnimEventHandler
 	/// Callback called whenever an animation is stopped for any reason
 	public System.Action CallbackOnStop = null;
 
+	public Animator Animator => m_animator;
+
 	/// True if an animation is currently playing (even if paused)
 	public bool Playing { get { return IsPlaying(); } }
 

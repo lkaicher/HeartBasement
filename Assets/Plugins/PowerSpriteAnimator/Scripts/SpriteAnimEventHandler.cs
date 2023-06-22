@@ -1,4 +1,4 @@
-﻿//-----------------------------------------
+//-----------------------------------------
 //          PowerSprite Animator
 //  Copyright © 2017 Powerhoof Pty Ltd
 //			  powerhoof.com
@@ -110,7 +110,7 @@ public class SpriteAnimEventHandler : MonoBehaviour
 		else
 		{
 			if ( string.IsNullOrEmpty(m_eventWithObjectMessage) == false )
-				Debug.LogError("Animation event with object parameter had no object");
+				Debug.LogWarning("Animation event with object parameter had no object");
 			m_eventWithObjectMessage = funcName;
 		}
 	}
@@ -125,7 +125,7 @@ public class SpriteAnimEventHandler : MonoBehaviour
 		else 
 		{
 			if ( m_eventWithObjectData != null ) 
-				Debug.LogError("Animation event with object parameter had no object");
+				Debug.LogWarning("Animation event with object parameter had no object");
 			m_eventWithObjectData = data;
 		}
 	}

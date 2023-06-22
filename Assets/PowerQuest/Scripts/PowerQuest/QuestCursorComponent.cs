@@ -11,6 +11,8 @@ namespace PowerTools.Quest
 public partial class QuestCursor : ICursor
 {
 	
+	public enum eInventoryOutlineOnGui { Never, OtherItemsOnly, Always }
+
 	//
 	// Default values set in inspector
 	//
@@ -24,6 +26,8 @@ public partial class QuestCursor : ICursor
 	[SerializeField] string m_animationOverGui = "Idle";
 	[SerializeField] string m_animationWait = "Wait";
 	[SerializeField] Color m_inventoryOutlineColor = new Color(1,1,1,0);
+	[Tooltip("Controls when the inventory outline shows when hovered over other inventory items")]
+	[SerializeField] eInventoryOutlineOnGui m_inventoryOutlineOnGui = eInventoryOutlineOnGui.OtherItemsOnly;
 	[Tooltip("If true, the cursor will be hidden when the game isn't interactive")]
 	[SerializeField] bool m_hideWhenBlocking = true;
 
@@ -98,7 +102,11 @@ public partial class QuestCursor : ICursor
 		get{ return m_inventoryOutlineColor; }
 		set{ m_inventoryOutlineColor = value; OnChangeAnimation(); }
 	}
-
+	public eInventoryOutlineOnGui InventoryOutlineOnGui
+	{
+		get{ return m_inventoryOutlineOnGui; }
+		set{ m_inventoryOutlineOnGui = value; OnChangeAnimation(); }
+	}
 
 	public GameObject GetPrefab() { return m_prefab; }
 	public QuestCursorComponent GetInstance() { return m_instance; }
@@ -140,6 +148,7 @@ public partial class QuestCursor : ICursor
 
 public partial class QuestCursorComponent : MonoBehaviour 
 {
+	static readonly string STR_NONE = "None";
 
 	#endregion
 	#region Component Editor variables
@@ -233,10 +242,11 @@ public partial class QuestCursorComponent : MonoBehaviour
 
 		Character player = PowerQuest.Get.GetPlayer();
 
+		string clickableCursor = (clickable == null || clickable.Cursor == null) ? string.Empty : clickable.Cursor;
 		// Clickable
 		if ( Utils.IsEmpty(newAnim) && clickable != null )
 		{
-			bool overInventoryOverrideCursor = m_inventoryOverrideAnims.Contains(clickable.Cursor); 
+			bool overInventoryOverrideCursor = m_inventoryOverrideAnims.Contains(clickableCursor); 
 				
 
 			// If over gui
@@ -245,28 +255,40 @@ public partial class QuestCursorComponent : MonoBehaviour
 				Gui guiData = clickable as Gui;	
 				GuiControl guiControl = clickable as GuiControl;						
 				if ( clickable.ClickableType == eQuestClickableType.Inventory  )
-					guiControl = PowerQuest.Get.GetFocusedGuiControl();
+					guiControl = PowerQuest.Get.GetFocusedGuiControl() as GuiControl;
 				
 				if ( guiControl != null )
 					guiData = guiControl.GuiData;				
 
 				// Show inv item cursor, if that's allowed in the gui, (or if the cursor is set to the string "Inventory", or some legacy support)
 				if ( player.HasActiveInventory && ( // If inventory active, and 
-					    clickable.Cursor.Equals("Inventory", System.StringComparison.OrdinalIgnoreCase) // gui's cursor set to 'Inventory'
+					    clickableCursor.EqualsIgnoreCase(PowerQuest.STR_INVENTORY) // gui's cursor set to 'Inventory'
 					|| (guiData != null && guiData.AllowInventoryCursor) // or guis cursor 'allowInventoryCursor' set to true
 					|| (guiData==null && clickable.ClickableType == eQuestClickableType.Inventory) // or its a legacy inventory gui (guiData is null), and clickable is an inventory item
 				))
 				{	
 					// If gui allows invetnory cursor, use that			
 					if ( Utils.IsEmpty(clickable.Description) && Utils.IsEmpty(player.ActiveInventory.AnimCursorInactive) == false )
-						newAnim = player.ActiveInventory.AnimCursorInactive;
+					{
+						newAnim = player.ActiveInventory.AnimCursorInactive;					
+					}
 					else 
+					{
 						newAnim = player.ActiveInventory.AnimCursor;					
+
+						// Set whether inventory outline shows when hovering over other items in gui
+						if ( (m_data.InventoryOutlineOnGui == QuestCursor.eInventoryOutlineOnGui.Always
+								|| (m_data.InventoryOutlineOnGui == QuestCursor.eInventoryOutlineOnGui.OtherItemsOnly && clickable != player.ActiveInventory ) )
+							&& clickableCursor.EqualsIgnoreCase(STR_NONE) == false )
+						{
+							outlineColor = m_data.InventoryOutlineColor;
+						}
+					}
 				}
 
 				// if there's a cursor set on the gui, use that
 				if ( Utils.IsEmpty(newAnim) )
-					newAnim = clickable.Cursor;
+					newAnim = clickableCursor;
 
 				if ( Utils.IsEmpty(newAnim) )
 					newAnim = m_data.AnimationOverGui;
@@ -275,7 +297,7 @@ public partial class QuestCursorComponent : MonoBehaviour
 			// If there's an inventory item selected use that cursor, otherwise the pointer
 			if ( Utils.IsEmpty(newAnim) && player.HasActiveInventory && overInventoryOverrideCursor == false )
 			{		
-				if ( clickable.Cursor.Equals("None", System.StringComparison.OrdinalIgnoreCase) == false )
+				if ( clickableCursor.EqualsIgnoreCase(STR_NONE) == false )
 					outlineColor = m_data.InventoryOutlineColor;
 				if ( Utils.IsEmpty(player.ActiveInventory.AnimCursor) == false )
 					newAnim = player.ActiveInventory.AnimCursor;
@@ -295,10 +317,10 @@ public partial class QuestCursorComponent : MonoBehaviour
 			}
 
 			// If cursor anim is overriden
-			if ( Utils.IsEmpty(newAnim) && Utils.IsEmpty(clickable.Cursor) == false )	
+			if ( IsString.Empty(newAnim) && IsString.Empty(clickableCursor) == false )	
 			{				
 				if ( player.HasActiveInventory == false || overInventoryOverrideCursor )
-					newAnim = clickable.Cursor;
+					newAnim = clickableCursor;
 			}
 
 			// Clickable
@@ -329,7 +351,7 @@ public partial class QuestCursorComponent : MonoBehaviour
 			newAnim = m_data.AnimationNonClickable;
 		}
 
-		bool noneCursor = newAnim.Equals("None", System.StringComparison.OrdinalIgnoreCase) || (clickable != null && clickable.Cursor.Equals("None", System.StringComparison.OrdinalIgnoreCase));
+		bool noneCursor = newAnim.EqualsIgnoreCase(STR_NONE) || (clickableCursor.EqualsIgnoreCase(STR_NONE) );
 		if ( noneCursor )
 			outlineColor = new Color(1,1,1,0);
 
@@ -419,7 +441,7 @@ public partial class QuestCursorComponent : MonoBehaviour
 			}
 		}		
 				
-		m_noneCursor = m_currAnim == "None" || (clickable != null && clickable.Cursor == "None");
+		m_noneCursor = m_currAnim.EqualsIgnoreCase(STR_NONE) || (clickable != null && clickable.Cursor != null && clickable.Cursor.EqualsIgnoreCase(STR_NONE));
 
 		if ( m_noneCursor )
 			outlineColor = new Color(1,1,1,0);

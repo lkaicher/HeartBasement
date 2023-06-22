@@ -52,6 +52,10 @@ public partial class Button : GuiControl, IButton
 	[UnityEngine.Serialization.FormerlySerializedAs("m_textColorOff")]
 	[SerializeField] Color m_colorOff = new Color(0,0,0,0);
 
+	[Header("Audio")]
+	[SerializeField] string m_soundHover = string.Empty;
+	[SerializeField] string m_soundClick = string.Empty;
+
 	[Header("Hotspot size")]
 	[SerializeField] Padding m_hotspotPadding = Padding.zero;
 	[SerializeField, HideInInspector] eSizeSetting m_sizeSetting = eSizeSetting.Image; 
@@ -75,6 +79,9 @@ public partial class Button : GuiControl, IButton
 
 	bool m_overrideAnimPlaying = false;
 	int m_stopOverrideAnimDelay = -1;
+
+	// Used for keyboard/controller to click the button
+	bool m_forceClick = false;
 	
 	#endregion
 	#region Funcs: IButton interface
@@ -120,7 +127,7 @@ public partial class Button : GuiControl, IButton
 
 	public void PauseAnimation()
 	{
-		if ( m_overrideAnimPlaying )
+		if ( m_spriteAnimator != null && m_overrideAnimPlaying )
 		{
 			m_spriteAnimator.Pause();
 		}
@@ -128,7 +135,7 @@ public partial class Button : GuiControl, IButton
 
 	public void ResumeAnimation()
 	{
-		if ( m_overrideAnimPlaying )
+		if ( m_spriteAnimator != null && m_overrideAnimPlaying )
 		{
 			m_spriteAnimator.Resume();
 		}
@@ -234,6 +241,47 @@ public partial class Button : GuiControl, IButton
 		return RectCentered.zero;
 	}
 	
+	// Call to have a control handle a keyboard input. Return true if the button was 'used'.
+	public override bool HandleKeyboardInput(eGuiNav input)
+	{
+		if ( input == eGuiNav.Ok )
+		{
+			// Now simulating click in a coroutine.
+			if ( m_forceClick == false )
+				StartCoroutine(CoroutineClick());
+			
+			/* No longer need to do this, since simulating click in a coroutine
+			if ( IsString.Valid(m_soundClick) )
+				SystemAudio.Play(m_soundClick);	
+
+			PowerQuest.Get.ProcessGuiClick(GuiData, this);
+			// Also send a message upwards for gui components to use
+			SendMessageUpwards(PowerQuest.SCRIPT_FUNCTION_CLICKGUI+ScriptName, this, SendMessageOptions.DontRequireReceiver );
+			if ( OnClick != null )
+				OnClick.Invoke(this);
+			*/
+			return true;
+		}
+		return false;
+	}
+
+
+	IEnumerator CoroutineClick()
+	{
+		// Simulates button press over x seconds
+		PowerQuest.Get.LockFocusedControl();
+		m_forceClick = true;
+		yield return new WaitForSeconds(0.15f);
+		m_forceClick = false;
+
+		// Force update before unlocking focused control
+		Update();
+		
+		PowerQuest.Get.UnlockFocusedControl();
+
+		yield return null;
+	}
+	
 	#endregion
 	#region Component: Functions: Unity
 	
@@ -300,13 +348,13 @@ public partial class Button : GuiControl, IButton
 				// check for click
 				if ( Focused == false )
 					SetState(eState.Default);				
-				else if ( Input.GetMouseButtonDown(0) )
+				else if ( Input.GetMouseButtonDown(0) || m_forceClick )
 					SetState(eState.Click);				
 
 			} break;
 			case eState.Click:
 			{
-				if ( Input.GetMouseButton(0) == false )
+				if ( Input.GetMouseButton(0) == false && m_forceClick == false )
 				{
 					if ( Focused )
 					{
@@ -333,6 +381,16 @@ public partial class Button : GuiControl, IButton
 
 	void SetState(eState newState)
 	{
+		if ( m_state != newState )
+		{
+			if ( newState == eState.Hover && IsString.Valid(m_soundHover) )
+				SystemAudio.Play(m_soundHover);
+			if ( newState == eState.Click && IsString.Valid(m_soundClick) )
+				SystemAudio.Play(m_soundClick);	
+		}
+
+		ExOnSetState(newState);
+
 		m_state = newState;
 		UpdateColor();
 		StartStateAnimation();		
@@ -375,9 +433,9 @@ public partial class Button : GuiControl, IButton
 			case eState.Off: color = m_colorOff; break;
 		}			
 		if ( m_questText != null && (m_colorWhat == eColorUse.Text || m_colorWhat == eColorUse.Both) )
-			m_questText.color = color;
+			m_questText.color = color.WithAlpha(color.a * Alpha);
 		if ( m_sprite != null && (m_colorWhat == eColorUse.Image || m_colorWhat == eColorUse.Both) )
-			m_sprite.color = color;
+			m_sprite.color = color.WithAlpha(color.a * Alpha);
 	}
 
 	// 
@@ -453,6 +511,7 @@ public partial class Button : GuiControl, IButton
 	partial void ExAwake();
 	//partial void ExOnDestroy();
 	partial void ExUpdate();
+	partial void ExOnSetState(eState newState);
 	
 	#endregion	
 	#region Implementing IQuestClickable
@@ -530,7 +589,7 @@ public partial class Button : GuiControl, IButton
 
 	void PlayOverrideAnim(string animName)
 	{
-		if ( PlayAnimInternal(animName,true) == false && Debug.isDebugBuild )
+		if ( PlayAnimInternal(animName,true) == false && PowerQuest.Get.IsDebugBuild )
 			Debug.LogWarning("Failed to find Button animation: "+animName); // warn when trying to play anim
 		m_overrideAnimPlaying = true;
 	}

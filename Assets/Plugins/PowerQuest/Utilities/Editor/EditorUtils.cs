@@ -177,16 +177,16 @@ public class EditorUtils
 [CustomPropertyDrawer(typeof(ParallaxAttribute))]
 public class ParallaxPropertyDrawer  : PropertyDrawer
 {   
-    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-    {
-        return EditorGUI.GetPropertyHeight(property)+20;
-    } 
+	public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+	{
+		return EditorGUI.GetPropertyHeight(property)+20;
+	} 
 
-    public override void OnGUI(Rect pos, SerializedProperty prop, GUIContent label)
-    {
+	public override void OnGUI(Rect pos, SerializedProperty prop, GUIContent label)
+	{
 		pos.height = EditorGUI.GetPropertyHeight(prop);
 		EditorGUI.BeginProperty(pos, label, prop);		 
-        Rect pos2 = EditorGUI.PrefixLabel (pos, GUIUtility.GetControlID (FocusType.Passive), new GUIContent("Depth", "Distant: 0 to 1. No Parallax: 1. Closer to camera: 1+"));
+		Rect pos2 = EditorGUI.PrefixLabel (pos, GUIUtility.GetControlID (FocusType.Passive), new GUIContent("Depth", "Distant: 0 to 1. No Parallax: 1. Closer to camera: 1+"));
 		EditorGUI.BeginChangeCheck ();					
 		//float newVal = EditorGUI.Slider( pos, "Depth", -prop.floatValue+1, 0.0f, 2.0f);
 		float newVal = EditorGUI.FloatField( pos, new GUIContent("Depth", "Distant: 0 to 1. No Parallax: 1. Closer to camera: 1+"), -prop.floatValue+1 );
@@ -195,7 +195,7 @@ public class ParallaxPropertyDrawer  : PropertyDrawer
 			prop.floatValue = -newVal+1;
 		}				
 
-        EditorGUI.EndProperty();
+		EditorGUI.EndProperty();
 		
 		pos.y = pos.y+18;
 		pos.height = 20;
@@ -211,21 +211,33 @@ public class ParallaxPropertyDrawer  : PropertyDrawer
 			EditorGUI.HelpBox(pos,"Closer to camera (More movement)", MessageType.Info);	
 		
 
-    }
+	}
 }
 
-
 [CustomPropertyDrawer (typeof (MinMaxRange))]
-public class MinMaxRangeDrawer : PropertyDrawer
+public class MinMaxRangeDrawer :  PropertyDrawer
 {
-    public override void OnGUI (Rect pos, SerializedProperty prop, GUIContent label) 
+	// Scleas by passed in input factor- Really only used for mapping volume to easier to use values. May be removed later
+	float Scaled(float input,float scaleFactor)
 	{
-		//EditorGUIUtility.LookLikeControls ();
-		
+		if ( scaleFactor == 1 )
+			return input;
+		return Mathf.Pow(input,scaleFactor);
+	}
+	
+	float Unscaled(float input,float scaleFactor)
+	{		
+		if ( scaleFactor == 1 )
+			return input;
+		return Mathf.Pow(Mathf.Clamp01(input),1.0f/scaleFactor);
+	}
+
+	public override void OnGUI (Rect pos, SerializedProperty prop, GUIContent label) 
+	{		
 		EditorGUI.BeginProperty(pos, label, prop);
 		
-	    SerializedProperty min = prop.FindPropertyRelative ("m_min");
-	    SerializedProperty max = prop.FindPropertyRelative ("m_max");
+		SerializedProperty min = prop.FindPropertyRelative ("m_min");
+		SerializedProperty max = prop.FindPropertyRelative ("m_max");
 		SerializedProperty hasMax = prop.FindPropertyRelative("m_hasMax");
 		SerializedProperty hasValue = prop.FindPropertyRelative("m_hasValue");
 			
@@ -233,75 +245,151 @@ public class MinMaxRangeDrawer : PropertyDrawer
 		float maxLblWidth = 55;
 		float buttonWidth = 20;
 		
-		float rectWidth = 0;//(pos.width-toWidth)*0.4f;		
-        pos = EditorGUI.PrefixLabel (pos, GUIUtility.GetControlID (FocusType.Passive), label);
-		//EditorGUI.LabelField( new Rect(posX, pos.y,rectWidth, pos.height), prop.name);
-		//posX += rectWidth;
+		float rectWidth = 0;	
+		pos = EditorGUI.PrefixLabel (pos, GUIUtility.GetControlID (FocusType.Passive), label);
+		const float minWidth = 160;
+		if ( pos.width < minWidth )
+		{
+			pos.x = pos.x + (pos.width-minWidth);
+			pos.width = pos.width-(pos.width-minWidth); 
+		}
+
 		float posX = pos.x;
 		
 		 // Don't make child fields be indented
-        int indent = EditorGUI.indentLevel;
-        EditorGUI.indentLevel = 0;
+		int indent = EditorGUI.indentLevel;
+		EditorGUI.indentLevel = 0;
 				
 		if ( min != null && max != null && hasMax != null )
 		{
 			bool hasMaxVal = hasMax.boolValue;
-			
-			if ( hasMaxVal == false )
+
+			var ranges = (MinMaxRangeAttribute[])fieldInfo.GetCustomAttributes(typeof(MinMaxRangeAttribute), true);
+			if (ranges.Length > 0)
 			{
-				rectWidth = pos.width-(maxLblWidth+4+buttonWidth);
-			}
-			else
-			{
-				rectWidth = (pos.width-(toWidth+2+buttonWidth+2))*0.5f;
-			}
-			
-			// EditorGUI.IndentedRect(new Rect(posX, pos.y,rectWidth, pos.height));
-			EditorGUI.BeginChangeCheck ();			
-			float minVal = EditorGUI.FloatField( new Rect(posX, pos.y,rectWidth, pos.height), min.floatValue);			
-			if ( EditorGUI.EndChangeCheck() )
-			{
-				min.floatValue = minVal;
-				if ( max.floatValue < minVal )
+				float rangeMin = ranges[0].Min;
+				float rangeMax = ranges[0].Max;				
+				
+				float scaleFactor = ranges[0].ScaleFactor;		
+
+				const float rangeBoundsLabelWidth = 45f;
+				
+				float minValue = Unscaled(min.floatValue,scaleFactor);
+				float maxValue = hasMaxVal ? Unscaled(max.floatValue,scaleFactor) : Unscaled(min.floatValue,scaleFactor);
+				float oldMin = minValue;
+				float oldMax = maxValue;
+
+				if ( hasMaxVal )
 				{
-					max.floatValue = minVal;
-				}	
-				hasValue.boolValue = false;
-			}
-			
-			if ( hasMaxVal )
-			{
-				
-				posX += rectWidth+2;
-				
-				EditorGUI.LabelField( new Rect(posX, pos.y,toWidth, pos.height), "to");
-				posX += toWidth;
-				
-				// EditorGUI.IndentedRect(new Rect(posX, pos.y,rectWidth, pos.height));
-				EditorGUI.BeginChangeCheck ();			
-				float maxVal = EditorGUI.FloatField( new Rect(posX, pos.y,rectWidth, pos.height), max.floatValue);
-				if ( EditorGUI.EndChangeCheck() )
+					var rangeBoundsLabel1Rect = new Rect(pos);
+					rangeBoundsLabel1Rect.width = rangeBoundsLabelWidth;
+
+
+					minValue = EditorGUI.DelayedFloatField(rangeBoundsLabel1Rect, minValue);
+					pos.xMin += rangeBoundsLabelWidth + 5;
+
+					var rangeBoundsLabel2Rect = new Rect(pos);
+					rangeBoundsLabel2Rect.xMin = rangeBoundsLabel2Rect.xMax - rangeBoundsLabelWidth;
+					maxValue = EditorGUI.DelayedFloatField(rangeBoundsLabel2Rect, maxValue);
+					pos.xMax -= rangeBoundsLabelWidth + 5;
+
+					EditorGUI.MinMaxSlider(pos, ref minValue, ref maxValue, rangeMin, rangeMax);	
+				}
+				else 
 				{
-					max.floatValue = maxVal;
+					var rangeBoundsLabel1Rect = new Rect(pos);
+					rangeBoundsLabel1Rect.width = rangeBoundsLabelWidth;
+					
+					bool addMax = GUI.Button(rangeBoundsLabel1Rect,"Range");//EditorGUI.Toggle(rangeBoundsLabel1Rect,false);
+					pos.xMin += rangeBoundsLabelWidth + 5;
+
+					var rangeBoundsLabel2Rect = new Rect(pos);
+					rangeBoundsLabel2Rect.xMin = rangeBoundsLabel2Rect.xMax - rangeBoundsLabelWidth;
+
+					if ( addMax )
+					{
+						if ( minValue >= rangeMax )
+							minValue = minValue-0.1f;
+						else
+							maxValue = minValue+0.1f;
+					}
+					else 
+					{
+						minValue = EditorGUI.Slider(pos, minValue, rangeMin, rangeMax);
+						maxValue=minValue;
+					}
+
+				
+				}
+
+				if ( minValue != oldMin || maxValue != oldMax )
+				{
+					min.floatValue = Scaled(minValue,scaleFactor);
+					max.floatValue = Scaled(maxValue,scaleFactor);
+					hasMaxVal = max.floatValue > min.floatValue;
+
+					hasMax.boolValue = hasMaxVal;
 					hasValue.boolValue = false;
 				}
-				posX += rectWidth+2;
 			}
 			else 
 			{
-				posX += rectWidth+4;
-				EditorGUI.LabelField( new Rect(posX, pos.y,maxLblWidth, pos.height), "Is Range");
-				posX += maxLblWidth;
-			}
-			
-			// button
-			EditorGUI.BeginChangeCheck ();		
-			hasMaxVal = EditorGUI.Toggle(new Rect(posX, pos.y, buttonWidth, pos.height),hasMaxVal);
-			
-			if ( EditorGUI.EndChangeCheck() )
-			{
-				hasMax.boolValue = hasMaxVal;
-				hasValue.boolValue = false;
+
+				
+				if ( hasMaxVal == false )
+				{
+					rectWidth = pos.width-(maxLblWidth+4+buttonWidth);
+				}
+				else
+				{
+					rectWidth = (pos.width-(toWidth+2+buttonWidth+2))*0.5f;
+				}
+				
+				EditorGUI.BeginChangeCheck ();			
+				float minVal = EditorGUI.DelayedFloatField( new Rect(posX, pos.y,rectWidth, pos.height), min.floatValue);		
+				
+				if ( EditorGUI.EndChangeCheck() )
+				{
+					min.floatValue = minVal;
+					if ( max.floatValue < minVal )
+					{
+						max.floatValue = minVal;
+					}	
+					hasValue.boolValue = false;
+				}
+				
+				if ( hasMaxVal )
+				{
+					
+					posX += rectWidth+2;
+					
+					EditorGUI.LabelField( new Rect(posX, pos.y,toWidth, pos.height), "to");
+					posX += toWidth;
+					
+					EditorGUI.BeginChangeCheck ();			
+					float maxVal = EditorGUI.DelayedFloatField( new Rect(posX, pos.y,rectWidth, pos.height), max.floatValue);
+					if ( EditorGUI.EndChangeCheck() )
+					{
+						max.floatValue = maxVal;
+						hasValue.boolValue = false;
+					}
+					posX += rectWidth+2;
+				}
+				else 
+				{
+					posX += rectWidth+4;
+					EditorGUI.LabelField( new Rect(posX, pos.y,maxLblWidth, pos.height), "Is Range");
+					posX += maxLblWidth;
+				}
+				
+				// button
+				EditorGUI.BeginChangeCheck ();		
+				hasMaxVal = EditorGUI.Toggle(new Rect(posX, pos.y, buttonWidth, pos.height),hasMaxVal);			
+				if ( EditorGUI.EndChangeCheck() )
+				{
+					hasMax.boolValue = hasMaxVal;
+					hasValue.boolValue = false;
+				}
 			}
 		}
 		else
@@ -309,13 +397,10 @@ public class MinMaxRangeDrawer : PropertyDrawer
 			Debug.LogWarning("Min or max properties null");
 		}
 		
-        EditorGUI.indentLevel = indent;
+		EditorGUI.indentLevel = indent;
 		
 		EditorGUI.EndProperty();
-		
-		//EditorGUILayout.LabelField("Yo dawg!");
 	}
-	
 }
 
 public static class EditorExtension
@@ -391,20 +476,20 @@ public class CreateNewLine : EditorWindow
 [CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
 public class ReadOnlyDrawer : PropertyDrawer
 {
-    public override float GetPropertyHeight(SerializedProperty property,
-                                            GUIContent label)
-    {
-        return EditorGUI.GetPropertyHeight(property, label, true);
-    }
+	public override float GetPropertyHeight(SerializedProperty property,
+											GUIContent label)
+	{
+		return EditorGUI.GetPropertyHeight(property, label, true);
+	}
 
-    public override void OnGUI(Rect position,
-                               SerializedProperty property,
-                               GUIContent label)
-    {
-        GUI.enabled = false;
-        EditorGUI.PropertyField(position, property, label, true);
-        GUI.enabled = true;
-    }
+	public override void OnGUI(Rect position,
+							   SerializedProperty property,
+							   GUIContent label)
+	{
+		GUI.enabled = false;
+		EditorGUI.PropertyField(position, property, label, true);
+		GUI.enabled = true;
+	}
 }
 
 [CustomPropertyDrawer(typeof(Rect))]
@@ -582,28 +667,158 @@ public class RectCenteredPropertyDrawer : PropertyDrawer
 [CustomPropertyDrawer(typeof(ObjectReferenceAttribute ))]
 public class ObjectReferenceDrawer : PropertyDrawer
 {
-    static int id = 0;
-    public override void OnGUI(Rect position,
-                               SerializedProperty property,
-                               GUIContent label)
-    {
+	static int id = 0;
+	public override void OnGUI(Rect position,
+							   SerializedProperty property,
+							   GUIContent label)
+	{
 		Object oldRefValue = property.objectReferenceValue;
-        EditorGUI.PropertyField(position, property, label, true);
+		EditorGUI.PropertyField(position, property, label, true);
 		if ( GUI.changed && oldRefValue != property.objectReferenceValue )
-        {
-        	if ( property.objectReferenceValue != null )
-        	{
+		{
+			if ( property.objectReferenceValue != null )
+			{
 				Debug.Log( id.ToString() + " " + property.objectReferenceValue.ToString());
-        	}
-        	else 
-        	{
+			}
+			else 
+			{
 				Debug.Log( id.ToString() + " null");
-        	}
-        	id++;
-        	// TODO- Remove previous, and add new to list of referenced objects
-        }
+			}
+			id++;
+			// TODO- Remove previous, and add new to list of referenced objects
+		}
 
-    }
+	}
 }
 */
+}
+
+/**
+	EditorLayouter. For laying out horizontal unity editor guis that require a 'rect'
+
+	Usage:
+		// init wiht gui's rect
+		LayoutRect layout = new LayoutRect(rect);
+
+		// Set up fields. Chained together like this...
+		// This example has a 40px field, a little space, then a field that takes up 20% of spare space, another 20px field, and another that uses the remaining.
+		layout.Fixed(40).Space.Variable(.2).Fixed(20).Stretched;
+
+		// Use layout instead of rect for fields
+
+		GUI.Button(layout,"My Button");
+		GUI.Label(layout, "A label");
+		GUI.Button(layout,"My next Button");
+		etc
+
+	Improvements: Could support 'minWidth' for variable fields pretty easily I guess...
+
+*/
+public class EditorLayouter
+{
+	enum eType { Fixed, Space, Variable };
+
+	struct LayoutItem
+	{
+		public eType type;
+		public float size;
+	}
+	
+	int m_index = 0;	
+	List<LayoutItem> m_items = new List<LayoutItem>();
+
+	Rect m_rect = new Rect();
+	Rect m_currRect = new Rect();
+
+	public EditorLayouter(){}
+	public EditorLayouter(Rect rect) 
+	{
+		m_rect = rect;
+		m_currRect = m_rect;
+		m_currRect.width = 0; // start with 0 width
+	}
+
+
+	// Implicitly cast to rect, then move to the next item rect
+	public static implicit operator Rect(EditorLayouter self) 
+	{
+		return self.NextRect();
+	}
+
+	// Skip this element ( eg: if don't actually need the rect for it for it in the ui)
+	public void Skip() {  NextRect(); }
+
+	// Addes a fixed width item
+	public EditorLayouter Fixed(float width)
+	{
+		m_items.Add(new LayoutItem(){type=eType.Fixed,size=width});
+		return this;
+	}
+
+	// Adds a little space, sometimes necessary. You never use the Rect from this, its added between getting the rect for other items
+	public EditorLayouter Space {get
+	{
+		m_items.Add(new LayoutItem(){type=eType.Space, size=2});
+		return this;
+	}}
+
+	// Adds an item that stretches to fill space (multiple will divide up the space). Same as Variable(1);
+	public EditorLayouter Stretched {get
+	{
+		m_items.Add(new LayoutItem(){type=eType.Variable,size=1});
+			return this;
+	}}
+	// Adds an item that stretches, with a ratio for how much they should use (eg: you could have one that's 0.2 for 20% widdth, and one that's 0.8 for 80%... I dunno). A variable(2) will be twice as big as a variable(1)
+	public EditorLayouter Variable(float ratio=1) 
+	{	
+		m_items.Add(new LayoutItem(){type=eType.Variable,size=ratio});
+		return this;
+	}
+
+
+	Rect NextRect()
+	{
+		// Offset from last item
+		m_currRect.x += m_currRect.width;		
+
+		// Skip spaces
+		while ( m_index < m_items.Count && m_items[m_index].type == eType.Space )
+		{	
+			m_currRect.x += m_items[m_index].size; // space amount
+			m_index++;
+		}
+
+		if ( m_index >= m_items.Count )
+		{
+			Debug.LogError("Tried to get too many items from Gui Layout!");
+			return new Rect();
+		}
+
+		switch( m_items[m_index].type )
+		{
+			case eType.Fixed:
+			{
+				m_currRect.width = m_items[m_index].size;
+			} break;
+			case eType.Variable:
+			{
+				float ratio = m_items[m_index].size;
+				float totalRatio = 0;
+				float remainingWidth = m_rect.width;
+				foreach( LayoutItem item in m_items )
+				{
+					if ( item.type == eType.Variable )
+						totalRatio += item.size;
+					else 
+					remainingWidth -= item.size;
+				}
+				m_currRect.width = remainingWidth * (ratio / totalRatio);
+			} break;
+		}
+		m_index++;
+		
+		return m_currRect; 
+	}
+		
+
 }

@@ -47,8 +47,10 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 		public int type { get; set; }
 		public float defaultVolume { get; set; }
 		public float defaultPitch { get; set; }
-		public float targetVolume { get; set; } // targetVolume used for fading in/out (especially when handling save/load)
+		public float targetVolume { get; set; } // targetVolume used for fading in/out (especially when handling save/load)		
 		public float fadeDelta {get;set;} // volume change per second
+		public float startFromTime {get;set;}
+		public float stopAfterTime {get;set;}
 		public bool stopAfterFade { get; set; } // Whether to stop after fadeout
 		public Transform emmitter { get; set; }
 		public bool paused { get; set; }
@@ -72,10 +74,10 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 
 	[Header("Default falloff values (radios of screen width)")]
 	[SerializeField] float m_falloffMinVol = 0.2f;
-	[SerializeField] float m_falloffPanMax= 0.75f;
+	[SerializeField] float m_falloffPanMax= 0.8f;
 
-	[SerializeField] float m_falloffStart = 1.2f;
-	[SerializeField] float m_falloffEnd = 1.2f;
+	[SerializeField] float m_falloffStart = 1.0f;
+	[SerializeField] float m_falloffEnd = 2.0f;
 
 	[SerializeField] float m_falloffPanStart = 0.5f;
 	[SerializeField] float m_falloffPanEnd = 2.0f;
@@ -110,11 +112,19 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 	float m_musicVolOverride = 1;
 	string m_ambientCueName = null;	
 	bool m_restartMusicIfAlreadyPlaying = false;
+	
+	float m_falloffDistanceMultiplier = 1;
+
+	//float m_musicLoopStart = 0;
+	//float m_musicLoopEnd = 0;
 
 	#endregion
 	#region Public Static Functions
 	
 	public static AudioHandle MusicHandle => SystemAudio.Get.GetActiveMusicHandle();
+
+	/// A multiplier on the falloff distance for volume/panning. Useful when you want to bring it in close, or expand it outwards temporarily
+	public static float FalloffDistanceMultiplier { get{ return m_instance.m_falloffDistanceMultiplier; } set{ m_instance.m_falloffDistanceMultiplier = value; } }
 
 	/// Sets the volume (from 0.0 to 1.0) for audio of a particular type (eg: Sound effects, Music, Dialog) 
 	public static void SetVolume( AudioCue.eAudioType type, float volume )
@@ -216,8 +226,9 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 	 */
 	static public AudioHandle Play( string cueName, Transform emmitter = null )
 	{
-		AudioCue cue = m_instance.m_audioCues.Find(item=>string.Equals(cueName, item.name, System.StringComparison.OrdinalIgnoreCase));
-		if ( cue == null && Debug.isDebugBuild && string.IsNullOrEmpty(cueName) == false)
+		SystemAudio self = SystemAudio.Get;
+		AudioCue cue = self.m_audioCues.Find(item=>string.Equals(cueName, item.name, System.StringComparison.OrdinalIgnoreCase));
+		if ( cue == null && string.IsNullOrEmpty(cueName) == false && (Application.isEditor || PowerQuest.Get.IsDebugBuild))
 		{
 			Debug.LogWarning("Sound cue not found: "+cueName);
 		}
@@ -225,13 +236,13 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 	}
 
 	/// Play the specified cue with extended options. If emmitter is set, the sound will falloff/pan as it goes off camera. Can also set volume and pitch overrides, and override the start time of the cue
-	static public AudioHandle Play(AudioCue cue, Transform emitter = null, float volumeMult = 1, float pitchMult = 1, float fromTime = 0 )
+	static public AudioHandle Play(AudioCue cue, Transform emitter = null, float volumeMult = 1, float pitchMult = 1, float fromTime = 0, float withStartDelay = 0 )
 	{
-		return Play( cue, ref s_defaultAudioHandleList, emitter, volumeMult, pitchMult, fromTime);
+		return Play( cue, ref s_defaultAudioHandleList, emitter, volumeMult, pitchMult, fromTime, withStartDelay);
 	}
 
 	/// Advanced Play function with extended options, and returning a list of all handles started (for when multiple are started). If emmitter is set, the sound will falloff/pan as it goes off camera. Can also set volume and pitch overrides, and override the start time of the cue
-	static public AudioHandle Play(AudioCue cue, ref List<AudioHandle> handles, Transform emmitter = null, float volumeMult = 1, float pitchMult = 1, float fromTime = 0 )
+	static public AudioHandle Play(AudioCue cue, ref List<AudioHandle> handles, Transform emmitter = null, float volumeMult = 1, float pitchMult = 1, float fromTime = 0, float withStartDelay = 0 )
 	{
 		if ( cue == null )
 			return new AudioHandle(null);
@@ -259,6 +270,8 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 		{
 			ClipInfo info = self.m_activeAudio[i];
 			if ( info.handle != null && info.handle.clip == clip
+				&& Application.isPlaying
+				&& (withStartDelay <= 0 && fromTime <= 0 && cue.m_loopSection.m_endTime <= 0 && cue.m_startDelay <= 0 )
 				&& ( info.handle.time < ( cue.m_noDuplicateTime >= 0 ? cue.m_noDuplicateTime : self.m_noDuplicateTime) ) )
 			{
 				//Debug.Log("AUD: duplicate"+info.source.name);
@@ -286,7 +299,7 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 
 		// Create the source
 		AudioSource source = self.SpawnAudioSource( 
-			( Debug.isDebugBuild ) ? STRING_NAME_PREFIX + clip.name : STRING_NAME_PREFIX, // don't bother with strings if not debugging
+			( Debug.isDebugBuild ) ? STRING_NAME_PREFIX + cue.name : STRING_NAME_PREFIX, // don't bother with strings if not debugging
 			self.transform.position);
 
 		{
@@ -323,22 +336,39 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 		}
 		{
 			AudioHighPassFilter sourceFilter = source.gameObject.GetComponent<AudioHighPassFilter>();
-			sourceFilter.enabled = cue.m_highPassFilter != null;
+			sourceFilter.enabled = cue.m_highPassFilter != null || cue.m_highPass > 10;
 			if ( sourceFilter.enabled )
 			{
-				sourceFilter.cutoffFrequency = cue.m_highPassFilter.cutoffFrequency;
-				sourceFilter.highpassResonanceQ = cue.m_highPassFilter.highpassResonanceQ;
-			}
+				if ( cue.m_highPass > 10 )
+				{
+					sourceFilter.cutoffFrequency = cue.m_highPass;
+					sourceFilter.highpassResonanceQ = cue.m_highPassQ;
+				}
+				else 
+				{
+					sourceFilter.cutoffFrequency = cue.m_highPassFilter.cutoffFrequency;
+					sourceFilter.highpassResonanceQ = cue.m_highPassFilter.highpassResonanceQ;
+				}
+			}			
 		}
 		{
 			AudioLowPassFilter sourceFilter = source.gameObject.GetComponent<AudioLowPassFilter>();
-			sourceFilter.enabled = cue.m_lowPassFilter != null;
+			sourceFilter.enabled = cue.m_lowPassFilter != null || cue.m_lowPass > 10;
 			if ( sourceFilter.enabled )
 			{
-				sourceFilter.cutoffFrequency = cue.m_lowPassFilter.cutoffFrequency;
-				sourceFilter.lowpassResonanceQ = cue.m_lowPassFilter.lowpassResonanceQ;
+				if ( cue.m_lowPass > 10 )
+				{
+					sourceFilter.cutoffFrequency = cue.m_lowPass;
+					sourceFilter.lowpassResonanceQ = cue.m_lowPassQ;
+				}
+				else 
+				{
+					sourceFilter.cutoffFrequency = cue.m_lowPassFilter.cutoffFrequency;
+					sourceFilter.lowpassResonanceQ = cue.m_lowPassFilter.lowpassResonanceQ;
+				}
 			}
 		}
+
 		{
 			AudioChorusFilter sourceFilter = source.gameObject.GetComponent<AudioChorusFilter>();
 			sourceFilter.enabled = cue.m_chorusFilter != null;
@@ -368,7 +398,6 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 		self.SetSource(ref source, clip, volume, pitch, 128, emmitter );		
 		source.loop = cue.m_loop;
 		source.panStereo = pan;
-
 		if ( fromTime <= 0.0f && cueClip.m_startTime > 0 )
 		{
 			fromTime = cueClip.m_startTime;
@@ -379,14 +408,15 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 			source.time = 0.0f;
 
 		// Play (with start delay if one exists)
-		float startDelay = cue.m_startDelay.GetRandom();
-		if ( startDelay > 0.0f )
+		if ( withStartDelay <= 0 )
+			withStartDelay = cue.m_startDelay.GetRandom();
+
+		if ( withStartDelay > 0.0f )
 		{
-			source.PlayDelayed(startDelay);
+			source.PlayDelayed(withStartDelay);
 		}
 		else 
-		{
-			
+		{			
 			source.Play();	
 			if ( source.isPlaying == false && source.time > 0 )
 			{
@@ -405,17 +435,16 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 				handles = new List<AudioHandle>();
 			handles.Add(handle);
 		}
-		
 
 		// Stop clip before it's end
 		if ( cueClip.m_endTime > 0 )
 		{			
-			float stopTime = 	cueClip.m_endTime;
+			float stopTime = cueClip.m_endTime;
 			if ( cueClip.m_startTime > 0 )
 				stopTime -= cueClip.m_startTime;
 			stopTime /= pitch;
-			if ( startDelay > 0 )
-				stopTime += startDelay;			
+			if ( withStartDelay > 0 )
+				stopTime += withStartDelay;			
 			handle.source.SetScheduledEndTime(AudioSettings.dspTime + (double)stopTime);
 		}
 
@@ -433,7 +462,10 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 			defaultVolume = volume, 
 			targetVolume = volume,
 			defaultPitch = pitch,
-			emmitter = (emmitter == null ? self.transform : emmitter) });
+			startFromTime=fromTime,
+			emmitter = (emmitter == null ? self.transform : emmitter) }
+			
+			);
 
 		// NB: Probably should apply "active audio" updates to the clip immediately
 
@@ -606,8 +638,8 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 
 	/// Gets a playing AudioHandle by its cue name
 	public static AudioHandle GetHandle(string cueName)
-	{
-		ClipInfo info = m_instance.m_activeAudio.Find(item=>item.cue != null && string.Equals( item.cue.name, cueName, System.StringComparison.OrdinalIgnoreCase ) );
+	{	
+		ClipInfo info = SystemAudio.Get.m_activeAudio.Find(item=>item.cue != null && string.Equals( item.cue.name, cueName, System.StringComparison.OrdinalIgnoreCase ) );
 		return  info == null ? null :  info.handle;
 	}
 
@@ -641,15 +673,25 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 	}
 
 	/// Stops the specified sound by it's handle
-	public static void Stop(AudioHandle handle, float overTime = 0)
+	public static void Stop(AudioHandle handle, float overTime = 0, float afterDelay = 0)
 	{		
 		if ( m_instance && handle != null && handle.isPlaying )
 		{				
-			// This calls back to SystemAudio once "isPlaying" is set false, so the active audio can be removed. Hacky, but means Stop can be called either from here or the handle.
-			if ( overTime <= 0 )
+			// This calls back to SystemAudio once "isPlaying" is set false, so the active audio can be removed. Hacky, but means Stop can be called either from here or the handle.			
+			if ( overTime <= 0 && afterDelay <= 0 )
+			{
 				handle.Stop(); 
-			else 
-				m_instance.StartFade(handle,0,overTime,true);			
+				return;
+			}
+			
+			ClipInfo clipInfo = m_instance.m_activeAudio.Find( clip=>clip.handle == handle );
+			if ( clipInfo != null )
+				clipInfo.stopAfterTime = afterDelay;
+			//Debug.Log($"Aftertime {afterTime}, Overtime {overTime}");
+			if ( afterDelay > 0 && overTime <= 0 ) // Hack: if stopping after time, need to set *some* fade time so update logic knows to stop
+				overTime = 0.0001f;
+			
+			m_instance.StartFade(handle,0,overTime,true);
 		}
 	}
 
@@ -681,6 +723,9 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 		m_instance.m_musicCueName = cue == null ? null : cue.name;
 		m_instance.m_musicVolOverride = 0;
 		m_instance.m_activeMusic = Play(cue);
+
+		//SetMusicLoopPoints( cue.m_loopStart, cue.m_loopEnd );
+
 		if ( fadeInTime > 0 && cue != null )
 		{
 			//m_instance.StartCoroutine( m_instance.CoroutineFadeIn(m_instance.m_activeMusic, fadeInTime) );
@@ -707,11 +752,11 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 			m_instance.UpdateCurrentMusicVolumeFromCue(cue, fadeTime, volumeOverride);
 			return m_instance.m_activeMusic;
 		}
-
-		float syncTime = m_instance.m_activeMusic.time;
-		StopMusic(fadeTime*1.5f);
+		const float spinUpTime = 0.25f; // Time buffer to give time to load the new track so they sync up correctly
+		float syncTime = m_instance.m_activeMusic.time+spinUpTime;
+		StopMusic(fadeTime*1.5f,spinUpTime);
 		m_instance.m_musicCueName = cue.name;
-		m_instance.m_activeMusic = Play(cue,null,1,1,syncTime);
+		m_instance.m_activeMusic = Play(cue,null,1,1,syncTime,spinUpTime);
 		// set the volume of the clip
 		if ( volumeOverride > 0.0f )
 		{
@@ -724,11 +769,13 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 	}
 
 	/// Stops the currently playing music, with optional fade out time
-	public static void StopMusic(float fadeTime = 0)
+	public static void StopMusic(float fadeTime = 0, float afterDelay = 0)
 	{
-		Stop(SystemAudio.Get.m_activeMusic, fadeTime);
+		Stop(SystemAudio.Get.m_activeMusic, fadeTime, afterDelay);
 		m_instance.m_activeMusic = null;		
 		m_instance.m_musicCueName = null;
+		//m_instance.m_musicLoopStart = 0;
+		//m_instance.m_musicLoopEnd = 0;
 	}
 
 	
@@ -836,15 +883,15 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 	}
 
 	/// Advanced function that pauses all sounds (used when pausing game)
-	public void PauseAllSounds() 
+	public void PauseAllSounds(bool alsoPauseMusic = false) 
 	{ 
 		foreach (ClipInfo audioClip in m_activeAudio) 
 		{
 			try 
 			{
-				if (audioClip.handle != m_activeMusic) 
+				if (alsoPauseMusic || audioClip.handle != m_activeMusic) 
 				{
-					Pause (audioClip.handle);	                
+					Pause (audioClip.handle);
 				}
 			} 
 			catch 
@@ -979,6 +1026,10 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 		public float m_musicTime = 0;
 		public string m_ambientCueName = null;
 		public bool m_restartMusicIfAlreadyPlaying = false;
+		public float m_falloffDistanceMultiplier = 1;
+		
+		//public float m_musicLoopStart = 0;
+		//public float m_musicLoopEnd = 0;
 
 		public class ActiveAudioSaveData
 		{
@@ -989,6 +1040,7 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 			public float pitch = 1;
 			public float volume = 1;
 			public float volumeTarget = 1;
+			public float fadeDelta = 0;
 			public bool stopAfterFade = false;
 
 			public ActiveAudioSaveData() {}
@@ -1001,12 +1053,23 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 				pan = clipInfo.handle.panStereo;
 				volume = clipInfo.defaultVolume;
 				volumeTarget = clipInfo.targetVolume;
+				fadeDelta = clipInfo.fadeDelta;
 				stopAfterFade = clipInfo.stopAfterFade;
+			}
+
+			public void InitClipInfo(ClipInfo clipInfo)
+			{
+				if ( clipInfo == null )
+					return;
+				clipInfo.defaultVolume = volume;
+				clipInfo.targetVolume = volumeTarget;
+				clipInfo.defaultPitch = pitch;
+				clipInfo.fadeDelta = fadeDelta;
+				clipInfo.stopAfterFade = stopAfterFade;
 			}
 		}
 		public ActiveAudioSaveData[] activeAudio = null;
 	}
-
 
 	/// Internal system function
 	public object GetSaveData()
@@ -1016,7 +1079,10 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 		result.m_musicVolOverride = m_musicVolOverride;
 		result.m_ambientCueName = m_ambientCueName;
 		result.m_restartMusicIfAlreadyPlaying = m_restartMusicIfAlreadyPlaying;
+		result.m_falloffDistanceMultiplier = m_falloffDistanceMultiplier;
 		result.m_musicTime = m_activeMusic == null ? 0 : m_activeMusic.time;
+		//result.m_musicLoopStart=m_musicLoopStart;
+		//result.m_musicLoopEnd=m_musicLoopEnd;
 
 		result.activeAudio = new SaveData.ActiveAudioSaveData[m_activeAudio.Count];
 		for ( int i = 0; i < m_activeAudio.Count; ++i )
@@ -1041,6 +1107,7 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 		SaveData data = obj as SaveData;
 
 		m_restartMusicIfAlreadyPlaying = data.m_restartMusicIfAlreadyPlaying;
+		m_falloffDistanceMultiplier = data.m_falloffDistanceMultiplier;
 
 		// Stop/fade current sounds and start them from the ones in data.m_activeAudio. 
 		foreach ( ClipInfo clip in m_activeAudio )
@@ -1058,18 +1125,13 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 					continue;
 				AudioHandle handle = Play( activeAudio.cueName );				
 				ClipInfo clipInfo = m_instance.m_activeAudio.Find( item=>item.handle == handle );
-				if ( clipInfo == null )
-					continue;
-				clipInfo.defaultVolume = activeAudio.volume;
-				clipInfo.targetVolume = activeAudio.volume;
-				clipInfo.defaultPitch = activeAudio.pitch;
-				clipInfo.stopAfterFade = activeAudio.stopAfterFade;
+				activeAudio.InitClipInfo(clipInfo);
 				handle.time = activeAudio.time;
 				handle.source.panStereo = activeAudio.pan;
 				if ( activeAudio.paused )
 					Pause(handle);
-				else if ( clipInfo.targetVolume != clipInfo.defaultVolume )
-					StartFadeIn(handle,0.1f); // if not already fading, fade the sound in
+				//else if ( clipInfo.targetVolume != clipInfo.defaultVolume )
+				//	StartFadeIn(handle,0.1f); // if not already fading, fade the sound in
 			}
 		}
 
@@ -1088,7 +1150,7 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 					m_musicVolOverride = data.m_musicVolOverride;
 					SetVolume(m_instance.m_activeMusic, m_musicVolOverride);	
 				}
-				if ( m_activeMusic != null )					
+				if ( m_activeMusic != null && m_activeMusic.clip != null )					
 					m_activeMusic.time = data.m_musicTime % ((m_activeMusic.clip.length-0.01f)*0.9f); // There's a known unity error where starting from time errors. So don't set source time if it's close to the end (NB: This still may happen, need to watch for it)
 				
 				m_instance.StartFadeIn( m_instance.m_activeMusic, 0.1f );
@@ -1203,8 +1265,8 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 	{
 		if (m_cameraGame == null )			
 			return 1.0f;
-		float xStart = m_cameraGame.orthographicSize * m_cameraGame.aspect * m_falloffStart; // Falloff starts half a screen past the edge
-		float xFalloff = (xStart * m_falloffEnd);
+		float xStart = m_cameraGame.orthographicSize * m_cameraGame.aspect * m_falloffStart * m_falloffDistanceMultiplier; // Falloff starts half a screen past the edge
+		float xFalloff = (xStart * m_falloffEnd * m_falloffDistanceMultiplier);
 		return Mathf.Lerp( 1, m_falloffMinVol, Utils.EaseCubic((Mathf.Abs(soundPos.x - m_cameraGame.transform.position.x) - xStart) / xFalloff ) );
 
 	}
@@ -1213,8 +1275,8 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 	{
 		if (m_cameraGame == null )	
 			return 0.0f;
-		float xStart = m_cameraGame.orthographicSize * m_cameraGame.aspect * m_falloffPanStart; // Falloff starts half a screen past the edge
-		float xFalloff = (xStart * m_falloffPanEnd);
+		float xStart = m_cameraGame.orthographicSize * m_cameraGame.aspect * m_falloffPanStart * m_falloffDistanceMultiplier; // Falloff starts half a screen past the edge
+		float xFalloff = (xStart * m_falloffPanEnd * m_falloffDistanceMultiplier);
 		float dist = soundPos.x - m_cameraGame.transform.position.x;
 		xFalloff = Mathf.Lerp( 0, m_falloffPanMax, Utils.EaseCubic( (Mathf.Abs(dist) - xStart) / xFalloff ) );
 		xFalloff *= Mathf.Sign(dist);
@@ -1250,15 +1312,57 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 		UpdateActiveAudioClip(info);
 	}
 
+
+	void UpdateActiveAudioClipLoopPoints(ClipInfo audioClip)
+	{
+		// Update 'stop after time'		
+		if ( audioClip.stopAfterTime > 0 )
+			audioClip.stopAfterTime -= Time.deltaTime;
+		
+		if ( audioClip.handle == null || audioClip.cue == null )
+			return;
+
+		// Handle looping cue at loop points
+		AudioCue.LoopSection loop = audioClip.cue.m_loopSection;
+		float time = audioClip.handle.time;
+
+		if ( loop.m_endTime > 0 && (audioClip.handle.isPlaying == false || ((float)loop.m_endTime-time) < 1.0f) && audioClip.stopAfterFade == false ) // Queue next track a second early so it has time to stream in
+		{			
+			float timeBeforeLoop = Mathf.Max(0,loop.m_endTime-time);//-(Time.deltaTime*0.5f));
+			if ( audioClip.handle.isPlaying == false )
+				timeBeforeLoop = 0.0f; // loop immediately if was already stopped
+			Stop(audioClip.handle, Mathf.Max(0.067f,loop.m_fadeOut), timeBeforeLoop);
+			AudioHandle handle = Play(audioClip.cue, null,1,1,loop.m_startTime, timeBeforeLoop ).FadeIn(Mathf.Max(0.033f,loop.m_fadeIn));
+			// If we're looping the active music track, swap the handles
+			if ( m_activeMusic == audioClip.handle )
+				m_activeMusic = handle;
+			// same for ambient
+			if ( m_activeAmbientLoop == audioClip.handle )
+				m_activeAmbientLoop = handle;
+		}
+	}
+
 	// Updates all active audio
 	void UpdateActiveAudio() 
-	{ 
+	{
 		// First check if the game has focus, since if not, the audio is potentially still active
 		if ( m_hasFocus == false )
 			return;
 
 		if ( m_cameraGame == null )
 			m_cameraGame = Camera.main;
+		/*
+		// Handle looping music at loop points from SetMusicLoopPoints()
+		if ( m_activeMusic != null && m_musicLoopEnd > 0 && (m_activeMusic.isPlaying == false || ((float)m_musicLoopEnd-m_activeMusic.time) < 1.0f) ) // Queue next music a second early so it has time to stream in
+		{			
+			float timeBeforeLoop = Mathf.Max(0,m_musicLoopEnd-m_activeMusic.time-(Time.deltaTime*0.5f));
+			if ( m_activeMusic.isPlaying == false )
+				timeBeforeLoop = 0;
+			m_activeMusic.Stop(0.067f, timeBeforeLoop);
+			List<AudioHandle> handles=new List<AudioHandle>();
+			AudioHandle handle = Play(GetCue(m_activeMusic.cueName), null,1,1,m_musicLoopStart, timeBeforeLoop ).FadeIn(0.033f);
+			m_instance.m_activeMusic = handle;
+		}*/
 
 		bool playingDialog = GetVolume(AudioCue.eAudioType.Dialog) > 0.5f // Only duck if dialog volume is turned up more than 50%
 			&& m_activeAudio.Exists(item=> item != null && (item.type & (int)AudioCue.eAudioType.Dialog) != 0 );
@@ -1268,10 +1372,14 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 		{
 			finalDuckVol = m_musicDuckingMaxVolume;
 		}
+		
 
 		List<ClipInfo> toRemove = new List<ClipInfo>();	    
-		foreach (ClipInfo audioClip in m_activeAudio) 
+		for ( int i = 0; i < m_activeAudio.Count; ++i )
 		{
+			ClipInfo audioClip = m_activeAudio[i];
+			
+			UpdateActiveAudioClipLoopPoints(audioClip);
 			if (audioClip.handle == null || (audioClip.handle.isPlaying == false && audioClip.paused == false ) ) 
 			{
 				toRemove.Add(audioClip);
@@ -1300,6 +1408,7 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 
 	}
 
+
 	// updates single active audio clip
 	void UpdateActiveAudioClip( ClipInfo audioClip, float duckingVolume = 1.0f )
 	{
@@ -1315,11 +1424,15 @@ public class SystemAudio : SingletonAuto<SystemAudio>
 		}	
 
 		// Update Fading
-		if ( Utils.ApproximatelyZero(audioClip.fadeDelta) == false && Mathf.Approximately(audioClip.targetVolume, audioClip.defaultVolume) == false )
+		if ( Utils.ApproximatelyZero(audioClip.fadeDelta) == false )// Removed 18/4/23, cues were getting stuck at target value without ever stopping// && (Mathf.Approximately(audioClip.targetVolume, audioClip.defaultVolume) == false) )
 		{
-			// if cue has start delay, dont' start fading in yet
-			bool waitingToStart = ( audioClip.defaultVolume == 0 && audioClip.targetVolume > 0 && audioClip.handle.source.time <= 0);
-			if ( waitingToStart == false )
+			// if cue has start delay, dont' start fading in yet			
+			bool waitingToStart = ( audioClip.defaultVolume == 0 && audioClip.targetVolume > 0 && audioClip.handle.source.time <= audioClip.startFromTime);
+			//if ( audioClip.targetVolume > 0 )
+			//	Debug.Log($"Time: {audioClip.handle.source.time}");
+			// If stopAfterTime is set, don't start fading yet
+			bool waitingToStop = audioClip.stopAfterTime > 0 && audioClip.stopAfterFade;
+			if ( waitingToStart == false && waitingToStop == false)
 			{
 				audioClip.defaultVolume = Mathf.MoveTowards(audioClip.defaultVolume,audioClip.targetVolume, audioClip.fadeDelta*Time.deltaTime);
 
@@ -1461,12 +1574,12 @@ public class AudioHandle
 	public void Pause() { SystemAudio.Pause(this); }
 	/// Resumes playing the clip after pausing
 	public void UnPause() { SystemAudio.UnPause(this); }
-	/// Stops the clip, optionally fading out over time)
-	public void Stop(float overTime = 0.0f) 
+	/// Stops the clip, optionally fading out over time, and/or after a delay
+	public void Stop(float overTime = 0.0f, float afterDelay = 0.0f) 
 	{ 		
-		if ( SystemAudio.GetValid() && isPlaying && overTime > 0.0f )
+		if ( SystemAudio.GetValid() && isPlaying && (overTime > 0.0f || afterDelay > 0.0f) )
 		{
-			SystemAudio.Stop(this, overTime);  
+			SystemAudio.Stop(this, overTime, afterDelay);  
 			return;
 		}
 

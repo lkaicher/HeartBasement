@@ -22,7 +22,18 @@ public class SystemTextEditor : Editor
 	public static readonly string WHITESPACE = " ";
 	public static readonly string LABEL_DELIMITER_READ = ", ";
 
+
 	SystemText m_component = null;
+	List<string> m_processedFiles = new List<string>();
+	
+	public bool m_advancedFoldout = false;
+		
+	enum eProcessTextMode
+	{
+		ProcessFromScript,
+		UpdateScript
+	}
+	eProcessTextMode m_processTextMode = eProcessTextMode.ProcessFromScript;
 
 	// Regex explanation:
 	//		- Finds things of format
@@ -39,10 +50,10 @@ public class SystemTextEditor : Editor
 	//		Optional whitespace:	\s*
 	//		Optional comment:		(/\*.*\*/\s*)* 
 	//		Character name:			(?<character> \w+ )
-	//		The text string:		\$?"(?<text>.*)"
+	//		The text string:		"(?<text>.*)"
 	//		The optional id:		(, \s* (?<id> \d* ) \s* )?
 	//		The inline id:			(&(?<id>)\s)?
-	//		<start> is everything before the "id" is added 
+	//		<start> WAS everything before the "id" is added. But is now everything until start quote for the assigned string. (Effetively same as asignstart now I think)
 	//		<assignStart> is everything until the start quote for the assigned string
 	//	
 	static readonly Regex REGEX_DIALOG_METHOD = new Regex(
@@ -54,15 +65,23 @@ public class SystemTextEditor : Editor
 				+@" |  (\.\s*(?<character>Section)) " // ".Section"
 				+@" |  (\.\s*Display(BG)?)  "	// "DisplayBG"
 				+@" |  (SystemText\.(?<character>Localize)) ) " // "SystemText.Localize"  and end of alternates
-			+@"  \s*\( \s* (/\*.*\*/\s*)*  " // Open bracket (" and comments
-			+@" \$?""(?<text>.*)"" )" // The text inside "blah", and end of <start> section
+			+@"  \s*\( \s* (/\*.*\*/\s*)* \$?)" // Open bracket (" and comments, and end of <start> section
+			+@" ""(?<text>.*)""" // The text inside "blah"
 			+@" \s* (, \s* (?<id> \d* ) \s* )? " // Optional id parameter ", 123 "
 			+@" (/\*.*\*/\s*)* \) )"  // Whitespace, comments and Function ending " )"
 		+")",
 		RegexOptions.IgnorePatternWhitespace | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.Multiline );
 	
-	static readonly string STR_DIALOG_COMMA = ", ";
-	static readonly string STR_DIALOG_FUNCEND = ")";
+	
+	static readonly Regex REGEX_NEWLINE = new Regex("(\r\n|\n|\r)", RegexOptions.Compiled);
+
+	// Used for adding ids to text
+	static readonly string REPLACE_DIALOG = "{0}\"{1}\", {2})"; // C.Jon.Say("hi", 123)
+	static readonly string REPLACE_ASSIGN = "{0}\"&{1} {2}\""; // C.Jon.Description = "&123 hi"
+	
+	// Used for removing ids from text
+	static readonly string REPLACE_DIALOG_NOID = "{0}\"{1}\")"; // C.Jon.Say("hi")
+	static readonly string REPLACE_ASSIGN_NOID = "{0}\"{1}\""; // C.Jon.Description = "hi"
 
 	static readonly string SCRIPT_DIALOG_FILE_START = @"<html><head><style>
 		body{ text-align: center; }
@@ -107,10 +126,22 @@ public class SystemTextEditor : Editor
 	[Tooltip("Comma separated list of language codes. Case sensitive, use the same case you put in Languages' codes")]
 	[SerializeField] string[] m_exportLanguages = null;
 
+	enum eCsvEncoding
+	{
+		Default,
+		ASCII,
+		UTF8,
+		Unicode,
+		Windows1252,
+		Excel,
+		GoogleSheets
+	}
+	[SerializeField] eCsvEncoding m_csvEncoding = eCsvEncoding.Default;
+
 	string m_currSourceFile = null;
 
 	public override void OnInspectorGUI()
-	{		
+	{
 		m_component = (SystemText)target;
 
 		EditorGUILayout.LabelField("Process Game Text From Scripts",EditorStyles.boldLabel);
@@ -184,11 +215,42 @@ public class SystemTextEditor : Editor
 		{
 			ExportToCSV( m_component );
 		}
+		bool processUpdateGameTextFromImport = false;
+		bool processRemoveTextIds = false;
 		if ( GUILayout.Button("Import from CSV") )
 		{
-			ImportFromCSV( m_component );
+			EditorUtility.DisplayProgressBar("Importing from CSV", "Importing text",0);
+			// Import
+			bool importSuccess = ImportFromCSV( m_component );
+			
+			EditorUtility.ClearProgressBar();
+			
+			// If import successful, ask about updating game text too.
+			if ( importSuccess && m_component.EditorGetShouldImportDefaultStringFromCSV() )
+			{
+				if ( EditorUtility.DisplayDialog("CSV Import Succeeded","Success!\n\nDo you also want to update the text in your game code/scripts and prefabs?\n\n(Backup highly recommended!)","Update Scripts and Prefabs","No thanks") )
+					processUpdateGameTextFromImport = true;
+			}
+		}	
+
+		GUILayout.EndHorizontal();	
+
+		m_advancedFoldout = EditorGUILayout.Foldout(m_advancedFoldout,"Advanced", true);
+		if ( m_advancedFoldout )
+		{
+			if ( GUILayout.Button("Update scripts from imported text") )
+			{
+				if ( EditorUtility.DisplayDialog("CSV Import Succeeded","Success!\n\nDo you also want to update the text in your game code/scripts and prefabs?\n\n(Backup highly recommended!)","Update Scripts and Prefabs","Cancel") )
+					processUpdateGameTextFromImport = true;
+			}
+			if ( GUILayout.Button("Remove unused ids") )
+			{
+				if ( EditorUtility.DisplayDialog("Really remove?","This will remove text from the text system and ids from the game scripts. If audio exists for voice lines, they will not be removed\n\n(Backup highly recommended!)","Removed unused ids","Cancel") )
+					processRemoveTextIds = true;
+			}
+
+			m_csvEncoding =  (eCsvEncoding) EditorGUILayout.EnumPopup("Csv Encoding", (Enum)m_csvEncoding);
 		}
-		GUILayout.EndHorizontal();
 
 		GUILayout.Space(10);	
 
@@ -206,12 +268,46 @@ public class SystemTextEditor : Editor
 
 		if ( processText )
 		{
-			ProcessAllText(m_component, m_preserveIds, m_processDialogOnly);			
+			EditorUtility.DisplayProgressBar("Processing text", "Processing text",0);
+			m_processTextMode = eProcessTextMode.ProcessFromScript;
+			ProcessAllText(m_component);
+			
+			EditorUtility.DisplayProgressBar("Processing text", "Refreshing asset database",0);
 
-			//m_targetObject.ApplyModifiedProperties();	
 			EditorUtility.SetDirty(target);	
-
 			AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+			EditorUtility.ClearProgressBar();
+		}
+		else if ( processUpdateGameTextFromImport )
+		{
+			EditorUtility.DisplayProgressBar("Updating game text", "Updating game text",0);
+			m_preserveIds=true;
+			m_processDialogOnly=false;
+			m_processTextMode = eProcessTextMode.UpdateScript;
+			ProcessAllText(m_component);			
+			EditorUtility.DisplayProgressBar("Updating game text", "Refreshing asset database",0);
+			AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+			EditorUtility.ClearProgressBar();
+		}
+		else if ( processRemoveTextIds )
+		{
+			EditorUtility.DisplayProgressBar("Removing ids", "Removing ids",0);
+			m_preserveIds=true;
+			m_processDialogOnly=false;
+			m_processTextMode = eProcessTextMode.UpdateScript;
+
+			// First remove lines from the text system (if they don't have recorded dialog)
+			m_component.EditorGetTextDataOrdered().RemoveAll(
+				item=>
+				{
+					return m_component.EditorHasAudio(item.m_id,item.m_character) == false;
+				});
+			// Then process text in update mode to update game text
+			ProcessAllText(m_component);		
+			EditorUtility.DisplayProgressBar("Removing ids", "Refreshing asset database",0);	
+			EditorUtility.SetDirty(target);	
+			AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+			EditorUtility.ClearProgressBar();
 		}
 
 	}
@@ -268,15 +364,14 @@ public class SystemTextEditor : Editor
 			}
 			else 
 			{
-				Debug.LogWarningFormat("Failed to process text in {0}: {1}",filePath, ex.ToString());
+				Debug.LogWarningFormat("Failed to process text in {0}.\n\nError: {1}",filePath, ex.ToString());
 			}
 		}
 	}
-
-	List<string> m_processedFiles = new List<string>();
+	
 
 	// Trawls through the game and adds text to the manager, inserting IDs into script files where it feels like it
-	public void ProcessAllText( SystemText systemText, bool preserveIds, bool dialogOnly )
+	public void ProcessAllText( SystemText systemText )
 	{
 		if ( PowerQuestEditor.IsReady() == false )
 			return;
@@ -291,8 +386,6 @@ public class SystemTextEditor : Editor
 		// Clear list of processed files before starting processing again
 		m_processedFiles.Clear();
 
-		m_preserveIds = preserveIds;
-		m_processDialogOnly = dialogOnly;
 		m_component = systemText;
 
 		PowerQuest powerQuest = PowerQuestEditor.GetPowerQuest();
@@ -300,7 +393,8 @@ public class SystemTextEditor : Editor
 			return;
 
 		// Loop through all script files and run teh regex over them
-		systemText.EditorOnBeginAddText();
+		if ( m_processTextMode != eProcessTextMode.UpdateScript )
+			systemText.EditorOnBeginAddText();
 
 		// Process Room scripts
 		foreach ( RoomComponent component in powerQuest.GetRoomPrefabs() )
@@ -308,7 +402,7 @@ public class SystemTextEditor : Editor
 			m_currSourceFile = STR_ROOM+component.GetData().ScriptName;
 			ProcessFile( QuestEditorUtils.GetFullPath(component.gameObject, "Room" + component.GetData().GetScriptName() +".cs") ); 
 
-			if ( dialogOnly == false )
+			if ( m_processDialogOnly == false )
 			{
 				m_lastFunction = "Prop Description";
 				component.GetPropComponents().ForEach( item=> 
@@ -330,9 +424,9 @@ public class SystemTextEditor : Editor
 		foreach ( CharacterComponent component in powerQuest.GetCharacterPrefabs() )
 		{
 			m_currSourceFile = "Character- "+component.GetData().ScriptName;
-			ProcessFile( QuestEditorUtils.GetFullPath(component.gameObject, "Character" + component.GetData().GetScriptName() +".cs") ); 
+			ProcessFile( QuestEditorUtils.GetFullPath(component.gameObject, PowerQuest.STR_CHARACTER + component.GetData().GetScriptName() +".cs") ); 
 
-			if ( dialogOnly == false )
+			if ( m_processDialogOnly == false )
 			{
 				m_lastFunction = "Description";
 				component.GetData().Description = AddStringWithEmbeddedId( component.GetData().Description);
@@ -344,9 +438,9 @@ public class SystemTextEditor : Editor
 		foreach ( InventoryComponent component in powerQuest.GetInventoryPrefabs() )
 		{
 			m_currSourceFile = "Item- "+component.GetData().ScriptName;
-			ProcessFile( QuestEditorUtils.GetFullPath(component.gameObject, "Inventory" + component.GetData().GetScriptName() +".cs") ); 
+			ProcessFile( QuestEditorUtils.GetFullPath(component.gameObject, PowerQuest.STR_INVENTORY + component.GetData().GetScriptName() +".cs") ); 
 
-			if ( dialogOnly == false )
+			if ( m_processDialogOnly == false )
 			{
 				m_lastFunction = "Description";
 				component.GetData().Description = AddStringWithEmbeddedId(component.GetData().Description);
@@ -360,7 +454,7 @@ public class SystemTextEditor : Editor
 			m_currSourceFile = "Dialog- "+component.GetData().ScriptName;
 			ProcessFile( QuestEditorUtils.GetFullPath(component.gameObject, "Dialog" + component.GetData().GetScriptName() +".cs") ); 
 
-			if ( dialogOnly == false )
+			if ( m_processDialogOnly == false )
 			{
 				m_lastFunction = "Dialog Option";
 				component.GetData().Options.ForEach( item=> 
@@ -369,6 +463,13 @@ public class SystemTextEditor : Editor
 					} );	
 				EditorUtility.SetDirty(component);
 			}
+		}	
+
+		// Process Gui scripts
+		foreach ( GuiComponent component in powerQuest.GetGuiPrefabs() )
+		{
+			m_currSourceFile = "Gui- "+component.GetData().ScriptName;
+			ProcessFile( QuestEditorUtils.GetFullPath(component.gameObject, "Gui" + component.GetData().GetScriptName() +".cs") ); 
 		}		
 
 		// Process Game script
@@ -379,7 +480,7 @@ public class SystemTextEditor : Editor
 		// Process Gui descriptions
 		foreach ( GuiComponent component in powerQuest.GetGuiPrefabs() )
 		{			
-			if ( dialogOnly == false )
+			if ( m_processDialogOnly == false )
 			{
 				m_lastFunction = "Gui Description";
 				GuiComponent[] childComponents = component.GetComponentsInChildren<GuiComponent>(true);
@@ -395,7 +496,7 @@ public class SystemTextEditor : Editor
 			}
 		}
 
-		if ( dialogOnly == false )
+		if ( m_processDialogOnly == false )
 		{
 			// Process QuestText components that may need localising
 			m_currSourceFile = "General Text";
@@ -420,8 +521,10 @@ public class SystemTextEditor : Editor
 	{		
 		if ( string.IsNullOrEmpty(line) )
 			return line;
-		int existingId = m_component.ParseIdFromText(ref line);
-		TextData data = m_component.EditorAddText(line, m_currSourceFile,m_lastFunction,null,existingId,m_preserveIds);
+		int existingId = m_component.ParseIdFromText(ref line);		
+		TextData data = ProcessTextLine(line, m_currSourceFile,m_lastFunction,null,existingId,m_preserveIds);
+		if ( data == null )
+			return line;
 		return string.Format("&{0} {1}", data.m_id.ToString(), data.m_string);
 	}
 
@@ -444,17 +547,17 @@ public class SystemTextEditor : Editor
 
 		string result = match.Value;
 			
-		string firstHalf = match.Groups["start"].Value;
+		string start = match.Groups["start"].Value;
 		string character = match.Groups["character"].Value;
 		string text = match.Groups["text"].Value;
 		string existingId = match.Groups["id"].Value;
-		string assignFirstHalf = match.Groups["assignStart"].Value;
-		bool isAssignment = string.IsNullOrEmpty(assignFirstHalf) == false;
+		string assignStart = match.Groups["assignStart"].Value;
+		bool isAssignment = string.IsNullOrEmpty(assignStart) == false;
 
 		if ( string.IsNullOrEmpty(text) )
 			return match.Value;
 		
-		if ( isAssignment == false && string.IsNullOrEmpty(firstHalf) )
+		if ( isAssignment == false && string.IsNullOrEmpty(start) )
 			return match.Value;
 
 
@@ -486,23 +589,47 @@ public class SystemTextEditor : Editor
 		if ( character == null && m_processDialogOnly )
 			return match.Value; // Ignore non-dialog
 			
-
 		text = Regex.Unescape(text);
-		TextData textData = m_component.EditorAddText(text, m_currSourceFile, m_lastFunction, character, id, m_preserveIds);
-		id = textData.m_id;
 
-		if ( isAssignment )
+		TextData textData = ProcessTextLine(text, m_currSourceFile, m_lastFunction, character, id, m_preserveIds);
+		if ( textData != null )
+			text = textData.m_string;
+
+		// replace carriage returns in text, before saving it back into script
+		text = REGEX_NEWLINE.Replace(text,"\\n");
+				
+		if ( textData != null )
 		{
-			// Final string is .Description = "&123 Blah"
-			result = string.Format("{0}\"&{1} {2}\"", assignFirstHalf, id.ToString(), textData.m_string);
+			id = textData.m_id;
+
+			if ( isAssignment ) // Final string is .Description = "&123 Blah"
+				result = string.Format(REPLACE_ASSIGN, assignStart, id.ToString(), text); 
+			else // Final string is  C.Jon.Say("blah", 123);
+				result = string.Format(REPLACE_DIALOG, start, text, id.ToString()); 
 		}
 		else 
 		{
-			// Final string is  'C.Jon.Say("blah"' + ', ' + id + ' );'
-			result = string.Concat(firstHalf, STR_DIALOG_COMMA, id.ToString(), STR_DIALOG_FUNCEND); 
+			// If not found, remove the id from the in-game text
+			if ( isAssignment ) // Final string is .Description = "&123 Blah"
+			{
+				m_component.ParseIdFromText(ref text); // strip id from text
+				result = string.Format(REPLACE_ASSIGN_NOID, assignStart, text); 
+			}
+			else // Final string is  C.Jon.Say("blah", 123);			
+				result = string.Format(REPLACE_DIALOG_NOID, start, text); 
 		}
 
 		return result;
+	}
+
+
+	// If processting text, adds the line to text data. If merging processed text, reads it instead.
+	TextData ProcessTextLine( string line, string sourceFile = null, string sourceFunction = null, string characterName = null, int existingId = -1, bool preserveExistingIds = false)
+	{
+		if ( m_processTextMode == eProcessTextMode.UpdateScript )
+			return m_component.EditorFindText(line, existingId, characterName);
+		
+		return m_component.EditorAddText(line, sourceFile, sourceFunction, characterName, existingId, preserveExistingIds);
 	}
 
 	void ProcessQuestText()
@@ -792,7 +919,7 @@ public class SystemTextEditor : Editor
 		{
 			try 
 			{
-				File.WriteAllText(scriptPath, builder.ToString(), System.Text.Encoding.Default);
+				File.WriteAllText(scriptPath, builder.ToString(), GetCsvEncoding());
 			}
 			catch (System.Exception e)
 			{
@@ -805,12 +932,27 @@ public class SystemTextEditor : Editor
 
 	}
 
-
-	public void ImportFromCSV( SystemText systemText )
+	System.Text.Encoding GetCsvEncoding()
 	{
+		if ( m_csvEncoding == eCsvEncoding.ASCII )
+			return System.Text.Encoding.ASCII;
+		else if ( m_csvEncoding == eCsvEncoding.UTF8 )
+			return System.Text.Encoding.UTF8;
+		else if ( m_csvEncoding == eCsvEncoding.Unicode || m_csvEncoding == eCsvEncoding.GoogleSheets )
+			return System.Text.Encoding.Unicode;
+		else if ( m_csvEncoding == eCsvEncoding.Windows1252 || m_csvEncoding == eCsvEncoding.Excel )
+			return System.Text.Encoding.GetEncoding(1252);
+	
+		return System.Text.Encoding.Default;
+	}
+
+	// Returns true on success
+	public bool ImportFromCSV( SystemText systemText )
+	{
+		bool result = false;
 		string scriptPath = EditorUtility.OpenFilePanel("Import Text from CSV", "", "csv");
 		if ( string.IsNullOrEmpty(scriptPath) )
-			return;
+			return result;
 
 		int lineId = -1;
 		int numLanguages = systemText.GetNumLanguages();
@@ -823,7 +965,7 @@ public class SystemTextEditor : Editor
 		try
 		{
 			stream = File.OpenRead(scriptPath);
-			streamReader = new StreamReader(stream, System.Text.Encoding.Default);
+			streamReader = new StreamReader(stream, GetCsvEncoding(), true);
 
 			using ( CSVFile.CSVReader reader = new CSVFile.CSVReader(streamReader, new CSVFile.CSVSettings() { HeaderRowIncluded = false }) )
 			{
@@ -848,7 +990,9 @@ public class SystemTextEditor : Editor
 						continue;
 					}
 					if ( line.Length < CSV_NUM_HEADERS+1 )
+					{
 						continue; // skipping line, since it doesn't have the right amount of stuff
+					}
 					string character = line[0];
 					int id = -1;
 					if ( int.TryParse(line[1], out id) == false )
@@ -863,7 +1007,8 @@ public class SystemTextEditor : Editor
 					}
 					else
 					{
-						if ( systemText.EditorGetShouldImportDefaultStringFromCSV() )
+						//Debug.Log($"Imported {textData.m_id}:{textData.m_string}");
+						if ( systemText.EditorGetShouldImportDefaultStringFromCSV() ) // NB: Now always importing text
 							textData.m_string = line[CSV_INDEX_LANGUAGES];
 						if ( numLanguages > 1 )
 						{
@@ -874,21 +1019,23 @@ public class SystemTextEditor : Editor
 								textData.m_translations[i-1] = line[CSV_INDEX_LANGUAGES+i];
 							}
 						}
-					}
-
-					textData.m_changedSinceImport = false;
-					
+						textData.m_changedSinceImport = false;
+					}					
 				}
 			}
 
 			EditorUtility.SetDirty(systemText);	
+			return true;
+
 		}
 		catch (System.IO.IOException e )
 		{
+			result=false;
 			EditorUtility.DisplayDialog("CSV Import Failed","Failed to open CSV file. \nCheck it's not already open elsewhere.\n\nError: "+e.Message ,"ok");
 		}
 		catch (System.Exception e)
-		{	
+		{
+			result=false;	
 			EditorUtility.DisplayDialog("CSV Import Failed","Failed to import CSV file.\n\nError: "+e.Message ,"ok");
 		}
 		finally
@@ -898,6 +1045,8 @@ public class SystemTextEditor : Editor
 			if ( stream != null )
 				stream.Close();
 		}
+
+		return result;
 	}
 
 	/// Reads in from rhubarb's output.txt into the TextData

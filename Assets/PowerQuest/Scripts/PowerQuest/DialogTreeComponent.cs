@@ -83,9 +83,9 @@ public class DialogTreeScript<T> : QuestScript where T : QuestScript
 	public int TimesShown { get => D.Current.TimesShown; }
 
 	/// Access to option with specified id. Eg: `Option(3).On();`. This example in the QuestScript editor is simplified to `O.3.On();`
-	public DialogOption Option(int id) { return m_data.GetOption(id); }
+	public IDialogOption Option(int id) { return m_data.GetOption(id); }
 	/// Access to option with specified id. Eg: `Option("NiceHat").On();` This example in the QuestScript editor is simplified to `O.NiceHat.On();`
-	public DialogOption Option(string id) 
+	public IDialogOption Option(string id) 
 	{
 		if ( m_data == null ) Debug.LogError("Data not set up yet in Dialog. Can't retrieve option"); 
 		return m_data.GetOption(id); 
@@ -205,17 +205,17 @@ public partial class DialogTree : IQuestScriptable, IDialogTree, IQuestSaveCacha
 	public void Start() { PowerQuest.Get.StartDialog(ScriptName); }
 	public void Stop() { PowerQuest.Get.StopDialog(); }
 
-	public DialogOption GetOption(string name) { return this[name]; }
-	public DialogOption GetOption(int index) { return this[index]; }
+	public IDialogOption GetOption(string name) { return this[name]; }
+	public IDialogOption GetOption(int index) { return this[index]; }
 
 	// Shortcut access to options. (NB: Trying to be too clever. I've found these confusing to use. GetOption() makes more sense)
-	public DialogOption this[int index]
+	public IDialogOption this[int index]
 	{
 	    get { return this[index.ToString()]; }
 	}
 
 	// Shortcut access to options
-	public DialogOption this[string name]
+	public IDialogOption this[string name]
 	{
 		get 
 		{ 
@@ -233,9 +233,9 @@ public partial class DialogTree : IQuestScriptable, IDialogTree, IQuestSaveCacha
 	public void OptionOff(params int[] id){System.Array.ForEach(id,item=>this[item].Off()); }
 	public void OptionOffForever(params int[] id){ System.Array.ForEach(id,item=>this[item].OffForever()); }
    
-	public void OptionOn(params string[] id){ System.Array.ForEach(id,item=>this[item].Show()); }
-	public void OptionOff(params string[] id){ System.Array.ForEach(id,item=>this[item].Hide()); }
-	public void OptionOffForever(params string[] id){ System.Array.ForEach(id,item=>this[item].HideForever()); }
+	public void OptionOn(params string[] id){ System.Array.ForEach(id,item=>this[item].On()); }
+	public void OptionOff(params string[] id){ System.Array.ForEach(id,item=>this[item].Off()); }
+	public void OptionOffForever(params string[] id){ System.Array.ForEach(id,item=>this[item].OffForever()); }
 
 	public bool GetOptionOn(int option) { return this[option]?.Visible ?? false; }
 	public bool GetOptionOffForever(int option) { return this[option]?.Disabled ?? false; }
