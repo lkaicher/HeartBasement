@@ -63,7 +63,7 @@ public class RoomHome : RoomScript<RoomHome>
 		// Set
 		
 		//Temp
-		//LowerWaterShader(40, "CharacterDave");
+		LowerWaterShader(40, "CharacterDave");
 		
 		
 		if (Globals.LoadingChapter) {
@@ -929,6 +929,7 @@ public class RoomHome : RoomScript<RoomHome>
 	{
 		Prop("Box").Disable();
 		Prop("ElectricPump").Enable();
+		Prop("Hose").Enable();
 		yield return C.Dave.Say(" It's beautiful!");
 		yield return E.WaitSkip();
 		yield return C.Dave.Say("What's this?");
@@ -968,6 +969,12 @@ public class RoomHome : RoomScript<RoomHome>
 	}
 
 	IEnumerator OnUseInvHotspotBoiler( IHotspot hotspot, IInventory item )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractPropHose( IProp prop )
 	{
 
 		yield return E.Break;

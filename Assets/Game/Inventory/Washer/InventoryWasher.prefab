@@ -46,9 +46,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_data:
     m_description: Washer
-    m_animGui: Washer
-    m_animCursor: Washer
-    m_animCursorInactive: Washer
+    m_animGui: WasherSprite
+    m_animCursor: WasherSprite
+    m_animCursorInactive: WasherSprite
     m_stack: 0
     m_scriptName: Washer
     m_scriptClass: InventoryWasher

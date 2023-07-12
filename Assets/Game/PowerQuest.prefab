@@ -54,6 +54,11 @@ MonoBehaviour:
     m_languageCode: EN
     m_textSpeedMultiplier: 1
   m_verticalResolution: 540
+  m_horizontalResolution:
+    m_min: 864
+    m_max: 960
+    m_hasMax: 1
+    m_hasValue: 0
   m_snapToPixel: 1
   m_pixelCamEnabled: 1
   m_defaultPixelsPerUnit: 1
@@ -157,8 +162,11 @@ MonoBehaviour:
   - {fileID: 7400000, guid: 1e01d18b78c056746ae8904d1a6b8318, type: 2}
   - {fileID: 7400000, guid: 29f1260f6e39e2342a915c3f5781592f, type: 2}
   - {fileID: 7400000, guid: ce06231a1c59e9e4483a491a45df3bc3, type: 2}
+  - {fileID: 7400000, guid: ee6a3d1899d3ba6488d1408e17e33e92, type: 2}
   - {fileID: 7400000, guid: 2b6eb770da1af45bf955f1b14a5f8ed6, type: 2}
+  - {fileID: 7400000, guid: 964dc85d8fb2c8243aae49912fb9872b, type: 2}
   - {fileID: 7400000, guid: eff20ed6c6c7d48e58723b0e4e2bb656, type: 2}
+  - {fileID: 7400000, guid: d3a628b7b63a8f34aadd062186490dfe, type: 2}
   m_inventorySprites:
   - {fileID: 21300000, guid: 3922c0a8c80dd8f4099e6aaa35b4cde7, type: 3}
   - {fileID: 21300000, guid: 1061dc069dcba0047a6738bdeb8dd2a9, type: 3}
@@ -177,8 +185,11 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 004fc181b8727fa4d94f991626b1afd1, type: 3}
   - {fileID: 21300000, guid: 5f59617f85a0b3f4f9e5765c92254ace, type: 3}
   - {fileID: 21300000, guid: c38fba680eab5fb4b88c22d3d9013293, type: 3}
+  - {fileID: 21300000, guid: 8dee974776641e041aa830c2ec6a50ae, type: 3}
   - {fileID: 21300000, guid: 15e844d0c299b4d36a8cf540759bab64, type: 3}
+  - {fileID: 21300000, guid: 432ac43fde257e944978d6ff27dda1bf, type: 3}
   - {fileID: 21300000, guid: 91f9ed39450224b42b2de13b459ca423, type: 3}
+  - {fileID: 21300000, guid: 4a3f33c75adf4894887b3ffa8bc6e845, type: 3}
   m_guiAnimations: []
   m_guiSprites:
   - {fileID: 21300000, guid: 6a87f4e540b9ead4ab036f0197dec31e, type: 3}
@@ -224,5 +235,5 @@ MonoBehaviour:
   - {fileID: 4800000, guid: a2c3f6022054c654ea6aeb84a997cda4, type: 3}
   - {fileID: 4800000, guid: 553637da87459c4428e8af106c8e49fd, type: 3}
   - {fileID: -6465566751694194690, guid: af93590d30f80449dbed048703d58532, type: 3}
-  m_version: 16001
+  m_version: 16011
   m_newVersion: 16011

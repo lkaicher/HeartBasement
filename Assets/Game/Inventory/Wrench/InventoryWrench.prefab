@@ -46,9 +46,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_data:
     m_description: Wrench
-    m_animGui: Wrench
-    m_animCursor: Wrench
-    m_animCursorInactive: Wrench
+    m_animGui: WrenchSprite
+    m_animCursor: WrenchSprite
+    m_animCursorInactive: WrenchSprite
     m_stack: 0
     m_scriptName: Wrench
     m_scriptClass: InventoryWrench
