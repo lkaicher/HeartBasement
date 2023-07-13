@@ -148,6 +148,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 1a164a54bc1ae0f4d9d91396590408e8, type: 3}
   - {fileID: 21300000, guid: 845e6dad78aa6134aa8a0d045feccd21, type: 3}
   - {fileID: 21300000, guid: 26b9f68dd2e1a724c8cc8d8f018e13cd, type: 3}
+  - {fileID: 21300000, guid: f0f11138c9e9ce14fb23c5f295280cd9, type: 3}
   - {fileID: 21300000, guid: 7a785040b5041074f82f5bc8e6000f89, type: 3}
   - {fileID: 21300000, guid: 995e78df5e844a649a2ce3ce2f3f7b1e, type: 3}
   - {fileID: 21300000, guid: f91541f0cac0aab4bbc83cdc29dcaf4d, type: 3}
@@ -418,7 +419,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &3885526988598588585
 Transform:
   m_ObjectHideFlags: 0
@@ -1545,7 +1546,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &9159437447689355309
 Transform:
   m_ObjectHideFlags: 0
@@ -1554,7 +1555,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6607429613784601954}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 181.5, y: -151.8, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1601,11 +1602,11 @@ PolygonCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 181.5, y: -151.8}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 200, y: 200}
+    oldSize: {x: 1000, y: 540}
     newSize: {x: 200, y: 200}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -1613,13 +1614,12 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: -48.976517, y: -61.835648}
-      - {x: -66.4535, y: -63.052673}
-      - {x: -83.45754, y: -13.125519}
-      - {x: -81.99791, y: 54.759987}
-      - {x: 56.931213, y: 63.052673}
-      - {x: 82.848175, y: 26.218712}
-      - {x: 80.05673, y: -52.850235}
+    - - {x: 14.90332, y: -84.76686}
+      - {x: -106.85613, y: -46.673233}
+      - {x: -112.59088, y: 67.956955}
+      - {x: -28.432388, y: 86.98611}
+      - {x: 87.762024, y: 70.9892}
+      - {x: 83.8786, y: -35.924805}
 --- !u!95 &6954981194259052637
 Animator:
   serializedVersion: 5
@@ -1693,8 +1693,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2088
-  m_Sprite: {fileID: 21300000, guid: 1061dc069dcba0047a6738bdeb8dd2a9, type: 3}
+  m_SortingOrder: 570
+  m_Sprite: {fileID: 21300000, guid: f0f11138c9e9ce14fb23c5f295280cd9, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
