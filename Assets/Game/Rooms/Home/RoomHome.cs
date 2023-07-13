@@ -29,7 +29,7 @@ public class RoomHome : RoomScript<RoomHome>
 	handleType currentHandle = handleType.small;
 	hoseType currentHose = hoseType.small;
 	
-	int pumpRepairs == 0;
+	public int pumpRepairs = 0;
 	
 	// Water level variables
 	// public int waterLevelInt = (int)Globals.gameStage * 40;
@@ -949,7 +949,7 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnInteractPropElectricPump( IProp prop )
 	{
-		if (Globals.gameStage == gameProgress.OrderElectricPump){
+		if (Globals.gameStage == gameProgress.SecondFlood){
 		
 		Audio.Play("Motor");
 		yield return UnfloodBasement();
@@ -970,7 +970,7 @@ public class RoomHome : RoomScript<RoomHome>
 			  Audio.Play("Motor");
 			  yield return UnfloodBasement();
 			  Audio.Stop("Motor");
-			  Globals.gameStage = gameProgress.RepairedElectricPump;
+			  Globals.gameStage = gameProgress.RepairedPump;
 			  G.Explanation.Show();
 		  } else {
 			  Audio.Play("MotorFailure");
@@ -988,9 +988,11 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnUseInvPropElectricPump( IProp prop, IInventory item )
 	{
-		if (item == I.Wrench || item == I.Washer){
+		if(Globals.gameStage == gameProgress.UsedElectricPump ) {
+		if (item == I.Wrench || item == I.Washer){
 			pumpRepairs++;
 			item.Remove();
+		}
 		}
 		yield return E.Break;
 	}
