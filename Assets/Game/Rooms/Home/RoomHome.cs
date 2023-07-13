@@ -972,6 +972,10 @@ public class RoomHome : RoomScript<RoomHome>
 			  Audio.Stop("Motor");
 			  Globals.gameStage = gameProgress.RepairedPump;
 			  G.Explanation.Show();
+			  yield return C.Dave.Say(" Phew!");
+			  yield return E.WaitSkip();
+			  yield return C.Dave.Say(" The pump works again!");
+		
 		  } else {
 			  Audio.Play("MotorFailure");
 			  if (pumpRepairs == 0){

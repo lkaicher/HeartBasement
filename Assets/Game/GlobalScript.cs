@@ -377,6 +377,9 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 			case(4):
 				C.Tony.Enable();
 				break;
+			case(7):
+				I.RepairKit.Add();
+				break;
 			default:
 				break;
 		
