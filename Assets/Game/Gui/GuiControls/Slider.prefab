@@ -106,7 +106,7 @@ MonoBehaviour:
   m_shaderOverride: {fileID: 0}
 --- !u!95 &8724173842042286255
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -123,7 +123,7 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
 --- !u!114 &623409463794794245
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -231,9 +231,17 @@ MonoBehaviour:
   m_colorHover: {r: 0.22352943, g: 0.4156863, b: 0.7803922, a: 1}
   m_colorClick: {r: 0.22352943, g: 0.4156863, b: 0.7803922, a: 1}
   m_colorOff: {r: 0.22352943, g: 0.4156863, b: 0.7803922, a: 1}
+  m_soundHover: 
+  m_soundClick: 
+  m_soundSlide: 
   m_hotspotPadding:
     left: -3
     right: -3
+    top: 0
+    bottom: 0
+  m_handlePadding:
+    left: 0
+    right: 0
     top: 0
     bottom: 0
   m_barSprite: {fileID: 3281176588688198516}
@@ -371,7 +379,7 @@ MonoBehaviour:
   m_shaderOverride: {fileID: 0}
 --- !u!95 &5664375873840874071
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -388,7 +396,7 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
 --- !u!114 &9171726967601426094
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -481,7 +489,13 @@ MonoBehaviour:
   m_wrapUniformLineWidth: 0
   m_wrapWidthMin: 0
   m_keepOnScreen: 0
+  m_screenPadding:
+    left: 8
+    right: 8
+    top: 8
+    bottom: 8
   m_shaderOverride: {fileID: 0}
+  m_setFiltering: 1
   m_outline:
     m_directions: 0
     m_width: 1

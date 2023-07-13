@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using PowerTools.Quest;
+using ePlayerName = PowerTools.Quest.SystemText.ePlayerName;
 
 namespace PowerScript
 {	
@@ -9,11 +10,11 @@ namespace PowerScript
 	public static partial class C
 	{
 		/// The current player
-		public static ICharacter Player		{ get{return PowerQuest.Get.GetPlayer(); } }
+		public static ICharacter Player		{ get{ Systems.Text.LastPlayerName=ePlayerName.Player; return PowerQuest.Get.GetPlayer(); } }
 		/// The current player (same as C.Player)
-		public static ICharacter Plr		{ get{return PowerQuest.Get.GetPlayer(); } }
+		public static ICharacter Plr		{ get{ Systems.Text.LastPlayerName=ePlayerName.Plr; return PowerQuest.Get.GetPlayer(); } }
 		/// The current player (same as C.Player)
-		public static ICharacter Ego		{ get{return PowerQuest.Get.GetPlayer(); } }
+		public static ICharacter Ego		{ get{ Systems.Text.LastPlayerName=ePlayerName.Ego; return PowerQuest.Get.GetPlayer(); } }
 
 		/// Display narrator dialog
 		public static Coroutine Display(string dialog) { return PowerQuest.Get.Display(dialog); }

@@ -222,10 +222,10 @@ public class PowerSpriteImportEditor : Editor
 				
 			#if SHOW_LOOP_TICKBOX	
 			
-			// Loop
-
-			m_items[index].m_loop =
-				EditorGUI.Toggle(rect, m_items[index].m_loop);
+			// Loop			
+			bool newLoop = EditorGUI.Toggle(rect, m_items[index].m_loop);
+			if ( newLoop != m_items[index].m_loop )
+				ToggleLooping(m_items[index]);
 
 			rect.xMin += rect.width + widths[widthIndex++];
 			rect.width = widths[widthIndex++];	
@@ -405,7 +405,7 @@ public class PowerSpriteImportEditor : Editor
 		//	EditorGUILayout.HelpBox("NB: If animation is shortened, the extra sprites won't be deleted automatically. Delete them manually.", MessageType.None);
 
 		EditorGUILayout.Space();
-		m_showSpriteImporterSettings = EditorGUILayout.Foldout(m_showSpriteImporterSettings, "Advanced Settings");
+		m_showSpriteImporterSettings = EditorGUILayout.Foldout(m_showSpriteImporterSettings, "Advanced Settings",true);
 		if ( m_showSpriteImporterSettings )
 		{
 			importTags |= GUILayout.Button( "Import Aseprite Tags" );
@@ -507,7 +507,8 @@ public class PowerSpriteImportEditor : Editor
 			if ( animFound )
 			{
 				AnimationClip animClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(componentPath+"/"+ data.m_name+".anim");
-				data.m_loop = animClip.isLooping;
+				if ( animClip != null )
+					data.m_loop = animClip.isLooping;
 			}
 
 			GenericMenu menu = new GenericMenu();
@@ -1013,6 +1014,13 @@ public class PowerSpriteImportEditor : Editor
 			sourceFileIds[i] = id;
 		}
 
+		bool hasDefaultImportSettings = 
+			m_component.m_spriteMeshType == SpriteMeshType.Tight
+			&& m_component.m_compression == PowerSpriteImport.eTextureCompression.None
+			&& m_component.m_filterMode == FilterMode.Point
+			&& m_component.m_pixelsPerUnit == 1
+			&& m_component.m_crunchedCompression == false;
+
 		for ( int i = 0; i < m_items.Count; ++i )
 		{
 			if ( itemId >= 0 && i != itemId )
@@ -1053,8 +1061,10 @@ public class PowerSpriteImportEditor : Editor
 					{
 						bool alreadyExisted = File.Exists(targetPath);
 						File.Copy(sourcePath, targetPath, true);
-						if ( alreadyExisted == false )
+						
+						if ( alreadyExisted == false && (fullRect || hasDefaultImportSettings == false) )
 						{
+							// Need to create the asset importer, and reimport (it's really slow for some reason)
 							string relativeTargetPath = MakeRelative(targetPath, Application.dataPath);
 							TextureImporter importer = TextureImporter.GetAtPath(relativeTargetPath) as TextureImporter;
 							if ( importer == null )
@@ -1189,11 +1199,14 @@ public class PowerSpriteImportEditor : Editor
 
 		string componentPath = Path.GetDirectoryName(AssetDatabase.GetAssetPath(m_component));
 
+		AssetDatabase.StartAssetEditing();
+
 		// Add new stuff/make edits
 		for ( int i = 0; i < m_items.Count; ++i )
 		{
 			CreateAnimation(spritePath, componentPath, i, false, false);
 		}
+		AssetDatabase.StopAssetEditing();
 
 		AssetDatabase.SaveAssets();
 

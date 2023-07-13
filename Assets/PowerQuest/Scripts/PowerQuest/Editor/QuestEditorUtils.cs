@@ -58,6 +58,9 @@ public class QuestEditorUtils
 	#endregion
 	#region Gui Layout utils
 	
+	static readonly float INV180 = 1.0f/180.0f;
+	public static float GameResScale => ((PowerQuestEditor.GetPowerQuest() == null) ? 1 : PowerQuestEditor.GetPowerQuest().VerticalResolution*INV180); 
+
 	public static void LayoutQuestObjectContextMenu( eQuestObjectType questObjectType, ReorderableList list, string scriptName,  GameObject prefab, Rect rect, int index,bool onRightClick, System.Action<GenericMenu,GameObject> addItemsCallback=null )
 	{			
 		if ( onRightClick== false || (Event.current.isMouse && Event.current.button == 1 && rect.Contains(Event.current.mousePosition) ) )
@@ -875,18 +878,20 @@ public class QuestClickableEditorUtils
 		
 		float oldY = clickable.Baseline+offset.y;
 
-		Vector3 position = new Vector3( -15, clickable.Baseline, 0) + (Vector3)offset;
+		float scale = QuestEditorUtils.GameResScale;
+
+		Vector3 position = new Vector3( -15*scale, clickable.Baseline, 0) + (Vector3)offset;
 
 		Handles.color = Color.cyan;
 		GUI.color = Color.cyan;
 		textStyle.normal.textColor = GUI.color;
 
 		EditorGUI.BeginChangeCheck();
-		position = Handles.FreeMoveHandle( position, Quaternion.identity,4.0f,new Vector3(0,1,0),Handles.DotHandleCap);
+		position = Handles.FreeMoveHandle( position, Quaternion.identity,4.0f*scale,new Vector3(0,1,0),Handles.DotHandleCap);
 
-		Handles.Label(position + new Vector3(5,0,0), "Baseline", textStyle);
+		Handles.Label(position + new Vector3(5*scale,0,0), "Baseline", textStyle);
 		Handles.color = Color.cyan.WithAlpha(0.5f);
-		Handles.DrawLine( position + (Vector3.left * 500), position + (Vector3.right * 500) );
+		Handles.DrawLine( position + (Vector3.left * 500*scale), position + (Vector3.right * 500*scale) );
 
 		if ( EditorGUI.EndChangeCheck() ) 
 		{
@@ -917,6 +922,8 @@ public class QuestClickableEditorUtils
 	{
 		GUIStyle textStyle = new GUIStyle(EditorStyles.boldLabel);
 		
+		float scale = QuestEditorUtils.GameResScale;
+		
 		Transform transform = component.transform;
 		if ( OnSceneGUIBaseline(component, clickable, fixedBaseline? Vector3.zero : transform.position) )
 			UpdateBaseline(transform,clickable,fixedBaseline);
@@ -928,12 +935,12 @@ public class QuestClickableEditorUtils
 			textStyle.normal.textColor = GUI.color;
 					
 			EditorGUI.BeginChangeCheck();
-			position = Handles.FreeMoveHandle( position, Quaternion.identity,2.0f,new Vector3(0,1,0),Handles.DotHandleCap);
-			Handles.Label(position + new Vector3(0,0,0), " Walk To", textStyle);			
+			position = Handles.FreeMoveHandle( position, Quaternion.identity,2f*scale,new Vector3(0,1,0),Handles.DotHandleCap);
+			Handles.Label(position + new Vector3(2.1f*scale,0,0), "Walk To", textStyle);			
 			if ( EditorGUI.EndChangeCheck() ) 
 			{
 				Undo.RecordObject(component,"Changed Walk To Point");									
-				clickable.WalkToPoint = Utils.Snap((Vector2)(position - transform.position),PowerQuestEditor.SnapAmount);
+				clickable.WalkToPoint = Utils.SnapRound((Vector2)(position - transform.position),PowerQuestEditor.SnapAmount);
 			}
 		}
 
@@ -944,12 +951,12 @@ public class QuestClickableEditorUtils
 			textStyle.normal.textColor = GUI.color;
 			
 			EditorGUI.BeginChangeCheck();
-			position = Handles.FreeMoveHandle( position, Quaternion.identity,2.0f,new Vector3(0,1,0),Handles.DotHandleCap);
-			Handles.Label(position + new Vector3(0,0,0), " Look At", textStyle);
+			position = Handles.FreeMoveHandle( position, Quaternion.identity,2.0f*scale,new Vector3(0,1,0),Handles.DotHandleCap);
+			Handles.Label(position + new Vector3(2.1f*scale,0,0), "Look At", textStyle);
 			if ( EditorGUI.EndChangeCheck() ) 
 			{
-				Undo.RecordObject(component,"Changed Look AT Point");									
-				clickable.LookAtPoint = Utils.Snap((Vector2)(position - transform.position),PowerQuestEditor.SnapAmount);
+				Undo.RecordObject(component,"Changed Look At Point");									
+				clickable.LookAtPoint = Utils.SnapRound((Vector2)(position - transform.position),PowerQuestEditor.SnapAmount);
 			}
 			
 		}
@@ -1274,9 +1281,117 @@ public class PowerQuestAssetPostProcessor : AssetPostprocessor
 			*/
 		}
 	}
-
+	
+	void OnPostprocessAudio(AudioClip clip)
+	{
+		// If clip is in music folder, add music label, if in sfx folder, add sfx label. used for searching		
+		
+		if ( assetPath.Contains("SFX") )
+			AssetDatabase.SetLabels(assetImporter,new string[]{"SFX"});
+		else if ( assetPath.Contains("Music") )
+			AssetDatabase.SetLabels(assetImporter,new string[]{"Music"});
+	}
+	
 }
 
+[CustomPropertyDrawer(typeof(Character.CollectedItem))]
+public class CollectedItemDrawer : PropertyDrawer
+{
+
+	public override void OnGUI (Rect rect, SerializedProperty prop, GUIContent label)
+	{
+		SerializedProperty name = prop.FindPropertyRelative("m_name");
+		SerializedProperty num = prop.FindPropertyRelative("m_quantity");
+		
+		// spacer + 2 right aligned elemnts
+		EditorLayouter layout = new EditorLayouter(rect);		
+		layout.Stretched.Space.Fixed(60).Fixed(60);
+		
+		// 1st property
+		EditorGUI.PropertyField(layout,name, new GUIContent(""));		
+		
+		// label
+		EditorGUI.LabelField(layout,"Quantity:");		
+
+		// 2nd property
+		EditorGUI.PropertyField(layout,num, new GUIContent(""));
+
+	}
+}
+
+
+[CustomPropertyDrawer(typeof(AudioCue.LoopSection))]
+public class LoopSectionDrawer : PropertyDrawer
+{
+
+	public override float GetPropertyHeight (SerializedProperty prop, GUIContent label) {
+	
+		SerializedProperty property2 = prop.FindPropertyRelative("m_endTime");
+		float result = base.GetPropertyHeight (prop, label);
+		if ( property2.floatValue > 0)
+			result *= 2;
+		return result;
+	}
+
+
+	public override void OnGUI (Rect rect, SerializedProperty prop, GUIContent label)
+	{
+		SerializedProperty property1 = prop.FindPropertyRelative("m_startTime");
+		SerializedProperty property2 = prop.FindPropertyRelative("m_endTime");
+		SerializedProperty property3 = prop.FindPropertyRelative("m_fadeIn");
+		SerializedProperty property4 = prop.FindPropertyRelative("m_fadeOut");
+		rect.height = base.GetPropertyHeight (prop, label);
+
+		EditorLayouter layout = new EditorLayouter(rect);
+		layout.Fixed(70).Space.Variable(0.5f).Space.Fixed(30).Space.Variable(0.5f);
+
+		// label
+		EditorGUI.LabelField(layout,"Loop From ");
+
+		// 1st property
+		EditorGUI.PropertyField(layout,property1, new GUIContent(""));		
+		
+		// label
+		EditorGUI.LabelField(layout," To ");		
+
+		// 2nd property
+		EditorGUI.PropertyField(layout,property2, new GUIContent(""));
+
+		if ( property2.floatValue > 0 )
+		{
+			rect.y += base.GetPropertyHeight (prop, label);
+			layout = new EditorLayouter(rect);
+			layout.Fixed(110).Space.Variable(0.5f).Space.Fixed(30).Space.Variable(0.5f).Fixed(40);
+		
+		
+			// label
+			EditorGUI.LabelField(layout,"Loop Crossfade In ");
+
+			// 1st property
+			EditorGUI.PropertyField(layout,property3, new GUIContent(""));		
+		
+			// label
+			EditorGUI.LabelField(layout," Out ");		
+
+			// 2nd property
+			EditorGUI.PropertyField(layout,property4, new GUIContent(""));
+			
+			// Test button
+			if ( GUI.Button(layout,"Test") )
+			{
+				AudioCue cue = prop.serializedObject.targetObject as AudioCue;
+				if ( cue != null )
+				{
+					if ( SystemAudio.GetValid() )
+						GameObject.DestroyImmediate( SystemAudio.Get.gameObject );					
+					PowerQuestEditor.GetPowerQuestEditor().CreateTempAudioSystem();									
+					SystemAudio.Play(cue,null,1,1, property2.floatValue-2); // Play from a couple seconds before looping
+				}
+			}
+		}
+
+	}
+}
 
 #endregion
 }

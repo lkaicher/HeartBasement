@@ -32,6 +32,18 @@ public partial class SpriteAnimator : EditorWindow
 		// Our custom data
 		public List<Node> m_nodes = null;
 	}
+	
+	// Public class used in editor callbacks for anim events
+	public class AnimEventData
+	{		
+		// Event Data
+		public string m_functionName = string.Empty;
+		public eAnimEventParameter m_paramType = eAnimEventParameter.None;
+		public int m_paramInt = 0;
+		public float m_paramFloat = 0;
+		public string m_paramString = string.Empty;
+		public Object m_paramObjectReference = null;
+	}
 
 	// Class used internally to store info about an animation event
 	[System.Serializable]
@@ -53,7 +65,19 @@ public partial class SpriteAnimator : EditorWindow
 
 		public AnimFrame m_linkedFrame = null;
 		public float m_linkedRatio = 0; // ratio through linked frame
+
+		public static implicit operator AnimEventData (AnimEvent ev) 
+			=> new AnimEventData()
+			{
+				m_functionName = ev.m_functionName,
+				m_paramType = ev.m_paramType,
+				m_paramInt = ev.m_paramInt,
+				m_paramFloat = ev.m_paramFloat,
+				m_paramString = ev.m_paramString,
+				m_paramObjectReference = ev.m_paramObjectReference			
+			};
 	}
+
 
 	// Class used for laying out events
 	class AnimEventLayoutData 
@@ -66,7 +90,7 @@ public partial class SpriteAnimator : EditorWindow
 		public bool selected;
 	};
 
-	enum eAnimEventParameter
+	public enum eAnimEventParameter
 	{
 		None,
 		Int,
@@ -813,25 +837,41 @@ public partial class SpriteAnimator : EditorWindow
 	#endregion
 	#region Funcs: Update
 
+	public System.Action<AnimEventData> CallbackOnAnimEvent = null;
+
 	void Update()
 	{
 		if ( m_clip != null && m_playing && m_dragState != eDragState.Scrub )
 		{
 			// Update anim time if playing (and not scrubbing)
 			float delta = (float)(EditorApplication.timeSinceStartup - m_editorTimePrev);
-
+			float animTimePrev = m_animTime;
 			m_animTime += delta * m_previewSpeedScale;
 
 			if ( m_animTime >= GetAnimLength() )
 			{
 				if ( m_previewloop )
 				{
+					animTimePrev = -1;
 					m_animTime -= GetAnimLength();
 				}
 				else 
 				{
  					m_playing = false;
 					m_animTime = 0;
+				}
+			}
+
+			// Callback for events
+			if ( focusedWindow == this )
+			{
+				foreach ( AnimEvent ev in m_events )
+				{
+					if ( animTimePrev <= ev.m_time && m_animTime > ev.m_time )
+					{
+						// Play event 
+						CallbackOnAnimEvent?.Invoke(ev);
+					}
 				}
 			}
 

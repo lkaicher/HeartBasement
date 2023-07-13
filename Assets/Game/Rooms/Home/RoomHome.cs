@@ -29,10 +29,12 @@ public class RoomHome : RoomScript<RoomHome>
 	handleType currentHandle = handleType.small;
 	hoseType currentHose = hoseType.small;
 	
+	public int pumpRepairs = 0;
+	
 	// Water level variables
 	// public int waterLevelInt = (int)Globals.gameStage * 40;
 	public int waterLevelInt = 0;
-    /*
+	/*
     public IEnumerator lowerWater()
     {
 				waterLevelInt++;
@@ -61,6 +63,9 @@ public class RoomHome : RoomScript<RoomHome>
 		// Note, you can also just do this at the top of OnEnterRoomAfterFade
 		
 		// Set
+		
+		//Temp
+		LowerWaterShader(40, "CharacterDave");
 		
 		
 		if (Globals.LoadingChapter) {
@@ -389,6 +394,7 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return C.Display(
 				"Congratulations! The water level has decreased. However, it is not enough...", 2);
 		   G.Explanation.Show();
+		   yield return E.WaitSkip();
 			yield return C.Dave.Say(
 				"This is too hard! I think the handle is too short and the diameter of the hose is too small, I need to go back to the hardware store.", 4);
 			yield return C.Dave.FaceDown();
@@ -925,6 +931,7 @@ public class RoomHome : RoomScript<RoomHome>
 	{
 		Prop("Box").Disable();
 		Prop("ElectricPump").Enable();
+		Prop("Hose").Enable();
 		yield return C.Dave.Say(" It's beautiful!");
 		yield return E.WaitSkip();
 		yield return C.Dave.Say("What's this?");
@@ -942,22 +949,67 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnInteractPropElectricPump( IProp prop )
 	{
+		if (Globals.gameStage == gameProgress.SecondFlood){
+		
 		Audio.Play("Motor");
 		yield return UnfloodBasement();
 		Audio.Stop("Motor");
 		Globals.gameStage = gameProgress.UsedElectricPump;
 		  G.Explanation.Show();
+		  yield return C.Dave.Say("Like a charm!");
+		yield return E.FadeOut();
+		yield return C.Display("6 months later...");
+		yield return FloodBasement();
+		yield return E.FadeIn();
+		yield return C.Dave.Say(" Another flood?");
+		yield return E.WaitSkip();
+		yield return C.Dave.Say("Nothing my Pump-o-matic 5000 can't handle!");
 		//LowerWater(4);
+		} else if (Globals.gameStage == gameProgress.UsedElectricPump){
+		  if (pumpRepairs == 2){
+			  Audio.Play("Motor");
+			  yield return UnfloodBasement();
+			  Audio.Stop("Motor");
+			  Globals.gameStage = gameProgress.RepairedPump;
+			  G.Explanation.Show();
+		  } else {
+			  Audio.Play("MotorFailure");
+			  if (pumpRepairs == 0){
+				  yield return C.Dave.Say("Seriously?!");
+				  yield return E.WaitSkip();
+				  yield return C.Dave.Say("It's broken!");
+			  } else if (pumpRepairs == 1){
+				  yield return C.Dave.Say(" Still broken!");
+			  }
+		  }
+		}
 		yield return E.Break;
 	}
 
 	IEnumerator OnUseInvPropElectricPump( IProp prop, IInventory item )
 	{
-
+		if(Globals.gameStage == gameProgress.UsedElectricPump ) {
+		if (item == I.Wrench || item == I.Washer){
+			pumpRepairs++;
+			item.Remove();
+		}
+		}
 		yield return E.Break;
 	}
 
 	IEnumerator OnLookAtPropElectricPump( IProp prop )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnUseInvHotspotBoiler( IHotspot hotspot, IInventory item )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractPropHose( IProp prop )
 	{
 
 		yield return E.Break;

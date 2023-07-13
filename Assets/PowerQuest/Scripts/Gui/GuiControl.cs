@@ -8,6 +8,7 @@ using PowerTools.QuestGui;
 namespace PowerTools.Quest
 {
 
+
 public partial class GuiControl : MonoBehaviour, IQuestClickable, IQuestScriptable, IGuiControl
 {
 
@@ -102,6 +103,12 @@ public partial class GuiControl : MonoBehaviour, IQuestClickable, IQuestScriptab
 		PowerQuest.Get.ProcessGuiEvent(PowerQuest.SCRIPT_FUNCTION_ONKBDEFOCUS, GuiData, this);
 	}
 
+	// Call to have a control handle a keyboard input. Return true if the button was 'used'.
+	public virtual bool HandleKeyboardInput(eGuiNav input)
+	{
+		return false;
+	}
+
 	#endregion
 	#region Funcs: Public
 
@@ -162,7 +169,7 @@ public partial class GuiControl : MonoBehaviour, IQuestClickable, IQuestScriptab
 	{ 
 		get 
 		{
-			return PowerQuest.Get.GetFocusedGuiControl() == this;
+			return PowerQuest.Get.GetFocusedGuiControl() == (IGuiControl)this;
 		}	
 	}
 
@@ -245,6 +252,27 @@ public partial class GuiControl : MonoBehaviour, IQuestClickable, IQuestScriptab
 		}
 	}
 
+	float m_alpha = 1;
+
+	/// Note: setting alpha is unoptimised, since it finds all sprites/texts and applies individually
+	public float Alpha
+	{
+		get { return m_alpha; }
+		set 
+		{
+			m_alpha = value;
+			
+			SpriteRenderer[] sprites = Instance.GetComponentsInChildren<SpriteRenderer>(true);
+			QuestText[] texts = Instance.GetComponentsInChildren<QuestText>(true);
+
+			System.Action FadeSetAlpha = ()=>
+			{		
+				System.Array.ForEach( sprites, sprite => { if ( sprite != null ) sprite.color = sprite.color.WithAlpha( m_alpha ); });
+				System.Array.ForEach( texts, text => { if ( text != null ) text.color = text.color.WithAlpha( m_alpha ); });
+			};
+		}
+	}
+
 	
 	/// Fade the sprite's alpha
 	public Coroutine Fade(float start, float end, float duration, eEaseCurve curve = eEaseCurve.Smooth ) { return PowerQuest.Get.StartCoroutine(CoroutineFade(start, end, duration,curve)); }
@@ -260,12 +288,12 @@ public partial class GuiControl : MonoBehaviour, IQuestClickable, IQuestScriptab
 		QuestText[] texts = Instance.GetComponentsInChildren<QuestText>(true);
 		
 		float time = 0;
-		float alpha = start;
+		m_alpha = start;
 		
 		System.Action FadeSetAlpha = ()=>
 		{		
-			System.Array.ForEach( sprites, sprite => { if ( sprite != null ) sprite.color = sprite.color.WithAlpha( alpha ); });
-			System.Array.ForEach( texts, text => { if ( text != null ) text.color = text.color.WithAlpha( alpha ); });
+			System.Array.ForEach( sprites, sprite => { if ( sprite != null ) sprite.color = sprite.color.WithAlpha( m_alpha ); });
+			System.Array.ForEach( texts, text => { if ( text != null ) text.color = text.color.WithAlpha( m_alpha ); });
 		};
 
 		FadeSetAlpha();
@@ -277,11 +305,11 @@ public partial class GuiControl : MonoBehaviour, IQuestClickable, IQuestScriptab
 			time += Time.deltaTime;
 			float ratio = time/duration;
 			ratio = QuestUtils.Ease(ratio, curve);
-			alpha = Mathf.Lerp(start,end, ratio);
+			m_alpha = Mathf.Lerp(start,end, ratio);
 			FadeSetAlpha();
 		}
 
-		alpha = end;
+		m_alpha = end;
 		FadeSetAlpha();
 
 	}
@@ -355,6 +383,15 @@ public partial class GuiControl : MonoBehaviour, IQuestClickable, IQuestScriptab
 	{
 		//m_scriptName = name;
 		gameObject.name = name;
+	}
+
+	void OnDrawGizmosSelected()
+	{
+		GuiComponent gui = GetComponentInParent<GuiComponent>();
+		if ( gui == null )
+			return;
+
+		
 	}
 
 	#endregion

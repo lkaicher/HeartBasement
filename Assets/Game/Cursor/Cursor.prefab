@@ -56,6 +56,7 @@ MonoBehaviour:
     m_animationOverGui: Idle
     m_animationWait: Wait
     m_inventoryOutlineColor: {r: 1, g: 1, b: 1, a: 0}
+    m_inventoryOutlineOnGui: 1
     m_hideWhenBlocking: 1
   m_inventoryOverrideAnims:
   - Left
@@ -78,7 +79,7 @@ MonoBehaviour:
   m_sprites: []
 --- !u!95 &95000014099380940
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -95,7 +96,7 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
 --- !u!114 &114000010683565836
 MonoBehaviour:
   m_ObjectHideFlags: 0

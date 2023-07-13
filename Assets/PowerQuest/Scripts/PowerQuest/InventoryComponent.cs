@@ -219,7 +219,7 @@ public partial class Inventory : IQuestClickable, IQuestScriptable, IInventory, 
 	public void EditorInitialise( string name )
 	{
 		m_scriptName = name;
-		m_scriptClass = "Inventory"+name;
+		m_scriptClass = PowerQuest.STR_INVENTORY+name;
 		m_description = name;
 		m_animGui = name;
 		m_animCursor = name;

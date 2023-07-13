@@ -57,6 +57,7 @@ public partial class PowerQuestEditor
 		if ( GUILayout.Button("Set it up!") )
 		{
 			m_initialSetupImportInProgress = true;
+			PowerQuestProjectSetupUtil.AddAlwaysIncludedShaders();
 			AssetDatabase.ImportPackage( GAME_TEMPLATE_PATHS[(int)m_gameTemplate], false );
 		}
 		
@@ -128,10 +129,16 @@ public partial class PowerQuestEditor
 			AddSceneToBuildSettings(path);
 		}
 
-		// Load the first scene
+		// Load the first scene- May throw exception, safe to ignore
 		if ( GetPowerQuest().GetRoomPrefabs().Count > 0 )
 		{
-			LoadRoomScene(GetPowerQuest().GetRoomPrefabs()[0]);
+			try 
+			{
+				LoadRoomScene(GetPowerQuest().GetRoomPrefabs()[0]);
+			}
+			catch
+			{
+			}
 		}
 		
 		// NB: This file exists for upgrades, but must be removed
@@ -232,7 +239,7 @@ public partial class PowerQuestEditor
 
 				// Also, gui toolbar curves changed, copy them from the inventory one
 				GuiComponent guiToolbar = m_powerQuest.GetGuiPrefabs().Find(item=>item.GetData().ScriptName == "Toolbar");
-				GuiComponent guiInventory = m_powerQuest.GetGuiPrefabs().Find(item=>item.GetData().ScriptName == "Inventory");
+				GuiComponent guiInventory = m_powerQuest.GetGuiPrefabs().Find(item=>item.GetData().ScriptName == PowerQuest.STR_INVENTORY);
 				if ( guiToolbar != null && guiInventory != null && guiToolbar.GetComponent<GuiDropDownBar>() != null && guiInventory.GetComponent<GuiDropDownBar>() != null)
 				{
 					SerializedObject objToolbar = new SerializedObject(guiToolbar.GetComponent<GuiDropDownBar>());
@@ -353,8 +360,6 @@ public partial class PowerQuestEditor
 					EditorUtility.SetDirty(m_powerQuest.GetCursorPrefab());
 				}
 				
-				// update project settings to set new atlas settings
-				PowerQuestProjectSetupUtil.SetProjectSettings();
 				
 				// Import controls, gui sprites/anims, and prompt gui
 				//AssetDatabase.ImportPackage( "Assets/PowerQuest/Templates/Update-0-15.unitypackage", false );
@@ -423,15 +428,21 @@ public partial class PowerQuestEditor
 					AssetDatabase.ImportPackage( "Assets/PowerQuest/Templates/Update-0-16-1.unitypackage", false );
 				}
 			}
+			
+			if ( oldVersion < Version(0,16,2) )
+			{
+				// Add shaders to required thingy
+				PowerQuestProjectSetupUtil.AddAlwaysIncludedShaders();
+			
+				// Scale vertical resolution to horizontal resolutions supported. (Now regretting setting it as a width instead of aspect dropdown lol)
+				m_powerQuest.EditorSetHorizontalResolution(new MinMaxRange((16f/10f)*m_powerQuest.DefaultVerticalResolution,(16f/9f)*m_powerQuest.DefaultVerticalResolution) );
+			}
 
 			// Remove PowerQuestObsolete after upgrading for all future versions
 			{
 				AssetDatabase.DeleteAsset(@"Assets\PowerQuest\Scripts\PowerQuest\PowerQuestObsolete.cs");
 				//AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);		
 			}
-
-			
-
 
 		}
 		catch ( System.Exception e )
@@ -519,6 +530,9 @@ public class PowerQuestProjectSetupUtil
 		{
 			AddLayers();
 			SetProjectSettings();
+			
+			// This is first time package has loaded, so open the powerquest window
+			EditorWindow.GetWindow<PowerQuestEditor>("PowerQuest");
 		}
 	}
 
@@ -598,6 +612,59 @@ public class PowerQuestProjectSetupUtil
 		}
 	}
 
+	public static void AddAlwaysIncludedShaders()
+	{
+		AddAlwaysIncludedShader("Powerhoof/Pixel Text Shader");
+		AddAlwaysIncludedShader("Powerhoof/Pixel Text Shader AA");
+		AddAlwaysIncludedShader("Powerhoof/Sharp Text Shader");
+		AddAlwaysIncludedShader("Sprites/PowerSprite");
+		AddAlwaysIncludedShader("Sprites/PowerSpriteAdditive");
+		AddAlwaysIncludedShader("Sprites/PowerSpriteOutline");
+		AddAlwaysIncludedShader("Sprites/PowerSpriteAA");
+		AddAlwaysIncludedShader("Unlit/TransparentAntiAliased");
+	}
+				
+	static void AddAlwaysIncludedShader(string shaderName)
+	{
+		var shader = Shader.Find(shaderName);
+		if (shader == null)
+		{
+			Debug.Log($"Unable to find shader {shaderName} while adding to 'Always Included Shader' list. Skipping...");
+			return;
+		}
+ 
+		var graphicsSettingsObj = AssetDatabase.LoadAssetAtPath<UnityEngine.Rendering.GraphicsSettings>("ProjectSettings/GraphicsSettings.asset");
+		if ( graphicsSettingsObj  == null )
+		{
+			Debug.Log("Graphic settings unavailable while adding to 'Always Included Shader' list. Skipping...");
+			return;
+		}
+		var serializedObject = new SerializedObject(graphicsSettingsObj);
+		var arrayProp = serializedObject.FindProperty("m_AlwaysIncludedShaders");
+		bool hasShader = false;
+		for (int i = 0; i < arrayProp.arraySize; ++i)
+		{
+			var arrayElem = arrayProp.GetArrayElementAtIndex(i);
+			if (shader == arrayElem.objectReferenceValue)
+			{
+				hasShader = true;
+				break;
+			}
+		}
+ 
+		if (!hasShader)
+		{
+			int arrayIndex = arrayProp.arraySize;
+			arrayProp.InsertArrayElementAtIndex(arrayIndex);
+			var arrayElem = arrayProp.GetArrayElementAtIndex(arrayIndex);
+			arrayElem.objectReferenceValue = shader;
+ 
+			serializedObject.ApplyModifiedProperties();
+ 
+			AssetDatabase.SaveAssets();
+		}
+	}
+
 	public static void SetProjectSettings()
 	{
 		SerializedObject editorSettings = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath ("ProjectSettings/EditorSettings.asset")[0]);
@@ -608,7 +675,7 @@ public class PowerQuestProjectSetupUtil
 			if ( prop != null )
 			{
 				#if UNITY_2020_3_OR_NEWER
-					prop.intValue = (int)SpritePackerMode.BuildTimeOnlyAtlas;
+					prop.intValue = (int)SpritePackerMode.AlwaysOnAtlas;
 					Debug.Log("PowerQuest setup - Set sprite packer to build time atlas mode"); 
 				#else				
 					prop.intValue = (int)SpritePackerMode.BuildTimeOnly;
@@ -623,7 +690,9 @@ public class PowerQuestProjectSetupUtil
 				prop.intValue = (int)LineEndingsMode.Unix;
 				Debug.Log("PowerQuest setup - Set line endings to unix"); 
 			}
+
 			editorSettings.ApplyModifiedProperties();
+			
 		}
 
 		SerializedObject projectSettings = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath ("ProjectSettings/ProjectSettings.asset")[0]);

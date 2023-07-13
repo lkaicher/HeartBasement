@@ -76,6 +76,7 @@ MonoBehaviour:
     m_useRegionScaling: 1
     m_textOffset: {x: 0, y: 0}
     m_LipSyncEnabled: 0
+    m_antiGlide: 0
     m_footstepSound: 
     m_useSpriteAsHotspot: 0
     m_baseline: 0
@@ -213,7 +214,7 @@ MonoBehaviour:
   m_shaderOverride: {fileID: -6465566751694194690, guid: af93590d30f80449dbed048703d58532, type: 3}
 --- !u!95 &302015314446112285
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -230,7 +231,7 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
 --- !u!114 &5181187352790169040
 MonoBehaviour:
   m_ObjectHideFlags: 0

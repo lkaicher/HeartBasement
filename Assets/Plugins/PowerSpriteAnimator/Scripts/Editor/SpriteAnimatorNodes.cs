@@ -15,6 +15,7 @@ using PowerTools.Anim;
 namespace PowerTools
 {
 
+[DisallowMultipleComponent]
 public partial class SpriteAnimator
 {
 	#region Definitions
@@ -144,7 +145,8 @@ public partial class SpriteAnimator
 			if ( e.clickCount == 2 &&  GetUnusedNodeId() >= 0  )
 			{
 				// Double clicked, add new node at position, with the cached angle from the last set frame
-				AddNode((e.mousePosition - rect.center - m_previewOffset) / m_previewScale );
+				Vector2 pos = (e.mousePosition - rect.center - m_previewOffset) / m_previewScale;				
+				AddNode(new Vector2(Utils.Snap(pos.x,0.5f), Utils.Snap(pos.y,0.5f)) );
 				GUI.FocusControl("none");
 				e.Use();
 			}

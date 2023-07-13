@@ -67,6 +67,7 @@ public class QuestTextEditor : Editor
 		
 		EditorGUILayout.PropertyField(serializedObj.FindProperty("m_outline"));
 		EditorGUILayout.PropertyField(serializedObj.FindProperty("m_shaderOverride"));
+		EditorGUILayout.PropertyField(serializedObj.FindProperty("m_setFiltering"));
 		
 		GUILayout.Space(10);	
 		EditorGUILayout.LabelField("Alignment", EditorStyles.boldLabel);
@@ -86,7 +87,14 @@ public class QuestTextEditor : Editor
 			EditorGUILayout.PropertyField(serializedObj.FindProperty("m_wrapUniformLineWidth"));
 		}
 		EditorGUILayout.PropertyField(serializedObj.FindProperty("m_keepOnScreen"));
-		if ( serializedObj.FindProperty("m_keepOnScreen").boolValue == true || serializedObj.FindProperty("m_wrapUniformLineWidth").boolValue == true)
+		bool keepOnScreen = serializedObj.FindProperty("m_keepOnScreen").boolValue == true;
+
+		if ( keepOnScreen )
+		{
+			EditorGUILayout.PropertyField(serializedObj.FindProperty("m_screenPadding"));
+		}
+
+		if ( keepOnScreen || serializedObj.FindProperty("m_wrapUniformLineWidth").boolValue == true)
 			EditorGUILayout.PropertyField(serializedObj.FindProperty("m_wrapWidthMin"));
 		
 		GUILayout.Space(10);	
@@ -94,7 +102,7 @@ public class QuestTextEditor : Editor
 
 		if ( EditorGUI.EndChangeCheck() )
 		{
-			component.SendMessage("EditorUpdate");
+			component.SendMessage("EditorUpdate",SendMessageOptions.DontRequireReceiver);
 			serializedObj.ApplyModifiedProperties();
 			EditorUtility.SetDirty(meshComponent);
 			EditorUtility.SetDirty(target);

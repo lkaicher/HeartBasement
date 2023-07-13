@@ -68,7 +68,7 @@ public partial class PowerQuest
 	public bool Save(int slot, string description, Texture2D imageOverride = null)
 	{
 		// Check we're not currently saving a game. This could happen if "Save" is called in OnEnter (since that'll be called again when you restore)
-		if ( GetRestoringGame() )
+		if ( m_restoring )
 			return false;
 
 		// Save settings when regular game is saved whynot
@@ -168,6 +168,7 @@ public partial class PowerQuest
 		// Stop all coroutines
 		StopAllCoroutines();
 		GetMenuManager().ResetFade(); // Reset fade, so if faded out when restored the game doesn't start faded out. Note that this means you might want to do another 'FadeOutBG(0)' after this function is called, if you want a slower fadein.
+		//GetMenuManager().FadeOut(0,"RoomChange");
 		m_consumedInteraction = null;
 		m_coroutineMainLoop = null;
 		m_backgroundSequence = null;

@@ -301,6 +301,13 @@ public class QuestPlayFromFunctionAttribute : System.Attribute
 	public QuestPlayFromFunctionAttribute(){}
 }
 
+// Attribute used for adding functions to debug startup fucntions
+[System.AttributeUsage( System.AttributeTargets.Method )]
+public class QuestScriptEditorIgnoreAttribute : System.Attribute
+{
+	public QuestScriptEditorIgnoreAttribute(){}
+}
+
 // Attribute used to mark string fields that should be added to the text system to support localization. Eg: [QuestLocalize, SerializeField] string m_description;
 [AttributeUsage(AttributeTargets.Field)]
 public class QuestLocalizeAttribute : System.Attribute

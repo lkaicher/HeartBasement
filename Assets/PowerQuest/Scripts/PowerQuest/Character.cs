@@ -101,6 +101,7 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 	[SerializeField, Tooltip("Dialog text offset from the top of the sprite, added to the global one set in PowerQuest settings")] Vector2 m_textOffset = Vector2.zero;
 	[SerializeField, Tooltip("To use, talk anims should be frames ABCDEFX in that order from https://github.com/DanielSWolf/rhubarb-lip-sync. Rhubarb must be downloaded to Project/Rhubarb/Rhubarb.exe")] 
 	bool m_LipSyncEnabled = false;
+	[SerializeField] bool m_antiGlide = false;
 
 	[Header("Audio")]
 	[Tooltip("Add Footstep event to animation to trigger the footstep sound")]
@@ -185,6 +186,10 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 	}
 	NonSavedData m_nonSavedData = new NonSavedData();
 	
+	#endregion 
+	#region Partial functions for extending class
+
+	partial void ExOnSpawnInstance();
 
 	#endregion 
 	#region Properties
@@ -222,8 +227,8 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 			if ( oldRoom == m_room && (IsPlayer== false || m_room == currRoom))
 				return;
 
-			m_lastRoom = oldRoom;
-
+			if ( PowerQuest.Get.GetRestoringGame() == false ) // Don't set the m_lastRoom when restoring, it'll already have been restored from the save file
+				m_lastRoom = oldRoom;
 
 			// Add/remove instance of character if it's the current room that effected. 
 			if ( currRoom == oldRoom )
@@ -550,7 +555,7 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 		{
 			bool changed = m_animMouth != value;
 			m_animMouth = value;
-			if ( m_instance != null && changed ) m_instance.OnAnimationChanged( eState.None );
+			if ( m_instance != null && changed ) m_instance.UpdateMouthAnim();
 		}
 	}
 	public string AnimPrefix
@@ -569,6 +574,12 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 	{
 		get{ return m_LipSyncEnabled; }
 		set { m_LipSyncEnabled = value; }
+	}
+
+	public bool AntiGlide
+	{
+		get{ return m_antiGlide; }
+		set { m_antiGlide = value; }
 	}
 
 	public string FootstepSound
@@ -663,9 +674,11 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 		SetInstance(characterInstance.GetComponent<CharacterComponent>());
 		SetPosition(GetPosition());
 		Facing = GetFaceDirection();
+		ExOnSpawnInstance();
 		return characterInstance;
 	}
-	public GameObject GetInstance() { return m_instance?.gameObject??null; }
+	
+	public GameObject GetInstance() { return m_instance != null ? m_instance.gameObject : null; }
 	public void SetInstance(CharacterComponent instance)
 	{ 
 		m_instance = instance; 
@@ -679,7 +692,7 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 		m_position = position; 
 		if ( m_instance != null )
 		{
-			m_instance.transform.position = Utils.Snap(m_position,PowerQuest.Get.SnapAmount);
+			m_instance.transform.position = Utils.SnapRound(m_position,PowerQuest.Get.SnapAmount);
 		}
 		if ( face != eFace.None )
 			Facing = face;
@@ -843,12 +856,12 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 		// creates defaults
 		m_description = name;
 		m_scriptName = name;
-		m_scriptClass = "Character"+name;	
+		m_scriptClass = PowerQuest.STR_CHARACTER+name;	
 	}
 	public void EditorRename(string name)
 	{
 		m_scriptName = name;
-		m_scriptClass = "Character"+name;	
+		m_scriptClass = PowerQuest.STR_CHARACTER+name;	
 	}
 	public string EditorGetRoom() { return m_room; }
 	public void EditorSetRoom(string roomName) { m_room = roomName; }
@@ -941,10 +954,11 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 				FaceBG(thenFace);
 		}
 		else 
-		{
+		{			
 			SetPosition(pos);
 			if ( m_faceAfterWalk != eFace.None ) // Face after walk manually
 				Facing = m_faceAfterWalk;
+			StopWalking();
 		}	
 
 	}
@@ -1025,13 +1039,12 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 	}
 
 	// Stops walking on the spot
-	public Coroutine StopWalking() 
+	public void StopWalking() 
 	{ 
 		m_faceAfterWalk = eFace.None; 
 		m_waypoints.Clear();
 		if ( m_instance!= null ) 
-			m_instance.StopWalk(); 
-		return null; 
+			m_instance.StopWalk();
 	}	
 	
 	public void AddWaypoint(float x, float y, eFace thenFace = eFace.None ) { AddWaypoint(new Vector2(x,y),thenFace); }
@@ -1104,15 +1117,7 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 			return null;
 		}
 
-		// Check for animation- if so, snap direction immediately
-		if ( m_instance.StartTurnAnimation(oldFacingVerticalFallback))
-		{
-			m_faceDirection = direction; // set this to snap to target
-			if ( m_instance != null ) 
-				m_instance.UpdateFacingVisuals(direction); 			
-		}
-
-		return PowerQuest.Get.StartQuestCoroutine(CoroutineFace(direction)); 
+		return PowerQuest.Get.StartQuestCoroutine(CoroutineFace(direction, oldFacingVerticalFallback)); 
 	}
 
 	public Coroutine FaceDown(bool instant = false) { return Face(eFace.Down, instant); }
@@ -1289,13 +1294,18 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 
 	
 
-	public Coroutine WaitForTransition(bool skippable = true) { return PowerQuest.Get.StartCoroutine(CoroutineWaitForTransition(skippable)); }
+	public Coroutine WaitForTransition(bool skippable = false) { return PowerQuest.Get.StartCoroutine(CoroutineWaitForTransition(skippable)); }
 	public IEnumerator CoroutineWaitForTransition(bool skippable)
 	{
 		if ( m_instance != null )
 		{
-			yield return PowerQuest.Get.WaitWhile( m_instance.GetPlayingTransition, skippable );
-			SkipTransition();
+			yield return PowerQuest.Get.WaitWhile(
+				()=> m_instance != null && m_instance.GetPlayingTransition(), skippable ); // have to check for null incase instance is removed while waiting for idle
+			if ( skippable )
+			{
+				SkipTransition();
+				yield return null; // Wait a frame so we don't also skip any transition on the next frame
+			}
 		}
 		yield break;
 	}
@@ -1303,32 +1313,41 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 	public bool Idle { get
 	{
 		return Animating == false
-		    && Walking == false
+			&& Walking == false
 			&& Talking == false
 			&& (m_instance == null || m_instance.GetPlayingTransition() == false)
 			&& m_targetFaceDirection == m_faceDirection;
 	} }
 	
 	/// Waits until a character is idle. ie: Not Walking,Talking,Animating,Turning, or Transitioning
-	public Coroutine WaitForIdle(bool skippable = true) { return PowerQuest.Get.StartCoroutine(CoroutineWaitForIdle(skippable)); }
+	public Coroutine WaitForIdle(bool skippable = false) { return PowerQuest.Get.StartCoroutine(CoroutineWaitForIdle(skippable)); }
 	public IEnumerator CoroutineWaitForIdle(bool skippable)
-	{
+	{		
+		yield return null; // Wait an extra frame (doesn't seem to work otherwise)
+
+		bool skipped = false;
 		bool first = true; // first frame the mouse will always be down, so don't skip until 2nd
-		while ( Idle == false
-			    && PowerQuest.Get.GetSkippingCutscene() == false
-			    && ( skippable == false || PowerQuest.Get.HandleSkipDialogKeyPressed() == false || first ) )
+		while ( Idle == false && PowerQuest.Get.GetSkippingCutscene() == false )
 		{
+			if ( skippable )
+				skipped = PowerQuest.Get.HandleSkipDialogKeyPressed();
+			if ( skipped && first == false )
+				break;
+
 			first = false;
 			yield return null;
 		}	
-
-		// Incase skipped, clear
-		if (m_instance != null )
-			m_instance.SkipWalk();
-		CancelSay();
-		StopAnimation();			
-		Facing = m_targetFaceDirection;
-		SkipTransition();
+		if ( skipped || PowerQuest.Get.GetSkippingCutscene() )
+		{
+			// Incase skipped, clear
+			if (m_instance != null )
+				m_instance.SkipWalk();
+			CancelSay();
+			StopAnimation();			
+			Facing = m_targetFaceDirection;
+			SkipTransition();
+			yield return null; // Wait a frame so we don't also skip any transition on the next frame
+		}
 
 		yield break;	
 	}
@@ -1509,8 +1528,20 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 			m_instance.StopAnimation();		
 	}
 
-	IEnumerator CoroutineFace(eFace direction)
+	IEnumerator CoroutineFace(eFace direction, eFace oldFacingVerticalFallback)
 	{
+		// Finish any transition animation
+		if ( m_instance.GetPlayingTransition() )
+			yield return WaitForTransition(false);
+
+		// Check for animation- if so, snap direction immediately
+		if ( m_instance.StartTurnAnimation(oldFacingVerticalFallback))
+		{
+			m_faceDirection = direction; // set this to snap to target
+			if ( m_instance != null ) 
+				m_instance.UpdateFacingVisuals(direction); 			
+		}
+
 		if ( PowerQuest.Get.GetSkippingCutscene() )
 		{			
 			m_targetFaceDirection = direction;

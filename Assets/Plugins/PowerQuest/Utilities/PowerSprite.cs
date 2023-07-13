@@ -28,11 +28,13 @@ public class PowerSprite : MonoBehaviour
 	#endregion
 	#region vars: Private
 
+	SpriteRenderer m_renderer = null;
 	static Shader s_shader = null;
 	static Shader s_shaderOutline = null;
 	Material m_materialCached = null;
 	bool m_outlineEnabled = false;	
 	SpriteAnimNodes m_nodes = null;
+	MaterialPropertyBlock m_block = null;
 
 	#endregion
 	#region Funcs: Public
@@ -79,33 +81,36 @@ public class PowerSprite : MonoBehaviour
 		}
 	}
 
+	SpriteRenderer Renderer {get
+	{
+		if ( m_renderer == null )
+			m_renderer = GetComponent<SpriteRenderer>();
+		return m_renderer;
+	} }
+
 
 	public void AlignLeft()
 	{
 		CheckMaterial();
-		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
-		m_offset.x = renderer.sprite.bounds.size.x*0.5f;
+		m_offset.x = Renderer.sprite.bounds.size.x*0.5f;
 		UpdateOffset();
 	}
 	public void AlignRight()
 	{
 		CheckMaterial();
-		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
-		m_offset.x = -renderer.sprite.bounds.size.x*0.5f;
+		m_offset.x = -Renderer.sprite.bounds.size.x*0.5f;
 		UpdateOffset();
 	}
 	public void AlignTop()
 	{
 		CheckMaterial();
-		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
-		m_offset.y = -renderer.sprite.bounds.size.y*0.5f;
+		m_offset.y = -Renderer.sprite.bounds.size.y*0.5f;
 		UpdateOffset();
 	}
 	public void AlignBottom()
 	{
 		CheckMaterial();
-		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
-		m_offset.y = renderer.sprite.bounds.size.y*0.5f;
+		m_offset.y = Renderer.sprite.bounds.size.y*0.5f;
 
 		UpdateOffset();
 	}
@@ -113,16 +118,13 @@ public class PowerSprite : MonoBehaviour
 	public void AlignCenter()
 	{
 		CheckMaterial();
-		//SpriteRenderer renderer = GetComponent<SpriteRenderer>();
 		m_offset.x = 0;
-
 		UpdateOffset();
 	}
 
 	public void AlignMiddle()
 	{
 		CheckMaterial();
-		//SpriteRenderer renderer = GetComponent<SpriteRenderer>();
 		m_offset.y = 0;
 		UpdateOffset();
 	}
@@ -131,9 +133,8 @@ public class PowerSprite : MonoBehaviour
 	public void Snap()
 	{
 		CheckMaterial();
-		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
-		if ( renderer.sprite != null )
-			m_offset = Snap(m_offset,1.0f/renderer.sprite.pixelsPerUnit);
+		if ( Renderer.sprite != null )
+			m_offset = Snap(m_offset,1.0f/Renderer.sprite.pixelsPerUnit);
 		UpdateOffset();
 	}
 
@@ -201,9 +202,7 @@ public class PowerSprite : MonoBehaviour
 	// Use this for initialization
 	void Start() 
 	{
-		UpdateTint();
-		UpdateOutline();
-		UpdateOffset();
+		UpdateAll();
 	}
 
 	bool CheckMaterial(bool onValidate = false)
@@ -224,22 +223,21 @@ public class PowerSprite : MonoBehaviour
 			return true;
 
 		Shader shader = m_shaderOverride != null ? m_shaderOverride : shouldApplyOutline ? s_shaderOutline : s_shader;
-
-		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
-		if ( renderer != null && shader != null)
+				
+		if ( Renderer != null && shader != null)
 		{			
 			if ( Application.isPlaying == false || (Application.isEditor && onValidate))
-				m_materialCached = renderer.sharedMaterial;
+				m_materialCached = Renderer.sharedMaterial;
 			else 
-				m_materialCached = renderer.material;
+				m_materialCached = Renderer.material;
 			
 			if ( m_materialCached == null || m_materialCached.shader != shader )
 			{
 				m_materialCached = new Material(shader);
 				if ( Application.isPlaying == false )
-					renderer.sharedMaterial = m_materialCached;
+					Renderer.sharedMaterial = m_materialCached;
 				else 
-					renderer.material = m_materialCached;
+					Renderer.material = m_materialCached;
 			}
 			
 		}
@@ -249,28 +247,66 @@ public class PowerSprite : MonoBehaviour
 		return m_materialCached != null;
 	}
 
+
+	void UpdateAll()
+	{
+		CheckMaterial(false);
+
+		var block = StartPropertyBlock();
+		block.SetColor(STR_SPROP_TINT, m_tint);
+		block.SetColor(STR_SPROP_OUTLINE, m_outline);
+		block.SetVector(STR_SPROP_OFFSET, m_offset);
+		EndPropertyBlock();
+	}
+
 	void UpdateTint()
 	{
+		StartPropertyBlock().SetColor(STR_SPROP_TINT, m_tint);
+		EndPropertyBlock();
+		/*
 		if ( CheckMaterial() == false )
-			return;
+			return;		
 		m_materialCached.SetColor(STR_SPROP_TINT, m_tint);	
+		*/
 	}
 
 	void UpdateOutline()
 	{
+		// Check material for outline since it might need to change the shader
+		if ( CheckMaterial() == false )
+			return;
+		StartPropertyBlock().SetColor(STR_SPROP_OUTLINE, m_outline);
+		EndPropertyBlock();
+		/*
 		if ( CheckMaterial() == false )
 			return;
 		m_materialCached.SetColor(STR_SPROP_OUTLINE, m_outline);	
+		*/
 	}
 
 	void UpdateOffset()
 	{
+		StartPropertyBlock().SetVector(STR_SPROP_OFFSET, m_offset);
+		EndPropertyBlock();
+				/*
 		if ( CheckMaterial() == false )
 			return;
 		m_materialCached.SetVector(STR_SPROP_OFFSET, m_offset);	
+		*/
 
+		
 	}
 
+	MaterialPropertyBlock StartPropertyBlock() 
+	{ 
+		if ( m_block == null )
+			m_block = new MaterialPropertyBlock();
+		Renderer.GetPropertyBlock(m_block); 
+		return m_block; 
+	}
+	void EndPropertyBlock() { Renderer.SetPropertyBlock(m_block); }
+
+	
 	#endregion
 	#region Util methods
 

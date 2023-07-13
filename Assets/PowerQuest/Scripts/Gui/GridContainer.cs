@@ -291,7 +291,9 @@ public class GridContainer : MonoBehaviour
 		set	{ ScrollOffset = ScrollOffset.WithX(value * m_itemSpacing.x); }
 	}
 
+
 	public void ForceUpdate() { DoLayout(); }
+
 
 	//////////////////////////////////////////////////////////////////////////////////////////
 	// Unity functions

@@ -70,6 +70,8 @@ public partial class Region : IRegion, IQuestScriptable
 	public float ScaleTop { get{ return m_scaleTop;}  set{ m_scaleTop = value; }  }
 	public float ScaleBottom { get{ return m_scaleBottom;} set{ m_scaleBottom = value;}  }
 
+	public bool ContainsCharacter(ICharacter character = null) { return GetCharacterOnRegion(character); }
+
 	public bool GetCharacterOnRegion(ICharacter character = null)
 	{ 
 		if ( m_instance == null || m_characterOnRegionMask == null ) 
@@ -91,6 +93,14 @@ public partial class Region : IRegion, IQuestScriptable
 			return m_characterOnRegionMask.Get( id );
 		}
 		return false;
+	}
+	
+	public bool ContainsPoint(Vector2 position)
+	{ 
+		if ( m_instance == null || m_instance.GetPolygonCollider() == null ) 
+			return false;
+
+		return m_instance.GetPolygonCollider().OverlapPoint(position);
 	}
 
 
@@ -127,7 +137,7 @@ public partial class Region : IRegion, IQuestScriptable
 
 	// Doesn't use all functions
 	public string GetScriptName() { return m_scriptName; }
-	public string GetScriptClassName() { return "Region"+m_scriptName; }
+	public string GetScriptClassName() { return PowerQuest.STR_REGION+m_scriptName; }
 	public void HotLoadScript(System.Reflection.Assembly assembly) { /*No-op*/ }
 	
 	#endregion

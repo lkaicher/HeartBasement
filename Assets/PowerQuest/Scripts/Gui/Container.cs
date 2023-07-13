@@ -61,5 +61,70 @@ public partial class Container : GuiControl, IContainer
         }
         return base.GetRect(exclude);
 	}
+	
+	public bool GetIsControlInGrid(IGuiControl control)
+	{
+		// This stuff could be in the container itself (eg. add GetItemUp/GetItemDown/GetItemLeft/GetItemRight)
+		if ( Grid == null || Grid.Items == null || Grid.Items.Count == 0 || control == null || control.Instance == null )
+			return false;	
+		return Grid.Items.Exists(item=>item == control.Instance.transform);	
+	}
+
+	public IGuiControl GetNextControlUp(IGuiControl current) => GetNextControl(current, Quest.eGuiNav.Up);
+	public IGuiControl GetNextControlDown(IGuiControl current) => GetNextControl(current, Quest.eGuiNav.Down);
+	public IGuiControl GetNextControlLeft(IGuiControl current) => GetNextControl(current, Quest.eGuiNav.Left);
+	public IGuiControl GetNextControlRight(IGuiControl current) => GetNextControl(current, Quest.eGuiNav.Right);
+
+	// Returns next control in direction, or null if none found
+	public IGuiControl GetNextControl(IGuiControl current, Quest.eGuiNav dir)
+	{
+		// This stuff could be in the container itself (eg. add GetItemUp/GetItemDown/GetItemLeft/GetItemRight)
+		if ( Grid == null || Grid.Items == null || Grid.Items.Count == 0 )
+			return null;
+			
+		int index = 0;
+		if ( current != null && current.Instance != null ) // Find current item
+			index = Grid.Items.FindIndex(item=>item == current.Instance.transform);
+			
+
+		IGuiControl result = null;
+		while ( result == null )
+		{
+			// Keep trying
+			if ( dir == eGuiNav.Right )
+			{
+				index++;
+				if ( index % Grid.ColumnsPerRow == 0 || index >= Grid.Items.Count )
+					return null; // reached end of row
+			}
+			else if ( dir == eGuiNav.Left )
+			{
+				if ( index % Grid.ColumnsPerRow == 0 || index <= 0 )
+					return null; // reach start of row
+				index--;
+			}
+			else if ( dir == eGuiNav.Up)
+			{
+				if ( index / Grid.ColumnsPerRow <= 0 )
+					return null; // reached first row
+				index -= Grid.ColumnsPerRow;
+			}
+			else if ( dir == eGuiNav.Down )
+			{
+				index += Grid.ColumnsPerRow;
+				if ( index >= Grid.Items.Count )
+				{
+					return null; // reached last row
+					// Potentially in this case we'd want to jump to the final clickable item, rather than just not scrolling down.
+				}
+			}
+			
+			result = Grid.Items[index].GetComponent<IGuiControl>();		
+			if ( result == null || (result as IQuestClickable).Clickable == false )
+				result = null; // result not clickable, so we'll continue looping
+		}
+		return result;
+	}
 }
+
 }

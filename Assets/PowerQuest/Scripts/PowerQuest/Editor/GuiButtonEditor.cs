@@ -288,8 +288,8 @@ public class ControlEditorBase : Editor
 		{
 			bounds.Center = bounds.Center - pos;
 
-			bounds.MinX =  (bounds.MinX / childTransform.lossyScale.x);
-			bounds.MaxX =  (bounds.MaxX / childTransform.lossyScale.x);
+			bounds.MinX = (bounds.MinX / childTransform.lossyScale.x);
+			bounds.MaxX = (bounds.MaxX / childTransform.lossyScale.x);
 			bounds.MinY = (bounds.MinY / childTransform.lossyScale.y);
 			bounds.MaxY = (bounds.MaxY / childTransform.lossyScale.y);
 		}

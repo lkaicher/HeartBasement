@@ -133,7 +133,7 @@ public partial class QuestScriptEditor
 
 		new Regex( @"^\s*(?:C\.\w+|Plr)\.(?:(?:AnimIdle|AnimTalk|AnimWalk|Pose|NextPose|Animation)\s*=\s*|PlayAnimation(?:BG)?\(\s*)(""?\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), // eg: C.Fred.AnimIdle = " // eg: C.Fred.PlayAnimation("
 		new Regex( @"^\s*P\.\w+\.(?:Animation\s*=\s*|PlayAnimation(?:BG)?\(\s*)(""?\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), // eg: P.Door.Animation = " // eg: P.Door.PlayAnimation("
-		new Regex( @"^\s*Audio\.Play\w*\(\s*(""?\w*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), // eg: Audio.Play("
+		new Regex( @"^\s*Audio\.(?:Play|Stop|IsPlaying)\w*\(\s*(""?.*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase ), // eg: Audio.Play("
 	};
 	
 	// Context's that should list functions in their class, rather than a custom list (like the names of characters)
@@ -688,8 +688,8 @@ public partial class QuestScriptEditor
 					char classType = match.Groups[1].Value[0];
 					string className = match.Groups[2].Value;
 					if ( classType == 'R' ) className = "Room"+className;
-					if ( classType == 'C' ) className = "Character"+className;
-					if ( classType == 'I' ) className = "Inventory"+className;
+					if ( classType == 'C' ) className = PowerQuest.STR_CHARACTER+className;
+					if ( classType == 'I' ) className = PowerQuest.STR_INVENTORY+className;
 					if ( classType == 'G' ) className = "Gui"+className;
 					if ( classType == 'D' ) className = "Dialog"+className;
 
@@ -718,7 +718,10 @@ public partial class QuestScriptEditor
 			{
 				// Add animation names dynamically
 				string input = m_text.Substring(expressionStart, ((index-expressionStart)-m_acRemaining.Length));
-				Match match = Regex.Match(input, @"^\s*(?:C\.)?(\w+)\."); // TODO: make this work for Plr. and C.Plr as well.
+
+				Match match = Regex.Match(input, @"^\s*(?:C\.)?(\w+)\.");
+				//if ( match.Success == false )
+				//	match = Regex.Match(input, @"^\s*(\w*)::"); // Trying to match 'Dave::' but wasn't working
 				if ( match.Success )
 				{
 					List<string> contextList = m_acLists[(int)m_acContext];
@@ -741,14 +744,19 @@ public partial class QuestScriptEditor
 							lastC = anim[sublen];
 							if ( lastC=='U' || lastC=='D' )
 								sublen--;
+							bool foundNonDirectional = false;
 							if ( sublen != anim.Length-1 )	
 							{
 								anim = anim.Substring(0,sublen+1);
 								if ( contextList.Contains(anim) == false )
+								{
 									contextList.Add($"\"{anim}\""); 
+									foundNonDirectional = true;
+								}
 							}
-							// Add the directional name
-							contextList.Add($"\"{item.name}\""); 
+							// Add the directional name if no non-directional found
+							if ( foundNonDirectional == false )
+								contextList.Add($"\"{item.name}\""); 
 						}
 					} );
 					

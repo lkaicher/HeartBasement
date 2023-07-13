@@ -307,6 +307,8 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 	};
 	
 	static readonly System.Type TYPE_COMPILERGENERATED = typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute);
+	static readonly System.Type TYPE_SCRIPTIGNOREATTRIB = typeof(QuestScriptEditorIgnoreAttribute);
+
 	
 	[System.Serializable]
 	public class Colors
@@ -435,7 +437,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 
 	enum eTabEvent { None, Tab, Backspace, Delete, Indent, Outdent, Left, Right };
 
-	static readonly string[] FUNCTION_SORT_ORDER = { "OnGameStart","OnEnterRoom", "OnEnterRoomAfterFade", "OnExitRoom", "UpdateBlocking", "Update", "UpdateNoPause","UpdateInput","OnMouseClick","OnAnyClick", "OnWalkTo", "OnPostRestore" };
+	static readonly string[] FUNCTION_SORT_ORDER = { "OnGameStart","OnEnterRoom", "OnEnterRoomAfterFade", "OnExitRoom", "UpdateBlocking", "Update", "UpdateNoPause","UpdateInput","OnMouseClick","OnAnyClick", "AfterAnyClick", "OnWalkTo", "OnPostRestore" };
 
 	#endregion
 	#region Variables: Serialized
@@ -692,9 +694,9 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 		}
 		if ( type == eType.Room )
 		{
-			if ( functionName.Contains("Hotspot") )	type = eType.Hotspot;
-			if ( functionName.Contains("Prop") ) 	type = eType.Prop;
-			if ( functionName.Contains("Region") ) 	type = eType.Region;				
+			if ( functionName.Contains(PowerQuest.STR_HOTSPOT) ) type = eType.Hotspot;
+			if ( functionName.Contains(PowerQuest.STR_PROP) )    type = eType.Prop;
+			if ( functionName.Contains(PowerQuest.STR_REGION) )  type = eType.Region;				
 		}
 
 		// FIND PARAMETERS
@@ -1638,13 +1640,15 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 		if ( assembly == null )
 			assembly = typeof(PowerQuest).Assembly;
 		System.Type t = System.Type.GetType(string.Format("{0}, {1}", fileName,  assembly.FullName ) );
+		
 		if ( t != null )
 		{
 			MethodInfo[] methods = t.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
 			foreach ( MethodInfo method in methods )
 			{
 				//if ( System.Attribute.IsDefined(method, TYPE_COMPILERGENERATED) == false )
-				if ( method.IsSpecialName == false && method.Name[0] != '<') // <- maybe this is cheaper and does the same thing? comp-generated classes are named like "<CallingClass>_d__02"				
+				// checking for '<' is cheaper and does the same thing. comp-generated classes are named like "<CallingClass>_d__02"				
+				if ( method.IsSpecialName == false && method.Name[0] != '<' && System.Attribute.IsDefined(method, TYPE_SCRIPTIGNOREATTRIB) == false ) 
 					m_functionNames.Add(method.Name);
 			}
 		}
@@ -1653,6 +1657,9 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			// NB: This doesn't matter- Just means there's no thing yet
 			// Debug.LogWarning("Couldn't find class "+fileName);
 		}
+
+		// Sort function names
+		m_functionNames.Sort();
 		
 		// Room script function sorting
 		//if ( m_scriptType == eType.Room )
@@ -1672,7 +1679,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 					seperate=true;
 				}
 			}
-			if (seperate)			
+			if (seperate)	
 			{
 				m_functionNames.Insert(index++,null);
 				seperate = false;
@@ -1707,7 +1714,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			// Now remaining functions in order			
 			for (int i = index; i < m_functionNames.Count; ++i )
 			{
-				int oldIndex = m_functionNames.FindIndex(index,(item)=>item.Contains("Hotspot"));
+				int oldIndex = m_functionNames.FindIndex(index,(item)=>item.Contains(PowerQuest.STR_HOTSPOT));
 				if ( oldIndex > 0 )
 				{
 					m_functionNames.Swap(index,oldIndex);				
@@ -1723,7 +1730,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 
 			for (int i = index; i < m_functionNames.Count; ++i )
 			{
-				int oldIndex = m_functionNames.FindIndex(index,(item)=>item.Contains("Prop"));
+				int oldIndex = m_functionNames.FindIndex(index,(item)=>item.Contains(PowerQuest.STR_PROP));
 				if ( oldIndex > 0 )
 				{
 					m_functionNames.Swap(index,oldIndex);				
@@ -1739,7 +1746,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 
 			for (int i = index; i < m_functionNames.Count; ++i )
 			{
-				int oldIndex = m_functionNames.FindIndex(index,(item)=>item.Contains("Region"));
+				int oldIndex = m_functionNames.FindIndex(index,(item)=>item.Contains(PowerQuest.STR_REGION));
 				if ( oldIndex > 0 )
 				{
 					m_functionNames.Swap(index,oldIndex);				
@@ -1754,7 +1761,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 			}
 			for (int i = index; i < m_functionNames.Count; ++i )
 			{
-				int oldIndex = m_functionNames.FindIndex(index,(item)=>item.Contains("Character"));
+				int oldIndex = m_functionNames.FindIndex(index,(item)=>item.Contains(PowerQuest.STR_CHARACTER));
 				if ( oldIndex > 0 )
 				{
 					m_functionNames.Swap(index,oldIndex);				
@@ -1780,7 +1787,19 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 		m_functionNamesNice.Clear();
 		for ( int i =0; i< m_functionNames.Count;++i)
 		{
-			m_functionNamesNice.Add(ObjectNames.NicifyVariableName(m_functionNames[i]).Replace("Hotspot","-").Replace("Prop","-"));
+			string name = m_functionNames[i];
+			string niceName = ObjectNames.NicifyVariableName(name).Replace(PowerQuest.STR_HOTSPOT,"-").Replace(PowerQuest.STR_PROP,"-");
+			
+			if ( name != null && m_functionNames.Count > 40 )
+			{
+				// If too many functions to fit, add to dropdown list
+				if ( name.Contains(PowerQuest.STR_HOTSPOT) )
+					niceName = "Hotspots/"+niceName;
+				if ( name.Contains(PowerQuest.STR_PROP) )
+					niceName = "Props/"+niceName;
+			}
+
+			m_functionNamesNice.Add(niceName);
 		}		
 
 		// update the last time functions were read- but not if we're still compiling it- this doesn't work.  really want "sourceCompiledTime" 

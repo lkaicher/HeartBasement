@@ -22,6 +22,8 @@ public partial class PowerQuestEditor
 	
 	enum eMainTab { All, Rooms, Chars, Items, Dialogs, Guis, Count }
 
+	string m_searchString = string.Empty;
+
 	#endregion
 	#region Variables: Serialized
 
@@ -46,6 +48,7 @@ public partial class PowerQuestEditor
 		//
 		// Create reorderable lists
 		//
+			
 
 		Assert.IsTrue(m_gamePath.EndsWith("/"), "GamePath MUST end with '/', all code here expects it");
 
@@ -70,19 +73,19 @@ public partial class PowerQuestEditor
 				window.SetPath( m_gamePath + "Characters" );
 				window.ShowUtility();
 			},
-			list => DeleteQuestObject(list.index, "Character", m_listCharacterPrefabs)
+			list => DeleteQuestObject(list.index, PowerQuest.STR_CHARACTER, m_listCharacterPrefabs)
 		);
 
-		m_listInventory = FilterAndCreateReorderable("Inventory",
+		m_listInventory = FilterAndCreateReorderable(PowerQuest.STR_INVENTORY,
 			m_powerQuest.GetInventoryPrefabs(), ref m_listInventoryPrefabs, m_filterInventory,
 			LayoutInventoryGUI,
 			SelectGameObjectFromList,
 			list => {
 				CreateInstance<CreateQuestObjectWindow>().ShowQuestWindow(
-					eQuestObjectType.Inventory, "Inventory", "'Crowbar' or 'RubberChicken'", CreateInventory,
-					m_gamePath + "Inventory");
+					eQuestObjectType.Inventory, PowerQuest.STR_INVENTORY, "'Crowbar' or 'RubberChicken'", CreateInventory,
+					m_gamePath + PowerQuest.STR_INVENTORY);
 			},
-			list => { DeleteQuestObject(list.index, "Inventory", m_listInventoryPrefabs); }
+			list => { DeleteQuestObject(list.index, PowerQuest.STR_INVENTORY, m_listInventoryPrefabs); }
 		);
 
 		m_listDialogTrees = FilterAndCreateReorderable("Dialog Trees",
@@ -117,6 +120,32 @@ public partial class PowerQuestEditor
 	void OnGuiMain()
 	{
 		m_selectedMainTab = LayoutMainTabs(m_selectedMainTab);
+
+		//EditorGUIUtility.LookLikeInspector();
+		GUILayout.BeginHorizontal(GUI.skin.FindStyle("Toolbar"));
+		
+		string newSearchString = GUILayout.TextField(m_searchString, GUI.skin.FindStyle("ToolbarSeachTextField"));
+		if (GUILayout.Button("", GUI.skin.FindStyle("ToolbarSeachCancelButton")))
+		{
+			// Remove focus if cleared
+			newSearchString = "";
+			GUI.FocusControl(null);
+		}
+		Event ev = Event.current;
+		if (  ev.keyCode == KeyCode.Escape && IsString.Valid(m_searchString) )
+		{
+			// Remove focus on esc too
+			newSearchString = "";
+			GUI.FocusControl(null);
+			Repaint();
+			//ev.Use(); // kinda hacky- we're checking for 'escape' pressed during the 'layout' event so can't use the event like we really should
+		} 
+		GUILayout.EndHorizontal();
+		if ( newSearchString != m_searchString )
+		{
+			m_searchString = newSearchString;
+			CreateMainGuiLists();
+		}
 
 		m_scrollPosition = EditorGUILayout.BeginScrollView(m_scrollPosition);
 
@@ -322,8 +351,11 @@ public partial class PowerQuestEditor
 					menu.AddItem(path+"Update (Blocking)",true, () => QuestScriptEditor.Open( component, QuestScriptEditor.eType.Room, "UpdateBlocking") );
 					menu.AddItem(path+"Update",true, () => QuestScriptEditor.Open( component, QuestScriptEditor.eType.Room, "Update","", false) );
 					menu.AddItem(path+"On Any Click",true, () => QuestScriptEditor.Open( component, QuestScriptEditor.eType.Room, "OnAnyClick") );
+					menu.AddItem(path+"After Any Click",true, () => QuestScriptEditor.Open( component, QuestScriptEditor.eType.Room, "AfterAnyClick") );
 					menu.AddItem(path+"On Walk To",true, () => QuestScriptEditor.Open( component, QuestScriptEditor.eType.Room, "OnWalkTo") );
-					menu.AddItem(path+"Post-Restore Game",true, () => QuestScriptEditor.Open( component, QuestScriptEditor.eType.Room, "OnPostRestore", " int version ", false) );					
+					menu.AddItem(path+"Post-Restore Game",true, () => QuestScriptEditor.Open( component, QuestScriptEditor.eType.Room, "OnPostRestore", " int version ", false) );
+					menu.AddItem(path+"Unhandled Interact",true, () => QuestScriptEditor.Open( component, QuestScriptEditor.eType.Room, "UnhandledInteract", " IQuestClickable mouseOver ", true) );
+					menu.AddItem(path+"Unhandled Use Inv",true, () => QuestScriptEditor.Open( component, QuestScriptEditor.eType.Room, "UnhandledUseInv", " IQuestClickable mouseOver, IInventory item ", true) );
 				});
 
 				float totalFixedWidth = 60+50+22;
