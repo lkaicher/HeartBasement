@@ -730,8 +730,6 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnInteractHotspotBleach( IHotspot hotspot )
 	{
-		
-		
 		yield return E.Break;
 	}
 

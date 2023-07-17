@@ -288,7 +288,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	public IEnumerator UnhandledInteract(IQuestClickable mouseOver)
 	{		
 		// This function is called when the player interacts with something that doesn't have a response
-		
+		/*
 		if ( R.Current.ScriptName == "Title")
 			yield break;
 		
@@ -300,6 +300,11 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 			yield return C.Display("That doesn't work", 21);
 		else if ( option == 2 )
 			yield return E.Display("Nothing happened", 22);
+			*/
+			
+			// We just want nothing to happen
+			
+			yield break; 
 		
 	}
 
