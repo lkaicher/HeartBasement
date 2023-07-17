@@ -65,6 +65,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 60c28e0742b68654aa298c13f96334ac, type: 3}
   - {fileID: 21300000, guid: eb62ba372c96458488929258a04abb7b, type: 3}
   - {fileID: 21300000, guid: 0c433d284cc34d943897631e3ec27099, type: 3}
+  - {fileID: 21300000, guid: f0f11138c9e9ce14fb23c5f295280cd9, type: 3}
   - {fileID: 21300000, guid: fa7968a833b52dc4eb46681c9dd2d1ab, type: 3}
   - {fileID: 21300000, guid: 9141eda9909308b439ff9188f24a86b8, type: 3}
   - {fileID: 21300000, guid: 8069c82af9d18c342aabbf3aba5c597c, type: 3}
@@ -93,6 +94,7 @@ SpriteAtlas:
   - Water Levels_12
   - water
   - Water Levels_15
+  - BoxProp
   - Water Levels_11
   - Water Levels_9
   - Water Levels_10

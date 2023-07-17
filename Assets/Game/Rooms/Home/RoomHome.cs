@@ -968,7 +968,9 @@ public class RoomHome : RoomScript<RoomHome>
 		yield return C.Dave.Say("Nothing my Pump-o-matic 5000 can't handle!");
 		//LowerWater(4);
 		} else if (Globals.gameStage == gameProgress.UsedElectricPump){
-		  if (pumpRepairs == 2){
+		
+		  bool firstTime = true;
+		  if (pumpRepairs == 3){
 			  Audio.Play("Motor");
 			  yield return UnfloodBasement();
 			  Audio.Stop("Motor");
@@ -981,11 +983,18 @@ public class RoomHome : RoomScript<RoomHome>
 		  } else {
 			  Audio.Play("MotorFailure");
 			  if (pumpRepairs == 0){
+		
+		
 				  yield return C.Dave.Say("Seriously?!");
 				  yield return E.WaitSkip();
 				  yield return C.Dave.Say("It's broken!");
-			  } else if (pumpRepairs == 1){
-				  yield return C.Dave.Say(" Still broken!");
+					yield return E.WaitSkip(1.0f);
+				  yield return C.Dave.Say(" It looks like there's a rusty washer.");
+		
+			  }  else if (pumpRepairs == 1){
+				  yield return C.Dave.Say(" I'd better put the new washer on.");
+			  } else if (pumpRepairs == 2){
+				  yield return C.Dave.Say(" Whoops, forgot to tighten the washer!");
 			  }
 		  }
 		}
@@ -995,10 +1004,26 @@ public class RoomHome : RoomScript<RoomHome>
 	IEnumerator OnUseInvPropElectricPump( IProp prop, IInventory item )
 	{
 		if(Globals.gameStage == gameProgress.UsedElectricPump ) {
-		if (item == I.Wrench || item == I.Washer){
-			pumpRepairs++;
-			item.Remove();
-		}
+			if (item == I.Wrench) {
+				if (pumpRepairs == 0) {
+					yield return C.Display(" Rusty washer removed.");
+					 pumpRepairs++;
+				} else if (pumpRepairs == 1) {
+					yield return C.Dave.Say(" Where's that new washer?");
+				}  else if (pumpRepairs == 2) {
+					yield return C.Dave.Say(" That should do it!");
+					pumpRepairs++;
+				}
+			} if (item == I.Washer){
+		
+				if (pumpRepairs == 0) {
+					yield return C.Dave.Say(" Whoop, gotta take that rusty old washer off before I can put this shiny new one on.");
+				} else if (pumpRepairs == 1) {
+					pumpRepairs++;
+					item.Remove();
+					yield return C.Display(" New washer placed on pump.");
+				}
+			}
 		}
 		yield return E.Break;
 	}
