@@ -65,7 +65,7 @@ public class RoomHome : RoomScript<RoomHome>
 		// Set
 		
 		//Temp
-		LowerWaterShader(40, "CharacterDave");
+		
 		
 		
 		if (Globals.LoadingChapter) {
@@ -671,8 +671,6 @@ public class RoomHome : RoomScript<RoomHome>
     IEnumerator OnInteractHotspotWindow(IHotspot hotspot)
     {
 		yield return E.Break;
-		
-		Settings.LanguageId = (Settings.LanguageId + 1) % Settings.GetLanguages().Length;
  }
 
     IEnumerator OnUseInvPropWaterFront(IProp prop, IInventory item)
@@ -732,7 +730,7 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnInteractHotspotBleach( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("It’s bleach, fer cleanin’ yer clothes.", 56);
+		
 		
 		yield return E.Break;
 	}
