@@ -692,7 +692,7 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnInteractHotspotSprayPaint( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("It’s a can of Mach brand orange spray paint.", 50);
+		
 		yield return E.Break;
 	}
 
@@ -704,20 +704,26 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnLookAtHotspotWashingMachine( IHotspot hotspot )
 	{
-		yield return C.Dave.Say(" It’s my trusty old washing machine. Although at this point I probably could just throw some detergent in the water and make my whole basement the washing machine.", 52);
+		yield return C.Dave.Say(" It’s my trusty old washing machine.", 52);
+		
+		yield return C.Dave.Say(" Although at this point I probably could just throw some detergent in the water and make my whole basement the washing machine.");
 		
 		yield return E.Break;
 	}
 
 	IEnumerator OnLookAtHotspotBoiler( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("This clunker of a boiler is from the 1940’s. It works, but it makes the worst darn noises you’ve ever dun heard.", 53);
+		yield return C.Dave.Say("This clunker of a boiler is from the 1940’s.", 53);
+		
+		 yield return C.Dave.Say("  It works, but it makes the worst darn noises you’ve ever dun heard.");
 		yield return E.Break;
 	}
 
 	IEnumerator OnLookAtHotspotTV( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("Haven’t used this in a while. For all you kids out there, this is what TV’s looked like in the stone age.", 54);
+		yield return C.Dave.Say("Haven’t used this in a while.", 54);
+		
+		yield return C.Dave.Say("For all you kids out there, this is what TV’s looked like in the stone age.");
 		
 		yield return E.Break;
 	}
@@ -735,28 +741,28 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnInteractHotspotWashingMachine( IHotspot hotspot )
 	{
-		yield return C.Dave.Say(" It’s my trusty old washing machine. Although at this point I probably could just throw some detergent in the water and make my whole basement the washing machine.", 57);
+		
 		
 		yield return E.Break;
 	}
 
 	IEnumerator OnInteractHotspotBoiler( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("This clunker of a boiler is from the 1940’s. It works, but it makes the worst darn noises you’ve ever dun heard.", 58);
+		
 		
 		yield return E.Break;
 	}
 
 	IEnumerator OnInteractHotspotTV( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("Haven’t used this in a while. For all you kids out there, this is what TV’s looked like in the stone age.", 59);
+		
 		
 		yield return E.Break;
 	}
 
 	IEnumerator OnInteractHotspotCouch( IHotspot hotspot )
 	{
-		yield return C.Dave.Say(" I can’t believe I thought this looked good.", 60);
+		
 		
 		yield return E.Break;
 	}
@@ -999,7 +1005,7 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnLookAtPropElectricPump( IProp prop )
 	{
-
+		yield return C.Dave.Say(" Ain't she a beauty?");
 		yield return E.Break;
 	}
 
@@ -1010,6 +1016,24 @@ public class RoomHome : RoomScript<RoomHome>
 	}
 
 	IEnumerator OnInteractPropHose( IProp prop )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnUseInvPropBox( IProp prop, IInventory item )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtPropBox( IProp prop )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtPropHose( IProp prop )
 	{
 
 		yield return E.Break;
