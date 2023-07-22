@@ -600,10 +600,17 @@ public class RoomHome : RoomScript<RoomHome>
 		Prop("Handle").Visible = true;
 		
 		yield return C.Display(" The recruited muscle has helped bring the water level down.", 4);
-		}
-		  G.Explanation.Show();
+		G.Explanation.Show();
 		yield return C.Tony.Say(" Phew... I'm wiped out. Got any grub?", 4);
+		}
+		else {
+			  yield return C.Dave.Say(" Gee Tony, I haven't got any food");
 		
+			  yield return C.Tony.Say(" Why don't you give that pizza place a call?");
+		
+			  yield return C.Tony.Say(" I could eat an entire pie");
+		
+		  }
 		yield return E.Break;
 		
  }
