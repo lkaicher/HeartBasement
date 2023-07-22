@@ -373,6 +373,11 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		float pumpAnimTime = (float) (1.75 +  ((float)currentHandle * 0.5) );
 		
+		if (C.Tony.VisibleInRoom) {
+			yield return OnInteractCharacterTony( C.Tony);
+			yield break;
+		}
+		
 		yield return C.Dave.WalkTo(Point("PumpPosition"));
 		Prop("Pump").Visible = false;
 		Prop("Handle").Visible = false;
