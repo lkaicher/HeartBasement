@@ -992,7 +992,7 @@ public class RoomHome : RoomScript<RoomHome>
 				  yield return C.Dave.Say(" It looks like there's a rusty washer.");
 		
 			  }  else if (pumpRepairs == 1){
-				  yield return C.Dave.Say(" I'd better put the new washer on.");
+				  yield return C.Dave.Say(" I'd better replace the washer.");
 			  } else if (pumpRepairs == 2){
 				  yield return C.Dave.Say(" Whoops, forgot to tighten the washer!");
 			  }
