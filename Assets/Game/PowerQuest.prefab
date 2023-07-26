@@ -54,6 +54,11 @@ MonoBehaviour:
     m_languageCode: EN
     m_textSpeedMultiplier: 1
   m_verticalResolution: 540
+  m_horizontalResolution:
+    m_min: 864
+    m_max: 960
+    m_hasMax: 1
+    m_hasValue: 0
   m_snapToPixel: 1
   m_pixelCamEnabled: 1
   m_defaultPixelsPerUnit: 1
@@ -224,5 +229,5 @@ MonoBehaviour:
   - {fileID: 4800000, guid: a2c3f6022054c654ea6aeb84a997cda4, type: 3}
   - {fileID: 4800000, guid: 553637da87459c4428e8af106c8e49fd, type: 3}
   - {fileID: -6465566751694194690, guid: af93590d30f80449dbed048703d58532, type: 3}
-  m_version: 16001
+  m_version: 16011
   m_newVersion: 16011

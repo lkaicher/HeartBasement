@@ -37,6 +37,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 		
 		// Globals.gameStage = gameProgress.TriedPump1;
 		
+		Audio.PlayMusic("Hardware1", 2);
 		
 		if( Globals.gameStage >= gameProgress.RightParts)
 		{

@@ -138,6 +138,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	/// Blocking script called whenever you exit a room, as it fades out
 	public IEnumerator OnExitRoom( IRoom oldRoom, IRoom newRoom )
 	{
+		Audio.StopMusic(0.25f);
 		yield return E.Break;
 	} 
 

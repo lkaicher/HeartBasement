@@ -10,7 +10,7 @@ public class RoomMenu : RoomScript<RoomMenu>
 
 	void OnEnterRoom()
 	{
-		
+		Audio.PlayMusic("Menu2", 1);
 		//G.Inventory.Hide();
 		G.MenuButton.Hide();
 		G.TitleMenu.Show();

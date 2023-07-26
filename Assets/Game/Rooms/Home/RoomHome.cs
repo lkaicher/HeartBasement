@@ -64,7 +64,7 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		//Temp
 		//LowerWaterShader(40, "CharacterDave");
-		
+		Audio.PlayMusic("Basement1", 2);
 		
 		if (Globals.LoadingChapter) {
 			Globals.LoadingChapter = false;
