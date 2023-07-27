@@ -158,7 +158,7 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 		yield return E.FadeOut(1);
 		yield return C.Display("30 minutes later...", 51);
 		yield return E.FadeIn(1);
-		yield return C.Display("Pizza & Beer have been added to your inventory", 52);
+		yield return C.Display("Pizza & Beer added to your toolbox", 52);
 		C.Dave.AddInventory(I.Beer);
 		Stop();
 		yield return E.Break;
