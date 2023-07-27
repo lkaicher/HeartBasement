@@ -98,7 +98,7 @@ MonoBehaviour:
     m_pauseGame: 0
     m_hideObscuredGuis: 0
     m_hideSpecificGuis: []
-    m_description: '&39 Save and Exit'
+    m_description: Save and Exit
     m_cursor: 
     m_allowInventoryCursor: 0
     m_position: {x: 0, y: 0}
@@ -205,7 +205,7 @@ MonoBehaviour:
     m_pauseGame: 0
     m_hideObscuredGuis: 0
     m_hideSpecificGuis: []
-    m_description: '&41 Toggle Volume'
+    m_description: Toggle Volume
     m_cursor: 
     m_allowInventoryCursor: 0
     m_position: {x: 0, y: 0}
@@ -445,7 +445,7 @@ MonoBehaviour:
     m_pauseGame: 0
     m_hideObscuredGuis: 0
     m_hideSpecificGuis: []
-    m_description: '&40 Toggle Text Display'
+    m_description: Toggle Text Display
     m_cursor: 
     m_allowInventoryCursor: 0
     m_position: {x: 0, y: 0}

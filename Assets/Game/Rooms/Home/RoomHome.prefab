@@ -715,7 +715,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: '&2 Pump'
+    m_description: Pump
     m_cursor: 
     m_visible: 1
     m_clickable: 1
@@ -1224,7 +1224,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: '&5 Window'
+    m_description: Window
     m_cursor: 
     m_clickable: 1
     m_baseline: 0
@@ -1393,7 +1393,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: '&0 Water'
+    m_description: Water
     m_cursor: 
     m_visible: 0
     m_clickable: 0
@@ -1986,7 +1986,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: '&3 Door'
+    m_description: Door
     m_cursor: Right
     m_clickable: 1
     m_baseline: 0
@@ -2336,7 +2336,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: '&3 Bucket'
+    m_description: Bucket
     m_cursor: 
     m_visible: 1
     m_clickable: 1

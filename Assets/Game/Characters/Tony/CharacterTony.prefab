@@ -50,7 +50,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: '&12 Tony'
+    m_description: Tony
     m_cursor: 
     m_room: Home
     m_position: {x: 350, y: -100}

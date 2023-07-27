@@ -51,7 +51,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: '&11 Dave'
+    m_description: Dave
     m_cursor: 
     m_room: Menu
     m_position: {x: -301, y: -173}

@@ -48,8 +48,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99f5801e9ab1722449b271233da6c14c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_text: '&47 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-    tempor incididunt ut labore et dolore magna aliqua'
+  m_text: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+    tempor incididunt ut labore et dolore magna aliqua
   m_localize: 1
   m_sortingLayer: Gui
   m_orderInLayer: -10
@@ -69,8 +69,8 @@ MonoBehaviour:
     m_directions: 68
     m_width: 1
     m_color: {r: 0.08088237, g: 0.08088237, b: 0.08088237, a: 1}
-  m_unlocalizedText: '&47 Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua'
+  m_unlocalizedText: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+    do eiusmod tempor incididunt ut labore et dolore magna aliqua
   m_outlineMeshes:
   - {fileID: 0}
   - {fileID: 0}
@@ -124,12 +124,12 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 115000}
-  m_Text: '&47 Lorem ipsum dolor sit amet,
+  m_Text: 'Lorem ipsum dolor sit amet,
 
-    consectetur adipiscing elit, sed
-    do
+    consectetur adipiscing elit, sed do
 
-    eiusmod tempor incididunt ut labore
+    eiusmod
+    tempor incididunt ut labore
 
     et dolore magna aliqua'
   m_OffsetZ: 0

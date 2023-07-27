@@ -42,11 +42,13 @@ public class DialogDialogWithClerk : DialogTreeScript<DialogDialogWithClerk>
 		
 				yield return E.WaitSkip();
 		
-				yield return C.Dave.Say("My basement's flooded. Got anything to help with that'", 18);
+				yield return C.Dave.Say("My basement's flooded. Got anything to help with that?", 18);
 		
 				yield return E.WaitSkip();
 		
-				yield return C.HardwareClerk.Say("We've got a special Pumps 4 Chumps promotion going on! It'll be sure to unflood your flood, no money back guarantee!", 2);
+				yield return C.HardwareClerk.Say("We've got a special Pumps 4 Chumps promotion going on!", 2);
+		
+				yield return C.HardwareClerk.Say(" It'll be sure to unflood your flood, no money back guarantee!");
 		
 				yield return E.WaitSkip();
 		
@@ -65,17 +67,20 @@ public class DialogDialogWithClerk : DialogTreeScript<DialogDialogWithClerk>
 	{
 				yield return C.HardwareClerk.Face(C.Dave);
 				yield return E.WaitSkip();
-				yield return C.Dave.Say("Cut the crap, carpetbagger! That pump didn't do squat!", 20);
+				yield return C.Dave.Say("Cut the crap, carpetbagger!", 20);
+				yield return C.Dave.Say(" That pump didn't do squat!");
 				yield return E.WaitSkip();
-				yield return C.HardwareClerk.Say("I'm so sorry to hear that! I recommend upgrading to a higher end model handle and hose. We're running a 25% off special on all pump accessories!", 3);
+				yield return C.HardwareClerk.Say("I'm so sorry to hear that!", 3);
 				yield return E.WaitSkip();
-				yield return C.HardwareClerk.Say("We have handles and hoses in stock.", 4);
-				Stop();	
-				D.BuyOptions.Start();
-				
+				yield return C.HardwareClerk.Say("I recommend upgrading to a higher end model handle and hose.", 4);
 		
-				
-				
+				yield return C.HardwareClerk.Say("We're running a 25% off special on all pump accessories!");
+				Stop();
+				D.BuyOptions.Start();
+		
+		
+		
+		
 		yield return E.Break;
 	}
 }
