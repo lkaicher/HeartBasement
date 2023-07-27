@@ -52,8 +52,8 @@ MonoBehaviour:
     m_fadeIn: 0
     m_fadeOut: 0
   m_volume:
-    m_min: 0.25
-    m_max: 0.25
+    m_min: 0
+    m_max: 0
     m_hasMax: 0
     m_hasValue: 0
   m_pitch:
@@ -87,7 +87,7 @@ MonoBehaviour:
   m_chorusFilter: {fileID: 0}
   m_sounds:
   - m_sound: {fileID: 8300000, guid: 773f26dbbea6c9c40ab9a3388930ec75, type: 3}
-    m_weight: 100
+    m_weight: 1.2
     m_loop: 0
     m_volume:
       m_min: 1

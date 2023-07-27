@@ -27,6 +27,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -198.01532, y: -3.2046742, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -45,14 +46,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_type: 2
   m_loop: 1
+  m_loopSection:
+    m_startTime: 0
+    m_endTime: 0
+    m_fadeIn: 0
+    m_fadeOut: 0
   m_volume:
-    m_min: 0.2
-    m_max: 1
+    m_min: 0.1
+    m_max: 0.1
     m_hasMax: 0
     m_hasValue: 0
   m_pitch:
     m_min: 1
     m_max: 1
+    m_hasMax: 0
+    m_hasValue: 0
+  m_pan:
+    m_min: 0
+    m_max: 0
     m_hasMax: 0
     m_hasValue: 0
   m_alsoPlay: {fileID: 0}
@@ -66,6 +77,10 @@ MonoBehaviour:
   m_mixerGroup: {fileID: 0}
   m_reverbPreset: 0
   m_distortionLevel: 0
+  m_lowPass: 0
+  m_lowPassQ: 1
+  m_highPass: 0
+  m_highPassQ: 1
   m_echoFilter: {fileID: 0}
   m_lowPassFilter: {fileID: 0}
   m_highPassFilter: {fileID: 0}

@@ -189,6 +189,7 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return C.Dave.Say(" Not again!", 3);
 			yield return E.WaitSkip();
 		  G.Explanation.Show();
+			yield return E.WaitSkip();
 			yield return E.Break;
 		
 		
@@ -244,6 +245,7 @@ public class RoomHome : RoomScript<RoomHome>
 				yield return E.WaitSkip();
 				 G.Explanation.Show();
 				yield return E.WaitSkip();
+				
 				yield return C.Dave.Say("Oh man... this is going to take forever.", 44);
 		
 		
@@ -413,7 +415,7 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		
 			G.Explanation.Show();
-		
+			yield return E.WaitSkip();
 			yield return C.Dave.Say("Still not enough... I could use some extra hands.", 7);
 			// C.Dave.ChangeRoom(R.Cutscene);
 		}
@@ -583,6 +585,7 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		yield return C.Display(" The recruited muscle has helped bring the water level down.", 4);
 		G.Explanation.Show();
+		yield return E.WaitSkip();
 		yield return C.Tony.Say(" Phew... I'm wiped out. Got any grub?", 4);
 		}
 		else {
@@ -779,6 +782,7 @@ public class RoomHome : RoomScript<RoomHome>
 		Prop("Handle").Visible = true;
 		
 		 G.Explanation.Show();
+		 yield return E.WaitSkip();
 		
 		}
 		yield return E.Break;
@@ -952,6 +956,7 @@ public class RoomHome : RoomScript<RoomHome>
 		Audio.Stop("Motor");
 		Globals.gameStage = gameProgress.UsedElectricPump;
 		  G.Explanation.Show();
+			yield return E.WaitSkip();
 		  yield return C.Dave.Say("Like a charm!", 40);
 		yield return E.FadeOut();
 		yield return C.Display("6 months later...", 61);
@@ -970,6 +975,7 @@ public class RoomHome : RoomScript<RoomHome>
 			  Audio.Stop("Motor");
 			  Globals.gameStage = gameProgress.RepairedPump;
 			  G.Explanation.Show();
+				yield return E.WaitSkip();
 			  yield return C.Dave.Say(" Phew!", 115);
 			  yield return E.WaitSkip();
 			  yield return C.Dave.Say(" The pump works again!", 116);
