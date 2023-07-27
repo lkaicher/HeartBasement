@@ -46,9 +46,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_data:
     m_description: RepairKit
-    m_animGui: RepairKit
-    m_animCursor: RepairKit
-    m_animCursorInactive: RepairKit
+    m_animGui: RepairKitSprite
+    m_animCursor: RepairKitSprite
+    m_animCursorInactive: RepairKitSprite
     m_stack: 0
     m_scriptName: RepairKit
     m_scriptClass: InventoryRepairKit

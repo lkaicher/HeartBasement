@@ -227,7 +227,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 
 	IEnumerator OnInteractHotspotNuts( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("A box of peanuts, walnuts, and pistachios.", 78);
+		
 		yield return E.Break;
 	}
 
@@ -239,7 +239,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 
 	IEnumerator OnInteractHotspotBolts( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("It’s filled to the brim with lightning bolts.", 80);
+		
 		yield return E.Break;
 	}
 
@@ -251,7 +251,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 
 	IEnumerator OnInteractHotspotBanjosAndKazoos( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("It’s filled with banjos and kazoos. My favorite instruments!", 82);
+		
 		yield return E.Break;
 	}
 
@@ -263,7 +263,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 
 	IEnumerator OnInteractHotspotRedPaint( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("A can of red paint. Definitely my favorite color.", 84);
+		
 		yield return E.Break;
 	}
 
@@ -275,7 +275,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 
 	IEnumerator OnInteractHotspotOrangePaint( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("A can of orange paint. Definitely my favorite color.", 86);
+		
 		yield return E.Break;
 	}
 
@@ -287,7 +287,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 
 	IEnumerator OnInteractHotspotYellowPaint( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("A can of yellow paint. Definitely my favorite color.", 88);
+		
 		yield return E.Break;
 	}
 
@@ -299,7 +299,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 
 	IEnumerator OnInteractHotspotGreenPaint( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("A can of green paint. Definitely my favorite color.", 90);
+		
 		yield return E.Break;
 	}
 
@@ -311,7 +311,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 
 	IEnumerator OnInteractHotspotBluePaint( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("A can of blue paint. Definitely my favorite color.", 92);
+		
 		yield return E.Break;
 	}
 
@@ -323,7 +323,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 
 	IEnumerator OnInteractHotspotPurplePaint( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("A can of purple paint. Definitely my favorite color.", 94);
+		
 		yield return E.Break;
 	}
 
@@ -335,7 +335,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 
 	IEnumerator OnInteractHotspotLampOil( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("Lamp Oil.", 96);
+		
 		yield return E.Break;
 	}
 
@@ -347,7 +347,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 
 	IEnumerator OnInteractHotspotRope( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("It's rope. What did you expect?", 98);
+		
 		yield return E.Break;
 	}
 
@@ -359,7 +359,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 
 	IEnumerator OnInteractHotspotBombs( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("I hope he has the correct permits to sell these.", 100);
+		
 		yield return E.Break;
 	}
 
@@ -373,9 +373,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 
 	IEnumerator OnInteractHotspotSign( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("Hey! I'm no chump...", 103);
-		yield return E.WaitSkip();
-		yield return C.Dave.Say("Am I?", 104);
+		
 		yield return E.Break;
 	}
 }

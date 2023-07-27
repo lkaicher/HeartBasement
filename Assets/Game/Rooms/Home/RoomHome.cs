@@ -29,10 +29,12 @@ public class RoomHome : RoomScript<RoomHome>
 	handleType currentHandle = handleType.small;
 	hoseType currentHose = hoseType.small;
 	
+	public int pumpRepairs = 0;
+	
 	// Water level variables
 	// public int waterLevelInt = (int)Globals.gameStage * 40;
 	public int waterLevelInt = 0;
-    /*
+	/*
     public IEnumerator lowerWater()
     {
 				waterLevelInt++;
@@ -371,6 +373,11 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		float pumpAnimTime = (float) (1.75 +  ((float)currentHandle * 0.5) );
 		
+		if (C.Tony.VisibleInRoom) {
+			yield return OnInteractCharacterTony( C.Tony);
+			yield break;
+		}
+		
 		yield return C.Dave.WalkTo(Point("PumpPosition"));
 		Prop("Pump").Visible = false;
 		Prop("Handle").Visible = false;
@@ -593,10 +600,17 @@ public class RoomHome : RoomScript<RoomHome>
 		Prop("Handle").Visible = true;
 		
 		yield return C.Display(" The recruited muscle has helped bring the water level down.", 4);
-		}
-		  G.Explanation.Show();
+		G.Explanation.Show();
 		yield return C.Tony.Say(" Phew... I'm wiped out. Got any grub?", 4);
+		}
+		else {
+			  yield return C.Dave.Say(" Gee Tony, I haven't got any food");
 		
+			  yield return C.Tony.Say(" Why don't you give that pizza place a call?");
+		
+			  yield return C.Tony.Say(" I could eat an entire pie");
+		
+		  }
 		yield return E.Break;
 		
  }
@@ -669,8 +683,6 @@ public class RoomHome : RoomScript<RoomHome>
     IEnumerator OnInteractHotspotWindow(IHotspot hotspot)
     {
 		yield return E.Break;
-		
-		Settings.LanguageId = (Settings.LanguageId + 1) % Settings.GetLanguages().Length;
  }
 
     IEnumerator OnUseInvPropWaterFront(IProp prop, IInventory item)
@@ -692,7 +704,7 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnInteractHotspotSprayPaint( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("It’s a can of Mach brand orange spray paint.", 50);
+		
 		yield return E.Break;
 	}
 
@@ -704,20 +716,26 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnLookAtHotspotWashingMachine( IHotspot hotspot )
 	{
-		yield return C.Dave.Say(" It’s my trusty old washing machine. Although at this point I probably could just throw some detergent in the water and make my whole basement the washing machine.", 52);
+		yield return C.Dave.Say(" It’s my trusty old washing machine.", 52);
+		
+		yield return C.Dave.Say(" Although at this point I probably could just throw some detergent in the water and make my whole basement the washing machine.");
 		
 		yield return E.Break;
 	}
 
 	IEnumerator OnLookAtHotspotBoiler( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("This clunker of a boiler is from the 1940’s. It works, but it makes the worst darn noises you’ve ever dun heard.", 53);
+		yield return C.Dave.Say("This clunker of a boiler is from the 1940’s.", 53);
+		
+		 yield return C.Dave.Say("  It works, but it makes the worst darn noises you’ve ever dun heard.");
 		yield return E.Break;
 	}
 
 	IEnumerator OnLookAtHotspotTV( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("Haven’t used this in a while. For all you kids out there, this is what TV’s looked like in the stone age.", 54);
+		yield return C.Dave.Say("Haven’t used this in a while.", 54);
+		
+		yield return C.Dave.Say("For all you kids out there, this is what TV’s looked like in the stone age.");
 		
 		yield return E.Break;
 	}
@@ -730,35 +748,33 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnInteractHotspotBleach( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("It’s bleach, fer cleanin’ yer clothes.", 56);
-		
 		yield return E.Break;
 	}
 
 	IEnumerator OnInteractHotspotWashingMachine( IHotspot hotspot )
 	{
-		yield return C.Dave.Say(" It’s my trusty old washing machine. Although at this point I probably could just throw some detergent in the water and make my whole basement the washing machine.", 57);
+		
 		
 		yield return E.Break;
 	}
 
 	IEnumerator OnInteractHotspotBoiler( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("This clunker of a boiler is from the 1940’s. It works, but it makes the worst darn noises you’ve ever dun heard.", 58);
+		
 		
 		yield return E.Break;
 	}
 
 	IEnumerator OnInteractHotspotTV( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("Haven’t used this in a while. For all you kids out there, this is what TV’s looked like in the stone age.", 59);
+		
 		
 		yield return E.Break;
 	}
 
 	IEnumerator OnInteractHotspotCouch( IHotspot hotspot )
 	{
-		yield return C.Dave.Say(" I can’t believe I thought this looked good.", 60);
+		
 		
 		yield return E.Break;
 	}
@@ -929,6 +945,7 @@ public class RoomHome : RoomScript<RoomHome>
 	{
 		Prop("Box").Disable();
 		Prop("ElectricPump").Enable();
+		Prop("Hose").Enable();
 		yield return C.Dave.Say(" It's beautiful!");
 		yield return E.WaitSkip();
 		yield return C.Dave.Say("What's this?");
@@ -946,28 +963,115 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnInteractPropElectricPump( IProp prop )
 	{
+		if (Globals.gameStage == gameProgress.SecondFlood){
+		
 		Audio.Play("Motor");
 		yield return UnfloodBasement();
 		Audio.Stop("Motor");
 		Globals.gameStage = gameProgress.UsedElectricPump;
 		  G.Explanation.Show();
+		  yield return C.Dave.Say("Like a charm!");
+		yield return E.FadeOut();
+		yield return C.Display("6 months later...");
+		yield return FloodBasement();
+		yield return E.FadeIn();
+		yield return C.Dave.Say(" Another flood?");
+		yield return E.WaitSkip();
+		yield return C.Dave.Say("Nothing my Pump-o-matic 5000 can't handle!");
 		//LowerWater(4);
+		} else if (Globals.gameStage == gameProgress.UsedElectricPump){
+		
+		  bool firstTime = true;
+		  if (pumpRepairs == 3){
+			  Audio.Play("Motor");
+			  yield return UnfloodBasement();
+			  Audio.Stop("Motor");
+			  Globals.gameStage = gameProgress.RepairedPump;
+			  G.Explanation.Show();
+			  yield return C.Dave.Say(" Phew!");
+			  yield return E.WaitSkip();
+			  yield return C.Dave.Say(" The pump works again!");
+		
+		  } else {
+			  Audio.Play("MotorFailure");
+			  if (pumpRepairs == 0){
+		
+		
+				  yield return C.Dave.Say("Seriously?!");
+				  yield return E.WaitSkip();
+				  yield return C.Dave.Say("It's broken!");
+					yield return E.WaitSkip(1.0f);
+				  yield return C.Dave.Say(" It looks like there's a rusty washer.");
+		
+			  }  else if (pumpRepairs == 1){
+				  yield return C.Dave.Say(" I'd better replace the washer.");
+			  } else if (pumpRepairs == 2){
+				  yield return C.Dave.Say(" Whoops, forgot to tighten the washer!");
+			  }
+		  }
+		}
 		yield return E.Break;
 	}
 
 	IEnumerator OnUseInvPropElectricPump( IProp prop, IInventory item )
 	{
-
+		if(Globals.gameStage == gameProgress.UsedElectricPump ) {
+			if (item == I.Wrench) {
+				if (pumpRepairs == 0) {
+					yield return C.Display(" Rusty washer removed.");
+					 pumpRepairs++;
+				} else if (pumpRepairs == 1) {
+					yield return C.Dave.Say(" Where's that new washer?");
+				}  else if (pumpRepairs == 2) {
+					yield return C.Dave.Say(" That should do it!");
+					pumpRepairs++;
+				}
+			} if (item == I.Washer){
+		
+				if (pumpRepairs == 0) {
+					yield return C.Dave.Say(" Whoop, gotta take that rusty old washer off before I can put this shiny new one on.");
+				} else if (pumpRepairs == 1) {
+					pumpRepairs++;
+					item.Remove();
+					yield return C.Display(" New washer placed on pump.");
+				}
+			}
+		}
 		yield return E.Break;
 	}
 
 	IEnumerator OnLookAtPropElectricPump( IProp prop )
 	{
 
+		yield return C.Dave.Say(" Ain't she a beauty?");
 		yield return E.Break;
 	}
 
 	IEnumerator OnUseInvHotspotBoiler( IHotspot hotspot, IInventory item )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractPropHose( IProp prop )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnUseInvPropBox( IProp prop, IInventory item )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtPropBox( IProp prop )
+	{
+
+		yield return E.Break;
+	}
+
+	IEnumerator OnLookAtPropHose( IProp prop )
 	{
 
 		yield return E.Break;
