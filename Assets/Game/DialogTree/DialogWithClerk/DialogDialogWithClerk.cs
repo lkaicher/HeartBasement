@@ -48,7 +48,7 @@ public class DialogDialogWithClerk : DialogTreeScript<DialogDialogWithClerk>
 		
 				yield return C.HardwareClerk.Say("We've got a special Pumps 4 Chumps promotion going on!", 2);
 		
-				yield return C.HardwareClerk.Say(" It'll be sure to unflood your flood, no money back guarantee!");
+				yield return C.HardwareClerk.Say(" It'll be sure to unflood your flood, no money back guarantee!", 11);
 		
 				yield return E.WaitSkip();
 		
@@ -68,13 +68,13 @@ public class DialogDialogWithClerk : DialogTreeScript<DialogDialogWithClerk>
 				yield return C.HardwareClerk.Face(C.Dave);
 				yield return E.WaitSkip();
 				yield return C.Dave.Say("Cut the crap, carpetbagger!", 20);
-				yield return C.Dave.Say(" That pump didn't do squat!");
+				yield return C.Dave.Say(" That pump didn't do squat!", 94);
 				yield return E.WaitSkip();
 				yield return C.HardwareClerk.Say("I'm so sorry to hear that!", 3);
 				yield return E.WaitSkip();
 				yield return C.HardwareClerk.Say("I recommend upgrading to a higher end model handle and hose.", 4);
 		
-				yield return C.HardwareClerk.Say("We're running a 25% off special on all pump accessories!");
+				yield return C.HardwareClerk.Say("We're running a 25% off special on all pump accessories!", 12);
 				Stop();
 				D.BuyOptions.Start();
 		

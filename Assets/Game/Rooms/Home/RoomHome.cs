@@ -401,7 +401,7 @@ public class RoomHome : RoomScript<RoomHome>
 		   G.Explanation.Show();
 		   yield return E.WaitSkip();
 			yield return C.Dave.Say(" This is too hard!", 4);
-			yield return C.Dave.Say("I'd better head back to the hardware store.");
+			yield return C.Dave.Say("I'd better head back to the hardware store.", 15);
 			yield return C.Dave.FaceDown();
 		}
 		else if (Globals.gameStage >= gameProgress.SecondFlood){
