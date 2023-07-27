@@ -18,7 +18,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 				yield return C.Dave.WalkTo(Point("HWDoorPosition"));
 				C.Dave.ChangeRoomBG(R.Map);
 			} else {
-				yield return C.Dave.Say("I need to buy a pump.", 11);
+				yield return C.Dave.Say("I ain't leavin' til I've got somethin' to get that water outta my basement!", 11);
 			}
 		} else {
 			yield return C.Dave.WalkTo(Point("HWDoorPosition"));
@@ -81,7 +81,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 		I.Beer.Add();
 		Prop("BeerPack").Disable();
 		
-		yield return C.Display(" Beer has been added to your inventory.", 11);
+		yield return C.Display(" Beer has been added to your toolbolx.", 11);
 		
 		yield return E.Break;
 	}
@@ -126,7 +126,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 
 	IEnumerator OnLookAtHotspotQuestionBox( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("I wonder what’s in there.", 62);
+		yield return C.Dave.Say("I wonder what's in there.", 62);
 		yield return E.Break;
 	}
 
@@ -144,7 +144,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 
 	IEnumerator OnInteractHotspotQuestionBox( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("I wonder what’s in there.", 65);
+		yield return C.Dave.Say("I wonder what's in there.", 65);
 		yield return E.Break;
 	}
 
@@ -183,13 +183,13 @@ public class RoomHardware : RoomScript<RoomHardware>
 
 	IEnumerator OnLookAtHotspotPipeBomb( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("Oh. That’s a pipe bomb.", 71);
+		yield return C.Dave.Say("Oh. That's a pipe bomb.", 71);
 		yield return E.Break;
 	}
 
 	IEnumerator OnInteractHotspotPipeBomb( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("Oh. That’s a pipe bomb.", 72);
+		yield return C.Dave.Say("Oh. That's a pipe bomb.", 72);
 		yield return E.Break;
 	}
 
@@ -233,7 +233,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 
 	IEnumerator OnLookAtHotspotBolts( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("It’s filled to the brim with lightning bolts.", 79);
+		yield return C.Dave.Say("It's filled to the brim with lightning bolts.", 79);
 		yield return E.Break;
 	}
 
@@ -245,7 +245,7 @@ public class RoomHardware : RoomScript<RoomHardware>
 
 	IEnumerator OnLookAtHotspotBanjosAndKazoos( IHotspot hotspot )
 	{
-		yield return C.Dave.Say("It’s filled with banjos and kazoos. My favorite instruments!", 81);
+		yield return C.Dave.Say("It's filled with banjos and kazoos. My favorite instruments!", 81);
 		yield return E.Break;
 	}
 

@@ -24,9 +24,9 @@ public class DialogBuyOptions : DialogTreeScript<DialogBuyOptions>
 			yield return C.Dave.Say("I'll take a medium handle.", 21);
 			yield return E.WaitSkip();
 			I.MediumHandle.Add();
-			yield return C.Display("Medium Handle added to  your inventory.", 13);
+			yield return C.Display("Medium Handle added to your toolbox.", 13);
 			yield return E.WaitSkip();
-			yield return C.HardwareClerk.Say("Anything else?", 5);
+			yield return C.HardwareClerk.Say("An excellent choice sir! Anything else?", 5);
 			D.BuyOptions.OptionOffForever(1);
 			Stop();
 			D.BuyOptions.Start();
@@ -40,9 +40,9 @@ public class DialogBuyOptions : DialogTreeScript<DialogBuyOptions>
 			yield return C.Dave.Say("I'll take a large handle.", 22);
 			yield return E.WaitSkip();
 			I.LargeHandle.Add();
-			yield return C.Display("Large Handle added to  your inventory.", 14);
+			yield return C.Display("Large Handle added to  your toolbox.", 14);
 			yield return E.WaitSkip();
-			yield return C.HardwareClerk.Say("Anything else?", 6);
+			yield return C.HardwareClerk.Say("An excellent choice sir! Anything else?", 6);
 			D.BuyOptions.OptionOffForever(2);
 			Stop();
 			D.BuyOptions.Start();
@@ -62,9 +62,9 @@ public class DialogBuyOptions : DialogTreeScript<DialogBuyOptions>
 			yield return C.Dave.Say("I'll take a medium diameter hose.", 23);
 			yield return E.WaitSkip();
 			I.MediumHose.Add();
-			yield return C.Display("Medium Hose added to  your inventory.", 15);
+			yield return C.Display("Medium Hose added to  your toolbox.", 15);
 			yield return E.WaitSkip();
-			yield return C.HardwareClerk.Say("Anything else?", 7);
+			yield return C.HardwareClerk.Say("An excellent choice sir! Anything else?", 7);
 			D.BuyOptions.OptionOffForever(3);
 			Stop();
 			D.BuyOptions.Start();
@@ -78,9 +78,9 @@ public class DialogBuyOptions : DialogTreeScript<DialogBuyOptions>
 			yield return C.Dave.Say("I'll take a large diameter hose.", 24);
 			yield return E.WaitSkip();
 			I.LargeHose.Add();
-			yield return C.Display("Large Hose added to  your inventory.", 16);
+			yield return C.Display("Large Hose added to  your toolbox.", 16);
 			yield return E.WaitSkip();
-			yield return C.HardwareClerk.Say("Anything else?", 8);
+			yield return C.HardwareClerk.Say("An excellent choice sir! Anything else?", 8);
 			D.BuyOptions.OptionOffForever(4);
 			Stop();
 			D.BuyOptions.Start();

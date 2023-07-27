@@ -31,6 +31,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -61,7 +62,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99f5801e9ab1722449b271233da6c14c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_text: '&42 New Label'
+  m_text: New Label
   m_localize: 1
   m_sortingLayer: Gui
   m_orderInLayer: 35660
@@ -70,12 +71,18 @@ MonoBehaviour:
   m_wrapUniformLineWidth: 0
   m_wrapWidthMin: 0
   m_keepOnScreen: 0
+  m_screenPadding:
+    left: 8
+    right: 8
+    top: 8
+    bottom: 8
   m_shaderOverride: {fileID: 0}
+  m_setFiltering: 1
   m_outline:
     m_directions: 0
     m_width: 1
     m_color: {r: 0.027450982, g: 0.03529412, b: 0.10196079, a: 1}
-  m_unlocalizedText: '&42 New Label'
+  m_unlocalizedText: New Label
   m_outlineMeshes: []
 --- !u!102 &704239611335084410
 TextMesh:
@@ -85,7 +92,7 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4570944954973152062}
-  m_Text: '&42 New Label'
+  m_Text: New Label
   m_OffsetZ: 0
   m_CharacterSize: 10
   m_LineSpacing: 1
@@ -127,6 +134,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
