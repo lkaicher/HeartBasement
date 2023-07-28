@@ -20,9 +20,10 @@ public class CharacterHardwareClerk : CharacterScript<CharacterHardwareClerk>
 		yield return C.Dave.WalkTo(Point("HWCounterPosition"));
 		yield return C.Dave.Face(eFace.Right);
 		
+		if ( Globals.gameStage >= gameProgress.SecondFlood ) {
+			yield return E.HandleOption( D.DialogWithClerk, "3");
 		
-		
-		 if (D.DialogWithClerk.GetOption(2).Used) {
+		} else if (D.DialogWithClerk.GetOption(2).Used) {
 		
 			 D.BuyOptions.Start();
 		 } else if (D.DialogWithClerk.GetOption(1).Used && Globals.gameStage <= gameProgress.UsedBucket) {
