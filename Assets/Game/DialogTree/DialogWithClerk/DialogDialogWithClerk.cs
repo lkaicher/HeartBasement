@@ -86,11 +86,10 @@ public class DialogDialogWithClerk : DialogTreeScript<DialogDialogWithClerk>
 
 	IEnumerator Option3( IDialogOption option )
 	{
-		yield return C.Dave.Say(" Hey Doc, that bilge pump ain't cuttin it no more.");
-		yield return C.Dave.Say(" Got anything better?");
-		yield return C.HardwareClerk.Say("I'm afraid not.");
-		yield return C.HardwareClerk.Say("You'll have to call PumpCo to get anything better than that bilge pump.");
-		Dave:
+		yield return C.Dave.Say(" Hey Doc, that bilge pump ain't cuttin it no more.", 96);
+		yield return C.Dave.Say(" Got anything better?", 98);
+		yield return C.HardwareClerk.Say("I'm afraid not.", 13);
+		yield return C.HardwareClerk.Say("You'll have to call PumpCo to get anything better than that bilge pump.", 14);
 		yield return E.Break;
 	}
 }
