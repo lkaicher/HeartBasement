@@ -52,29 +52,49 @@ SpriteAtlas:
   m_PackedSprites:
   - {fileID: 21300000, guid: 50ce0ab000acafe4c93cb4e07cd8b2b5, type: 3}
   - {fileID: 21300000, guid: 0f3b3fb051439a143be069a587932fe7, type: 3}
+  - {fileID: 21300000, guid: bd8118817672cdb45ac67838b4c28f8c, type: 3}
+  - {fileID: 21300000, guid: 4efcf691992c28c43a707b31d26634f1, type: 3}
   - {fileID: 21300000, guid: 856e6d42890a4ef4c8eb3b4d990b3231, type: 3}
   - {fileID: 21300000, guid: b39d9262a31a4464884568d1d6447c2e, type: 3}
+  - {fileID: 21300000, guid: 246123957a561da4cbea57b13755d8de, type: 3}
+  - {fileID: 21300000, guid: e2b1afb6e9c20d841b96351b9f2a9ee7, type: 3}
+  - {fileID: 21300000, guid: 9375f618070b2184f9b9dda115c4c689, type: 3}
   - {fileID: 21300000, guid: c79768c8beee9e24eaf0e7b23d1a7d14, type: 3}
   - {fileID: 21300000, guid: 677e6109bc9479b4684d9c2e92d5de48, type: 3}
   - {fileID: 21300000, guid: 86bbf7398b0401c41ac07ed98a986703, type: 3}
+  - {fileID: 21300000, guid: ff8ff049ca5ebd1419a2f72f510dc914, type: 3}
   - {fileID: 21300000, guid: cd85ac5994955b6458698a5d34db8431, type: 3}
   - {fileID: 21300000, guid: 4f6f829a0dd16df41b46a4551785fdc6, type: 3}
   - {fileID: 21300000, guid: d1c7b0aa37c753d4d9a0ea64793dae70, type: 3}
+  - {fileID: 21300000, guid: f10814aad4ff3b04ab349cb95b21d006, type: 3}
+  - {fileID: 21300000, guid: e5096eca056f1bc419afc7e478658bc2, type: 3}
+  - {fileID: 21300000, guid: f9fff9cbd807d544fb8485e309b96d61, type: 3}
   - {fileID: 21300000, guid: a996375d4b23946afb72f61f1c0515dd, type: 3}
   - {fileID: 21300000, guid: 92591fed49900fa4e8ecaf31818bc5e5, type: 3}
+  - {fileID: 21300000, guid: 04e20c2e91c3f6a4283e222bc6f88718, type: 3}
   m_PackedSpriteNamesToIndex:
   - Slide5
   - Slide8
+  - Slide6
+  - Slide3
   - Slide0
   - Slide3
+  - Slide9
+  - Slide8
+  - Slide5
   - Slide6
   - Slide2
   - Slide1
+  - Slide4
   - Slide10
   - Slide4
   - Slide9
+  - Slide1
+  - Slide10
+  - Slide7
   - chap2
   - Slide7
+  - Slide2
   m_RenderDataMap: {}
   m_Tag: GuiExplanationAtlas
   m_IsVariant: 0
