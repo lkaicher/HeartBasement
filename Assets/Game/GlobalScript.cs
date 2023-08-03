@@ -56,17 +56,8 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	
 	/// Called when game first starts
 	
-	public void SetPhase(int PhaseId, bool changeText = true){
-		Debug.Log(PhaseId);
-		Settings.LanguageId = PhaseId;
-		if (changeText) {
-			IButton button = (IButton)G.Toolbar.GetControl("ChangePhaseButton");
-			button.Text = Settings.LanguageData.m_description;
-		}
 		
-		
-		
-	}
+
 	public void OnGameStart()
 	{     
 		// GAME STAGE
@@ -84,7 +75,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		// GUI
 		//G.Toolbar.Hide();
 		//G.Explanation.Show();
-		SetPhase(1,false);
+	
 		
 		// temporary
 		
@@ -122,7 +113,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	public void OnEnterRoom()
 	{
 		
-		if (Settings.LanguageId == 0) SetPhase(1);
+		
 	}
 
 	/// Blocking script called whenever you enter a room, after fade in is complete
@@ -138,6 +129,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	/// Blocking script called whenever you exit a room, as it fades out
 	public IEnumerator OnExitRoom( IRoom oldRoom, IRoom newRoom )
 	{
+		Audio.StopMusic(0.25f);
 		yield return E.Break;
 	} 
 

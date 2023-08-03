@@ -59,7 +59,7 @@ MonoBehaviour:
     m_hideSpecificGuis:
     - Inventory
     - InfoBar
-    m_description: '&32 DialogTree'
+    m_description: DialogTree
     m_cursor: 
     m_allowInventoryCursor: 0
     m_position: {x: 0, y: 0}

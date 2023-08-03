@@ -659,7 +659,7 @@ MonoBehaviour:
     m_pauseGame: 0
     m_hideObscuredGuis: 0
     m_hideSpecificGuis: []
-    m_description: '&34 SpeechBox'
+    m_description: SpeechBox
     m_cursor: 
     m_allowInventoryCursor: 0
     m_position: {x: 0, y: 0}

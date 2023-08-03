@@ -2124,7 +2124,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: '&7 Door'
+    m_description: Door
     m_cursor: Left
     m_clickable: 1
     m_baseline: -23

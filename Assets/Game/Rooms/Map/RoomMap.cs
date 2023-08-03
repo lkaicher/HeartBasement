@@ -13,12 +13,12 @@ public class RoomMap : RoomScript<RoomMap>
 	{
 		rain = GameObject.Find("Rain");
 		rain.SetActive(false);
-
 		
+		Audio.PlayMusic("Map1", 2);
 		
 		C.Dave.SetPosition(Point(string.Format("{0}Point",C.Dave.LastRoom.ScriptName)));
 		
-
+		
 		
 		// if (C.Dave.LastRoom == R.Hardware) {
 		//	 C.Dave.SetPosition(Point("HardwarePoint"));

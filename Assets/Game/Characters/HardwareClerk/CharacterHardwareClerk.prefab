@@ -50,7 +50,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_data:
-    m_description: '&10 Doc'
+    m_description: Doc
     m_cursor: Talk
     m_room: Hardware
     m_position: {x: 905, y: -8}

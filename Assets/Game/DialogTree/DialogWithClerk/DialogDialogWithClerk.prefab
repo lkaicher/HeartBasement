@@ -47,13 +47,19 @@ MonoBehaviour:
   m_data:
     m_options:
     - m_name: 1
-      m_text: '&25 I''d like to buy a pump'
+      m_text: I'd like to buy a pump
       m_visible: 1
       m_disabled: 0
       m_used: 0
       m_timesUsed: 0
     - m_name: 2
-      m_text: '&26 I need to talk to you about the pump.'
+      m_text: I need to talk to you about the pump.
+      m_visible: 0
+      m_disabled: 0
+      m_used: 0
+      m_timesUsed: 0
+    - m_name: 3
+      m_text: Better Pump
       m_visible: 0
       m_disabled: 0
       m_used: 0
