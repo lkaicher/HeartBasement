@@ -197,7 +197,9 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return ChangeWaterStage(2, false);
 		}
 		
-		
+		if (Globals.gameStage >= gameProgress.SecondFlood && Globals.rained){
+			C.Tony.Disable();
+		}
 		
 		
 		
