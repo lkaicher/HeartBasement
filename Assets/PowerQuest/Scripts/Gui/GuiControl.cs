@@ -354,12 +354,13 @@ public partial class GuiControl : MonoBehaviour, IQuestClickable, IQuestScriptab
 
 	static readonly Regex REGEX_SANITIZE = new Regex(@"(\W|_)+", RegexOptions.Compiled);
 	static readonly string REGEX_REPLACE = "";
-
+	static readonly string STR_UNINSTNATIATED = "UninstantiatedGui";
+	
 	// Use a cleaned up version of the game objects's name as the script name. NB this is probably rather expensive, probably need to change it later
 	public string ScriptName { get 
 	{
 		if ( gameObject == null )
-			return "UninstantiatedGui";
+			return STR_UNINSTNATIATED;
 		return REGEX_SANITIZE.Replace(gameObject.name,REGEX_REPLACE);
 	} }
 	public Vector2 WalkToPoint { get { return Vector2.zero;} set{} }
@@ -375,8 +376,8 @@ public partial class GuiControl : MonoBehaviour, IQuestClickable, IQuestScriptab
 	#region Implementing IQuestScriptable
 
 	// Doesn't use all functions
-	public string GetScriptName() { return gameObject.name; }
-	public string GetScriptClassName() { return gameObject.name; }
+	public string GetScriptName() { return ScriptName; }
+	public string GetScriptClassName() { return ScriptName; }
 	public void HotLoadScript(System.Reflection.Assembly assembly) { /*No-op*/ }
 	
 	public void EditorRename(string name)

@@ -1206,7 +1206,7 @@ public partial class PowerQuestEditor
 					
 					if ( Event.current != null && Event.current.type == EventType.MouseDown && Event.current.button == 0 && Tools.current != Tool.Custom )
 					{
-						if ( (m_mousePos - (Vector2)position).sqrMagnitude < 6 )
+						if ( (m_mousePos - (Vector2)position).sqrMagnitude < 6*scale*scale )
 						{
 							m_editingPointMouseDown = true;
 							Selection.activeObject = null;

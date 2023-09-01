@@ -614,16 +614,18 @@ public class QuestText : MonoBehaviour
 		}
 	}
 
-
-	static readonly string REGEX_TAG = @"\[(\w*)\]";
+	private List<Material> m_tempMaterials = new List<Material>();
+	static readonly Regex REGEX_TAG = new Regex(@"\[(\w*)\]");
 
 	string ParseImages(string text)
 	{
 		if ( Application.isPlaying == false )
 			return text;
+
 		// Remove other materials first. Ideally this wouldn' tbe necessary, but I'd need to put more work in to get it working without clearing materials first
 		MeshRenderer renderer = GetComponent<MeshRenderer>();
-		if ( renderer.materials.Length > 1 )
+		renderer.GetMaterials(m_tempMaterials);
+		if ( m_tempMaterials.Count > 1 )
 		{
 			for ( int i = 1; i < renderer.materials.Length; ++i )
 			{
@@ -632,27 +634,39 @@ public class QuestText : MonoBehaviour
 			renderer.materials = new Material[] { renderer.materials[0] };
 		}
 
-		// Use regex to find cases of #Whatever# so we can add the image
-		return Regex.Replace(text,REGEX_TAG, EvaluateImageTagMatch );
+		// Use regex to find cases of [Whatever] so we can add the image
+		// TODO(arcnor): This (just the call to Replace with an evaluator) causes 112 bytes per frame of garbage, even when there are no matches
+		return REGEX_TAG.Replace(text, EvaluateImageTagMatch);
 	}
 
 	static readonly string TAG_QUAD = @"<quad material={0} size={1} x={2} y={3} width={4} height={5} />";
 
-	string EvaluateImageTagMatch( Match match )
-	{	
-		string result = string.Empty;	
+	private static TextSpriteData FindByTag(TextSpriteData[] textSpriteData, string tag) 
+	{
+		foreach (var spriteData in textSpriteData) 
+		{
+			if (string.Equals(spriteData.m_tag, tag,System.StringComparison.OrdinalIgnoreCase)) 
+				return spriteData;
+		}
+
+		return null;
+	}
+
+	string EvaluateImageTagMatch( Match match ) 
+	{
+		string result = string.Empty;
 		if ( match.Groups == null || match.Groups.Count < 2 || PowerQuest.Exists== false)
 			return result;
 
 		string tag = match.Groups[1].Value;
 		// TODO: Append platform tag
 		tag += "PS";
-		TextSpriteData data = System.Array.Find( PowerQuest.Get.m_textSprites, item=>string.Equals(item.m_tag, tag,System.StringComparison.OrdinalIgnoreCase) );
+		TextSpriteData data = FindByTag(PowerQuest.Get.m_textSprites, tag);
 		// if not found with platform tag, try without
 		if ( data == null )
 		{
 			tag = match.Groups[1].Value;
-			data = System.Array.Find( PowerQuest.Get.m_textSprites, item=>string.Equals(item.m_tag, tag,System.StringComparison.OrdinalIgnoreCase) );
+			data = FindByTag(PowerQuest.Get.m_textSprites, tag);
 		}
 
 		if ( data == null || data.m_sprite == null )
@@ -663,7 +677,19 @@ public class QuestText : MonoBehaviour
 		// Check if material exists in guitext already
 
 		MeshRenderer renderer = GetComponent<MeshRenderer>();
-		int matIndex = System.Array.FindIndex(renderer.materials, item=>item.mainTexture == sprite.texture);
+		int matIndex = -1;
+
+		for (int index = 0; index < renderer.materials.Length; index++) 
+		{
+			var m = renderer.materials[index];
+
+			if (m.mainTexture == sprite.texture) 
+			{
+				matIndex = index;
+				break;
+			}
+		}
+
 		if ( matIndex < 0 )
 		{
 			matIndex = renderer.materials.Length;

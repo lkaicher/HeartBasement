@@ -21,6 +21,9 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	static readonly string FUNC_UPDATE_NOPAUSE = "UpdateNoPause";
 	public static readonly string SPRITE_NUM_POSTFIX_0 = "_0";
 
+	private static readonly int MaxColliderInteractions = 256;
+	private Collider2D[] m_tempPicked = new Collider2D[MaxColliderInteractions];
+
 	// Class for timers
 	[System.Serializable] class Timer { public string n; public float t; }	
 
@@ -56,7 +59,8 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	[Tooltip("The default vertical resolution of the game. How many pixels high the camera view will be.")]
 	[SerializeField] float m_verticalResolution = 180;	
 	[Tooltip("The range of horizontal resolution your game supports. How many pixels wide the camera view will be. If the screen aspect ratio goes narrower or wider than this the game will be letterboxed. (Use to set what aspect ratios you support)")]
-	[SerializeField] MinMaxRange m_horizontalResolution = new MinMaxRange(288,320);
+	[UnityEngine.Serialization.FormerlySerializedAs("m_horizontalResolution")]
+	[SerializeField] MinMaxRange m_letterboxWidth = new MinMaxRange(320);
 	[Tooltip("Whether camera and other things snap to pixel. For pixel art games")]
 	[SerializeField] bool m_snapToPixel = true;
 	[Tooltip("Whether to set up a pixel camera that renderes sprites at pixel resolution. For pixel art games")]
@@ -393,6 +397,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 
 	public bool GetFading() { return m_menuManager.GetFading(); }
 	public Color FadeColor { get{return m_menuManager.FadeColor;} set{ m_menuManager.FadeColor = value;} }
+	public Color FadeColorDefault { get{return m_menuManager.FadeColorDefault;} set{ m_menuManager.FadeColorDefault = value;} }
 	public void FadeColorRestore() { m_menuManager.FadeColorRestore(); }
 
 	public float GetFadeRatio() {return m_menuManager.GetFadeRatio();}
@@ -434,10 +439,21 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	// Start/Stop timers
 	//
 
-	/// Starts timer with a *name*, counting down from `time` in seconds. Set to zero to remove timer
-	public void SetTimer(string name, float time)
+	private Timer FindTimer(string name) 
 	{
-		Timer timer = SV.m_timers.Find(item=> item.n.Equals(name, System.StringComparison.OrdinalIgnoreCase  ) );
+		foreach (var timer in SV.m_timers) 
+		{
+			if (timer.n.Equals(name, System.StringComparison.OrdinalIgnoreCase)) 
+				return timer;
+		}
+
+		return null;
+	}
+
+	/// Starts timer with a *name*, counting down from `time` in seconds. Set to zero to remove timer
+	public void SetTimer(string name, float time) 
+	{
+		Timer timer = FindTimer(name);
 
 		// Setting to zero removes timer
 		if ( time <= 0 )
@@ -458,7 +474,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	/// Checks whether the timer with specified `name` has expired. If the timeout set with SetTimer has elapsed, returns *true*. Otherwise, returns *false*.
 	public bool GetTimerExpired(string name)
 	{
-		Timer timer = SV.m_timers.Find(item=> item.n.Equals(name, System.StringComparison.OrdinalIgnoreCase  ) );
+		Timer timer = FindTimer(name);
 		if ( timer != null && timer.t <= 0 )
 		{
 			SV.m_timers.Remove(timer);
@@ -470,7 +486,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	///	Returns timer value 	
 	public float GetTimer(string name)
 	{
-		Timer timer = SV.m_timers.Find(item=> item.n.Equals(name, System.StringComparison.OrdinalIgnoreCase  ) );		
+		Timer timer = FindTimer(name);
 		return (timer != null && timer.t > 0) ? timer.t : 0;
 	}
 
@@ -541,7 +557,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 
 	public Room GetRoom(string scriptName) 
 	{ 		
-		Room result = m_rooms.Find(item=>string.Equals(item.ScriptName, scriptName, System.StringComparison.OrdinalIgnoreCase )); 		
+		Room result = QuestUtils.FindScriptable(m_rooms, scriptName);
 		if ( result == null && string.IsNullOrEmpty(scriptName) == false )
 			Debug.LogError("Room doesn't exist: "+scriptName+". Check for typos and that it's added to PowerQuest");				
 		return GetSavable(result);
@@ -557,12 +573,12 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		GetCamera().SetCharacterToFollow(newPlayer,sameRoom ? cameraTransitionTime : 0 );
 		ChangeRoomBG(m_player.Room);
 	}
-	public Character GetCharacter(string scriptName) { Systems.Text.LastPlayerName=SystemText.ePlayerName.Character; return GetSavable(m_characters.Find(item=>string.Equals(item.ScriptName, scriptName, System.StringComparison.OrdinalIgnoreCase ))); }
+	public Character GetCharacter(string scriptName) { Systems.Text.LastPlayerName=SystemText.ePlayerName.Character; return GetSavable(QuestUtils.FindScriptable(m_characters, scriptName)); }
 	/// Shortcut to the current player's active inventory  
 	public IInventory ActiveInventory { get { return GetSavable(m_player.ActiveInventory as Inventory); } set { m_player.ActiveInventory = value; } }
 	// NB: Potential pitfall, if modify items from this list, they aren't marked as dirty for save system.
 	public List<Inventory> GetInventoryItems() { return m_inventoryItems; }
-	public Inventory GetInventory(string scriptName) { return GetSavable(m_inventoryItems.Find(item=>string.Equals(item.ScriptName, scriptName, System.StringComparison.OrdinalIgnoreCase )));	}
+	public Inventory GetInventory(string scriptName) { return GetSavable(QuestUtils.FindScriptable(m_inventoryItems, scriptName));	}
 		
 	public static T GetSavable<T>(T savable) where T: IQuestSaveCachable 
 	{ 
@@ -572,12 +588,9 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	}
 	public DialogTree GetCurrentDialog() { return GetSavable(m_currentDialog); }	
 	public DialogTree GetPreviousDialog() { return GetSavable(m_previousDialog); }
-	public DialogTree GetDialogTree(string scriptName) { return GetSavable(m_dialogTrees.Find(item=>string.Equals(item.ScriptName, scriptName, System.StringComparison.OrdinalIgnoreCase))); }
-	public Gui GetGui(string scriptName) { return m_guis.Find(item=>string.Equals(item.ScriptName, scriptName, System.StringComparison.OrdinalIgnoreCase)); }
-	public GameObject GetSpawnablePrefab(string name)
-	{
-		return m_spawnablePrefabs.Find(item=>string.Equals(name, item.name, System.StringComparison.OrdinalIgnoreCase));
-	}
+	public DialogTree GetDialogTree(string scriptName) { return GetSavable(QuestUtils.FindScriptable(m_dialogTrees, scriptName)); }
+	public Gui GetGui(string scriptName) { return QuestUtils.FindScriptable(m_guis, scriptName); }
+	public GameObject GetSpawnablePrefab(string name) { return QuestUtils.FindByName(m_spawnablePrefabs, name); }
 
 	//
 	// Access to useful system data
@@ -644,8 +657,8 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	}
 	public float DefaultVerticalResolution { get { return m_verticalResolution; } }
 
-	public MinMaxRange HorizontalResolution => m_horizontalResolution;
-	public void EditorSetHorizontalResolution(MinMaxRange range) { m_horizontalResolution = range; }
+	public MinMaxRange HorizontalResolution => m_letterboxWidth;
+	public void EditorSetHorizontalResolution(MinMaxRange range) { m_letterboxWidth = range; }
 
 	//
 	// Settings
@@ -1937,11 +1950,11 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	public QuestCameraComponent GetCameraPrefab() { return m_cameraPrefab; }
 	public QuestText GetDialogTextPrefabEditor() { return m_dialogTextPrefab; }
 	public List<AnimationClip> GetInventoryAnimations() { return m_inventoryAnimations; }
-	public AnimationClip GetInventoryAnimation(string animName) { return m_inventoryAnimations.Find(item=> item == null ? false : string.Equals(item.name, animName, System.StringComparison.OrdinalIgnoreCase));  }	
+	public AnimationClip GetInventoryAnimation(string animName) { return QuestUtils.FindByName(m_inventoryAnimations, animName); }
 	public List<Sprite> GetInventorySprites() { return m_inventorySprites; }
 	public Sprite GetInventorySprite(string animName) { return FindSpriteInList( m_inventorySprites, animName); }
 	public List<AnimationClip> GetGuiAnimations() { return m_guiAnimations; }
-	public AnimationClip GetGuiAnimation(string animName) { return m_guiAnimations.Find(item=> item == null ? false : string.Equals(item.name, animName, System.StringComparison.OrdinalIgnoreCase));  }	
+	public AnimationClip GetGuiAnimation(string animName) { return QuestUtils.FindByName(m_guiAnimations, animName); }
 	public List<Sprite> GetGuiSprites() { return m_guiSprites; }
 	
 	public Sprite GetGuiSprite(string animName) { return FindSpriteInList(m_guiSprites, animName); }
@@ -2091,6 +2104,9 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 
 		if ( LAYER_UI < 0 )
 			LAYER_UI = LayerMask.NameToLayer("UI");
+
+		// init menu manager
+		m_menuManager.Awake();
 
 		//
 		// Ensure there's no null quest objects lingering in lists. This may be due to unity doing wierd things with the list, or them being deleted incorrectly. 
@@ -2584,6 +2600,12 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 			rect.Width = 1;
 			rect.Height = currWidth/newWidth;
 		}
+		else
+		{
+			// Neither
+			rect.Width = 1;
+			rect.Height = 1;
+		}
 		Camera.GetInstance().Camera.rect = rect;
 		GetCameraGui().rect = rect;
 	}
@@ -2730,16 +2752,16 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	{
 		IQuestClickable result = null;
 
-		Collider2D[] picked = Physics2D.OverlapPointAll(pos, layerMask);
+		int overlapCount = Physics2D.OverlapPointNonAlloc(pos, m_tempPicked, layerMask);
 		pickedGameObject = null;
 
-		if ( picked != null && picked.Length > 0 )
+		if ( m_tempPicked != null && overlapCount > 0 )
 		{
 			float lowestBaseline = float.MaxValue;
-			for ( int i = 0; i < picked.Length; ++i ) 
+			for ( int i = 0; i < overlapCount; ++i )
 			{
 				IQuestClickable clickable = null;
-				GameObject pickedObj = picked[i].gameObject;
+				GameObject pickedObj = m_tempPicked[i].gameObject;
 				{
 					GuiDialogOption component = pickedObj.GetComponent<GuiDialogOption>();
 					if ( component != null ) clickable = component.Clickable;

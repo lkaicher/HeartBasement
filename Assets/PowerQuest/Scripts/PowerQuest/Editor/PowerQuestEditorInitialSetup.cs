@@ -435,7 +435,8 @@ public partial class PowerQuestEditor
 				PowerQuestProjectSetupUtil.AddAlwaysIncludedShaders();
 			
 				// Scale vertical resolution to horizontal resolutions supported. (Now regretting setting it as a width instead of aspect dropdown lol)
-				m_powerQuest.EditorSetHorizontalResolution(new MinMaxRange((16f/10f)*m_powerQuest.DefaultVerticalResolution,(16f/9f)*m_powerQuest.DefaultVerticalResolution) );
+				m_powerQuest.EditorSetHorizontalResolution(new MinMaxRange((16f/9f)*m_powerQuest.DefaultVerticalResolution) );
+				EditorUtility.SetDirty(m_powerQuest);
 			}
 
 			// Remove PowerQuestObsolete after upgrading for all future versions

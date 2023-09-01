@@ -193,7 +193,7 @@ public partial class QuestCursorComponent : MonoBehaviour
 
 	public AnimationClip GetAnimation(string animName) 
 	{	
-		AnimationClip clip = GetAnimations().Find( item=>string.Equals(animName, item.name, System.StringComparison.OrdinalIgnoreCase) );
+		AnimationClip clip = QuestUtils.FindByName(GetAnimations(), animName);
 		// If not found in own list of anims, try in the inventory
 		if ( clip == null )
 			clip = PowerQuest.Get.GetInventoryAnimation(animName);			

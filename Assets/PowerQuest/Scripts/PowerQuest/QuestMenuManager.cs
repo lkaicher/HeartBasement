@@ -53,7 +53,7 @@ public class QuestMenuManager
 	float m_fadeOutTime = 0;
 	float m_fadeAlpha = 0;
 	SpriteRenderer m_sprite = null;
-	Color m_fadeColourPrev = Color.black;		
+	Color m_fadeColourDefault = Color.black;		
 	
 	//
 	// Gui keyboard variables
@@ -66,6 +66,8 @@ public class QuestMenuManager
 	bool m_kbWaitForRelease = false; // Whether to wait for next input before processing next input (used when )
 	Vector2 m_cachedMousePos = Vector2.zero;
 
+	private List<Gui> m_sortedGuis = new List<Gui>();
+
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Public functions
 
@@ -75,10 +77,16 @@ public class QuestMenuManager
 	// Callback for implementing custom fades
 	public System.Action CallbackOnUpdateFade = null;
 
+	public void Awake()
+	{
+		// init deafult fadecolor. This is a bit round-about to preserve back-compatibility
+		m_fadeColourDefault = m_fadeColour;
+	}
 	public bool KeyboardActive => m_kbActive;
 
-	public Color FadeColor { get { return m_fadeColour;} set{m_fadeColourPrev = m_fadeColour; m_fadeColour = value; UpdateFadeSprite(); } }
-	public void FadeColorRestore() { m_fadeColour = m_fadeColourPrev; /* UpdateFadeSprite();*/ } 
+	public Color FadeColor { get { return m_fadeColour;} set{ m_fadeColour = value; UpdateFadeSprite(); } }
+	public Color FadeColorDefault { get { return m_fadeColourDefault;} set{ m_fadeColourDefault = value; UpdateFadeSprite(); } }
+	public void FadeColorRestore() { m_fadeColour = m_fadeColourDefault; /* UpdateFadeSprite();*/ } 
 
 	public bool GetFading() 
 	{
@@ -133,9 +141,10 @@ public class QuestMenuManager
 		#endif
 		m_fadeInTime = time;
 		m_fadeSources.Remove(source);
-		if ( m_fadeInTime == 0 )
+		if ( m_fadeInTime == 0 && m_fadeSources.Empty() )
 		{
 			m_fadeAlpha = 0;
+			FadeColorRestore(); // After fading back in fully, restore the fade color. Otherwise it leads to lots of bugs where you forget to change it back.
 			UpdateFadeSprite();
 		}
 	}
@@ -156,16 +165,20 @@ public class QuestMenuManager
 		if( m_fadeSources.Empty() && m_fadeAlpha > 0.0f )
 		{
 			m_fadeAlpha -= Time.deltaTime / m_fadeInTime;
-			if ( m_fadeAlpha < 0.0f )
+			if ( m_fadeAlpha <= 0.0f )
+			{
 				m_fadeAlpha = 0.0f;
+				FadeColorRestore(); // After fading back in fully, restore the fade color. Leads to lots of bugs where you forget to change it back otherwise.
+			}			
 			UpdateFadeSprite();
 		}
 
 
 		// Update Gui sort order based on "baseline"
-		List<Gui> guis = new List<Gui>(PowerQuest.Get.GetGuis());
+		m_sortedGuis.Clear();
+		m_sortedGuis.AddRange(PowerQuest.Get.GetGuis());
 		// Sort guis by baseline
-		guis.Sort( (a,b)=>
+		m_sortedGuis.Sort( (a,b)=>
 			{ 
 				int result = b.Baseline.CompareTo(a.Baseline);
 				if ( result == 0 && a.Instance != null && b.Instance != null )
@@ -173,7 +186,7 @@ public class QuestMenuManager
 				return result;
 			});
 		int guiIndex = 0;
-		foreach ( Gui gui in guis )
+		foreach ( Gui gui in m_sortedGuis )
 		{
 			if ( gui.Instance != null )
 				gui.Instance.transform.SetSiblingIndex(guiIndex++);			

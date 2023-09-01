@@ -178,17 +178,20 @@ public partial class PowerQuest
 		}
 	}
 
+	private List<Gui> m_sortedGuis = new List<Gui>();
 
 	// Called from PQ update
 	void UpdateGuiVisibility()
 	{
 		// Sort guis by baseline
-		List<Gui> sortedGuis = new List<Gui>(m_guis);
-		sortedGuis.Sort((Gui a, Gui b)=> a.Baseline.CompareTo(b.Baseline));
+		m_sortedGuis.Clear();
+		m_sortedGuis.AddRange(m_guis);
+		m_sortedGuis.Sort((Gui a, Gui b)=> a.Baseline.CompareTo(b.Baseline));
+
 		bool hideRemaining = false;
 
 		// Loop through from front to back, and hide any that are obscured, or if cutscene is active
-		foreach ( Gui gui in sortedGuis )
+		foreach ( Gui gui in m_sortedGuis )
 		{			
 			if ( hideRemaining )
 				gui.HiddenBySystem = true;		
@@ -201,7 +204,7 @@ public partial class PowerQuest
 					hideRemaining = true;
 		}
 		// Hide guis that specifically want others hidden
-		foreach ( Gui gui in sortedGuis )
+		foreach ( Gui gui in m_sortedGuis )
 		{
 			// Hide any specfiic guis on sorted guis
 			if ( gui.Visible )

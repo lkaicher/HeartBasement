@@ -151,7 +151,7 @@ public partial class PowerQuest
 		Debug.Assert(roomInstance != null, "Failed to find room instance in scene");
 		string roomName = roomInstance.GetData().ScriptName;
 		// Find the room's data
-		Room room = m_rooms.Find( item=> string.Equals(item.ScriptName, roomName, System.StringComparison.OrdinalIgnoreCase) );
+		Room room = QuestUtils.FindScriptable(m_rooms, roomName);
 		Debug.Assert(room != null, "Failed to load room '"+roomName+"'");
 		m_currentRoom = room;
 		room.SetInstance(roomInstance);

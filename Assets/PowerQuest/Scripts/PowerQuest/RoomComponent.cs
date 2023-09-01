@@ -32,7 +32,7 @@ public partial class RoomComponent : MonoBehaviour
 	public List<RegionComponent> GetRegionComponents() { return m_regionComponents; }
 	public List<WalkableComponent> GetWalkableAreas() { return m_walkableAreas; }
 
-	public AnimationClip GetAnimation(string animName) { return m_animations.Find(item=>item != null && string.Equals(animName, item.name, System.StringComparison.OrdinalIgnoreCase));  }
+	public AnimationClip GetAnimation(string animName) { return QuestUtils.FindByName(m_animations, animName); }
 	public List<AnimationClip> GetAnimations() { return m_animations; }
 	
 	

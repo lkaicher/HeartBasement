@@ -403,30 +403,35 @@ public class SystemTime : Singleton<SystemTime>
 			
 			float realTimeDelta = Time.realtimeSinceStartup - m_timeSinceLastFrame;
 			m_timeSinceLastFrame = Time.realtimeSinceStartup;
-							
-			var keys = new List<string>(m_timeScaleMultipliers.Keys);
-			foreach (string key in keys)
+
+			if (m_timeScaleMultipliers.Count > 0) 
 			{
-				float timeRemaining = m_timeScaleMultipliers[key].m_time;
-				if ( timeRemaining > 0 )
+				var keys = new List<string>(m_timeScaleMultipliers.Keys);
+
+				foreach (string key in keys) 
 				{
-					timeRemaining -= realTimeDelta;
-					if ( timeRemaining <= 0 )
+					float timeRemaining = m_timeScaleMultipliers[key].m_time;
+
+					if (timeRemaining > 0) 
 					{
-						m_timeScaleMultipliers.Remove(key);
-					}
-					else
+						timeRemaining -= realTimeDelta;
+
+						if (timeRemaining <= 0) 
+						{
+							m_timeScaleMultipliers.Remove(key);
+						}
+						else 
+						{
+							m_timeScaleMultipliers[key].m_time = timeRemaining;
+							timeMultiplier = Mathf.Min(timeMultiplier, m_timeScaleMultipliers[key].m_mult);
+						}
+					} 
+					else 
 					{
-						m_timeScaleMultipliers[key].m_time = timeRemaining;
-						timeMultiplier = Mathf.Min( timeMultiplier, m_timeScaleMultipliers[key].m_mult );
+						timeMultiplier = Mathf.Min(timeMultiplier, m_timeScaleMultipliers[key].m_mult);
 					}
-				}
-				else 
-				{
-					timeMultiplier = Mathf.Min( timeMultiplier, m_timeScaleMultipliers[key].m_mult );
 				}
 			}
-			
 			/*  Time mult smoothing (disabled for now) /
 			if ( timeMultiplier > 0.0f )
 			{

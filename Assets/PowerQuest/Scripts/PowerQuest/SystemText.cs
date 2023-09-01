@@ -380,12 +380,15 @@ public class SystemText : PowerTools.Singleton<SystemText>
 
 		if ( characterName == null )
 			characterName = string.Empty;
-		
-		List<TextData> dataList = null; 		
-		m_characterStrings.TryGetValue(characterName, out dataList);
 
-		if ( dataList != null )
-			return dataList.Find(item=>item.m_id == id);
+		if (m_characterStrings.TryGetValue(characterName, out List<TextData> dataList)) 
+		{
+			foreach (var textData in dataList) 
+			{
+				if (textData.m_id == id)
+					return textData;
+			}
+		}
 
 		return null;
 	}

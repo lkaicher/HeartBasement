@@ -78,7 +78,7 @@ public partial class PowerQuest
 		
 		foreach( Character value in m_characters )
 		{
-			data.Add( "Char"+value.GetScriptName(), value );
+			data.Add( "Char"+value.ScriptName, value );
 		}
 		foreach( Room value in m_rooms )
 		{
