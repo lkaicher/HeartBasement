@@ -66,6 +66,11 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		//Temp
 		//LowerWaterShader(40, "CharacterDave");
+		GameObject fountain;
+		fountain = GameObject.Find("Fountain");
+		fountain.SetActive(true);
+		
+		
 		Audio.PlayMusic("Basement1", 2);
 		
 		if (Globals.LoadingChapter) {
