@@ -24,7 +24,8 @@ public class RoomHome : RoomScript<RoomHome>
 	};
 	
 	private string[] sizeString = { "Small", "Medium", "Large" };
-	
+
+	private GameObject fountain;
 	
 	handleType currentHandle = handleType.small;
 	hoseType currentHose = hoseType.small;
@@ -66,6 +67,12 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		//Temp
 		//LowerWaterShader(40, "CharacterDave");
+		
+		fountain = GameObject.Find("Fountain");
+		
+		fountain.SetActive(false);
+		
+		
 		Audio.PlayMusic("Basement1", 2);
 		
 		if (Globals.LoadingChapter) {
@@ -391,12 +398,15 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return C.Dave.FaceDown();
 		}
 		else if (Globals.gameStage >= gameProgress.SecondFlood){
-			yield return E.Wait(10f);
+		
+			fountain.SetActive(true);
+			yield return E.Wait(2.5f);
 			C.Dave.StopAnimation();
 			Prop("Pump").Visible = true;
 			Prop("Handle").Visible = true;
-			yield return C.Dave.Say("This water ain't goin nowhere!", 31);
-			yield return C.Dave.Say("I'm gonna need a better pump.", 33);
+			yield return C.Dave.Say(" This pump is busted!");
+			// Dave(31): This water ain't goin nowhere!
+			//Dave(33): I'm gonna need a better pump.
 		}
 		else if (Globals.gameStage >= gameProgress.RightParts) {
 			C.Dave.StopAnimation();
