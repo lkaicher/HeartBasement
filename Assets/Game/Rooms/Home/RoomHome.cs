@@ -24,7 +24,8 @@ public class RoomHome : RoomScript<RoomHome>
 	};
 	
 	private string[] sizeString = { "Small", "Medium", "Large" };
-	
+
+	private GameObject fountain;
 	
 	handleType currentHandle = handleType.small;
 	hoseType currentHose = hoseType.small;
@@ -67,6 +68,9 @@ public class RoomHome : RoomScript<RoomHome>
 		//Temp
 		//LowerWaterShader(40, "CharacterDave");
 		
+		fountain = GameObject.Find("Fountain");
+		
+		fountain.SetActive(false);
 		
 		
 		Audio.PlayMusic("Basement1", 2);
@@ -394,8 +398,7 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return C.Dave.FaceDown();
 		}
 		else if (Globals.gameStage >= gameProgress.SecondFlood){
-			GameObject fountain;
-			fountain = GameObject.Find("Fountain");
+		
 			fountain.SetActive(true);
 			yield return E.Wait(2.5f);
 			C.Dave.StopAnimation();
