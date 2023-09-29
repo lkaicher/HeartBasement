@@ -5203,7 +5203,7 @@ ParticleSystem:
     startSpeed:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 50
+      scalar: 100
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -5318,8 +5318,8 @@ ParticleSystem:
         m_NumAlphaKeys: 2
     startSize:
       serializedVersion: 2
-      minMaxState: 0
-      scalar: 5
+      minMaxState: 3
+      scalar: 3
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -5371,7 +5371,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startSizeY:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 0.5
       minScalar: 1
       maxCurve:
@@ -5424,7 +5424,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startSizeZ:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 0.5
       minScalar: 1
       maxCurve:
@@ -6400,16 +6400,16 @@ ParticleSystem:
         key0: {r: 0.05490196, g: 0.49343207, b: 0.90588236, a: 1}
         key1: {r: 0.38766626, g: 0.6211867, b: 0.84249866, a: 1}
         key2: {r: 0.54901963, g: 0.6831333, b: 0.8117647, a: 1}
-        key3: {r: 0.755785, g: 0.80101365, b: 0.8301887, a: 1}
-        key4: {r: 0.7686275, g: 0.7686275, b: 0.7686275, a: 0}
+        key3: {r: 1, g: 1, b: 1, a: 1}
+        key4: {r: 0.755785, g: 0.80101365, b: 0.8301887, a: 0}
         key5: {r: 0.7686275, g: 0.7686275, b: 0.7686275, a: 0}
         key6: {r: 0, g: 0, b: 0, a: 0}
         key7: {r: 0, g: 0, b: 0, a: 0}
         ctime0: 0
-        ctime1: 12722
-        ctime2: 39321
-        ctime3: 54163
-        ctime4: 35659
+        ctime1: 47995
+        ctime2: 58211
+        ctime3: 65535
+        ctime4: 65535
         ctime5: 35659
         ctime6: 0
         ctime7: 0
@@ -20109,8 +20109,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.5
-      minScalar: 0.3
+      scalar: 3
+      minScalar: 1
       maxCurve:
         serializedVersion: 2
         m_Curve:
