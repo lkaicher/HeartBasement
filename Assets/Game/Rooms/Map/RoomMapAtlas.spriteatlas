@@ -51,8 +51,20 @@ SpriteAtlas:
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 3edd7587fc834a240b42af6f3286cc72, type: 3}
+  - {fileID: 6285279276293884653, guid: e9a7c009e8bd944db9e08546972d9fef, type: 3}
+  - {fileID: 4620599527784502767, guid: e9a7c009e8bd944db9e08546972d9fef, type: 3}
+  - {fileID: -7672687199303312756, guid: e9a7c009e8bd944db9e08546972d9fef, type: 3}
+  - {fileID: 5203703017128292093, guid: e9a7c009e8bd944db9e08546972d9fef, type: 3}
+  - {fileID: 21300000, guid: ce74a75ac981648bf985be47cd60afec, type: 3}
+  - {fileID: 21300000, guid: 91107fbd5a7d7498e8f2ec46890dd137, type: 3}
   m_PackedSpriteNamesToIndex:
   - HeartBasementMap
+  - X
+  - sign
+  - HeartBasementMap2
+  - Layer 2
+  - HeartBasementMapNew
+  - HeartBasementMapFlooded
   m_RenderDataMap: {}
   m_Tag: RoomMapAtlas
   m_IsVariant: 0

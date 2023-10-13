@@ -146,9 +146,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_vertical: 0
-  m_horizontal: 1
-  m_object: {fileID: 1722252569107627004}
-  m_offset: {x: 4, y: 0}
+  m_horizontal: 0
+  m_object: {fileID: 0}
+  m_offset: {x: 0, y: 0}
   m_offsetRatio: {x: 0, y: 0}
 --- !u!1 &5438439915506226981
 GameObject:
@@ -300,17 +300,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_fitWhat: 1
-  m_fitWidth:
-  - {fileID: 19159914639367433}
-  m_fitHeight:
-  - {fileID: 19159914639367433}
+  m_fitWidth: []
+  m_fitHeight: []
   m_padding:
-    left: 4
-    right: 4
-    top: 1
-    bottom: 1
+    left: 0
+    right: 0
+    top: 0
+    bottom: 0
   m_snapToPixel: 1
-  m_includeChildren: 0
+  m_includeChildren: 1
 --- !u!1 &6226667497493800346
 GameObject:
   m_ObjectHideFlags: 0
@@ -361,31 +359,31 @@ MonoBehaviour:
   m_baseline: 0
   m_visible: 1
   m_clickable: 1
-  m_description: 
+  m_description: New Button
   m_cursor: 
   m_requireKeyboardFocus: 1
   m_maxCharacters: -1
   m_caretCharacter: _
   m_caretBlinkRate: 0.4
-  m_anim: BtnDown
-  m_animHover: BtnOver
-  m_animClick: Btn
-  m_animEdit: Btn
-  m_animOff: BtnOff
-  m_color: {r: 0.38823533, g: 0.60784316, b: 1, a: 1}
-  m_colorHover: {r: 0.22352943, g: 0.4156863, b: 0.7803922, a: 1}
-  m_colorClick: {r: 1, g: 1, b: 1, a: 1}
-  m_colorEdit: {r: 1, g: 1, b: 1, a: 1}
-  m_colorOff: {r: 0.22352943, g: 0.4156863, b: 0.7803922, a: 1}
+  m_anim: 
+  m_animHover: 
+  m_animClick: 
+  m_animEdit: 
+  m_animOff: 
+  m_color: {r: 0, g: 0, b: 0, a: 1}
+  m_colorHover: {r: 0, g: 0, b: 0, a: 0}
+  m_colorClick: {r: 0, g: 0, b: 0, a: 0}
+  m_colorEdit: {r: 0, g: 0, b: 0, a: 0}
+  m_colorOff: {r: 0, g: 0, b: 0, a: 0}
   m_hotspotPadding:
     left: 0
     right: 0
     top: 0
     bottom: 0
   m_customSize:
-    m_min: {x: -54, y: -7}
-    m_max: {x: 54, y: 6}
-  m_textPadding: {x: 4, y: 0}
+    m_min: {x: 0, y: 0}
+    m_max: {x: 0, y: 0}
+  m_textPadding: {x: 0, y: 0}
 --- !u!61 &9219354003288955941
 BoxCollider2D:
   m_ObjectHideFlags: 0
