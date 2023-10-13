@@ -79,8 +79,10 @@ public class RoomHome : RoomScript<RoomHome>
 			Globals.LoadingChapter = false;
 			Prop("Box").Disable();
 			// Disable bucket if past tutorial
+			// also make so dave can move
 			if (Globals.gameStage > gameProgress.None){
 				Prop("Bucket").Disable();
+				C.Dave.Moveable = true;
 			} else {
 				Prop("Bucket").Enable();
 			}
