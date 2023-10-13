@@ -21,7 +21,7 @@ public class CharacterHardwareClerk : CharacterScript<CharacterHardwareClerk>
 		yield return C.Dave.Face(eFace.Right);
 		
 		if ( Globals.gameStage >= gameProgress.SecondFlood ) {
-			yield return E.HandleOption( D.DialogWithClerk, "3");
+			yield return E.HandleOption( D.DialogWithClerk, "4");
 		
 		} else if (D.DialogWithClerk.GetOption(2).Used) {
 		
