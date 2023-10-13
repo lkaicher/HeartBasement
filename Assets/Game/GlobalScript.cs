@@ -30,8 +30,8 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		TonyPumped,
 		TonyAte,
 		SecondFlood,
-		UsedElectricPump,
-		RepairedPump,
+		UsedElectricPump, // repaired bilge pump
+		RepairedPump, // bought house
 		WonGame
 	};
 	
@@ -41,10 +41,10 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	// tutorial sequence variables
 	public enum tutorialProgress {start, clickedBucket, selectedBucket, usedBucket, complete};
 	public tutorialProgress tutorialStage= tutorialProgress.start;
-
+	
 	public bool LoadingChapter = false;
 	public int ChapterToLoad = -1;
-
+	
 	public bool rained = false;
 	
 	/// Just an example of using a global variable that can be accessed in any room with `Globals.m_spokeToBarney`.
@@ -56,8 +56,8 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	
 	/// Called when game first starts
 	
-		
-
+	
+	
 	public void OnGameStart()
 	{     
 		// GAME STAGE

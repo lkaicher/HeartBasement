@@ -19,6 +19,14 @@ public class RoomMap : RoomScript<RoomMap>
 		C.Dave.SetPosition(Point(string.Format("{0}Point",C.Dave.LastRoom.ScriptName)));
 		
 		
+		if (Globals.gameStage > gameProgress.SecondFlood) {
+			R.Map.ActiveWalkableArea = 1;
+			Prop("Back").Animation = "HeartBasementMapFlooded";
+		} else {
+			R.Map.ActiveWalkableArea = 0;
+			Prop("Back").Animation = "HeartBasementMapNew";
+		}
+		
 		
 		// if (C.Dave.LastRoom == R.Hardware) {
 		//	 C.Dave.SetPosition(Point("HardwarePoint"));

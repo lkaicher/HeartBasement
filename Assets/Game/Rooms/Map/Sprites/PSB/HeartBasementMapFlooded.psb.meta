@@ -114,7 +114,7 @@ ScriptedImporter:
     tessellationDetail: 0
     parentGroupIndex: -1
     uvTransform: {x: 4, y: 1092}
-    spritePosition: {x: 580, y: 217}
+    spritePosition: {x: 580, y: 53}
   - name: sign
     originalName: 
     pivot: {x: 0.5, y: 0.5}
@@ -276,16 +276,6 @@ ScriptedImporter:
     flatten: 0
     isImported: 1
     isVisible: 1
-  - name: HeartBasementMap2
-    spriteName: 
-    isGroup: 0
-    parentIndex: -1
-    spriteID: 92b26d055c5b04476a01bb684d56ccdb
-    layerID: 5
-    mosaicPosition: {x: 0, y: 0}
-    flatten: 0
-    isImported: 0
-    isVisible: 0
   - name: sign
     spriteName: sign
     isGroup: 0
@@ -316,6 +306,16 @@ ScriptedImporter:
     flatten: 0
     isImported: 1
     isVisible: 1
+  - name: HeartBasementMap2
+    spriteName: 
+    isGroup: 0
+    parentIndex: -1
+    spriteID: 92b26d055c5b04476a01bb684d56ccdb
+    layerID: 5
+    mosaicPosition: {x: 0, y: 0}
+    flatten: 0
+    isImported: 0
+    isVisible: 0
   sharedRigPSDLayers: []
   pSDLayerImportSetting: []
   generateGOHierarchy: 0
