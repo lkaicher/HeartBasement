@@ -104,6 +104,7 @@ public class DialogDialogWithClerk : DialogTreeScript<DialogDialogWithClerk>
 		yield return C.Dave.Say(" Alright alright Doc, I'll take it");
 		
 		C.Dave.AddInventory(I.RepairKit);
+		yield return C.Display(" Repair Kit added to your toolbox.");
 		yield return E.Break;
 	}
 }

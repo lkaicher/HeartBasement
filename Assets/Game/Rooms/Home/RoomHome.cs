@@ -403,7 +403,47 @@ public class RoomHome : RoomScript<RoomHome>
 		}
 		else if (Globals.gameStage >= gameProgress.SecondFlood){
 		
-			if (!beenSprayed){
+			if (Globals.gameStage == gameProgress.UsedElectricPump){
+		
+				bool firstTime = true;
+				if (pumpRepairs == 3){
+					//Audio.Play("Motor");
+					yield return UnfloodBasement();
+						C.Dave.StopAnimation();
+					Prop("Pump").Visible = true;
+					Prop("Handle").Visible = true;
+					//Audio.Stop("Motor");
+					Globals.gameStage = gameProgress.RepairedPump;
+					G.Explanation.Show();
+						yield return E.WaitSkip();
+					yield return C.Dave.Say(" Phew!", 115);
+					yield return E.WaitSkip();
+					yield return C.Dave.Say(" The pump works again!", 116);
+		
+				} else {
+						yield return E.WaitSkip();
+						C.Dave.StopAnimation();
+						Prop("Pump").Visible = true;
+						Prop("Handle").Visible = true;
+					//Audio.Play("MotorFailure");
+					if (pumpRepairs == 0){
+		
+		
+		
+						yield return C.Dave.Say("It's broken!", 118);
+							yield return E.WaitSkip(1.0f);
+		
+						yield return C.Dave.Say(" It's that rusty washer.", 119);
+		
+					}  else if (pumpRepairs == 1){
+						yield return C.Dave.Say(" I'd better put the new washer on.", 120);
+					} else if (pumpRepairs == 2){
+						yield return C.Dave.Say(" Whoops, forgot to tighten the washer!", 121);
+					}
+				}
+			}
+		
+		 else if (!beenSprayed){
 				fountain.SetActive(true);
 				yield return E.Wait(2.5f);
 				C.Dave.StopAnimation();
