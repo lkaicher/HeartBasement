@@ -178,9 +178,11 @@ public partial interface IPowerQuest
 
 	/// Returns true if a fadeout/in is currently active
 	bool GetFading();
-	/// Get/Set the face colour
+	/// Get/Set a temporary fade color. The fade color will be restored to FadeColorDefault after the next fade-in. \sa FadeColorDefault \sa FadeColorRestore
 	Color FadeColor { get; set; }
-	/// Return fade color to it's original value
+	/// Get/Set the default fade color. \sa FadeColor \sa FadeColorRestore
+	Color FadeColorDefault { get; set; }
+	/// Return fade color to its default value. \sa FadeColor \sa FadeColorDefault
 	void FadeColorRestore();
 
 	//

@@ -183,6 +183,9 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 		
 		
 		yield return E.FadeOut(1);
+		if (R.Current != R.Home){
+			C.Dave.ChangeRoom(R.Home);
+		}
 		yield return C.Display("3 minutes later", 59);
 		Prop("Box").Enable();
 		Prop("Pump").Disable();

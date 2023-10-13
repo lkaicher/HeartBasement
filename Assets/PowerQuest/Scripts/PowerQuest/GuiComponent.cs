@@ -155,11 +155,12 @@ public partial class Gui : IQuestClickable, IQuestScriptable, IGui
 
 	public GuiControl GetControl(string name) 
 	{ 
-		GuiControl result = m_controls.Find(prop=>prop !=null && string.Equals(prop.ScriptName, name, System.StringComparison.OrdinalIgnoreCase ));
+		GuiControl result = QuestUtils.FindScriptableMono(m_controls, name);
 		if ( result == null )
 			Debug.LogError("Gui Control '"+name+"' doesn't exist in " +ScriptName);
 		return result;
 	}
+	
 	public bool HasControl(string name) 
 	{ 
 		return m_controls.Exists(prop=>prop !=null && string.Equals(prop.ScriptName, name, System.StringComparison.OrdinalIgnoreCase )); 

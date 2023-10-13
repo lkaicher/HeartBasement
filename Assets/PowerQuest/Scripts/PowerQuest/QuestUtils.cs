@@ -285,6 +285,43 @@ public static class QuestUtils
 		#endif
 	}
 
+	/**
+	 * Find a scriptable by ScriptName, null if not found
+	 */
+	public static T FindScriptable<T>(List<T> scriptables, string scriptName) where T : class, IQuestScriptable 
+	{
+		foreach (var scriptable in scriptables) 
+		{
+			if (scriptable != null && string.Equals(scriptable.GetScriptName(), scriptName, StringComparison.OrdinalIgnoreCase)) 
+				return scriptable;
+		}
+		return null;
+	}
+	
+	/**
+	 * Find a scriptable monobehaviour by ScriptName, null if not found. (NB: When a scriptable is also a component this function must be used to avoid edge case null errors)
+	 */
+	public static T FindScriptableMono<T>(List<T> scriptables, string scriptName) where T : MonoBehaviour, IQuestScriptable 
+	{
+		foreach (var scriptable in scriptables) 
+		{
+			if (scriptable != null && string.Equals(scriptable.GetScriptName(), scriptName, StringComparison.OrdinalIgnoreCase)) 
+				return scriptable;
+		}
+		return null;
+	}
+
+	public static T FindByName<T>(List<T> objects, string name) where T : UnityEngine.Object 
+	{
+		foreach (var obj in objects) 
+		{
+			if (obj != null && string.Equals(obj.name, name, StringComparison.OrdinalIgnoreCase)) 
+				return obj;
+		}
+
+		return null;
+	}
+
 }
 
 // Attribute used for including global enums in autocomplete

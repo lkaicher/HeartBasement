@@ -19,6 +19,15 @@ public class RoomMap : RoomScript<RoomMap>
 		C.Dave.SetPosition(Point(string.Format("{0}Point",C.Dave.LastRoom.ScriptName)));
 		
 		
+		if (Globals.gameStage > gameProgress.SecondFlood) {
+			R.Map.ActiveWalkableArea = 1;
+			Prop("Back").Animation = "HeartBasementMapFlooded";
+		
+		} else {
+			R.Map.ActiveWalkableArea = 0;
+			Prop("Back").Animation = "HeartBasementMapNew";
+		}
+		
 		
 		// if (C.Dave.LastRoom == R.Hardware) {
 		//	 C.Dave.SetPosition(Point("HardwarePoint"));
@@ -163,7 +172,11 @@ public class RoomMap : RoomScript<RoomMap>
 		if(!Globals.rained && (int)Globals.gameStage == 6){
 			yield return Thunderstorm();
 		}
-		
+		if (C.Dave.LastRoom == R.Home && Globals.gameStage > gameProgress.SecondFlood){
+			yield return C.Dave.Say("The road is flooded!");
+			yield return C.Dave.Say(" The only other way to Doc's is over that huge hill...");
+			yield return C.Dave.Say("Better get moving.");
+		 }
 		yield return E.Break;
 	}
 

@@ -13,13 +13,20 @@ MonoBehaviour:
   m_Name: _ImportMap
   m_EditorClassIdentifier: 
   m_animations: []
-  m_packingTag: 
   m_pixelsPerUnit: 1
   m_filterMode: 0
   m_compression: 0
+  m_spriteMeshType: 1
   m_crunchedCompression: 0
-  m_sourcePSD: 
-  m_sourceDirectory: 
+  m_sourcePSD: ../Documents/HeartBasementMapFlooded.psd
+  m_sourceDirectory: ../Documents/Export
   m_deleteImportedPngs: 1
   m_spriteDirectory: Sprites
   m_gui: 0
+  m_isAseprite: 0
+  m_trimSprites: 0
+  m_createSingleSpriteAnims: 1
+  m_importLayers: []
+  m_ignoreLayers:
+  - Guide
+  - Ignore

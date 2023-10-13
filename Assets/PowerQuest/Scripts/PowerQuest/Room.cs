@@ -175,15 +175,15 @@ public partial class Room : IQuestScriptable, IRoom, IQuestSaveCachable
 			regionData.SetInstance(regionInstance);	// Set the instance in the current (non-prefab/non-default) data
 		}
 
-        // init walkable area
-        m_instance.SetActiveWalkableArea(m_activeWalkableArea);
-        
+		// init walkable area
+		m_instance.SetActiveWalkableArea(m_activeWalkableArea);
+		
 	}
 	public Room Data { get {return this; } }
 	public Hotspot GetHotspot(string name) 
 	{ 
 		
-		Hotspot result = m_hotspots.Find(hotspot=>string.Equals(hotspot.ScriptName, name, System.StringComparison.OrdinalIgnoreCase ) );
+		Hotspot result = QuestUtils.FindScriptable(m_hotspots, name);
 		if ( result == null )
 			Debug.LogError("Hotspot '"+name+"' doesn't exist in " +ScriptName);
 		return result;
@@ -191,7 +191,7 @@ public partial class Room : IQuestScriptable, IRoom, IQuestSaveCachable
 
 	public Prop GetProp(string name) 
 	{ 
-		Prop result = m_props.Find(prop=>string.Equals(prop.ScriptName, name, System.StringComparison.OrdinalIgnoreCase ));
+		Prop result = QuestUtils.FindScriptable(m_props, name);
 		if ( result == null )
 			Debug.LogError("Prop '"+name+"' doesn't exist in " +ScriptName);
 		return result;
@@ -199,7 +199,7 @@ public partial class Room : IQuestScriptable, IRoom, IQuestSaveCachable
 	public Region GetRegion(string name) 
 	{ 
 
-		Region result = m_regions.Find(region=>string.Equals(region.ScriptName, name, System.StringComparison.OrdinalIgnoreCase ) );
+		Region result = QuestUtils.FindScriptable(m_regions, name);
 		if ( result == null )
 			Debug.LogError("Region '"+name+"' doesn't exist in " +ScriptName);
 		return result;

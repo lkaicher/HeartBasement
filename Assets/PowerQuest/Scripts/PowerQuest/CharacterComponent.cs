@@ -394,7 +394,7 @@ public partial class CharacterComponent : MonoBehaviour
 		m_shadow.SetActive(active);
 		if ( active && m_shadowAnim != null && string.IsNullOrEmpty(GetData().AnimShadow) == false )
 		{
-			AnimationClip clip = GetAnimations().Find(item=>string.Equals(GetData().AnimShadow, item == null ? null : item.name, System.StringComparison.OrdinalIgnoreCase));
+			AnimationClip clip = QuestUtils.FindByName(GetAnimations(), GetData().AnimShadow);
 			m_shadowAnim.Play( clip );
 		}
 	}
@@ -837,8 +837,8 @@ public partial class CharacterComponent : MonoBehaviour
 			while ( changedDirectionVisuals == false && targetDirection != m_data.Facing )
 			{
 
-				int currentIndex = System.Array.FindIndex(TURN_ORDER, item=>item == m_data.Facing );
-				int targetIndex = System.Array.FindIndex(TURN_ORDER, item=>item == targetDirection );
+				int currentIndex = System.Array.IndexOf(TURN_ORDER, m_data.Facing );
+				int targetIndex = System.Array.IndexOf(TURN_ORDER, targetDirection );
 
 				// Work out shortest route to target
 				int dist = targetIndex-currentIndex;

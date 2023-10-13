@@ -64,5 +64,11 @@ MonoBehaviour:
       m_disabled: 0
       m_used: 0
       m_timesUsed: 0
+    - m_name: 4
+      m_text: Need Repair Kit
+      m_visible: 0
+      m_disabled: 0
+      m_used: 0
+      m_timesUsed: 0
     m_scriptName: DialogWithClerk
     m_scriptClass: DialogDialogWithClerk

@@ -413,6 +413,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: NewButtonText
       objectReference: {fileID: 0}
+    - target: {fileID: 3235908555169693046, guid: e9c95fe066d3fef45a012e8deb308df2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3486361324765900567, guid: e9c95fe066d3fef45a012e8deb308df2, type: 3}
       propertyPath: m_Text
       value: 'Continue '
