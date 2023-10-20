@@ -9,6 +9,7 @@ public class RoomMap : RoomScript<RoomMap>
 	
 	GameObject rain;
 	
+	bool firstExit = true;
 	void OnEnterRoom()
 	{
 		rain = GameObject.Find("Rain");
@@ -172,10 +173,11 @@ public class RoomMap : RoomScript<RoomMap>
 		if(!Globals.rained && (int)Globals.gameStage == 6){
 			yield return Thunderstorm();
 		}
-		if (C.Dave.LastRoom == R.Home && Globals.gameStage > gameProgress.SecondFlood){
+		if (firstExit && C.Dave.LastRoom == R.Home && Globals.gameStage == gameProgress.UsedElectricPump){
 			yield return C.Dave.Say("The road is flooded!");
 			yield return C.Dave.Say(" The only other way to Doc's is over that huge hill...");
 			yield return C.Dave.Say("Better get moving.");
+			firstExit = false;
 		 }
 		yield return E.Break;
 	}
