@@ -64,7 +64,7 @@ public class RoomHome : RoomScript<RoomHome>
 		// Note, you can also just do this at the top of OnEnterRoomAfterFade
 		
 		// Set
-		C.Dave.MoveTo(Point("PumpPosition"));
+		C.Dave.WalkTo(Point("PumpPosition"));
 		//Temp
 		//LowerWaterShader(40, "CharacterDave");
 		
@@ -97,14 +97,14 @@ public class RoomHome : RoomScript<RoomHome>
 			if (Globals.gameStage <= gameProgress.SecondFlood){
 			 Prop("ElectricPump").Disable();
 			} else {
-			Prop("ElectricPump").Enable();
+			//Prop("ElectricPump").Enable();
 			Prop("Pump").Disable();
 			Prop("Hose").Disable();
 			Prop("Handle").Disable();
 			}
 		
 			// set pump
-			if (Globals.gameStage > gameProgress.UsedBucket && Globals.gameStage < gameProgress.SecondFlood){
+			if (Globals.gameStage > gameProgress.UsedBucket && Globals.gameStage <= gameProgress.UsedElectricPump){
 				Prop("Pump").Enable();
 				Prop("Hose").Enable();
 				Prop("Handle").Enable();
@@ -143,6 +143,9 @@ public class RoomHome : RoomScript<RoomHome>
 
     public IEnumerator OnEnterRoomAfterFade()
     {
+		if (Globals.gameStage >= gameProgress.SecondFlood && Globals.rained){
+			C.Tony.Disable();
+		}
 		
 		
 		// Put things here that happen when you enter a room
@@ -193,12 +196,16 @@ public class RoomHome : RoomScript<RoomHome>
 			//C.Dave.Visible = false;
 			yield return FloodBasement();
 			Globals.rained = true;
+			C.Dave.Position = Point("HomeDoorPosition");
 			C.Dave.Visible = true;
 			yield return E.WaitSkip();
 			yield return C.Dave.Say(" Not again!", 3);
 			yield return E.WaitSkip();
 		  G.Explanation.Show();
-			yield return E.WaitSkip();
+		  Globals.gameStage++;
+		  //I.BilgePump.Add();
+		
+			  yield return E.WaitSkip();
 			yield return E.Break;
 		
 		
@@ -206,9 +213,6 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return ChangeWaterStage(2, false);
 		}
 		
-		if (Globals.gameStage >= gameProgress.SecondFlood && Globals.rained){
-			C.Tony.Disable();
-		}
 		
 		
 		
@@ -444,8 +448,9 @@ public class RoomHome : RoomScript<RoomHome>
 			}
 		
 		 else if (!beenSprayed){
+				yield return E.Wait(1f);
 				fountain.SetActive(true);
-				yield return E.Wait(2.5f);
+				yield return E.Wait(1.5f);
 				C.Dave.StopAnimation();
 				//fountain.SetActive(false);
 				Prop("Pump").Visible = true;
@@ -454,7 +459,7 @@ public class RoomHome : RoomScript<RoomHome>
 				beenSprayed = true;
 				yield return C.Dave.Say(" The valve is leaking, it looks like there's a rusty washer.");
 				yield return C.Dave.Say(" I don't have the tools to replace it, I need to go to Doc's.");
-				Globals.gameStage++;
+				//Globals.gameStage++;
 			} else {
 				yield return C.Dave.Say(" The valve is leaking, it looks like there's a rusty washer.");
 				yield return C.Dave.Say(" I don't have the tools to replace it, I need to go to Doc's.");
