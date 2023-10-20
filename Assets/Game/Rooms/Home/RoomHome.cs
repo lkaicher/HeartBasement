@@ -202,7 +202,7 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return C.Dave.Say(" Not again!", 3);
 			yield return E.WaitSkip();
 		  G.Explanation.Show();
-		  Globals.gameStage++;
+		  //Globals.gameStage++;
 		  //I.BilgePump.Add();
 		
 			  yield return E.WaitSkip();
@@ -459,7 +459,7 @@ public class RoomHome : RoomScript<RoomHome>
 				beenSprayed = true;
 				yield return C.Dave.Say(" The valve is leaking, it looks like there's a rusty washer.");
 				yield return C.Dave.Say(" I don't have the tools to replace it, I need to go to Doc's.");
-				//Globals.gameStage++;
+				Globals.gameStage++;
 			} else {
 				yield return C.Dave.Say(" The valve is leaking, it looks like there's a rusty washer.");
 				yield return C.Dave.Say(" I don't have the tools to replace it, I need to go to Doc's.");
