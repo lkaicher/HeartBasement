@@ -185,4 +185,16 @@ public class RoomMap : RoomScript<RoomMap>
 		G.Inventory.Show();
 		yield return E.Break;
 	}
+
+	IEnumerator OnEnterRegionByhouse( IRegion region, ICharacter character )
+	{
+		yield return C.Dave.Say(" What's this?");
+		yield return C.Dave.Say(" The house on the hill is for sale!");
+		yield return C.Dave.Say(" I'm sure whoever lives there doesn't have to deal with any flooding.");
+		yield return C.Dave.Say(" Better save the real estate agent's number.");
+		yield return C.Dave.WalkTo(Point("HardwarePoint"));
+		C.Dave.ChangeRoom(R.Hardware);
+		Region("Byhouse").Enabled = false;
+		yield return E.Break;
+	}
 }
