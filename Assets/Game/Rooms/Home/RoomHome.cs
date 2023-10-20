@@ -64,7 +64,7 @@ public class RoomHome : RoomScript<RoomHome>
 		// Note, you can also just do this at the top of OnEnterRoomAfterFade
 		
 		// Set
-		C.Dave.MoveTo(Point("PumpPosition"));
+		C.Dave.WalkTo(Point("PumpPosition"));
 		//Temp
 		//LowerWaterShader(40, "CharacterDave");
 		
@@ -198,7 +198,8 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return C.Dave.Say(" Not again!", 3);
 			yield return E.WaitSkip();
 		  G.Explanation.Show();
-			yield return E.WaitSkip();
+		  Globals.gameStage++;
+			  yield return E.WaitSkip();
 			yield return E.Break;
 		
 		
@@ -454,7 +455,7 @@ public class RoomHome : RoomScript<RoomHome>
 				beenSprayed = true;
 				yield return C.Dave.Say(" The valve is leaking, it looks like there's a rusty washer.");
 				yield return C.Dave.Say(" I don't have the tools to replace it, I need to go to Doc's.");
-				Globals.gameStage++;
+				//Globals.gameStage++;
 			} else {
 				yield return C.Dave.Say(" The valve is leaking, it looks like there's a rusty washer.");
 				yield return C.Dave.Say(" I don't have the tools to replace it, I need to go to Doc's.");
