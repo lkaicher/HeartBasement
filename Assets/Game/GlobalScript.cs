@@ -30,8 +30,8 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		TonyPumped,
 		TonyAte,
 		SecondFlood,
-		UsedElectricPump, // repaired bilge pump
-		RepairedPump, // bought house
+		RepairedBilgePump, // repaired bilge pump
+		UsedElectricPump, // bought house
 		WonGame
 	};
 	
