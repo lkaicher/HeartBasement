@@ -25,13 +25,13 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	{
 		None,
 		UsedBucket,
-		TriedPump1,
+		TriedPump,
 		RightParts,
 		TonyPumped,
 		TonyAte,
 		SecondFlood,
-		RepairedBilgePump, // repaired bilge pump
-		UsedElectricPump, // bought house
+		BrokePump, 
+		FixedPump, 
 		WonGame
 	};
 	

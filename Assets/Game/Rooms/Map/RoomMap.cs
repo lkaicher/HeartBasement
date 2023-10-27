@@ -173,7 +173,7 @@ public class RoomMap : RoomScript<RoomMap>
 		if(!Globals.rained && (int)Globals.gameStage == 6){
 			yield return Thunderstorm();
 		}
-		if (firstExit && C.Dave.LastRoom == R.Home && Globals.gameStage == gameProgress.RepairedBilgePump){
+		if (firstExit && C.Dave.LastRoom == R.Home && Globals.gameStage == gameProgress.BrokePump){
 			yield return C.Dave.Say("The road is flooded!");
 			yield return C.Dave.Say(" The only other way to Doc's is over that huge hill...");
 			yield return C.Dave.Say("Better get moving.");

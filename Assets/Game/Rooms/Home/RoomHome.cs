@@ -91,7 +91,6 @@ public class RoomHome : RoomScript<RoomHome>
 				Prop("Handle").SetPosition(190, -81 + (int)currentHandle*10);
 				Prop("Hose").Animation ="HoseL";
 			}
-			//TEMP Disable
 			// set electric pump
 			if (Globals.gameStage <= gameProgress.SecondFlood){
 			 Prop("ElectricPump").Disable();
@@ -103,7 +102,7 @@ public class RoomHome : RoomScript<RoomHome>
 			}
 		
 			// set pump
-			if (Globals.gameStage > gameProgress.UsedBucket && Globals.gameStage <= gameProgress.RepairedBilgePump){
+			if (Globals.gameStage > gameProgress.UsedBucket && Globals.gameStage < gameProgress.SecondFlood){
 				Prop("Pump").Enable();
 				Prop("Hose").Enable();
 				Prop("Handle").Enable();
@@ -208,7 +207,7 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return E.Break;
 		
 		
-		} else if (Globals.gameStage == gameProgress.RepairedBilgePump){
+		} else if (Globals.gameStage == gameProgress.BrokePump){
 			yield return ChangeWaterStage(2, false);
 		}
 		
@@ -391,7 +390,7 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		if (Globals.gameStage == gameProgress.UsedBucket)
 		{
-			Globals.gameStage = gameProgress.TriedPump1;
+			Globals.gameStage = gameProgress.TriedPump;
 			yield return StageComplete();
 			C.Dave.StopAnimation();
 			Prop("Pump").Visible = true;
@@ -406,7 +405,7 @@ public class RoomHome : RoomScript<RoomHome>
 		}
 		else if (Globals.gameStage >= gameProgress.SecondFlood){
 		
-			if (Globals.gameStage == gameProgress.RepairedBilgePump){
+			if (Globals.gameStage == gameProgress.BrokePump){
 		
 				bool firstTime = true;
 				if (pumpRepairs == 3){
@@ -416,7 +415,7 @@ public class RoomHome : RoomScript<RoomHome>
 					Prop("Pump").Visible = true;
 					Prop("Handle").Visible = true;
 					//Audio.Stop("Motor");
-					Globals.gameStage = gameProgress.UsedElectricPump;
+					Globals.gameStage = gameProgress.FixedPump;
 					G.Explanation.Show();
 						yield return E.WaitSkip();
 					yield return C.Dave.Say(" Phew!", 115);
@@ -424,7 +423,7 @@ public class RoomHome : RoomScript<RoomHome>
 					yield return C.Dave.Say(" The pump works again!", 116);
 		
 				} else {
-						yield return E.WaitSkip();
+						yield return E.WaitSkip(1.5f);
 						C.Dave.StopAnimation();
 						Prop("Pump").Visible = true;
 						Prop("Handle").Visible = true;
@@ -545,7 +544,7 @@ public class RoomHome : RoomScript<RoomHome>
 		}
 
     IEnumerator OnUseInvPropPump(IProp prop, IInventory item) {
-		if(Globals.gameStage == gameProgress.RepairedBilgePump ) {
+		if(Globals.gameStage == gameProgress.BrokePump ) {
 			if (item == I.Wrench) {
 				if (pumpRepairs == 0) {
 					yield return C.Display(" Rusty washer removed.", 62);
@@ -1052,7 +1051,7 @@ public class RoomHome : RoomScript<RoomHome>
 		Audio.Play("Motor");
 		yield return UnfloodBasement();
 		Audio.Stop("Motor");
-		Globals.gameStage = gameProgress.RepairedBilgePump;
+		Globals.gameStage = gameProgress.BrokePump;
 		  G.Explanation.Show();
 			yield return E.WaitSkip();
 		  yield return C.Dave.Say("Like a charm!", 40);
@@ -1064,14 +1063,14 @@ public class RoomHome : RoomScript<RoomHome>
 		yield return E.WaitSkip();
 		yield return C.Dave.Say("Nothing my Pump-o-matic 5000 can't handle!", 114);
 		//LowerWater(4);
-		} else if (Globals.gameStage == gameProgress.RepairedBilgePump){
+		} else if (Globals.gameStage == gameProgress.BrokePump){
 		
 		  bool firstTime = true;
 		  if (pumpRepairs == 3){
 			  Audio.Play("Motor");
 			  yield return UnfloodBasement();
 			  Audio.Stop("Motor");
-			  Globals.gameStage = gameProgress.UsedElectricPump;
+			  Globals.gameStage = gameProgress.FixedPump;
 			  G.Explanation.Show();
 				yield return E.WaitSkip();
 			  yield return C.Dave.Say(" Phew!", 115);
@@ -1101,7 +1100,7 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnUseInvPropElectricPump( IProp prop, IInventory item )
 	{
-		if(Globals.gameStage == gameProgress.RepairedBilgePump ) {
+		if(Globals.gameStage == gameProgress.BrokePump ) {
 			if (item == I.Wrench) {
 				if (pumpRepairs == 0) {
 					yield return C.Display(" Rusty washer removed.", 62);

@@ -21,7 +21,7 @@ public class InventoryCellPhone : InventoryScript<InventoryCellPhone>
 
 	IEnumerator OnLookAtInventory( IInventory thisItem )
 	{
-		if  ( (Globals.gameStage == gameProgress.TriedPump1) && (!D.UsePhone.GetOptionUsed(1)) ) {
+		if  ( (Globals.gameStage == gameProgress.TriedPump) && (!D.UsePhone.GetOptionUsed(1)) ) {
 			yield return C.Dave.Say(" Maybe I could call my friend Jim to come help out. ", 16);
 		
 		} else {

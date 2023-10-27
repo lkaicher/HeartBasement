@@ -12,7 +12,7 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 		D.UsePhone.OptionOff(2);
 		D.UsePhone.OptionOff(5);
 		
-		if (Globals.gameStage >= gameProgress.TriedPump1){
+		if (Globals.gameStage >= gameProgress.TriedPump){
 			D.UsePhone.OptionOn(1);
 		
 		}
@@ -120,7 +120,7 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 				}
 				break;
 			// #TODO flesh out remaining hint scenarios
-			case gameProgress.TriedPump1:
+			case gameProgress.TriedPump:
 				// player has acquired replacement parts
 				// player has replaced parts, but they are not the correct parts
 				// player has not yet acquired replacement parts
