@@ -11,6 +11,7 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 		D.UsePhone.OptionOff(1);
 		D.UsePhone.OptionOff(2);
 		D.UsePhone.OptionOff(5);
+		D.UsePhone.OptionOff(6);
 		
 		if (Globals.gameStage >= gameProgress.TriedPump){
 			D.UsePhone.OptionOn(1);
@@ -20,8 +21,8 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 			D.UsePhone.OptionOn(2);
 			}
 		
-		if (Globals.gameStage >= gameProgress.TonyAte) {
-			D.UsePhone.OptionOn(5);
+		if (Globals.gameStage >= gameProgress.FixedPump) {
+			D.UsePhone.OptionOn(6);
 			}
 		
 		
@@ -197,5 +198,46 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 		yield return C.Dave.Say("Wow.", 111);
 		yield return E.Wait();
 		yield return C.Dave.Say("That was fast.", 112);
+	}
+
+	IEnumerator Option6( IDialogOption option )
+	{
+		yield return C.Dave.Say(" Hello, I'm Dave, I'm interested in the property on 11 Hill Lane.");
+		yield return C.Dave.Say(" Is it still available?");
+		yield return C.Display(" Yes it is!");
+		yield return C.Display(" It's a beautiful hilltop property with a stunning view of the entire island, and-");
+		yield return C.Dave.Say(" Yeah yeah, got it, does the basement ever get flooded?");
+		yield return C.Display(" Never has, no.");
+		yield return C.Dave.Say(" I'll take it!");
+		yield return C.Display("Really? Don't you want to see it first? I can give a tour today.");
+		yield return C.Dave.Say(" Nope that's quite alright, I'm in, where do I sign?");
+		yield return C.Display(" Great! This is the easiest sale I've ever had!");
+		yield return C.Display(" The house will be ready for you in three months.");
+		yield return C.Dave.Say(" THREE MONTHS?!");
+		yield return C.Dave.Say(" I'm standing here in a water up to my neck, and no matter what I do, it keeps coming back!");
+		yield return C.Dave.Say(" What am I supposed to do for three months?!");
+		yield return C.Display(" Well Dave, since you have been such a wonderful client, I can set you up with an electric pump rental.");
+		yield return C.Display(" Free of charge!");
+		yield return C.Dave.Say(" Well alrighty then, but it better be quick!");
+		
+		D.UsePhone.OptionOff(6);
+		
+		yield return E.FadeOut(1);
+		if (R.Current != R.Home){
+			C.Dave.ChangeRoom(R.Home);
+		}
+		yield return C.Display("3 minutes later", 59);
+		Prop("Box").Enable();
+		Prop("Pump").Disable();
+		Prop("Handle").Disable();
+		Prop("Hose").Disable();
+		Stop();
+		C.Dave.SetPosition(Point("HomeDoorPosition"));
+		yield return E.FadeIn(1);
+		yield return C.Dave.Say("Wow.", 111);
+		yield return E.Wait();
+		yield return C.Dave.Say("That was fast.", 112);
+		
+		yield return E.Break;
 	}
 }

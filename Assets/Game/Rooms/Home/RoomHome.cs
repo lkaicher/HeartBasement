@@ -146,6 +146,13 @@ public class RoomHome : RoomScript<RoomHome>
 		}
 		
 		
+		//TEMP
+		
+		//Globals.gameStage = gameProgress.UsedBucket;
+		
+		//G.Explanation.Show();
+		
+		
 		// Put things here that happen when you enter a room
 		if ((Globals.gameStage <= gameProgress.UsedBucket))
 		{
@@ -420,7 +427,23 @@ public class RoomHome : RoomScript<RoomHome>
 						yield return E.WaitSkip();
 					yield return C.Dave.Say(" Phew!", 115);
 					yield return E.WaitSkip();
-					yield return C.Dave.Say(" The pump works again!", 116);
+		
+					Audio.Play("Rain");
+					yield return E.WaitSkip();
+		
+					yield return FloodBasement();
+		
+					yield return C.Dave.Say(" Are you kidding me?!");
+		
+					yield return C.Dave.Say("That's it.");
+		
+					yield return C.Dave.Say(" I'm done.");
+		
+					yield return C.Dave.Say(" I ain't puttin up with this dang basement any longer!");
+		
+					yield return C.Dave.Say("I bet that house up there on the hill has a basement dryer than a desert!");
+		
+					yield return C.Dave.Say(" I oughtta give that real estate agent a call.");
 		
 				} else {
 						yield return E.WaitSkip(1.5f);
@@ -457,14 +480,14 @@ public class RoomHome : RoomScript<RoomHome>
 				 Audio.Stop("WaterHose");
 				yield return E.Wait(1f);
 				//fountain.SetActive(false);
-				yield return C.Dave.Say(" This pump is busted!");
+				yield return C.Dave.Say(" This pump is busted!", 50);
 				beenSprayed = true;
-				yield return C.Dave.Say(" The valve is leaking, it looks like there's a rusty washer.");
-				yield return C.Dave.Say(" I don't have the tools to replace it, I need to go to Doc's.");
+				yield return C.Dave.Say(" The valve is leaking, it looks like there's a rusty washer.", 56);
+				yield return C.Dave.Say(" I don't have the tools to replace it, I need to go to Doc's.", 57);
 				Globals.gameStage++;
 			} else {
-				yield return C.Dave.Say(" The valve is leaking, it looks like there's a rusty washer.");
-				yield return C.Dave.Say(" I don't have the tools to replace it, I need to go to Doc's.");
+				yield return C.Dave.Say(" The valve is leaking, it looks like there's a rusty washer.", 58);
+				yield return C.Dave.Say(" I don't have the tools to replace it, I need to go to Doc's.", 59);
 			}
 			// Dave(31): This water ain't goin nowhere!
 			//Dave(33): I'm gonna need a better pump.
@@ -1031,10 +1054,11 @@ public class RoomHome : RoomScript<RoomHome>
 		Prop("Hose").Enable();
 		yield return C.Dave.Say(" It's beautiful!", 38);
 		yield return E.WaitSkip();
-		yield return C.Dave.Say("What's this?", 39);
-		C.Dave.AddInventory(I.RepairKit);
-		yield return C.Display("Repair Kit added to your toolbox.", 54);
-		
+		/*
+		//Dave(39): What's this?
+		//C.Dave.AddInventory(I.RepairKit);
+		//Display(54): Repair Kit added to your toolbox.
+		*/
 		yield return E.Break;
 	}
 
@@ -1046,6 +1070,22 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnInteractPropElectricPump( IProp prop )
 	{
+		if (Globals.gameStage == gameProgress.FixedPump){
+			Audio.Play("Motor");
+		yield return UnfloodBasement();
+		Audio.Stop("Motor");
+		Globals.gameStage = gameProgress.WonGame;
+		 yield return C.Dave.Say("Like a charm!", 40);
+		  G.Explanation.Show();
+		
+		  E.Restart();
+			yield return E.WaitSkip();
+		
+		}
+		
+		
+		
+		
 		if (Globals.gameStage == gameProgress.SecondFlood){
 		
 		Audio.Play("Motor");

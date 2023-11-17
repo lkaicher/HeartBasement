@@ -95,16 +95,16 @@ public class DialogDialogWithClerk : DialogTreeScript<DialogDialogWithClerk>
 
 	IEnumerator Option4( IDialogOption option )
 	{
-		yield return C.Dave.Say(" Hey Doc, that bilge pump's busted.");
-		yield return C.Dave.Say(" The valve is leaking because of a rusted washer.");
-		yield return C.HardwareClerk.Say("I've got just what you need: Doc's bilge pump repair kit!");
-		yield return C.HardwareClerk.Say("This repair kit has everything you need to replace that rusted washer.");
-		yield return C.HardwareClerk.Say("And you're in luck, I happen to have one left in stock!");
-		yield return C.HardwareClerk.Say("They're very popular, you know, this won't last long.");
-		yield return C.Dave.Say(" Alright alright Doc, I'll take it");
+		yield return C.Dave.Say(" Hey Doc, that bilge pump's busted.", 128);
+		yield return C.Dave.Say(" The valve is leaking because of a rusted washer.", 129);
+		yield return C.HardwareClerk.Say("I've got just what you need: Doc's bilge pump repair kit!", 15);
+		yield return C.HardwareClerk.Say("This repair kit has everything you need to replace that rusted washer.", 16);
+		yield return C.HardwareClerk.Say("And you're in luck, I happen to have one left in stock!", 17);
+		yield return C.HardwareClerk.Say("They're very popular, you know, this won't last long.", 18);
+		yield return C.Dave.Say(" Alright alright Doc, I'll take it", 130);
 		
 		C.Dave.AddInventory(I.RepairKit);
-		yield return C.Display(" Repair Kit added to your toolbox.");
+		yield return C.Display(" Repair Kit added to your toolbox.", 64);
 		yield return E.Break;
 	}
 }

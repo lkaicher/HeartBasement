@@ -22,7 +22,7 @@ public class CharacterHardwareClerk : CharacterScript<CharacterHardwareClerk>
 		
 		if ( Globals.gameStage >= gameProgress.SecondFlood ) {
 			if (D.DialogWithClerk.GetOption(4).Used) {
-				yield return C.HardwareClerk.Say("Good luck.");
+				yield return C.HardwareClerk.Say("Good luck.", 13);
 			} else {
 				yield return E.HandleOption( D.DialogWithClerk, "4");
 			}
