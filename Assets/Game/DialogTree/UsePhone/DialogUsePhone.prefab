@@ -76,5 +76,11 @@ MonoBehaviour:
       m_disabled: 0
       m_used: 0
       m_timesUsed: 0
+    - m_name: 6
+      m_text: Call Real Estate Agent
+      m_visible: 1
+      m_disabled: 0
+      m_used: 0
+      m_timesUsed: 0
     m_scriptName: UsePhone
     m_scriptClass: DialogUsePhone
