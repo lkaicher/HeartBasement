@@ -11,6 +11,7 @@ public class GuiExplanation : GuiScript<GuiExplanation>
 	IEnumerator OnAnyClick( IGuiControl control )
 	{
 		G.Explanation.Hide();
+		G.Inventory.Show();
 		yield return E.Break;
 	}
 
@@ -23,6 +24,8 @@ public class GuiExplanation : GuiScript<GuiExplanation>
 
 	void OnShow()
 	{
+		G.Inventory.Hide();
+		
 		string image = "Slide" + (int) Globals.gameStage;
 		Image("EndChapter2").Anim = image;
 		Debug.Log(image);

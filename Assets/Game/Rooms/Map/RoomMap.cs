@@ -173,10 +173,10 @@ public class RoomMap : RoomScript<RoomMap>
 		if(!Globals.rained && (int)Globals.gameStage == 6){
 			yield return Thunderstorm();
 		}
-		if (firstExit && C.Dave.LastRoom == R.Home && Globals.gameStage == gameProgress.UsedElectricPump){
-			yield return C.Dave.Say("The road is flooded!");
-			yield return C.Dave.Say(" The only other way to Doc's is over that huge hill...");
-			yield return C.Dave.Say("Better get moving.");
+		if (firstExit && C.Dave.LastRoom == R.Home && Globals.gameStage == gameProgress.BrokePump){
+			yield return C.Dave.Say("The road is flooded!", 78);
+			yield return C.Dave.Say(" The only other way to Doc's is over that huge hill...", 80);
+			yield return C.Dave.Say("Better get moving.", 82);
 			firstExit = false;
 		 }
 		yield return E.Break;
@@ -190,10 +190,10 @@ public class RoomMap : RoomScript<RoomMap>
 
 	IEnumerator OnEnterRegionByhouse( IRegion region, ICharacter character )
 	{
-		yield return C.Dave.Say(" What's this?");
-		yield return C.Dave.Say(" The house on the hill is for sale!");
-		yield return C.Dave.Say(" I'm sure whoever lives there doesn't have to deal with any flooding.");
-		yield return C.Dave.Say(" Better save the real estate agent's number.");
+		yield return C.Dave.Say(" What's this?", 84);
+		yield return C.Dave.Say(" The house on the hill is for sale!", 86);
+		yield return C.Dave.Say(" I'm sure whoever lives there doesn't have to deal with any flooding.", 88);
+		yield return C.Dave.Say(" Better save the real estate agent's number.", 90);
 		yield return C.Dave.WalkTo(Point("HardwarePoint"));
 		C.Dave.ChangeRoom(R.Hardware);
 		Region("Byhouse").Enabled = false;
