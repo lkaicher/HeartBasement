@@ -114,7 +114,10 @@ public partial class Room : IQuestScriptable, IRoom, IQuestSaveCachable
 			if ( m_playerVisible != value )
             {
 				m_playerVisible = value; 
-				// TODO: Update visibility of player
+				// Update visibility of player (bit hacky to do this from here...)
+				Character plr = PowerQuest.Get.GetPlayer();
+				if ( plr != null && plr.Instance != null )
+					(plr.Instance as CharacterComponent).UpdateEnabled();
             }
         } 
     }

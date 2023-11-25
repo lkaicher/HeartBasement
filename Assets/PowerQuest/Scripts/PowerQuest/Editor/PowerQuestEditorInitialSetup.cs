@@ -19,16 +19,18 @@ public partial class PowerQuestEditor
 {
 	#region Variables: Static definitions
 
-	static readonly string[] GAME_TEMPLATE_NAMES = {"Default","9-Verb"};		
+	static readonly string[] GAME_TEMPLATE_NAMES = {"Default","9-Verb", "HD"};		
 	static readonly string[] GAME_TEMPLATE_PATHS = 
 	{
 		"Assets/PowerQuest/Templates/DefaultGameTemplate.unitypackage",
 		"Assets/PowerQuest/Templates/9VerbGameTemplate.unitypackage",
+		"Assets/PowerQuest/Templates/HdGameTemplate.unitypackage",
 	};
 	static readonly string[] GAME_TEMPLATE_DESCRIPTIONS = 
 	{
 		"The Default Template is a modern 1 or 2 click interface, with drop-down inventory (Similar to most Wadjet Eye games, or Beneath a Steel Sky).",
 		"The 9-Verb interface is the classic Lucasarts style. It's clunky by modern standards, but fun for that retro style. Just be prepared to write lots of responses for interactions! \n\nIt's a bit more complicated than the default, so read \"Assets\\Game\\9-Verb-ReadMe.txt\" to get started.",
+		"A High Def (1080p) version of the default template. Good starting place for non-pixel art games."
 	};
 
 	#endregion

@@ -110,7 +110,7 @@ public class SpriteAnimEventHandler : MonoBehaviour
 		else
 		{
 			if ( string.IsNullOrEmpty(m_eventWithObjectMessage) == false )
-				Debug.LogWarning("Animation event with object parameter had no object");
+				Debug.LogWarning($"Animation event {m_eventWithObjectMessage} with object parameter had no object");
 			m_eventWithObjectMessage = funcName;
 		}
 	}
@@ -125,7 +125,7 @@ public class SpriteAnimEventHandler : MonoBehaviour
 		else 
 		{
 			if ( m_eventWithObjectData != null ) 
-				Debug.LogWarning("Animation event with object parameter had no object");
+				Debug.LogWarning($"Animation event with object parameter {m_eventWithObjectData.ToString()} had no function name");
 			m_eventWithObjectData = data;
 		}
 	}

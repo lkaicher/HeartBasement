@@ -186,7 +186,8 @@ public class SystemText : PowerTools.Singleton<SystemText>
 		return defaultText;
 	}
 
-	public static AudioHandle PlayAudio(int id, string characterName, Transform emitter = null)
+
+	public static AudioHandle PlayAudio(int id, string characterName, Transform emitter = null, UnityEngine.Audio.AudioMixerGroup mixerGroupOverride = null )
 	{
 		TextData data = m_instance.FindTextDataInternal(id, characterName);
 		if ( data == null )
@@ -196,8 +197,8 @@ public class SystemText : PowerTools.Singleton<SystemText>
 			return null;
 		}
 		
-		AudioClip clip = m_instance.GetVoiceAudioClip(id, characterName);
-		return SystemAudio.Play( clip, (int)AudioCue.eAudioType.Dialog, emitter );
+		AudioClip clip = m_instance.GetVoiceAudioClip(id, characterName);		
+		return SystemAudio.Play( clip, (int)AudioCue.eAudioType.Dialog, emitter, 1,1,false, mixerGroupOverride );
 	}
 
 	public static TextData FindTextData(int id, string characterName = null)
@@ -333,6 +334,8 @@ public class SystemText : PowerTools.Singleton<SystemText>
 	public TextData EditorFindText( string defaultText, int id = -1, string characterName = null )
 	{		
 		TextData result = null;
+		
+		UpdateTextDataLists();
 
 		if ( id < 0 )
 			id = ParseIdFromText(ref defaultText); 

@@ -153,7 +153,7 @@ public class QuestEditorUtils
 			SpriteAtlasTextureSettings texSettings = atlas.GetTextureSettings();
 			texSettings.filterMode=FilterMode.Point;
 			atlas.SetTextureSettings(texSettings);
-			TextureImporterPlatformSettings platSettings = atlas.GetPlatformSettings("DefaultTexturePlatform");
+			TextureImporterPlatformSettings platSettings = atlas.GetPlatformSettings("DefaultTexturePlatform");			
 			platSettings.textureCompression = TextureImporterCompression.Uncompressed;
 			atlas.SetPlatformSettings(platSettings);
 
@@ -1376,7 +1376,8 @@ public class LoopSectionDrawer : PropertyDrawer
 			// 2nd property
 			EditorGUI.PropertyField(layout,property4, new GUIContent(""));
 			
-			// Test button
+			// Test button			
+			EditorGUI.BeginDisabledGroup(Application.isPlaying == false);
 			if ( GUI.Button(layout,"Test") )
 			{
 				AudioCue cue = prop.serializedObject.targetObject as AudioCue;
@@ -1388,6 +1389,7 @@ public class LoopSectionDrawer : PropertyDrawer
 					SystemAudio.Play(cue,null,1,1, property2.floatValue-2); // Play from a couple seconds before looping
 				}
 			}
+			EditorGUI.EndDisabledGroup();
 		}
 
 	}

@@ -18,6 +18,8 @@ namespace PowerTools.Quest
 public partial class PowerQuest
 {
 
+	static readonly string STR_ROOM_START ="Ro";
+
 	#region Coroutine: Load Room
 
 
@@ -64,7 +66,7 @@ public partial class PowerQuest
 		for ( int i = 0; i < cameras.Length; ++i )
 		{
 			Camera cam = cameras[i];
-			if ( cam.gameObject.name == "QuestGuiCamera" )
+			if ( cam != null && cam.gameObject != null && cam.gameObject.name == "QuestGuiCamera" )
 			{
 				if ( m_cameraGui == null )
 				{
@@ -193,6 +195,23 @@ public partial class PowerQuest
 		m_initialised = true;
 
 		if ( room.GetInstance() != null ) room.GetInstance().OnLoadComplete();
+		
+		// Call post restore on game scripts. This was moved here separate from other OnPostRestores so that you can do usual calls like R.MyRoom.Active and GetProp("blah").Instance.GetComponent<blah>()... in the functions and they'll work
+		if ( m_restoring )
+		{
+			object[] onPostRestoreParams = {m_restoredVersion};
+			List<IQuestScriptable> scriptables = GetAllScriptables();
+			foreach( IQuestScriptable scriptable in scriptables )
+			{
+				if ( scriptable != null
+					&& scriptable.GetScript() != null
+					&& (scriptable.GetScript() == room.GetScript() || scriptable.GetScriptClassName().StartsWithIgnoreCase(STR_ROOM_START) == false ) ) // only call it in active room
+				{
+					CallScriptPostRestore(scriptable, onPostRestoreParams);
+				}
+			}
+			//scriptables.ForEach( item => CallScriptPostRestore(item, onPostRestoreParams) );						
+		}
 
 		if ( m_restoring && SV.m_callEnterOnRestore == false )
 		{
@@ -465,6 +484,16 @@ public partial class PowerQuest
 				}
 				m_queuedScriptInteractions.Clear();
 
+				if ( yielded )
+				{
+					// Run 'AfterAnyClick'
+					if ( StartScriptInteraction(m_currentRoom, SCRIPT_FUNCTION_AFTERANYCLICK ) )
+					{
+						yielded = true;
+						yield return CoroutineWaitForCurrentSequence();
+					}
+				}
+
 				//
 				// Region enter/exit blocking
 				//
@@ -474,20 +503,21 @@ public partial class PowerQuest
 					// not using collision system, just looping over characters in the room and triggers in the room
 					List<RegionComponent> regionComponents = m_currentRoom.GetInstance().GetRegionComponents();
 					int regionCount = regionComponents.Count;
-					RegionComponent region = null;
+					RegionComponent regionComponent = null;
 					for ( int charId = 0; charId < m_characters.Count; ++charId )
 					{
 						Character character = m_characters[charId];
 
 						for ( int regionId = 0; regionId < regionCount; ++regionId )
 						{					
-							region = regionComponents[regionId];
-							RegionComponent.eTriggerResult result = region.UpdateCharacterOnRegionState(charId);
-							if ( region.GetData().Enabled )
+							regionComponent = regionComponents[regionId];
+							Region region = regionComponent.GetData();
+							RegionComponent.eTriggerResult result = regionComponent.UpdateCharacterOnRegionState(charId, false);
+							if ( region.Enabled && (region.PlayerOnly == false || character == m_player) )
 							{
 								if ( result == RegionComponent.eTriggerResult.Enter )
 								{
-									if ( StartScriptInteraction( m_currentRoom, SCRIPT_FUNCTION_ENTER_REGION+region.GetData().ScriptName, new object[] {region.GetData(), character}, false,true ) )
+									if ( StartScriptInteraction( m_currentRoom, SCRIPT_FUNCTION_ENTER_REGION+region.ScriptName, new object[] {region, character}, false,true ) )
 									{
 										yielded = true;
 										yield return CoroutineWaitForCurrentSequence();
@@ -495,7 +525,7 @@ public partial class PowerQuest
 								} 
 								else if ( result == RegionComponent.eTriggerResult.Exit )
 								{
-									if ( StartScriptInteraction( m_currentRoom, SCRIPT_FUNCTION_EXIT_REGION+region.GetData().ScriptName, new object[] {region.GetData(), character}, false,true ) )
+									if ( StartScriptInteraction( m_currentRoom, SCRIPT_FUNCTION_EXIT_REGION+region.ScriptName, new object[] {region, character}, false,true ) )
 									{
 										yielded = true;
 										yield return CoroutineWaitForCurrentSequence();
@@ -510,15 +540,6 @@ public partial class PowerQuest
 			}
 
 			
-			if ( yielded )
-			{
-				// Run 'AfterAnyClick'
-				if ( StartScriptInteraction(m_currentRoom, SCRIPT_FUNCTION_AFTERANYCLICK ) )
-				{
-					yielded = true;
-					yield return CoroutineWaitForCurrentSequence();
-				}
-			}
 
 			//
 			// end of the main loop sequences

@@ -101,6 +101,13 @@ public partial interface IPowerQuest
 
 	/// Invokes the specified function after the specified time has elapsed (non-blocking). EG: `E.DelayedInvoke(1, ()=/>{ C.Player.FaceLeft(); } );`
 	void DelayedInvoke(float time, System.Action functionToInvoke);
+		
+	/// <summary>
+	/// The instruction for the next line of dialog will unblock early by <paramref name="bySeconds"/> seconds. 
+	/// </summary>
+	/// <param name="secondsBeforeEndOfLine">The script line following the next Say type command will execute early by this duration</param>
+	/// <remarks>Speech text and any recorded VO will still be running in the background until completion when next instructions execute</remarks>
+	void InterruptNextLine(float secondsBeforeEndOfLine);
 
 	/// Skips the current line of dialog,
 	void SkipDialog(bool preventEarlySkip = true);
@@ -1086,6 +1093,9 @@ public partial interface ICharacter : IQuestClickableInterface
 
 	// Gets/Sets name of the sound used for footsteps for this character. Add "Footstep" event in the anim editor (with "Anim prefix" ticked)
 	string FootstepSound {get;set;}
+	
+	// Gets/Sets Anti-Glide option. When enabled, the character waits for an animation frame before moving, otherwise they "glide" smoothly across the ground.
+	bool AntiGlide {get;set;}
 
 	/// Adds a function to be called on an animation event here. Eg: to play a sound or effect on an animation tag. 
 	/** Usage:
@@ -1657,11 +1667,12 @@ public partial interface IDialogOption
 	*/
 	bool Used { get; set; }
 	
-	/// Tests if it's the first time this option is being used. Will be true until the 2nd time the option is used. NOT reset if you set Used = false.
+	/// Tests if it's the first time this option is being used. Will be true until the 2nd time the option is used. NOT reset if you set Used = false. Same as `TimesUsed <= 1`.
 	bool FirstUse{get;}
 	
-	/** The number of times this option has been selected.
-	 * Note that UseCount will NOT reset to zero when you set Used = false. So `option.Used == false` is NOT the same as `option.TimesUsed == 0`. (This can be useful)
+	/** The number of times this option has been selected. 
+	 * NB: Unlike UseCount in props/hotspots this will be 1 as SOON as its clicked (So the first time an option's script is called it'll already be 1)
+	 * NBB: Note that UseCount will NOT reset to zero when you set Used = false. So `option.Used == false` is NOT the same as `option.TimesUsed == 0`. (This can be useful)
 	 * 
 	 * Eg: 
 	 *		if ( TimesUsed == 3 )

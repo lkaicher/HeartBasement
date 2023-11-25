@@ -358,6 +358,7 @@ public class RegionComponentEditor : Editor
 
 		GUILayout.Space(5);
 		GUILayout.Label("Script Functions",EditorStyles.boldLabel);
+		GUILayout.Label("Blocking functions");
 
 		if ( GUILayout.Button("On Character Enter") )
 		{
@@ -376,6 +377,27 @@ public class RegionComponentEditor : Editor
 				PowerQuest.SCRIPT_FUNCTION_EXIT_REGION+ component.GetData().ScriptName,
 				PowerQuestEditor.SCRIPT_PARAMS_EXIT_REGION);
 		}
+		GUILayout.Label("Background functions");
+		GUILayout.Label("  (always trigger, even in sequences)");
+
+		if (GUILayout.Button("On Character Enter BG"))
+		{
+			RoomComponent room = component.transform.parent.GetComponent<RoomComponent>();
+
+			QuestScriptEditor.Open(room, QuestScriptEditor.eType.Region,
+				PowerQuest.SCRIPT_FUNCTION_ENTER_REGION_BG + component.GetData().ScriptName,
+				PowerQuestEditor.SCRIPT_PARAMS_ENTER_REGION, false);
+		}
+
+		if ( GUILayout.Button("On Character Exit BG") )
+		{
+			RoomComponent room = component.transform.parent.GetComponent<RoomComponent>();
+
+			QuestScriptEditor.Open( room, QuestScriptEditor.eType.Region,
+				PowerQuest.SCRIPT_FUNCTION_EXIT_REGION_BG+ component.GetData().ScriptName,
+				PowerQuestEditor.SCRIPT_PARAMS_EXIT_REGION, false);
+		}
+
 
 		GUILayout.Space(5);
 		EditorGUILayout.LabelField("Utils", EditorStyles.boldLabel);

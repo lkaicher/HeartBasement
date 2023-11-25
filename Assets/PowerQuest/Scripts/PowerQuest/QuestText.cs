@@ -56,13 +56,16 @@ public class QuestText : MonoBehaviour
 		Vector3.down + Vector3.right,
 	};
 	
-	[System.Serializable]
+	static readonly string STR_COLOR_START = "<color=#fff0>";
+	static readonly string STR_COLOR_END = "</color>";
+
+	[System.Serializable]	
 	public class TextSpriteData
 	{ 
-		public string m_tag = "";
+		public string m_tag = string.Empty;
 		public float m_offsetY = 0;
 		public Sprite m_sprite = null;
-		//public PlatformSpriteData[] m_sprite = { new PlatformSpriteData() };
+		public string m_platform = string.Empty;
 
 		public override string ToString(){ return m_tag; }
 	}
@@ -87,9 +90,12 @@ public class QuestText : MonoBehaviour
 	[SerializeField] Padding m_screenPadding = new Padding(8,8,8,8);
 	//[Header("Appearance")]
 	[SerializeField] Shader m_shaderOverride = null;
+	[Tooltip("If true, pixel filtering is applied for pixel art games, otherwise bilinear.")]
 	[SerializeField] bool m_setFiltering = true;
 	[SerializeField] TextOutline m_outline = null;	
-
+	[Tooltip("Set for a typewriter effect, in characters per second. 0.05 is a good starting value.")]
+	[SerializeField] float m_typeSpeed = 0;
+	
 	static Shader s_shader = null;
 	bool m_materialSet = false;
 
@@ -106,11 +112,19 @@ public class QuestText : MonoBehaviour
 
 	// Use the saved unlocalized text to update the text when translation changes
 	[SerializeField, HideInInspector] string m_unlocalizedText = null;
+	string m_wrappedText = null;
 
 	[SerializeField, HideInInspector] List<TextMesh> m_outlineMeshes = null;
 	bool m_wasRendererEnabled = true;
 	
 	Vector2 m_rectSize = Vector2.zero;
+
+	int m_typeChar = 0;
+
+	static string s_textSpritePlatform = string.Empty;
+
+	// Callback if you want to add sound to typing in another component or something.
+	public System.Action CallbackOnTypeCharacter = null;	
 
 	public string text { get { return m_text; } set { SetText(value); } }
 	public Color color 
@@ -130,6 +144,23 @@ public class QuestText : MonoBehaviour
 				if ( item != null)
 					item.color = item.color.WithAlpha(color.a * m_outline.m_color.a);
 			}
+		}
+	}
+
+	public TextAlignment alignment { get { return m_mesh?.alignment ?? TextAlignment.Center; } 
+		set 
+		{
+			if ( m_mesh != null )
+				m_mesh.alignment = value;
+			RefreshText();
+		}
+	}
+	public TextAnchor anchor { get { return m_mesh?.anchor ?? TextAnchor.MiddleCenter; } 
+		set 
+		{
+			if ( m_mesh != null )
+				m_mesh.anchor = value;
+			RefreshText();
 		}
 	}
 
@@ -188,6 +219,8 @@ public class QuestText : MonoBehaviour
 
 	public string GetUnlocalizedText() { return (m_localize == false || string.IsNullOrEmpty(m_unlocalizedText)) ? m_text : m_unlocalizedText; }
 
+	/// The text sprite platform is for having text sprites that change depending on platform or controller
+	public static void SetTextSpritePlatform(string platform) { s_textSpritePlatform = platform; }
 
 	// Use this for initialization
 	void Start() 
@@ -214,6 +247,7 @@ public class QuestText : MonoBehaviour
 		text = SystemText.Localize( text );		
 		text = ParseImages(text);
 		m_text = text;
+		m_typeChar = 0;
 
 		if ( CheckMaterial() )
 		{
@@ -310,78 +344,85 @@ public class QuestText : MonoBehaviour
 							transform.Translate(offset.WithZ(0));				
 						}
 					}
-
 					
 					m_rectSize = bounds.Size;
 
 				}
 			}
-
-			// Update outline
-			if ( m_outline != null && m_outline.m_directions != 0 && gameObject.scene.IsValid() )
-			{
-
-				// Meshes may have been deleted, so remove them if they have
-				for ( int i = m_outlineMeshes.Count - 1; i >= 0; i-- ) 
-				{
-					if ( m_outlineMeshes[i] == null )
-						m_outlineMeshes.RemoveAt(i);
-				}
-
-				// loop through all potential outline angles
-				int meshId = 0;
-				for ( int i = 0; i < 8; ++i ) 
-				{
-					if ( PowerTools.Quest.Text.BitMask.IsSet(m_outline.m_directions, i)  )
-					{
-						if ( m_outlineMeshes == null )
-							m_outlineMeshes = new List<TextMesh>();			
-						
-
-						if ( meshId >= m_outlineMeshes.Count  )
-						{
-							GameObject obj = new GameObject(((TextOutline.eDirection)(1<<i)).ToString(), m_mesh.GetType() ) as GameObject;
-							obj.hideFlags = HideFlags.HideAndDontSave;
-							obj.transform.parent = transform;
-							obj.transform.localScale = Vector3.one;
-							obj.transform.localPosition = SHADOW_OFFSETS[i] * m_outline.m_width;
-							obj.layer = gameObject.layer;
-
-							MeshRenderer newShadowRenderer = obj.GetComponent<MeshRenderer>();
-							newShadowRenderer.sharedMaterial = m_meshRenderer.sharedMaterial;//new Material(m_meshRenderer.material);
-							newShadowRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-							newShadowRenderer.receiveShadows = false;
-							newShadowRenderer.sortingLayerID = m_meshRenderer.sortingLayerID;
-							newShadowRenderer.sortingLayerName = m_meshRenderer.sortingLayerName;
-							newShadowRenderer.sortingOrder = m_meshRenderer.sortingOrder;// - 1;
-
-							TextMesh newShadowMesh = obj.GetComponent<TextMesh>();
-							newShadowMesh.alignment = m_mesh.alignment;
-							newShadowMesh.anchor = m_mesh.anchor;
-							newShadowMesh.characterSize = m_mesh.characterSize;
-							newShadowMesh.font = m_mesh.font;
-							newShadowMesh.fontSize = m_mesh.fontSize;
-							newShadowMesh.fontStyle = m_mesh.fontStyle;
-							newShadowMesh.richText = m_mesh.richText;
-							newShadowMesh.lineSpacing = m_mesh.lineSpacing;
-							newShadowMesh.tabSize= m_mesh.tabSize;
-							newShadowMesh.offsetZ = m_mesh.offsetZ + 0.1f;
-
-
-							m_outlineMeshes.Add(newShadowMesh);
-						}
-						TextMesh shadowMesh = m_outlineMeshes[meshId];
-						shadowMesh.text = text;
-						shadowMesh.color = m_outline.m_color.WithAlpha(m_outline.m_color.a * color.a);
-
-						meshId++;
-					}
-				}
-			}
-
+			m_wrappedText = text;
+			text = ProcessTypedText(text);
+			UpdateOutline(text);
 			m_mesh.text = text;
 		}
 
+	}
+
+	void UpdateOutline(string text)
+	{
+
+		// Update outline
+		if ( m_outline != null && m_outline.m_directions != 0 && gameObject.scene.IsValid() )
+		{
+
+			// Meshes may have been deleted, so remove them if they have
+			for ( int i = m_outlineMeshes.Count - 1; i >= 0; i-- ) 
+			{
+				if ( m_outlineMeshes[i] == null )
+					m_outlineMeshes.RemoveAt(i);
+			}
+
+			// loop through all potential outline angles
+			int meshId = 0;
+			for ( int i = 0; i < 8; ++i ) 
+			{
+				if ( PowerTools.Quest.Text.BitMask.IsSet(m_outline.m_directions, i)  )
+				{
+					if ( m_outlineMeshes == null )
+						m_outlineMeshes = new List<TextMesh>();
+
+					if ( meshId >= m_outlineMeshes.Count )
+					{
+						GameObject obj = new GameObject(((TextOutline.eDirection)(1<<i)).ToString(), m_mesh.GetType() ) as GameObject;
+						obj.hideFlags = HideFlags.HideAndDontSave;
+						obj.transform.parent = transform;
+						obj.transform.localScale = Vector3.one;
+						obj.transform.localPosition = SHADOW_OFFSETS[i] * m_outline.m_width;
+						obj.layer = gameObject.layer;
+
+						MeshRenderer newShadowRenderer = obj.GetComponent<MeshRenderer>();
+						newShadowRenderer.sharedMaterial = m_meshRenderer.sharedMaterial;//new Material(m_meshRenderer.material);
+						newShadowRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+						newShadowRenderer.receiveShadows = false;
+						newShadowRenderer.sortingLayerID = m_meshRenderer.sortingLayerID;
+						newShadowRenderer.sortingLayerName = m_meshRenderer.sortingLayerName;
+						newShadowRenderer.sortingOrder = m_meshRenderer.sortingOrder;// - 1;
+
+						TextMesh newShadowMesh = obj.GetComponent<TextMesh>();
+						newShadowMesh.offsetZ = m_mesh.offsetZ + 0.1f;
+
+
+						m_outlineMeshes.Add(newShadowMesh);
+					}
+					TextMesh shadowMesh = m_outlineMeshes[meshId];
+					
+					shadowMesh.text = text;
+					shadowMesh.color = m_outline.m_color.WithAlpha(m_outline.m_color.a * color.a);
+
+					// used to only do this first time, but sometimes you want to chnages any or all of these. hopefully not slow!
+					shadowMesh.alignment = m_mesh.alignment;
+					shadowMesh.anchor = m_mesh.anchor;
+					shadowMesh.characterSize = m_mesh.characterSize;
+					shadowMesh.font = m_mesh.font;
+					shadowMesh.fontSize = m_mesh.fontSize;
+					shadowMesh.fontStyle = m_mesh.fontStyle;
+					shadowMesh.richText = m_mesh.richText;
+					shadowMesh.lineSpacing = m_mesh.lineSpacing;
+					shadowMesh.tabSize= m_mesh.tabSize;
+
+					meshId++;
+				}
+			}
+		}
 	}
 
 	public void AttachTo(Vector2 worldPosition)
@@ -431,6 +472,8 @@ public class QuestText : MonoBehaviour
 
 	void Update()
 	{
+		UpdateTyping();
+
 		if ( m_editorRefresh && gameObject.activeInHierarchy && Application.isEditor && Application.isPlaying == false )
 		{
 			if ( m_outline != null && m_outlineMeshes != null )
@@ -450,6 +493,8 @@ public class QuestText : MonoBehaviour
 
 	void LateUpdate()
 	{
+		//if ( Application.isPlaying == false )
+		//	return;
 		if ( CheckMaterial() == false )
 			return;
 		if ( m_attachObject != null || m_attachWorldPos != Vector2.zero )
@@ -504,6 +549,59 @@ public class QuestText : MonoBehaviour
 					item.GetComponent<Renderer>().enabled = m_meshRenderer.enabled;
 			}
 			m_wasRendererEnabled = m_meshRenderer.enabled;
+		}
+	}
+
+	public void StartTyping(float speedOverride = -1)
+	{
+		m_typeChar = 0;
+		if ( speedOverride > 0 )
+			m_typeSpeed = speedOverride;
+	}
+
+	public bool GetTyping()
+	{
+		return m_typeSpeed > 0 && m_typeChar < m_wrappedText.Length;
+	}
+
+	string ProcessTypedText(string text)
+	{
+		if ( m_typeSpeed <= 0 || m_typeChar >= text.Length || Application.isPlaying == false )
+			return text;
+		return text.Insert(m_typeChar, STR_COLOR_START) + STR_COLOR_END;		
+	}
+
+	public void SkipTyping()
+	{
+		m_typeChar = int.MaxValue;
+		string text = ProcessTypedText(m_wrappedText);
+		UpdateOutline(text);
+		m_mesh.text = text;
+	}
+
+	void UpdateTyping()
+	{
+		if ( m_typeSpeed <= 0 || m_typeChar >= m_wrappedText.Length )
+			return;
+
+		float speed = m_typeSpeed;		
+		char currChar = m_wrappedText[m_typeChar];
+		if (currChar == '.' || currChar == ',' || currChar == '?' || currChar == '!' )
+			speed *= 2f;
+
+		if ( Utils.GetTimeIncrementPassed(speed) && m_typeChar < m_wrappedText.Length )
+		{	
+			m_typeChar++;		
+			while ( m_typeChar < m_wrappedText.Length && (currChar == ' ' || currChar == '\r' || currChar == '\n') )	
+			{		
+				m_typeChar++;	
+				currChar = m_wrappedText[m_typeChar];
+			}
+			CallbackOnTypeCharacter?.Invoke();			
+			
+			string text = ProcessTypedText(m_wrappedText);
+			UpdateOutline(text);
+			m_mesh.text = text;
 		}
 	}
 	
@@ -643,13 +741,18 @@ public class QuestText : MonoBehaviour
 
 	private static TextSpriteData FindByTag(TextSpriteData[] textSpriteData, string tag) 
 	{
-		foreach (var spriteData in textSpriteData) 
+		TextSpriteData bestMatch = null;
+		foreach (TextSpriteData spriteData in textSpriteData) 
 		{
 			if (string.Equals(spriteData.m_tag, tag,System.StringComparison.OrdinalIgnoreCase)) 
-				return spriteData;
+			{
+				if ( spriteData.m_platform.EqualsIgnoreCase(s_textSpritePlatform) )
+					return spriteData; // found perfect match, we're done.
+				else if ( IsString.Empty(spriteData.m_platform) )
+					bestMatch = spriteData; // found default, use as fallback
+			}
 		}
-
-		return null;
+		return bestMatch;
 	}
 
 	string EvaluateImageTagMatch( Match match ) 

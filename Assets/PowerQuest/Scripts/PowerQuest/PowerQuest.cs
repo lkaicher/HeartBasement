@@ -93,6 +93,8 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	[SerializeField] bool m_sayTextAutoAdvance = true;
 	[Tooltip("Whether display requires a click to advance, or dismisses after dialog's spoken/after time")]
 	[SerializeField] bool m_displayTextAutoAdvance = false;
+	[Tooltip("After dialog's audio finishes, how long before going to next line (sec)")]
+	[SerializeField] float m_textAutoAdvanceDelay = 0.0f;	
 	[Tooltip("If true, display is shown even when subtitles off")]
 	[SerializeField] bool m_alwaysShowDisplayText = true;
 
@@ -183,6 +185,8 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	DialogTree m_previousDialog = null;
 		
 	bool m_skipCutscene = false;		// If true, coroutines will skip any waiting and get to the end
+	bool m_interruptNextLine = false;
+	float m_interruptNextLineTime = 0.0f;
 	bool m_skipDialog = false;			// If true talk/wait coroutines will skip
 	bool m_blocking = false;			// True when other interactions cannot be performed
 	bool m_transitioning = false;		// True when transitioning between rooms
@@ -258,6 +262,14 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 
 
 	#endregion
+	
+	#region Properties: Public
+
+	public bool DialogInterruptRequested => m_interruptNextLine;
+	public float DialogInterruptDuration => m_interruptNextLineTime;
+	
+	#endregion
+	
 	#region Functions: Implementing IPowerQuest
 
 	/// Breaks instantly, rather than yielding for a frame
@@ -547,7 +559,13 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		return null;
 	}
 
-	public Room GetCurrentRoom() { return GetSavable(m_currentRoom); }
+	public IRoom GetRestoringRoom() { return GetSavable( m_player.Room as Room ); }
+	public Room GetCurrentRoom()
+	{
+		//if ( GetRestoringGame() )
+		//	return GetSavable( m_player.Room as Room ); // While restoring a game, the m_currentRoom hasn't been set yet, so set the room the players actually in.  But actually no. doesn't work.
+		 return  GetSavable(m_currentRoom); 
+	}
 	
 	/// Debugging function that overrides the value of `R.Previous`. Useful for testing, paricularly in 'Play from` functions- (when using the [QuestPlayFromFunction] attribute)
 	public void DebugSetPreviousRoom(IRoom room)
@@ -1129,14 +1147,25 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	{ 
 		DialogOption option = (DialogOption)dialog.GetOption(optionName);
 		//return StartScriptInteractionCoroutine( dialog.Data.GetScript(), PowerQuest.SCRIPT_FUNCTION_DIALOG_OPTION+option.ScriptName, new object[] {option} ); 
+
+		// Increment 'used' status- will be undone if option isn't handled.
+		bool wasUsed = option.Used;
+		option.Used=true;
+		option.TimesUsed++;
+
 		Coroutine coroutine = StartScriptInteractionCoroutine(dialog.Data.GetScript(), SCRIPT_FUNCTION_DIALOG_OPTION + option.Name, new object[]{option}, false );
 		if ( coroutine == null )
 			coroutine = StartScriptInteractionCoroutine(dialog.Data.GetScript(), SCRIPT_FUNCTION_DIALOG_OPTION + option.Name, null, false );
+
 		if ( coroutine != null )
 		{
-			option.Used = true;
-			option.TimesUsed++;
 			GetGui(DialogTreeGui).Visible = false;
+		}
+		else 
+		{
+			// Undo Used and TimesUsed- This ensures these properties are consistant no matter where in the script coroutine they're checked.
+			option.Used = wasUsed;
+			option.TimesUsed--;
 		}
 		return coroutine;
 	}
@@ -1493,7 +1522,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	public bool GetStopWalkingToTalk() { return m_stopWalkingToTalk; }
 
 	// Wait for current dialog 
-	public Coroutine WaitForDialog(float time, AudioHandle audioSource, bool autoAdvance, bool skippable)	{	return StartCoroutine(CoroutineWaitForDialog(time, skippable, autoAdvance, audioSource)); }
+	public Coroutine WaitForDialog(float time, AudioHandle audioSource, bool autoAdvance, bool skippable, QuestText textComponent = null)	{	return StartCoroutine(CoroutineWaitForDialog(time, skippable, autoAdvance, audioSource, textComponent)); }
 
 	// Hides display box. Access provided incase want to cancel background dialog
 	public void CancelDisplayBG()
@@ -1504,6 +1533,17 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	public bool GetBlocked() 
 	{
 		return (m_blocking && m_sequenceIsCancelable == false) || m_transitioning;
+	}
+
+	public void InterruptNextLine(float bySeconds)
+	{
+		m_interruptNextLine = true;
+		m_interruptNextLineTime = bySeconds;
+	}
+
+	public void ResetInterruptNextLine()
+	{
+		m_interruptNextLine = false;
 	}
 
 	// Used for custom/external controller skipping dialog
@@ -1691,14 +1731,23 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		}
 		else 
 		{
+		
+			// Increment 'used' status- will be undone if option isn't handled.
+			bool wasUsed = option.Used;
+			option.Used=true;
+			option.TimesUsed++;
+
 			if ( StartScriptInteraction(m_currentDialog, SCRIPT_FUNCTION_DIALOG_OPTION + option.Name, new object[]{option}, false )
 				|| StartScriptInteraction(m_currentDialog, SCRIPT_FUNCTION_DIALOG_OPTION + option.Name, null, false ) )
 			{
-				option.Used = true;
-				option.TimesUsed++;
 				GetGui(DialogTreeGui).Visible = false;
 				return true;
 			}
+				
+			// Undo Used and TimesUsed- This ensures these properties are consistant no matter where in the script coroutine they're checked.
+			option.Used = wasUsed;
+			option.TimesUsed--;
+		
 		}
 		return false;		
 	}
@@ -2329,7 +2378,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		if ( Application.isEditor && mainCamera != null)
 		{	
 			Vector2 mousePos = mainCamera.ScreenToViewportPoint(Input.mousePosition);
-			UnityEngine.Cursor.visible = mousePos.x < 0.0f || mousePos.x > 1.0f || mousePos.y < 0.0f || mousePos.y > 1.0f;
+			UnityEngine.Cursor.visible = mousePos.x < 0.0f || mousePos.x > 1.0f || mousePos.y < 0.0f || mousePos.y > 1.0f || Cursor.Visible == false;
 		}
 
 		if ( m_customKbShortcuts == false )
@@ -2538,8 +2587,9 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	}
 
 	// Show display box
-	void StartDisplay(string text, int id)
+	void StartDisplay(string text, int id, out QuestText textComponent)
 	{
+		textComponent=null;
 		Gui gui = GetGui(DisplayBoxGui);
 		if ( gui == null || gui.GetInstance() == null )
 			return;
@@ -2550,11 +2600,14 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 
 		// Start audio
 		SystemAudio.Stop(m_dialogAudioSource);
-		m_dialogAudioSource = SystemText.PlayAudio(id, "Narr");
-
-		if ( PowerQuest.Get.Settings.DialogDisplay != QuestSettings.eDialogDisplay.SpeechOnly || PowerQuest.Get.AlwaysShowDisplayText )
+		m_dialogAudioSource = null;
+		if ( Settings.DialogDisplay != QuestSettings.eDialogDisplay.TextOnly )
+			m_dialogAudioSource = SystemText.PlayAudio(id, "Narr",null, SystemAudio.Get.NarratorMixerGroup);
+		
+		if ( Settings.DialogDisplay != QuestSettings.eDialogDisplay.SpeechOnly || PowerQuest.Get.AlwaysShowDisplayText )
 		{
 			QuestText guiText = gui.GetInstance().GetComponentInChildren<QuestText>(true);
+			textComponent=guiText;			
 			if ( guiText != null )
 			{
 				guiText.SetText(text);
@@ -2638,6 +2691,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 				for ( int regionId = 0; regionId < regionCount; ++regionId )
 				{
 					RegionComponent regionComponent = regionComponents[regionId];
+					Region region = regionComponent.GetData();
 					if ( regionComponent.UpdateCharactersOnRegion(charId, characterActive, characterPos) )
 					{	
 						if ( character.UseRegionScaling )
@@ -2648,22 +2702,39 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 						}						
 						if ( character.UseRegionTinting )
 						{
-							if ( regionComponent.GetData().Tint.a > 0 )
+							if ( region.Tint.a > 0 )
 							{
 								float ratio = regionComponent.GetFadeRatio(characterPos);
 								if ( tint.a <= 0 )
 								{
-									tint = regionComponent.GetData().Tint;
+									tint = region.Tint;
 									tint.a *= ratio;
 								}
 								else 
 								{
-									Color newCol = regionComponent.GetData().Tint;
+									Color newCol = region.Tint;
 									tint = Color.Lerp(tint, newCol, ratio);
 								}
 							}
 						}
 					}
+					
+					// Call Enter/Exit region background functions
+					RegionComponent.eTriggerResult result = regionComponent.UpdateCharacterOnRegionState(charId, true);					
+					if ( region.Enabled && m_currentRoom != null && m_currentRoom.GetScript() != null && (region.PlayerOnly == false || character == m_player) )
+					{
+						if ( result == RegionComponent.eTriggerResult.Enter )
+						{		
+							System.Reflection.MethodInfo method = m_currentRoom.GetScript().GetType().GetMethod( SCRIPT_FUNCTION_ENTER_REGION_BG + region.ScriptName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
+							if ( method != null ) method.Invoke(m_currentRoom.GetScript(),new object[] {region, character});
+						}
+						else if ( result == RegionComponent.eTriggerResult.Exit )
+						{
+							System.Reflection.MethodInfo method = m_currentRoom.GetScript().GetType().GetMethod(SCRIPT_FUNCTION_EXIT_REGION_BG + region.ScriptName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
+							if ( method != null ) method.Invoke(m_currentRoom.GetScript(),new object[] {region, character});
+						}
+					}
+
 				}
 
 				if ( /*characterActive &&*/ character.GetInstance() != null )
@@ -2681,9 +2752,10 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 						if ( spriteComponent != null )
 							spriteComponent.Tint = tint;
 					}
-				}			
+				}	
+
 			}
-		}
+		}		
 	}
 
 	// Called when a cutscene ends (either by skipping or when it naturally ends
@@ -2858,7 +2930,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 
 	// Used by clickables to check if usecount should show as incremented yet (makes more sense for it to be 0 until interaction is finished)
 	public bool GetInteractionInProgress( IQuestClickable clickable, eQuestVerb verb )
-	{
+	{		
 		// Here we need to be careful, since interaction could have started, but not actually be blocking yet. (Say for 'prop.FirstUse' is used right at start, or after WalkToClicked)
 		if ( clickable == null || (m_backgroundSequence == null && m_blocking == false && m_currentSequence == null ) )
 			return false;
@@ -2960,7 +3032,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		if ( scriptClass != null )
 		{
 			System.Reflection.MethodInfo method = scriptClass.GetType().GetMethod( methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
-			if ( method != null )
+			if ( method != null && ((parameters == null && method.GetParameters().Length == 0) || (method.GetParameters().Length == parameters.Length)) )
 			{	
 				if ( stopPlayerMoving )
 					m_player.StopWalking();	
@@ -3121,8 +3193,9 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	{
 		if ( GetSkippingCutscene() )
 			yield break;
-		StartDisplay(text,id);
-		yield return WaitForDialog(PowerQuest.Get.GetTextDisplayTime(text), m_dialogAudioSource, m_displayTextAutoAdvance, true);	
+		QuestText textComponent;
+		StartDisplay(text,id, out textComponent);
+		yield return WaitForDialog(PowerQuest.Get.GetTextDisplayTime(text), m_dialogAudioSource, m_displayTextAutoAdvance, true, textComponent);	
 		EndDisplay();
 	}
 
@@ -3130,16 +3203,17 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	{
 		if ( PowerQuest.Get.GetSkippingCutscene() )
 			yield break;
-		StartDisplay(text,id);
-		yield return WaitForDialog(PowerQuest.Get.GetTextDisplayTime(text), m_dialogAudioSource, true, false);
+		QuestText textComponent;
+		StartDisplay(text,id, out textComponent);
+		yield return WaitForDialog(PowerQuest.Get.GetTextDisplayTime(text), m_dialogAudioSource, true, false, textComponent);
 		EndDisplay();
 	}
 	
-	IEnumerator CoroutineWaitForDialog(float time, bool skippable, bool autoAdvance, AudioHandle audioSource )
+	IEnumerator CoroutineWaitForDialog(float time, bool skippable, bool autoAdvance, AudioHandle audioSource, QuestText textComponent = null )
 	{		
 		m_timeLastTextShown = Time.timeSinceLevelLoad;
-		bool first = true; // first frame the mouse will always be down, so don't skip until 2nd
-		while ( ShouldContinueDialog(first, time, skippable || m_waitingForBGDialogSkip, autoAdvance, audioSource) )
+		bool first = true; // first frame the mouse will always be down, so don't skip until 2nd		
+		while ( ShouldContinueDialog(first, ref time, skippable || m_waitingForBGDialogSkip, autoAdvance, audioSource, textComponent) )
 		{
 			first = false;
 			yield return new WaitForEndOfFrame();
@@ -3150,28 +3224,100 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 		}
 	}
 
-	bool ShouldContinueDialog( bool firstCall, float time, bool skippable, bool autoAdvance, AudioHandle audioSource )
+	/** Now way overcomplicated function to calc whether dialog should continue.  
+		'time' is ticked down in the calling function, but passed as ref so it can be reset here when audio finishes, so we can have optional delay on end of dialog lines.
+	*/
+	public bool ShouldContinueDialogOld( bool firstCall, ref float time, bool skippable, bool autoAdvance, AudioHandle audioSource, QuestText textComponent = null, float endTime = 0 )
 	{
 		bool result = true;
 		
 		// Check if time is up (when no audiosource, and auto-advance is on)
 		if ( autoAdvance && audioSource == null )
-			result &= (time > 0.0f);
+			result &= (time > endTime);
 
 		// Check if skipping cutscene
 		result &= PowerQuest.Get.GetSkippingCutscene() == false;
 
-		// Check if skip dialog button is pressed
+		// Check if skip dialog button is pressed		
+		if ( textComponent != null && textComponent.GetTyping() && PowerQuest.Get.HandleSkipDialogKeyPressed() && firstCall == false )
+		{
+			textComponent.SkipTyping();
+			return true;
+		}
+
 		result &= ( skippable == false || PowerQuest.Get.HandleSkipDialogKeyPressed() == false || firstCall );
 
-		// Check if has audio and if it's finished playing
-		#if UNITY_SWITCH 
-		result &= ( audioSource == null || audioSource.isPlaying || PowerQuest.Get.Paused );
-		#else
-		result &= ( audioSource == null || audioSource.isPlaying || Application.isFocused == false || PowerQuest.Get.Paused );
-		#endif
+		if ( audioSource != null )
+		{
+			bool audioPlaying = true;
+			// Check if has audio and if it's finished playing
+			#if UNITY_SWITCH 
+			audioPlaying &= ( audioSource == null || audioSource.isPlaying || PowerQuest.Get.Paused );
+			#else
+			audioPlaying &= ( audioSource == null || audioSource.isPlaying || Application.isFocused == false || PowerQuest.Get.Paused );			
+			#endif
+						
+			// hack test... should really start the timer when audio is stopped though, not this way...
+			if ( audioPlaying )
+				time = 0;
+			else 
+				result &= time > -m_textAutoAdvanceDelay; // Add extra time to wait after audio clip finishes
+
+			result &= ( endTime <= 0 || audioSource == null || audioSource.clip == null || audioSource.time < audioSource.clip.length - endTime );
+		}
 
 		return result;
+	}
+
+	
+	public bool ShouldContinueDialog( bool firstCall, ref float time, bool skippable, bool autoAdvance, AudioHandle audioSource, QuestText textComponent = null, float endTime = 0 )
+	{
+		
+		// Check if time is up (when no audiosource, and auto-advance is on)
+		if ( autoAdvance && audioSource == null && time <= endTime )
+			return false;
+
+		// Check if skipping cutscene
+		if ( PowerQuest.Get.GetSkippingCutscene() )
+			return false;
+
+		// Check if skip dialog button is pressed		
+		if ( textComponent != null && textComponent.GetTyping() && PowerQuest.Get.HandleSkipDialogKeyPressed() && firstCall == false )
+		{
+			textComponent.SkipTyping();
+			return true;
+		}
+
+		if ( skippable && PowerQuest.Get.HandleSkipDialogKeyPressed() && firstCall == false )
+			return false;
+
+		if ( audioSource != null )
+		{			
+			// Check if has audio and if it's finished playing
+			#if UNITY_SWITCH 
+			bool audioPlaying = ( audioSource.isPlaying || PowerQuest.Get.Paused );
+			#else
+			bool audioPlaying = ( audioSource.isPlaying || Application.isFocused == false || PowerQuest.Get.Paused );			
+			#endif
+			
+			if ( m_textAutoAdvanceDelay > 0 ) // check if we should wait a bit after audio stops
+			{						
+				if ( audioPlaying )				
+					time = 0; // set time to zero the whole time audio is playing, so we know its at zero when it finishes				
+				else if ( time <= -m_textAutoAdvanceDelay ) // Add extra time to wait after audio clip finishes				
+					return false;				
+			}
+			else if ( audioPlaying == false )
+			{
+				return false; // audio stopped so we're done
+			}
+
+			// End early when endtime is set
+			if ( endTime > 0 && audioSource.clip != null && audioSource.time >= audioSource.clip.length - endTime )
+				return false;
+		}
+
+		return true;
 	}
 
 	IEnumerator CoroutineFadeIn( string source, float time, bool skippable = false )
@@ -3395,8 +3541,8 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 			// We want to remove atlases 2 rooms ago, so we can async load the next room while current is active
 			m_atlasToUnload = m_lastAtlas;
 			m_lastAtlas = atlas;
-			if ( Debug.isDebugBuild )
-				Debug.Log("Loaded atlas "+atlasName);
+			//if ( Debug.isDebugBuild )
+			//	Debug.Log("Loaded atlas "+atlasName);
 			callback(atlas);
 		}
 		else 

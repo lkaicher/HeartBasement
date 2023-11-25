@@ -12,7 +12,7 @@ using PowerTools;
 
 namespace PowerTools.Quest
 {
-
+ 
 public partial class PowerQuestEditor
 {
 
@@ -53,11 +53,10 @@ public partial class PowerQuestEditor
 		if ( powerQuestEditor == null )
 			return;
 
-		if ( m_listRoomPrefabs.IsIndexValid(list.index))
+		if ( list.index >= 0 && list.index < list.list.Count)
 		{
 			// Find if there's an instance in the scene, if so select that.
-			RoomComponent component = m_listRoomPrefabs[list.index];
-			if ( component != null )
+			if ( list.list[list.index] is RoomComponent component && component != null )
 			{
 				// If there's an instance inthe scene, select that, otherwise select the prefab
 				GameObject instance = GameObject.Find( "Room"+component.GetData().ScriptName );
@@ -180,6 +179,7 @@ public partial class PowerQuestEditor
 		powerQuestEditor.CallbackOnCreateObject?.Invoke(eQuestObjectType.Room, path, name);
 		
 		powerQuestEditor.RequestAssetRefresh();
+		powerQuestEditor.RefreshMainGuiLists();
 
 	}
 
@@ -949,7 +949,7 @@ public partial class PowerQuestEditor
 				QuestEditorUtils.LayoutQuestObjectContextMenu( eQuestObjectType.Region, m_listRegions, itemComponent.GetData().GetScriptName(), itemComponent.gameObject, rect, index, true );
 
 				EditorLayouter layout = new EditorLayouter(new Rect(rect){y= rect.y+2,height=EditorGUIUtility.singleLineHeight});
-				layout.Variable().Fixed(45).Fixed(45);
+				layout.Variable().Fixed(42).Fixed(25).Fixed(32).Fixed(25);
 
 				int actionCount = 2;
 				EditorGUI.LabelField(layout, itemComponent.GetData().ScriptName);
@@ -957,22 +957,33 @@ public partial class PowerQuestEditor
 				int actionNum = 0;
 				if ( GUI.Button(layout, "Enter", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
 				{
-					// Lookat
 					QuestScriptEditor.Open( m_selectedRoom, QuestScriptEditor.eType.Region,
 						PowerQuest.SCRIPT_FUNCTION_ENTER_REGION+ itemComponent.GetData().ScriptName,
 						PowerQuestEditor.SCRIPT_PARAMS_ENTER_REGION);
+					}
+					if (GUI.Button(layout, "BG", QuestEditorUtils.GetMiniButtonStyle(actionNum++, actionCount)))
+					{
+						QuestScriptEditor.Open(m_selectedRoom, QuestScriptEditor.eType.Region,
+							PowerQuest.SCRIPT_FUNCTION_ENTER_REGION_BG + itemComponent.GetData().ScriptName,
+							PowerQuestEditor.SCRIPT_PARAMS_ENTER_REGION,false);
+					}
+
+					if ( GUI.Button(layout, "Exit", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
+					{
+						QuestScriptEditor.Open( m_selectedRoom, QuestScriptEditor.eType.Region,
+							PowerQuest.SCRIPT_FUNCTION_EXIT_REGION+ itemComponent.GetData().ScriptName,
+							PowerQuestEditor.SCRIPT_PARAMS_EXIT_REGION);
+					}
+
+					if (GUI.Button(layout, "BG", QuestEditorUtils.GetMiniButtonStyle(actionNum++, actionCount)))
+					{
+						QuestScriptEditor.Open(m_selectedRoom, QuestScriptEditor.eType.Region,
+							PowerQuest.SCRIPT_FUNCTION_EXIT_REGION_BG + itemComponent.GetData().ScriptName,
+							PowerQuestEditor.SCRIPT_PARAMS_EXIT_REGION,false);
+					}
+
+
 				}
-
-				if ( GUI.Button(layout, "Exit", QuestEditorUtils.GetMiniButtonStyle(actionNum++,actionCount) ) )
-				{
-					// Interact
-					QuestScriptEditor.Open( m_selectedRoom, QuestScriptEditor.eType.Region,
-						PowerQuest.SCRIPT_FUNCTION_EXIT_REGION+ itemComponent.GetData().ScriptName,
-						PowerQuestEditor.SCRIPT_PARAMS_EXIT_REGION);
-				}
-
-
-			}
 		}
 	}
 

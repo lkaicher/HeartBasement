@@ -23,7 +23,9 @@ public partial class Region : IRegion, IQuestScriptable
 	[SerializeField] bool m_enabled = true;
 	[Tooltip("Whether character can walk over region, if false they'll path around it")]
 	[SerializeField] bool m_walkable = true;
-	[Tooltip("Colour to tint the player when in this area")]
+	[Tooltip("Whether OnEnter and similar scripts affect the player only")]
+	[SerializeField] bool m_playerOnly = false;
+	[Tooltip("Colour to tint the player when in this area. Alpha controls the amount of tint.")]
 	[SerializeField] Color m_tint = new Color(1,1,1,0);
 	[Tooltip("Distance a character has to move into a region before tint is fully faded in")]
 	[SerializeField] float m_fadeDistance = 0;
@@ -32,6 +34,7 @@ public partial class Region : IRegion, IQuestScriptable
 	[Tooltip("Amount to scale the player while in the region (at the bottom)")]
 	[SerializeField] float m_scaleBottom = 1;
 	[ReadOnly][SerializeField] string m_scriptName = "RegionNew";
+	
 
 	#endregion
 	#region Region: Vars: private
@@ -43,6 +46,7 @@ public partial class Region : IRegion, IQuestScriptable
 	
 	BitArray m_characterOnRegionMask = new BitArray(64);
 	BitArray m_characterOnRegionMaskOld = new BitArray(64);
+	BitArray m_characterOnRegionMaskBGOld = new BitArray(64);
 
 	#endregion
 	#region Region: properties
@@ -65,6 +69,7 @@ public partial class Region : IRegion, IQuestScriptable
 			}
 		}
 	}
+	public bool PlayerOnly { get { return m_playerOnly; } set { m_playerOnly = value; } }
 	public Color Tint { get{ return m_tint;} set{m_tint = value;} }
 	public float FadeDistance { get{ return m_fadeDistance;} set{m_fadeDistance = value;} }
 	public float ScaleTop { get{ return m_scaleTop;}  set{ m_scaleTop = value; }  }
@@ -130,7 +135,7 @@ public partial class Region : IRegion, IQuestScriptable
 	}
 
 	public BitArray GetCharacterOnRegionMask() { return m_characterOnRegionMask; }
-	public BitArray GetCharacterOnRegionMaskOld() { return m_characterOnRegionMaskOld; }
+	public BitArray GetCharacterOnRegionMaskOld(bool background) { return background ? m_characterOnRegionMaskBGOld : m_characterOnRegionMaskOld; }
 
 	#endregion
 	#region Region Functions: Implementing IQuestScriptable
@@ -230,12 +235,13 @@ public class RegionComponent : MonoBehaviour
 	}
 
 	// Updates and returns whether the character entered/exited/stayed in the region. this is used in non-blocking situations
-	public eTriggerResult UpdateCharacterOnRegionState( int index )
+	public eTriggerResult UpdateCharacterOnRegionState( int index, bool background )
 	{
 		eTriggerResult result = eTriggerResult.None;
 
 		bool inside = m_data.GetCharacterOnRegionMask().Get(index);
-		bool wasInside = m_data.GetCharacterOnRegionMaskOld().Get(index);
+		bool wasInside = m_data.GetCharacterOnRegionMaskOld(background).Get(index);
+		
 
 		if ( wasInside )
 		{
@@ -247,15 +253,18 @@ public class RegionComponent : MonoBehaviour
 		}		 
 
 		// update cached mask
-		m_data.GetCharacterOnRegionMaskOld().Set(index, m_data.GetCharacterOnRegionMask().Get(index));
+		m_data.GetCharacterOnRegionMaskOld(background).Set(index, m_data.GetCharacterOnRegionMask().Get(index));
 		return result;
 	}
+	
 
 	public void OnRoomLoaded()
 	{
 		// There's no copy value kinda thing, so i'm doing this to make a copy efficiently
-		m_data.GetCharacterOnRegionMaskOld().SetAll(true);
-		m_data.GetCharacterOnRegionMaskOld().And( m_data.GetCharacterOnRegionMask() );
+		m_data.GetCharacterOnRegionMaskOld(true).SetAll(true);
+		m_data.GetCharacterOnRegionMaskOld(true).And( m_data.GetCharacterOnRegionMask() );
+		m_data.GetCharacterOnRegionMaskOld(false).SetAll(true);
+		m_data.GetCharacterOnRegionMaskOld(false).And( m_data.GetCharacterOnRegionMask() );
 	}
 
 
@@ -265,7 +274,8 @@ public class RegionComponent : MonoBehaviour
 		if ( m_polygonCollider == null )
 			m_polygonCollider = GetComponent<PolygonCollider2D>();
 		m_data.GetCharacterOnRegionMask().Length = PowerQuest.Get.GetCharacters().Count; // kind of hacky way to get this info :/
-		m_data.GetCharacterOnRegionMaskOld().Length = m_data.GetCharacterOnRegionMask().Length;
+		m_data.GetCharacterOnRegionMaskOld(true).Length = m_data.GetCharacterOnRegionMask().Length;
+		m_data.GetCharacterOnRegionMaskOld(false).Length = m_data.GetCharacterOnRegionMask().Length;
 
 		// Find min and max points of collider
 		if ( m_polygonCollider != null )

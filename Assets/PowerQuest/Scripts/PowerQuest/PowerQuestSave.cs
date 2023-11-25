@@ -23,6 +23,7 @@ public partial class PowerQuest
 	#region Variables: Private
 
 	QuestSaveManager m_saveManager = new QuestSaveManager();
+	int m_restoredVersion = -1; // Only used temporarily to pass version to OnPostRestore calls
 
 	#endregion
 	#region Functions: Save/Load public functions
@@ -157,6 +158,7 @@ public partial class PowerQuest
 		return RestoreSave(lastData.m_slotId);
 	}
 
+
 	public bool RestoreSave(int slot)
 	{
 		if ( GetSaveSlotData(slot) == null )
@@ -177,6 +179,8 @@ public partial class PowerQuest
 		m_currentSequences.Clear();
 
 		bool result = m_saveManager.RestoreSave(slot, m_saveVersionRequired, out restoredVersion, out data);
+		
+		m_restoredVersion = restoredVersion; // this is used for scripts onPostRestore
 
 		object[] onPostRestoreParams = {restoredVersion};
 
@@ -329,14 +333,8 @@ public partial class PowerQuest
 				{
 					UpdateRegions();
 					if ( m_currentRoom != null )
-						m_currentRoom.GetInstance().GetRegionComponents().ForEach( item=>item.OnRoomLoaded() );
+						m_currentRoom.GetInstance().GetRegionComponents().ForEach( item=>item.OnRoomLoaded() ); // Afaik this won't work, since m_currentRoom isn't set yet? Should test.
 				}
-			}
-
-			// Call post restore on game scripts
-			{
-				List<IQuestScriptable> scriptables = GetAllScriptables();
-				scriptables.ForEach( item => CallScriptPostRestore(item, onPostRestoreParams) );				
 			}
 
 			// Call post restore on SaveManager (which calls it to custom save data)
@@ -429,12 +427,12 @@ public partial class PowerQuest
 
 	#endregion
 	#region Save/Load helpers
-
+	static readonly string STR_ON_POST_RESTORE = "OnPostRestore";
 	void CallScriptPostRestore(IQuestScriptable scriptable, object[] onPostRestoreParams )
 	{
 		if ( scriptable.GetScript() != null )
 		{
-			MethodInfo method = scriptable.GetScript().GetType().GetMethod( "OnPostRestore", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
+			MethodInfo method = scriptable.GetScript().GetType().GetMethod( STR_ON_POST_RESTORE, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
 			if ( method != null ) method.Invoke(scriptable.GetScript(), onPostRestoreParams);					
 		}
 	}

@@ -160,9 +160,9 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 	bool m_enabled = true;
 
 	// When character is enabled/disabled, these are used to remember what old visible/clickable/etc were.
-	bool m_visibleWhenEnabled = true;
-	bool m_clickableWhenEnabled = true;
-	bool m_solidWhenEnabled = false;
+	//bool m_visibleWhenEnabled = true; 
+	//bool m_clickableWhenEnabled = true;
+	//bool m_solidWhenEnabled = false;
 
 	string m_animPrefix = null;    // When playing an animation, try to find one with this prefix first
 	string m_animOverride = null;  // Used when Animation property is set	
@@ -324,6 +324,8 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 			m_faceAfterWalk = eFace.None;
 			m_faceDirection = value; 
 			m_targetFaceDirection = m_faceDirection; // Set target too to snap to target
+			if (m_faceDirection != eFace.Up && m_faceDirection != eFace.Down && m_faceDirection != eFace.None )
+				m_facingVerticalFallback = CharacterComponent.ToCardinal(m_faceDirection);
 			if ( m_instance != null ) 
 				m_instance.UpdateFacingVisuals(value); 
 		} 
@@ -339,6 +341,8 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 		}
 		set
 		{
+			if ( m_enabled == value )
+				return;
 			m_enabled = value;
 			if ( m_instance != null ) 
 				m_instance.UpdateEnabled();
@@ -352,7 +356,7 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 		{		
 			if ( value && m_enabled == false )
 				Debug.LogWarning("Character Clickable set when Character is not Enabled. Did you mean to call Show() or Enable() first?");
-			m_clickableWhenEnabled = value; 
+			//m_clickableWhenEnabled = value; 
 			m_clickable = value;
 		} 
 	}
@@ -364,9 +368,10 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 		{
 			if ( value && m_enabled == false )
 				Debug.LogWarning("Character Visible set when Character is not Enabled. Did you mean to call Show() or Enable() first?");
-			m_visibleWhenEnabled = value;
+			bool changed = value != m_visible;
+			//m_visibleWhenEnabled = value;
 			m_visible = value;
-			if ( m_instance != null )
+			if ( m_instance != null && changed )
 				m_instance.UpdateVisibility();
 		} 
 	}
@@ -382,7 +387,7 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 			if ( m_solid != value )
 			{
 				m_solid = value;
-				m_solidWhenEnabled = value;
+				//m_solidWhenEnabled = value;
 				if ( m_instance != null )
 					m_instance.UpdateSolid();
 			}
@@ -498,9 +503,10 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 		*/
 	}
 
+	
 	public bool Moveable { get{return m_moveable && Enabled;} set{m_moveable = value;} }
 	public bool Walking { get{ return m_instance == null ? false : m_instance.Walking; } }
-	public bool Talking { get{ return (m_dialogText != null && m_dialogText.gameObject.activeSelf) || (m_dialogAudioSource != null && m_dialogAudioSource.isPlaying); /*return m_instance == null ? false : m_instance.GetIsTalking();*/ } }
+	public bool Talking { get{ return (m_dialogText != null && m_dialogText.gameObject.activeSelf) || (m_dialogAudioSource != null && m_dialogAudioSource.isPlaying); /*//Can't just check if component talking, since can be off-screen and still talking- return m_instance == null ? false : m_instance.GetIsTalking();*/ } }
 	// Returns true if currently playing an anim (using PlayAnimation, or Animation = xxx)
 	public bool Animating { get{ return m_instance == null ? false : m_instance.Animating; } }
 	public bool IsPlayer { get{ return PowerQuest.Get.GetPlayer() == this; } }
@@ -701,6 +707,7 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 
 	// Facing get/setters for component
 	public eFace GetFacingVerticalFallback() { return m_facingVerticalFallback; }
+	public void SetFacingVerticalFallback(eFace value) { m_facingVerticalFallback = value; }
 	public eFace GetTargetFaceDirection() { return m_targetFaceDirection; }
 	public eFace GetFaceDirection() { return m_faceDirection; }
 	public void SetFaceDirection(eFace direction) { m_faceDirection = direction; } // used by CharacterComponent, doesnt' set target, just actual facing
@@ -807,11 +814,13 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 		{
 			ActiveInventory = null;
 		}
+
 		
 	}
 	public void ClearInventory()
 	{
 		m_inventory.Clear();
+		ActiveInventory = null;
 	}
 
 	public float GetInventoryQuantity(IInventory item) { return GetInventoryQuantity(item?.ScriptName); }
@@ -1080,8 +1089,8 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 	
 	public void FaceUpRightBG(bool instant = false) { Face(eFace.UpRight, instant); }
 	public void FaceUpLeftBG(bool instant = false) { Face(eFace.UpLeft, instant); }
-	public void FaceDownRightBG(bool instant = false) { Face(eFace.DownLeft, instant); }
-	public void FaceDownLeftBG(bool instant = false) { Face(eFace.DownRight, instant); }
+	public void FaceDownRightBG(bool instant = false) { Face(eFace.DownRight, instant); }
+	public void FaceDownLeftBG(bool instant = false) { Face(eFace.DownLeft, instant); }
 
 	public void FaceBG( eFace direction, bool instant = false ) { Face(direction,instant); }
 	public void FaceBG( IQuestClickableInterface clickable, bool instant = false ) { FaceBG(clickable.IClickable, instant); }
@@ -1093,7 +1102,15 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 	public void FaceDirectionBG(Vector2 directionV2, bool instant = false) { FaceDirection(directionV2,instant); }
 
 	// Face enum direction
-	public Coroutine Face( eFace direction, bool instant = false )
+	public Coroutine Face( eFace direction, bool instant = false)
+	{	
+		eFace verticalFallback = eFace.None;
+		if (direction != eFace.Up && direction != eFace.Down)
+			verticalFallback = CharacterComponent.ToCardinal(direction);
+		return FaceInternal(direction, instant, verticalFallback );
+	}
+
+	Coroutine FaceInternal( eFace direction, bool instant, eFace fallback )
 	{		
 		if ( direction == eFace.None )
 			return null;
@@ -1103,21 +1120,22 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 			instant = true;
 		if ( Walking == false && m_turnBeforeFacing == false )
 			instant = true;
-		
-		eFace oldFacingVerticalFallback = m_facingVerticalFallback;
-		m_targetFaceDirection = direction;
-		if ( direction != eFace.Up && direction != eFace.Down )
-			m_facingVerticalFallback = CharacterComponent.ToCardinal(direction);
-		
+
 		if ( instant )
 		{
+			eFace oldFacingVerticalFallback = m_facingVerticalFallback;
+			m_targetFaceDirection = direction;		
+
+			if ( fallback != eFace.None )
+				m_facingVerticalFallback = fallback;
+				
 			m_faceDirection = direction; // set this to snap to target
 			if ( m_instance != null ) 
 				m_instance.UpdateFacingVisuals(direction); 
 			return null;
 		}
 
-		return PowerQuest.Get.StartQuestCoroutine(CoroutineFace(direction, oldFacingVerticalFallback)); 
+		return PowerQuest.Get.StartQuestCoroutine(CoroutineFace(direction,fallback));//, oldFacingVerticalFallback)); 
 	}
 
 	public Coroutine FaceDown(bool instant = false) { return Face(eFace.Down, instant); }
@@ -1181,35 +1199,42 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 			{
 				// If up or down- save a hint of left/right in case there's no up/down frames
 				eFace face = (eFace)i;
-				if ( face == eFace.Up || face == eFace.Down )
-				{
-					if ( directionV2.x > 0 ) 
-						m_facingVerticalFallback = eFace.Right;
-					else if ( directionV2.x < 0 ) 
-						m_facingVerticalFallback = eFace.Left;
-				}
 
-				return Face(face, instant);
+				eFace verticalFallback = eFace.None;
+				if ( directionV2.x > 0 ) 
+					verticalFallback = eFace.Right;
+				else if ( directionV2.x < 0 ) 
+					verticalFallback = eFace.Left;
+				
+				return FaceInternal(face, instant, verticalFallback);
 			}
 		}
 		return null;
 	}
 
+
 	/// Start charcter saying something
 	public Coroutine Say(string dialog, int id = -1)
 	{
+		PowerQuest pq = PowerQuest.Get;
 		if ( m_coroutineSay != null )
 		{			
-			PowerQuest.Get.StopCoroutine(m_coroutineSay);
+			pq.StopCoroutine(m_coroutineSay);
 			EndSay();
-			PowerQuest.Get.OnSay();
+			pq.OnSay(); // not sure what this is for... lol. is it meant to be outside this if?
 		}
-
+		
 		if ( CallbackOnSay != null )
 			CallbackOnSay.Invoke(dialog,id);
+			
+		if (pq.DialogInterruptRequested)
+		{
+			pq.ResetInterruptNextLine();
+			return pq.StartCoroutine(CoroutineSayEndEarly(dialog, pq.DialogInterruptDuration, id));
+		}
 
-		m_coroutineSay = CoroutineSay(dialog, id);
-		return PowerQuest.Get.StartCoroutine(m_coroutineSay); 
+		m_coroutineSay = CoroutineSay(dialog, id);		
+		return pq.StartCoroutine(m_coroutineSay); 
 	}
 
 	// Start character saying something in the background.
@@ -1484,17 +1509,63 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 			StopWalking(); 
 		if ( PowerQuest.Get.GetSkippingCutscene() )
 			yield break;
-
+		
 		StartSay( text, id );
-		yield return PowerQuest.Get.WaitForDialog(PowerQuest.Get.GetTextDisplayTime(text), m_dialogAudioSource, PowerQuest.Get.GetShouldSayTextAutoAdvance(), true);		
+		yield return PowerQuest.Get.WaitForDialog(PowerQuest.Get.GetTextDisplayTime(text), m_dialogAudioSource, PowerQuest.Get.GetShouldSayTextAutoAdvance(), true, m_dialogText);		
 		EndSay();
 	}
 
 	IEnumerator CoroutineSayBG(string text, int id = -1)
-	{	
+	{			
 		StartSay( text, id,true );
-		yield return PowerQuest.Get.WaitForDialog(PowerQuest.Get.GetTextDisplayTime(text), m_dialogAudioSource, true, false);
+		yield return PowerQuest.Get.WaitForDialog(PowerQuest.Get.GetTextDisplayTime(text), m_dialogAudioSource, true, false, m_dialogText);
 		EndSay();
+	}	
+	
+	IEnumerator CoroutineSayEndEarly(string text, float endTime, int id = -1)
+	{
+		if ( PowerQuest.Get.GetStopWalkingToTalk() )
+			StopWalking(); 
+		if ( PowerQuest.Get.GetSkippingCutscene() )
+			yield break;
+
+		// Start background dialog. This is the actual dialog that plays right to the end.
+		SayBG(text,id);
+		IEnumerator sayBGCoroutine = m_coroutineSay; // just incase things get messy with these multiple dialog coroutines, cache the saybg's one.
+
+		// Next we wait until the dialog is skipped, or the full dialog is played
+
+		float time = PowerQuest.Get.GetTextDisplayTime(text);
+		//m_timeLastTextShown = Time.timeSinceLevelLoad;
+		bool first = true; // first frame the mouse will always be down, so don't skip until 2nd
+		
+		bool skipped = false;
+		bool stillPlaying = true;
+		while (stillPlaying)
+		{
+			// Past end			
+			stillPlaying = PowerQuest.Get.ShouldContinueDialog(first, ref time, true, PowerQuest.Get.GetShouldSayTextAutoAdvance(), m_dialogAudioSource, m_dialogText, endTime);						
+			if ( stillPlaying )
+			{
+				first = false;
+				yield return new WaitForEndOfFrame();
+				if ( SystemTime.Paused == false )
+				{
+					time -= Time.deltaTime;
+				}
+			}
+			else 
+			{
+				// check the "shouldcontinue" again- but this time with skippable off so we can tell if thats why its ended
+				skipped = PowerQuest.Get.ShouldContinueDialog(first, ref time, false, PowerQuest.Get.GetShouldSayTextAutoAdvance(), m_dialogAudioSource, m_dialogText, endTime);
+			}
+		}
+		if ( skipped && m_coroutineSay != null && m_coroutineSay == sayBGCoroutine )
+		{
+			// End the SayBG early because it was skipped
+			PowerQuest.Get.StopCoroutine(sayBGCoroutine);
+			EndSay();
+		}
 	}
 
 	IEnumerator CoroutinePlayAnimation(string animName)
@@ -1528,11 +1599,18 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 			m_instance.StopAnimation();		
 	}
 
-	IEnumerator CoroutineFace(eFace direction, eFace oldFacingVerticalFallback)
+	
+	IEnumerator CoroutineFace(eFace direction, eFace verticalFallback )
 	{
-		// Finish any transition animation
+		// Finish any transition animation or turn
 		if ( m_instance.GetPlayingTransition() )
 			yield return WaitForTransition(false);
+
+		// Set turny stuff- after finishing transition animation
+		eFace oldFacingVerticalFallback = m_facingVerticalFallback;
+		m_targetFaceDirection = direction;
+		if ( verticalFallback != eFace.None )
+			m_facingVerticalFallback = verticalFallback;
 
 		// Check for animation- if so, snap direction immediately
 		if ( m_instance.StartTurnAnimation(oldFacingVerticalFallback))
@@ -1551,32 +1629,12 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 		bool skip = false;
 
 		if ( m_instance != null && skip == false && Visible && PowerQuest.Get.GetSkippingCutscene() == false && PowerQuest.Get.GetRoomLoading() == false )
-		{
-			/*if ( m_instance.StartTurnAnimation() )
+		{			
+			while ( m_instance != null && skip == false && Visible && PowerQuest.Get.GetSkippingCutscene() == false && PowerQuest.Get.GetRoomLoading() == false
+				&& (m_targetFaceDirection != m_faceDirection || m_instance.GetPlayingTurnAnimation()))
 			{
-				// should turn instantly 
-
-				// Using turn anim rather than normal turning
-				while ( m_instance != null && skip == false && Visible && PowerQuest.Get.GetSkipCutscene() == false && PowerQuest.Get.GetRoomLoading() == false
-					&& m_instance.GetPlayingTurnAnimation() )
-				{
-					yield return new WaitForEndOfFrame();
-					m_targetFaceDirection = direction;
-					m_instance.UpdateFacingVisuals(direction);
-				}
-				m_targetFaceDirection = direction;
-				m_instance.UpdateFacingVisuals(direction);
-				m_instance.EndTurnAnimation();
-			}
-			else */
-			{
-				while ( m_instance != null && skip == false && Visible && PowerQuest.Get.GetSkippingCutscene() == false && PowerQuest.Get.GetRoomLoading() == false
-					&& (m_targetFaceDirection != m_faceDirection || m_instance.GetPlayingTurnAnimation()))
-				{
-					yield return new WaitForEndOfFrame();		
-				}
-				//m_instance.EndTurnAnimation();
-			}
+				yield return new WaitForEndOfFrame();		
+			}			
 		}
 		m_targetFaceDirection = m_faceDirection;
 		m_instance.UpdateFacingVisuals(m_faceDirection);
@@ -1584,9 +1642,12 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 		yield break;
 	}
 
+	bool m_startSayCalled = false;
+
 	void StartSay(string line, int id = -1, bool background = false )
 	{		
-		//Debug.Log(Description() + ": " + line);	
+		//Debug.Log($"StartSay- {ScriptName}: {line}");	
+		m_startSayCalled=true;
 		
 		PowerQuest powerQuest = PowerQuest.Get;
 
@@ -1595,15 +1656,17 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 
 		// Start audio (if enabled)
 		SystemAudio.Stop(m_dialogAudioSource);
-		if ( powerQuest.Settings.DialogDisplay != QuestSettings.eDialogDisplay.TextOnly )
-		{
-			m_dialogAudioSource = SystemText.PlayAudio(id, m_scriptName, (m_instance!= null?m_instance.transform:null));
-		}
+		m_dialogAudioSource = null;
+		m_dialogAudioSource = SystemText.PlayAudio(id, m_scriptName, (m_instance!= null?m_instance.transform:null));
 
-		// Create or set dialog text active (if enabled). TODO: Check if it's background dialog, which should be shown above head
+		// if set to text only, set the volume to zero, still play it though for timing and lipsync
+		if ( powerQuest.Settings.DialogDisplay == QuestSettings.eDialogDisplay.TextOnly && m_dialogAudioSource != null )
+			m_dialogAudioSource.volume = 0;		
+
+		// Create or set dialog text active (if enabled)
 		GameObject speechObj = null;
 		eSpeechStyle speechStyle = powerQuest.SpeechStyle;	
-		if ( speechStyle == eSpeechStyle.AboveCharacter || speechStyle == eSpeechStyle.Caption )
+		if ( speechStyle == eSpeechStyle.AboveCharacter || speechStyle == eSpeechStyle.Caption || background )
 		{
 			// Above character speech (Lucasarts style)
 			bool showText = ( m_dialogAudioSource == null || powerQuest.Settings.DialogDisplay != QuestSettings.eDialogDisplay.SpeechOnly );
@@ -1663,17 +1726,19 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 		}
 
 		if ( speechObj != null )
-		{
-			ISpeechGui iSpeechGui = speechObj.GetComponent<ISpeechGui>();
-			if ( iSpeechGui != null )
-				iSpeechGui.StartSay(this, line, id, background);
+		{		
+			System.Array.ForEach(speechObj.GetComponents<ISpeechGui>(), iSpeechGui=>iSpeechGui.StartSay(this, line, id, background));
 		}
 	}
 
 	void EndSay()
 	{	
-		if ( Talking && CallbackOnEndSay != null )
+		//Debug.Log($"EndSay- {ScriptName}");
+		if ( m_startSayCalled && CallbackOnEndSay != null )
+		{
+			//Debug.Log("CallbackOnEndSay");
 			CallbackOnEndSay.Invoke();
+		}
 
 		SystemAudio.Stop(m_dialogAudioSource);
 		if ( m_dialogText != null )
@@ -1705,10 +1770,10 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 		// Call end say on ISpeechGui component, if found
 		if ( speechObj != null )
 		{
-			ISpeechGui iSpeechGui = speechObj.GetComponent<ISpeechGui>();
-			if ( iSpeechGui != null )
-				iSpeechGui.EndSay(this);
+			System.Array.ForEach(speechObj.GetComponents<ISpeechGui>(),iSpeechGui=>iSpeechGui.EndSay(this));
 		}
+		
+		m_startSayCalled = false;
 	}
 
 	IEnumerator CoroutineWaitForAnimTrigger(string triggerName)

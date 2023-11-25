@@ -15,6 +15,8 @@ namespace PowerTools.Quest
 public class QuestTextEditor : Editor 
 {
 
+	[SerializeField]TextMesh m_meshComponent = null;
+
 	public void OnEnable()
 	{
 		// Set charater size to 10 if snapping
@@ -36,7 +38,8 @@ public class QuestTextEditor : Editor
 
 		QuestText component = (QuestText)target;
 		SerializedObject serializedObj = new SerializedObject(component);
-		TextMesh meshComponent = component.transform.GetComponent<TextMesh>();
+		if ( m_meshComponent == null || m_meshComponent.gameObject != component.gameObject )
+			m_meshComponent = component.transform.GetComponent<TextMesh>();
 
 		// Make the quest text component the first in the list.. Have to do some hackery to ensure it's not an unstaged prefab
 		Component[] list = component.GetComponents<Component>();
@@ -52,28 +55,30 @@ public class QuestTextEditor : Editor
 		GUILayout.Space(10);		
 		EditorGUILayout.LabelField("Font", EditorStyles.boldLabel);
 
-		Font newFont = EditorGUILayout.ObjectField("Font", meshComponent.font, typeof(Font),false ) as Font;
-		if ( newFont != meshComponent.font )
+		Font newFont = EditorGUILayout.ObjectField("Font", m_meshComponent.font, typeof(Font),false ) as Font;
+		if ( newFont != m_meshComponent.font )
 		{
 			//newFont.material = null;
-			meshComponent.font = newFont;
-			meshComponent.GetComponent<MeshRenderer>().material = newFont.material;
+			m_meshComponent.font = newFont;
+			m_meshComponent.GetComponent<MeshRenderer>().material = newFont.material;
 		}
-		meshComponent.fontSize = EditorGUILayout.IntField("Size", meshComponent.fontSize);		
-		float lineSpacing = meshComponent.lineSpacing * Mathf.Max(meshComponent.fontSize,10);
+		m_meshComponent.fontSize = EditorGUILayout.IntField("Size", m_meshComponent.fontSize);		
+		float lineSpacing = m_meshComponent.lineSpacing * Mathf.Max(m_meshComponent.fontSize,10);
 		lineSpacing = EditorGUILayout.FloatField("Line spacing", lineSpacing);
-		meshComponent.lineSpacing = lineSpacing / Mathf.Max(meshComponent.fontSize,10);
-		meshComponent.color = EditorGUILayout.ColorField("Color", meshComponent.color);
+		m_meshComponent.lineSpacing = lineSpacing / Mathf.Max(m_meshComponent.fontSize,10);
+		m_meshComponent.color = EditorGUILayout.ColorField("Color", m_meshComponent.color);
 		
+		EditorGUILayout.LabelField("Appearance", EditorStyles.boldLabel);
 		EditorGUILayout.PropertyField(serializedObj.FindProperty("m_outline"));
+		EditorGUILayout.PropertyField(serializedObj.FindProperty("m_typeSpeed"));
 		EditorGUILayout.PropertyField(serializedObj.FindProperty("m_shaderOverride"));
 		EditorGUILayout.PropertyField(serializedObj.FindProperty("m_setFiltering"));
 		
 		GUILayout.Space(10);	
 		EditorGUILayout.LabelField("Alignment", EditorStyles.boldLabel);
 
-		meshComponent.alignment = (TextAlignment)EditorGUILayout.EnumPopup("Alignment", meshComponent.alignment );
-		meshComponent.anchor = (TextAnchor)EditorGUILayout.EnumPopup("Anchor", meshComponent.anchor );
+		m_meshComponent.alignment = (TextAlignment)EditorGUILayout.EnumPopup("Alignment", m_meshComponent.alignment );
+		m_meshComponent.anchor = (TextAnchor)EditorGUILayout.EnumPopup("Anchor", m_meshComponent.anchor );
 		EditorGUILayout.PropertyField(serializedObj.FindProperty("m_sortingLayer"));
 		EditorGUILayout.PropertyField(serializedObj.FindProperty("m_orderInLayer"));
 		
@@ -104,7 +109,7 @@ public class QuestTextEditor : Editor
 		{
 			component.SendMessage("EditorUpdate",SendMessageOptions.DontRequireReceiver);
 			serializedObj.ApplyModifiedProperties();
-			EditorUtility.SetDirty(meshComponent);
+			EditorUtility.SetDirty(m_meshComponent);
 			EditorUtility.SetDirty(target);
 		}
 

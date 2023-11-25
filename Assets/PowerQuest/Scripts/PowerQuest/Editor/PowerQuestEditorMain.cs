@@ -28,20 +28,40 @@ public partial class PowerQuestEditor
 	#region Variables: Serialized
 
 	// Reference to the prefab list, or a filtered list of the prefabs, used by Reorderable lists
-	List<RoomComponent> m_listRoomPrefabs = null; // NB: removed out the 'serializefield' bit to see if that's what was causing invisible fields
-	List<CharacterComponent> m_listCharacterPrefabs = null;
-	List<InventoryComponent> m_listInventoryPrefabs = null;
-	List<DialogTreeComponent> m_listDialogTreePrefabs = null;	
-	List<GuiComponent> m_listGuiPrefabs = null;
+	readonly List<RoomComponent> m_listRoomPrefabs = new List<RoomComponent>(); // NB: removed out the 'serializefield' bit to see if that's what was causing invisible fields
+	readonly GroupedPrefabContext m_listRoomGroups = new GroupedPrefabContext();
+	readonly List<CharacterComponent> m_listCharacterPrefabs = new List<CharacterComponent>();
+	readonly GroupedPrefabContext m_listCharacterGroups = new GroupedPrefabContext();
+	readonly List<InventoryComponent> m_listInventoryPrefabs = new List<InventoryComponent>();
+	readonly GroupedPrefabContext m_listInventoryGroups = new GroupedPrefabContext();
+	readonly List<DialogTreeComponent> m_listDialogTreePrefabs = new List<DialogTreeComponent>();	
+	readonly GroupedPrefabContext m_listDialogTreeGroups = new GroupedPrefabContext();
+	readonly List<GuiComponent> m_listGuiPrefabs = new List<GuiComponent>();
+	readonly GroupedPrefabContext m_listGuiGroups = new GroupedPrefabContext();
 
+	[SerializeField] List<PrefabGroupListItem<RoomComponent>> m_roomUiState =
+		new List<PrefabGroupListItem<RoomComponent>>();
+	[SerializeField] List<PrefabGroupListItem<CharacterComponent>> m_characterUiState =
+		new List<PrefabGroupListItem<CharacterComponent>>();
+	[SerializeField] List<PrefabGroupListItem<InventoryComponent>> m_inventoryUiState =
+		new List<PrefabGroupListItem<InventoryComponent>>();
+	[SerializeField] List<PrefabGroupListItem<DialogTreeComponent>> m_dialogTreeUiState =
+		new List<PrefabGroupListItem<DialogTreeComponent>>();
+	[SerializeField] List<PrefabGroupListItem<GuiComponent>> m_guiUiState =
+		new List<PrefabGroupListItem<GuiComponent>>();
+	
+	bool m_focusSearch = false;
 
 	#endregion
 	#region Variables: Private	
 
 	[SerializeField] eMainTab m_selectedMainTab = eMainTab.All;
+	bool m_dirty = false;
 
 	#endregion
 	#region Funcs: Init
+
+	public void RefreshMainGuiLists() { CreateMainGuiLists(); }
 
 	void CreateMainGuiLists()
 	{
@@ -53,99 +73,89 @@ public partial class PowerQuestEditor
 		Assert.IsTrue(m_gamePath.EndsWith("/"), "GamePath MUST end with '/', all code here expects it");
 
 		m_listRooms = FilterAndCreateReorderable("Rooms",
-			m_powerQuest.GetRoomPrefabs(), ref m_listRoomPrefabs, m_filterRooms,
+			m_gamePath + "Rooms",
+			m_listRoomGroups,
+			ref m_roomUiState,
+			m_powerQuest.GetRoomPrefabs(), m_listRoomPrefabs, m_filterRooms,
 			LayoutRoomGUI, SelectRoom,
-			list => {
+			(path, list) => {
 				CreateInstance< CreateQuestObjectWindow >().ShowQuestWindow(
 					eQuestObjectType.Room,
 					"Room", "'Bathroom' or 'CastleGarden'",  CreateRoom,
-					m_gamePath + "Rooms");
+					path);
 			},
-			list => DeleteQuestObject(list.index, "Room", m_listRoomPrefabs)
+			(prefabs, list) => DeleteQuestObject(list.index, "Room", prefabs)
 		);
 
 		m_listCharacters = FilterAndCreateReorderable("Characters",
-			m_powerQuest.GetCharacterPrefabs(), ref m_listCharacterPrefabs, m_filterCharacters,
+			m_gamePath + "Characters",
+			m_listCharacterGroups,
+			ref m_characterUiState,
+			m_powerQuest.GetCharacterPrefabs(), m_listCharacterPrefabs, m_filterCharacters,
 			LayoutCharacterGUI,
 			SelectGameObjectFromList,
-			list => {
+			(path, list) => {
 				CreateCharacterWindow window = CreateInstance<CreateCharacterWindow>();
-				window.SetPath( m_gamePath + "Characters" );
+				window.SetPath(path);
 				window.ShowUtility();
 			},
-			list => DeleteQuestObject(list.index, PowerQuest.STR_CHARACTER, m_listCharacterPrefabs)
+			(prefabs, list) => DeleteQuestObject(list.index, PowerQuest.STR_CHARACTER, prefabs)
 		);
 
 		m_listInventory = FilterAndCreateReorderable(PowerQuest.STR_INVENTORY,
-			m_powerQuest.GetInventoryPrefabs(), ref m_listInventoryPrefabs, m_filterInventory,
+			m_gamePath + PowerQuest.STR_INVENTORY,
+			m_listInventoryGroups,
+			ref m_inventoryUiState,
+			m_powerQuest.GetInventoryPrefabs(), m_listInventoryPrefabs, m_filterInventory,
 			LayoutInventoryGUI,
 			SelectGameObjectFromList,
-			list => {
+			(path, list) => {
 				CreateInstance<CreateQuestObjectWindow>().ShowQuestWindow(
 					eQuestObjectType.Inventory, PowerQuest.STR_INVENTORY, "'Crowbar' or 'RubberChicken'", CreateInventory,
-					m_gamePath + PowerQuest.STR_INVENTORY);
+					path);
 			},
-			list => { DeleteQuestObject(list.index, PowerQuest.STR_INVENTORY, m_listInventoryPrefabs); }
+			(prefabs, list) => DeleteQuestObject(list.index, PowerQuest.STR_INVENTORY, prefabs)
 		);
 
 		m_listDialogTrees = FilterAndCreateReorderable("Dialog Trees",
-			m_powerQuest.GetDialogTreePrefabs(), ref m_listDialogTreePrefabs, m_filterDialogTrees,
+			m_gamePath + "DialogTree",
+			m_listDialogTreeGroups,
+			ref m_dialogTreeUiState,
+			m_powerQuest.GetDialogTreePrefabs(), m_listDialogTreePrefabs, m_filterDialogTrees,
 			LayoutGuiDialogTree,
 			SelectGameObjectFromList,
-			list => {
+			(path, list) => {
 				CreateInstance<CreateQuestObjectWindow>().ShowQuestWindow(
 					eQuestObjectType.Dialog, "DialogTree", "'MeetSarah' or 'Policeman2'", CreateDialogTree,
-					m_gamePath + "DialogTree");
+					path);
 			},
-			list => { DeleteQuestObject(list.index, "DialogTree", m_listDialogTreePrefabs); }
+			(prefabs, list) => DeleteQuestObject(list.index, "DialogTree", prefabs)
 		);
 
 		m_listGuis = FilterAndCreateReorderable("Guis",
-			m_powerQuest.GetGuiPrefabs(), ref m_listGuiPrefabs, m_filterGuis,
+			m_gamePath + "Gui",
+			m_listGuiGroups,
+			ref m_guiUiState,
+			m_powerQuest.GetGuiPrefabs(), m_listGuiPrefabs, m_filterGuis,
 			LayoutGuiGUI,
 			SelectGameObjectFromList,
-			list => {
+			(path, list) => {
 				CreateInstance<CreateQuestObjectWindow>().ShowQuestWindow(
 					eQuestObjectType.Gui, "Gui", "'Toolbar' or 'InventoryBox'", CreateGui,
-					m_gamePath + "Gui");
+					path);
 			},
-			list => { DeleteQuestObject(list.index, "Gui", m_listGuiPrefabs); }
+			(prefabs, list) => DeleteQuestObject(list.index, "Gui", prefabs)
 		);
 	}
 
 	#endregion
 	#region Gui Layout: Main
 
-
 	void OnGuiMain()
 	{
 		m_selectedMainTab = LayoutMainTabs(m_selectedMainTab);
 
-		//EditorGUIUtility.LookLikeInspector();
-		GUILayout.BeginHorizontal(GUI.skin.FindStyle("Toolbar"));
-		
-		string newSearchString = GUILayout.TextField(m_searchString, GUI.skin.FindStyle("ToolbarSeachTextField"));
-		if (GUILayout.Button("", GUI.skin.FindStyle("ToolbarSeachCancelButton")))
-		{
-			// Remove focus if cleared
-			newSearchString = "";
-			GUI.FocusControl(null);
-		}
-		Event ev = Event.current;
-		if (  ev.keyCode == KeyCode.Escape && IsString.Valid(m_searchString) )
-		{
-			// Remove focus on esc too
-			newSearchString = "";
-			GUI.FocusControl(null);
-			Repaint();
-			//ev.Use(); // kinda hacky- we're checking for 'escape' pressed during the 'layout' event so can't use the event like we really should
-		} 
-		GUILayout.EndHorizontal();
-		if ( newSearchString != m_searchString )
-		{
-			m_searchString = newSearchString;
-			CreateMainGuiLists();
-		}
+		LayoutQuickSearch();
 
 		m_scrollPosition = EditorGUILayout.BeginScrollView(m_scrollPosition);
 
@@ -159,64 +169,100 @@ public partial class PowerQuestEditor
 		GUILayout.Space(5);
 
 		// Layout rooms
-		if ( m_selectedMainTab == eMainTab.All || m_selectedMainTab == eMainTab.Rooms )
-		{
-			if ( m_filterRooms.Show && m_listRooms != null )
-				m_listRooms.DoLayoutList();
-			else 
-				m_filterRooms.Show = EditorGUILayout.Foldout(m_filterRooms.Show, "Rooms", true);
-			GUILayout.Space(5);
-		}
+		LayoutMainObjectList(eMainTab.Rooms, m_filterRooms, m_listRooms, "Rooms");
 
 		// Layout characters
-		
-		if ( m_selectedMainTab == eMainTab.All || m_selectedMainTab == eMainTab.Chars )
-		{
-			if ( m_filterCharacters.Show && m_listCharacters != null)
-				m_listCharacters.DoLayoutList();
-			else  
-				m_filterCharacters.Show = EditorGUILayout.Foldout(m_filterCharacters.Show, "Characters", true);
-			GUILayout.Space(5);
-		}
+		LayoutMainObjectList(eMainTab.Chars, m_filterCharacters, m_listCharacters, "Characters");				
 
 		// Layout Inventory
-		
-		if ( m_selectedMainTab == eMainTab.All || m_selectedMainTab == eMainTab.Items )
-		{
-			if ( m_filterInventory.Show && m_listInventory != null )
-				m_listInventory.DoLayoutList();
-			else  
-				m_filterInventory.Show = EditorGUILayout.Foldout(m_filterInventory.Show, "Inventory Items", true);
-		
-			GUILayout.Space(5);
-		}
+		LayoutMainObjectList(eMainTab.Items, m_filterInventory, m_listInventory, "Inventory Items");	
 
-		// Layout Dialogs
-		
-		if ( m_selectedMainTab == eMainTab.All || m_selectedMainTab == eMainTab.Dialogs )
-		{
-			if ( m_filterDialogTrees.Show && m_listDialogTrees != null )
-				m_listDialogTrees.DoLayoutList();
-			else 
-				m_filterDialogTrees.Show = EditorGUILayout.Foldout(m_filterDialogTrees.Show, "Dialog Trees", true);
+		// Layout Dialogs		
+		LayoutMainObjectList(eMainTab.Dialogs, m_filterDialogTrees, m_listDialogTrees, "Dialog Trees");
 
-			GUILayout.Space(5);
-		}
-
-		// Layout Gui		
-		if ( m_selectedMainTab == eMainTab.All || m_selectedMainTab == eMainTab.Guis )
-		{
-			if ( m_filterGuis.Show && m_listGuis != null )
-				m_listGuis.DoLayoutList();
-			else 
-				m_filterGuis.Show = EditorGUILayout.Foldout(m_filterGuis.Show, "Guis", true);
-		}
+		// Layout Guis		
+		LayoutMainObjectList(eMainTab.Guis, m_filterGuis, m_listGuis, "Guis");
 
 		LayoutManual();
 
 		EditorGUILayout.EndScrollView();
 	}
 
+	void LayoutQuickSearch()
+	{
+		//EditorGUIUtility.LookLikeInspector();
+		GUILayout.BeginHorizontal(GUI.skin.FindStyle("Toolbar"));
+
+		#if UNITY_2022_2_OR_NEWER
+		GUIStyle searchStyle = GUI.skin.FindStyle("ToolbarSearchTextField");
+		GUIStyle searchCancelStyle = GUI.skin.FindStyle("ToolbarSearchCancelButton");
+		#else
+		GUIStyle searchStyle = GUI.skin.FindStyle("ToolbarSeachTextField");
+		GUIStyle searchCancelStyle = GUI.skin.FindStyle("ToolbarSeachCancelButton");
+		#endif
+		GUI.SetNextControlName(STR_PQ_SEARCH);		
+		
+		string newSearchString = m_searchString;
+		string test = GUI.GetNameOfFocusedControl();
+		if ( IsString.Empty(m_searchString) && GUI.GetNameOfFocusedControl() != STR_PQ_SEARCH && m_focusSearch == false && Event.current.type == EventType.Repaint)
+		{
+			GUI.contentColor = Color.grey;
+			EditorGUILayout.TextField("Quick Search (Ctrl+Q)", new GUIStyle(searchStyle) { });
+			GUI.contentColor = Color.white;
+		}
+		else
+			newSearchString = EditorGUILayout.TextField(m_searchString, searchStyle);
+
+		if ( m_focusSearch )
+		{
+			m_focusSearch=false;			
+			GUI.FocusControl(null);
+			EditorGUI.FocusTextInControl(STR_PQ_SEARCH);
+		}
+
+		if (GUILayout.Button("", searchCancelStyle))
+		{
+			// Remove focus if cleared
+			newSearchString = "";			
+			EditorGUI.FocusTextInControl(null);
+			GUI.FocusControl(null);			
+		}
+
+		Event ev = Event.current;
+		if (  ev.keyCode == KeyCode.Escape && IsString.Valid(m_searchString) )
+		{
+			// Remove focus on esc too
+			newSearchString = "";
+			
+			if ( GUI.GetNameOfFocusedControl() == STR_PQ_SEARCH )
+				EditorGUI.FocusTextInControl(null);
+			GUI.FocusControl(null);
+			Repaint();
+			//ev.Use(); // kinda hacky- we're checking for 'escape' pressed during the 'layout' event so can't use the event like we really should
+		} 
+		GUILayout.EndHorizontal();
+		if ( newSearchString != m_searchString || m_dirty)
+		{
+			m_searchString = newSearchString;
+			m_dirty = false;
+			CreateMainGuiLists();
+		}
+
+	}
+
+	void LayoutMainObjectList( eMainTab tab, FilterContext filter, ReorderableList list, string name )
+	{		
+		if ( m_selectedMainTab == eMainTab.All || m_selectedMainTab == tab || string.IsNullOrEmpty(m_searchString) == false )
+		{
+			bool show = filter.Show || m_selectedMainTab == tab || IsString.Valid(m_searchString);
+
+			if ( show && list != null )
+				list.DoLayoutList();
+			else 
+				filter.Show = EditorGUILayout.Foldout(filter.Show, name, true);
+			GUILayout.Space(5);
+		}
+	}
 	
 	//
 	// Creates tab style layout
@@ -332,11 +378,11 @@ public partial class PowerQuestEditor
 	#endregion
 	#region Gui Layout: Rooms
 
-	void LayoutRoomGUI(Rect rect, int index, bool isActive, bool isFocused)
+	void LayoutRoomGUI(List<RoomComponent> rooms, Rect rect, int index, bool isActive, bool isFocused)
 	{
-		if ( m_powerQuest != null && m_listRoomPrefabs.IsIndexValid(index))
+		if ( m_powerQuest != null && rooms.IsIndexValid(index))
 		{
-			RoomComponent itemComponent = m_listRoomPrefabs[index];
+			RoomComponent itemComponent = rooms[index];
 			if ( itemComponent != null && itemComponent.GetData() != null )
 			{			
 				QuestEditorUtils.LayoutQuestObjectContextMenu( eQuestObjectType.Room, m_listRooms, itemComponent.GetData().GetScriptName(), itemComponent.gameObject, rect, index, true, (menu,prefab) =>
@@ -365,8 +411,17 @@ public partial class PowerQuestEditor
 				rect.y += 2;
 				rect = rect.SetNextWidth(60);				
 				if ( GUI.Button(rect, Application.isPlaying ? "Teleport"  : "Scene", EditorStyles.miniButtonLeft ) )
-				{
-					// Load the scene
+				{					
+					if ( IsString.Valid(m_searchString) )
+					{
+						// if quicksorting, unselect quicksort and auto-change tabs						
+						EditorGUI.FocusTextInControl(null);
+						GUI.FocusControl(null);
+						m_searchString = string.Empty;
+						m_dirty=true;
+						m_selectedTab = eTab.Room;
+					}
+					// Load the scene					
 					LoadRoomScene(itemComponent);
 				}
 				rect = rect.SetNextWidth(50);		
@@ -391,11 +446,11 @@ public partial class PowerQuestEditor
 	#region Gui Layout: Inventory
 
 
-	void LayoutInventoryGUI(Rect rect, int index, bool isActive, bool isFocused)
+	void LayoutInventoryGUI(List<InventoryComponent> inventory, Rect rect, int index, bool isActive, bool isFocused)
 	{
-		if ( m_powerQuest != null && m_listInventoryPrefabs.IsIndexValid(index))
+		if ( m_powerQuest != null && inventory.IsIndexValid(index))
 		{
-			InventoryComponent itemComponent = m_listInventoryPrefabs[index];
+			InventoryComponent itemComponent = inventory[index];
 			if ( itemComponent != null && itemComponent.GetData() != null )
 			{
 			
@@ -469,11 +524,11 @@ public partial class PowerQuestEditor
 	#endregion
 	#region Gui Layout: DialogTree
 
-	void LayoutGuiDialogTree(Rect rect, int index, bool isActive, bool isFocused)
+	void LayoutGuiDialogTree(List<DialogTreeComponent> trees, Rect rect, int index, bool isActive, bool isFocused)
 	{
-		if ( m_powerQuest != null && m_listDialogTreePrefabs.IsIndexValid(index))
+		if ( m_powerQuest != null && trees.IsIndexValid(index))
 		{
-			DialogTreeComponent itemComponent = m_listDialogTreePrefabs[index];
+			DialogTreeComponent itemComponent = trees[index];
 			if ( itemComponent != null && itemComponent.GetData() != null )
 			{			
 				QuestEditorUtils.LayoutQuestObjectContextMenu( eQuestObjectType.Dialog, m_listDialogTrees, itemComponent.GetData().GetScriptName(), itemComponent.gameObject, rect, index, true );
@@ -516,11 +571,11 @@ public partial class PowerQuestEditor
 	#endregion
 	#region Gui Layout: Gui
 
-	void LayoutGuiGUI(Rect rect, int index, bool isActive, bool isFocused)
+	void LayoutGuiGUI(List<GuiComponent> guiComponents, Rect rect, int index, bool isActive, bool isFocused)
 	{
-		if ( m_powerQuest != null && m_listGuiPrefabs.IsIndexValid(index))
+		if ( m_powerQuest != null && guiComponents.IsIndexValid(index))
 		{
-			GuiComponent itemComponent = m_listGuiPrefabs[index];
+			GuiComponent itemComponent = guiComponents[index];
 			if ( itemComponent != null && itemComponent.GetData() != null )
 			{
 				QuestEditorUtils.LayoutQuestObjectContextMenu( eQuestObjectType.Gui, m_listGuis, itemComponent.GetData().GetScriptName(), itemComponent.gameObject, rect, index, true );
@@ -567,11 +622,11 @@ public partial class PowerQuestEditor
 	#endregion
 	#region Gui Layout: Character
 
-	void LayoutCharacterGUI(Rect rect, int index, bool isActive, bool isFocused)
+	void LayoutCharacterGUI(List<CharacterComponent> characters, Rect rect, int index, bool isActive, bool isFocused)
 	{
-		if ( m_powerQuest != null && m_listCharacterPrefabs.IsIndexValid(index))
+		if ( m_powerQuest != null && characters.IsIndexValid(index))
 		{
-			CharacterComponent itemComponent = m_listCharacterPrefabs[index];
+			CharacterComponent itemComponent = characters[index];
 			if ( itemComponent != null && itemComponent.GetData() != null )
 			{			
 				QuestEditorUtils.LayoutQuestObjectContextMenu( eQuestObjectType.Character, m_listCharacters, itemComponent.GetData().GetScriptName(), itemComponent.gameObject, rect, index, true );

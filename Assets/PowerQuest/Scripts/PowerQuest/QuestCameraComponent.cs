@@ -357,7 +357,7 @@ public partial class QuestCameraComponent : MonoBehaviour
 			m_snappedLastUpdate = true;
 		}
 
-		if ( m_data.Enabled == false )
+		if ( m_data.Enabled == false || Time.deltaTime == 0 )
 			return;
 
 		Vector2 position = m_data.GetPosition();
