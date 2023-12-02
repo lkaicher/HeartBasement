@@ -364,5 +364,6 @@ MonoBehaviour:
     m_directions: 0
     m_width: 1
     m_color: {r: 0, g: 0, b: 0, a: 1}
+  m_typeSpeed: 0
   m_unlocalizedText: 
   m_outlineMeshes: []

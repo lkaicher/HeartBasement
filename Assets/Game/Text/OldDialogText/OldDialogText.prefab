@@ -69,6 +69,7 @@ MonoBehaviour:
     m_directions: 68
     m_width: 1
     m_color: {r: 0.08088237, g: 0.08088237, b: 0.08088237, a: 1}
+  m_typeSpeed: 0
   m_unlocalizedText: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
     do eiusmod tempor incididunt ut labore et dolore magna aliqua
   m_outlineMeshes:

@@ -422,6 +422,7 @@ MonoBehaviour:
     m_directions: 15
     m_width: 1
     m_color: {r: 0, g: 0, b: 0, a: 1}
+  m_typeSpeed: 0
   m_unlocalizedText: Option 1
   m_outlineMeshes:
   - {fileID: 0}

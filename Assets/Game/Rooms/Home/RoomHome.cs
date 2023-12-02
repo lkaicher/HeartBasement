@@ -249,6 +249,8 @@ public class RoomHome : RoomScript<RoomHome>
 		// NB: You need to check they used the correct item!
 		if (item == I.Bucket)
 		{
+			 I.Active = null;
+			 Debug.Log(I.Active);
 			Prop("Water").Clickable = false;
 			if (Globals.tutorialStage== tutorialProgress.selectedBucket)
 			{
@@ -261,11 +263,11 @@ public class RoomHome : RoomScript<RoomHome>
 				yield return StageComplete();
 		
 		
-				I.Active = null;
+		
 				yield return E.WaitSkip();
 				 G.Explanation.Show();
 				yield return E.WaitSkip();
-				
+		
 				yield return C.Dave.Say("Oh man... this is going to take forever.", 44);
 		
 		

@@ -73,6 +73,7 @@ MonoBehaviour:
   m_stopWalkingToTalk: 1
   m_sayTextAutoAdvance: 1
   m_displayTextAutoAdvance: 0
+  m_textAutoAdvanceDelay: 0
   m_alwaysShowDisplayText: 1
   m_enableUse: 1
   m_enableLook: 1
@@ -94,6 +95,7 @@ MonoBehaviour:
   - m_tag: 
     m_offsetY: 0
     m_sprite: {fileID: 0}
+    m_platform: 
   m_systems:
   - {fileID: 477118, guid: f0b6ac7e109cb2543a538fce1bf8a997, type: 3}
   - {fileID: 492308, guid: b59d39960f6839f428bcacef5efccdbd, type: 3}
@@ -235,5 +237,5 @@ MonoBehaviour:
   - {fileID: 4800000, guid: a2c3f6022054c654ea6aeb84a997cda4, type: 3}
   - {fileID: 4800000, guid: 553637da87459c4428e8af106c8e49fd, type: 3}
   - {fileID: -6465566751694194690, guid: af93590d30f80449dbed048703d58532, type: 3}
-  m_version: 16012
+  m_version: 17000
   m_newVersion: 17000
