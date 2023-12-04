@@ -2134,7 +2134,10 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	
 	void RequestAtlas(string tag, System.Action<SpriteAtlas> callback)
 	{		
-		s_roomAtlasCallbacks.Add(tag,callback);
+		if (!s_roomAtlasCallbacks.ContainsKey(tag)) {
+			s_roomAtlasCallbacks.Add(tag,callback);
+		}
+		
 		if ( m_currentRoom != null && tag.Equals($"Room{m_currentRoom.ScriptName}Atlas") )
 			LoadAtlas(m_currentRoom.ScriptName);
 	}
