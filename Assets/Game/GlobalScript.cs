@@ -253,7 +253,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 						
 						Cursor.AnimationOverride = "Active";
 						E.ProcessClick( eQuestVerb.Inventory );
-
+						I.Active = null;
 						// This is to have the ordinary cursor show during blocking scenes
 						
 						/*
@@ -262,7 +262,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 						Debug.Log(activeInventoryItem);
 						Debug.Log(eQuestVerb.Inventory);
 						// Set inventory item to null
-						I.Active = null;
+						
 						E.ProcessClick(activeInventoryItem);
 						*/
 					}

@@ -249,7 +249,7 @@ public class RoomHome : RoomScript<RoomHome>
 		// NB: You need to check they used the correct item!
 		if (item == I.Bucket)
 		{
-			 I.Active = null;
+			 //I.Active = null;
 			 Debug.Log(I.Active);
 			Prop("Water").Clickable = false;
 			if (Globals.tutorialStage== tutorialProgress.selectedBucket)
