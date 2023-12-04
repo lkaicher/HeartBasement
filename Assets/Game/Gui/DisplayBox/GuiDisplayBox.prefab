@@ -186,6 +186,7 @@ MonoBehaviour:
     m_directions: 0
     m_width: 1
     m_color: {r: 0.04705883, g: 0.054901965, b: 0.098039225, a: 1}
+  m_typeSpeed: 0
   m_unlocalizedText: The Quick Brown Fox Jumped over the Lazy Dog
   m_outlineMeshes: []
 --- !u!23 &2358770

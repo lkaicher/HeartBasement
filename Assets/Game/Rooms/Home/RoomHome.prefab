@@ -632,6 +632,7 @@ MonoBehaviour:
   m_data:
     m_enabled: 1
     m_walkable: 1
+    m_playerOnly: 0
     m_tint: {r: 1, g: 1, b: 1, a: 0}
     m_fadeDistance: 0
     m_scaleTop: 1

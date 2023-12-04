@@ -148,6 +148,8 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		
 		// yield return E.WaitUntil( ()=> Input.GetMouseButtonUp(0));
 		
+		Cursor.ResetAnimationOverride();
+		
 		if (Input.GetKeyDown("s"))
 				{
 				   E.Save(1, "test");
@@ -225,7 +227,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		
 		// if player is not walking, clicks are enabled, if they are walking, they cannot click until they are done
 		if (!C.Player.Walking) {
-			//E.WaitUntilRelease();	
+			//E.WaitUntilRelease();
 			// Check if should clear inventory
 			if ( C.Player.HasActiveInventory && ( rightClick || (mouseOverSomething == false && leftClick ) || Cursor.NoneCursorActive ) )
 			{
@@ -248,7 +250,21 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 					if ( C.Player.HasActiveInventory && Cursor.InventoryCursorOverridden == false )
 					{
 						// Left click with active inventory, use the inventory item
+						
+						Cursor.AnimationOverride = "Active";
 						E.ProcessClick( eQuestVerb.Inventory );
+						I.Active = null;
+						// This is to have the ordinary cursor show during blocking scenes
+						
+						/*
+						// Save active inventory item
+						eQuestVerb activeInventoryItem = eQuestVerb.Inventory;
+						Debug.Log(activeInventoryItem);
+						Debug.Log(eQuestVerb.Inventory);
+						// Set inventory item to null
+						
+						E.ProcessClick(activeInventoryItem);
+						*/
 					}
 					else
 					{
@@ -258,10 +274,10 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 				}
 				else  // They've clicked empty space
 				{
-					
-
+		
+		
 					E.ProcessClick( eQuestVerb.Walk );
-					
+		
 				}
 			}
 			else if ( rightClick )

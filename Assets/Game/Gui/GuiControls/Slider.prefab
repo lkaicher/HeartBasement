@@ -500,6 +500,7 @@ MonoBehaviour:
     m_directions: 0
     m_width: 1
     m_color: {r: 0.9333334, g: 0.76470596, b: 0.6039216, a: 1}
+  m_typeSpeed: 0
   m_unlocalizedText: Slider
   m_outlineMeshes: []
 --- !u!23 &8165575347303284947
