@@ -155,19 +155,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7399651196055865730, guid: 6fdcc7a77e2f8f44f864c6269c6706ab, type: 3}
       propertyPath: m_padding.top
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7399651196055865730, guid: 6fdcc7a77e2f8f44f864c6269c6706ab, type: 3}
       propertyPath: m_padding.left
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7399651196055865730, guid: 6fdcc7a77e2f8f44f864c6269c6706ab, type: 3}
       propertyPath: m_padding.right
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7399651196055865730, guid: 6fdcc7a77e2f8f44f864c6269c6706ab, type: 3}
       propertyPath: m_padding.bottom
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7399651196055865730, guid: 6fdcc7a77e2f8f44f864c6269c6706ab, type: 3}
       propertyPath: m_fitWidth.Array.size
@@ -247,11 +247,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8012255500758172001, guid: 6fdcc7a77e2f8f44f864c6269c6706ab, type: 3}
       propertyPath: m_Size.x
-      value: 4
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8012255500758172001, guid: 6fdcc7a77e2f8f44f864c6269c6706ab, type: 3}
       propertyPath: m_Size.y
-      value: 4
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8012255500758172001, guid: 6fdcc7a77e2f8f44f864c6269c6706ab, type: 3}
       propertyPath: m_Sprite
@@ -312,7 +312,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 503249183492397659, guid: 74607e6814f3be547bab0095e3b1fd0b, type: 3}
       propertyPath: m_SortingOrder
-      value: 110
+      value: 115
       objectReference: {fileID: 0}
     - target: {fileID: 503249183492397659, guid: 74607e6814f3be547bab0095e3b1fd0b, type: 3}
       propertyPath: m_SortingLayerID
@@ -332,7 +332,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6690161430560335701, guid: 74607e6814f3be547bab0095e3b1fd0b, type: 3}
       propertyPath: m_baseline
-      value: 1
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 6962609219131122526, guid: 74607e6814f3be547bab0095e3b1fd0b, type: 3}
       propertyPath: m_Name
