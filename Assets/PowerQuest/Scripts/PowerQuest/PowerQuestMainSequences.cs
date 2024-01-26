@@ -517,6 +517,7 @@ public partial class PowerQuest
 							{
 								if ( result == RegionComponent.eTriggerResult.Enter )
 								{
+									ExOnCharacterEnterRegion(character, regionComponent);
 									if ( StartScriptInteraction( m_currentRoom, SCRIPT_FUNCTION_ENTER_REGION+region.ScriptName, new object[] {region, character}, false,true ) )
 									{
 										yielded = true;
@@ -525,6 +526,7 @@ public partial class PowerQuest
 								} 
 								else if ( result == RegionComponent.eTriggerResult.Exit )
 								{
+									ExOnCharacterExitRegion(character, regionComponent);
 									if ( StartScriptInteraction( m_currentRoom, SCRIPT_FUNCTION_EXIT_REGION+region.ScriptName, new object[] {region, character}, false,true ) )
 									{
 										yielded = true;

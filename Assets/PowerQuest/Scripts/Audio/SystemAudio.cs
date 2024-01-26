@@ -427,7 +427,7 @@ public partial class SystemAudio : SingletonAuto<SystemAudio>
 			fromTime = cueClip.m_startTime;
 		}		
 		if ( fromTime > 0.0f ) // There's a known unity error where starting from time errors. So don't set source time if it's close to the end (NB: This still may happen, need to watch for it)
-			source.time = Mathf.Min(fromTime, source.clip.length-0.2f); // There's a known unity error where starting from time errors. So don't set source time if it's close to the end (NB: This still may happen, need to watch for it)
+			source.time = Mathf.Clamp(fromTime, 0, Mathf.Max(source.clip.length-1.0f,source.clip.length*0.9f)); // There's a known unity error where starting from time errors. So don't set source time if it's close to the end.  (NB: This still may happen, need to watch for it)
 		else
 			source.time = 0.0f;
 
@@ -1193,7 +1193,7 @@ public partial class SystemAudio : SingletonAuto<SystemAudio>
 					SetVolume(m_instance.m_activeMusic, m_musicVolOverride);	
 				}
 				if ( m_activeMusic != null && m_activeMusic.clip != null )					
-					m_activeMusic.time = data.m_musicTime % ((m_activeMusic.clip.length-0.01f)*0.9f); // There's a known unity error where starting from time errors. So don't set source time if it's close to the end (NB: This still may happen, need to watch for it)
+					m_activeMusic.time = data.m_musicTime % Mathf.Max(m_activeMusic.clip.length-1.0f,m_activeMusic.clip.length*0.9f); // There's a known unity error where starting from time errors. So don't set source time if it's close to the end (NB: This still may happen, need to watch for it)
 				
 				m_instance.StartFadeIn( m_instance.m_activeMusic, 0.1f );
 			}
@@ -1318,12 +1318,10 @@ public partial class SystemAudio : SingletonAuto<SystemAudio>
 	{
 		if (m_cameraGame == null )	
 			return 0.0f;
-		float xStart = m_cameraGame.orthographicSize * m_cameraGame.aspect * m_falloffPanStart * m_falloffDistanceMultiplier; // Falloff starts half a screen past the edge
-		float xFalloff = (xStart * m_falloffPanEnd * m_falloffDistanceMultiplier);
 		float dist = soundPos.x - m_cameraGame.transform.position.x;
-		xFalloff = Mathf.Lerp( 0, m_falloffPanMax, Utils.EaseCubic( (Mathf.Abs(dist) - xStart) / xFalloff ) );
-		xFalloff *= Mathf.Sign(dist);
-		return xFalloff;
+		float distMult = m_cameraGame.orthographicSize * m_cameraGame.aspect * m_falloffDistanceMultiplier;	
+		float xFalloff = Mathf.InverseLerp(m_falloffPanStart * distMult, m_falloffPanEnd * distMult, Mathf.Abs(dist) );
+		return Mathf.Lerp( 0, m_falloffPanMax, Utils.EaseCubic(xFalloff) ) * Mathf.Sign(dist);
 	}
 
 	void SetSource(ref AudioSource source, AudioClip clip, float volume, float pitch, float panStereo, int priority, Transform emmitter) 
@@ -1508,7 +1506,7 @@ public partial class SystemAudio : SingletonAuto<SystemAudio>
 		}
 
 		audioClip.handle.source.volume = audioClip.defaultVolume * volumeMod;
-		audioClip.handle.panStereo = Mathf.Clamp(audioClip.defaultPan + panMod,-1,1);
+		audioClip.handle.source.panStereo = Mathf.Clamp(audioClip.defaultPan + panMod,-1,1);
 	}
 
 	AudioSource SpawnAudioSource( string name, Vector2 position )

@@ -836,7 +836,8 @@ public partial class SpriteAnimator : EditorWindow
 
 	#endregion
 	#region Funcs: Update
-
+	
+	partial void exOnUpdate();
 	public System.Action<AnimEventData> CallbackOnAnimEvent = null;
 
 	void Update()
@@ -845,6 +846,8 @@ public partial class SpriteAnimator : EditorWindow
 		{
 			// Update anim time if playing (and not scrubbing)
 			float delta = (float)(EditorApplication.timeSinceStartup - m_editorTimePrev);
+			if ( delta < 0.0083f) // cap framerate at 120fps
+				return;
 			float animTimePrev = m_animTime;
 			m_animTime += delta * m_previewSpeedScale;
 
@@ -881,6 +884,8 @@ public partial class SpriteAnimator : EditorWindow
 		{
 			Repaint();
 		}
+		
+		exOnUpdate();
 
 		// When going to Play, we need to clear the selection since references get broken.
 		if ( m_wasPlaying != EditorApplication.isPlayingOrWillChangePlaymode )

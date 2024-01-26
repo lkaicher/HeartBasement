@@ -553,9 +553,16 @@ public partial class QuestCameraComponent : MonoBehaviour
 
 	public void Shake( float intensity = 1.0f, float duration = 0.1f, float falloff = 0.15f ) 
 	{
-		m_shakeDurationTimer = duration;
-		m_shakeIntensity = intensity;
-		m_shakeFalloff = m_shakeIntensity <= 0 ? 0 : ( falloff * m_shakeFalloffMult / m_shakeIntensity);		
+		if ( intensity > m_shakeIntensity )
+		{
+			m_shakeDurationTimer = duration;
+			m_shakeIntensity = intensity;
+			m_shakeFalloff = m_shakeIntensity <= 0 ? 0 : ( falloff * m_shakeFalloffMult / m_shakeIntensity);		
+		}
+		else if ( intensity == 0 )
+		{
+			m_shakeFalloff = 0;
+		}
 	}
 
 	void MsgShake( float intensity, float duration, float falloff ) { Shake(intensity, duration,  falloff); }

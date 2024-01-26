@@ -115,7 +115,11 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	[Header("Spawnables")]
 	[Tooltip("Add objects here so you can spawn them by name in QuestScripts")]
 	[SerializeField] List<GameObject> m_spawnablePrefabs = new List<GameObject>();
-	
+		
+	[Header("Project Character settings")]
+	[Tooltip("Controls what angles the player is considered 'facing' a direction (right, up, down-left,etc). Increase to favour cardinal directions more than diagonals")]
+	[Range(45,90)]
+	[SerializeField] float m_facingSegmentAngle = 45.0f;
 	
 	[Header("Save Game Settings")]
 	[Tooltip("Height in pixels of screenshot recorded in save-game slot data. Set to 0 to disable saving screenshot with save games")]
@@ -267,7 +271,8 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 
 	public bool DialogInterruptRequested => m_interruptNextLine;
 	public float DialogInterruptDuration => m_interruptNextLineTime;
-	
+	public float FacingSegmentAngle => m_facingSegmentAngle;
+
 	#endregion
 	
 	#region Functions: Implementing IPowerQuest
@@ -2134,10 +2139,7 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	
 	void RequestAtlas(string tag, System.Action<SpriteAtlas> callback)
 	{		
-		if (!s_roomAtlasCallbacks.ContainsKey(tag)) {
-			s_roomAtlasCallbacks.Add(tag,callback);
-		}
-		
+		s_roomAtlasCallbacks.Add(tag,callback);
 		if ( m_currentRoom != null && tag.Equals($"Room{m_currentRoom.ScriptName}Atlas") )
 			LoadAtlas(m_currentRoom.ScriptName);
 	}
@@ -2568,6 +2570,9 @@ public partial class PowerQuest : Singleton<PowerQuest>, ISerializationCallbackR
 	partial void ExUnblock();	
 	partial void ExProcessClick(eQuestVerb verb, IQuestClickable clickable, Vector2 mousePosition, bool interactionFound);
 	partial void ExOnEndCutscene();
+
+	partial void ExOnCharacterEnterRegion(Character character, RegionComponent region);
+	partial void ExOnCharacterExitRegion(Character character, RegionComponent region);
 	
 	partial void ExtentionOnGameStart(); // back compatability
 	partial void ExtentionOnMainLoop(); // back compatability

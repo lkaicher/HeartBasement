@@ -868,8 +868,10 @@ public class QuestEditorUtils
 
 #endregion
 #region Class: QuestClickableEditorUtils
-public class QuestClickableEditorUtils
+public partial class QuestClickableEditorUtils
 {
+	// Partial classes  for extentions
+	static partial void ExOnSceneGui(MonoBehaviour component, IQuestClickable clickable);
 
 	// Draws baseline, returns true if it changed. Offset is applied to the visuals but not the actual baseline
 	static public bool OnSceneGUIBaseline( MonoBehaviour component, IQuestClickable clickable, Vector2 offset )
@@ -960,10 +962,14 @@ public class QuestClickableEditorUtils
 			}
 			
 		}
+
+		ExOnSceneGui(component, clickable);
+
 	}
 
 
 }
+
 
 #endregion
 #region Classes: Quest Object Windows (create/rename)

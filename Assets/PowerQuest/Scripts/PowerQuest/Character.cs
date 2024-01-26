@@ -15,9 +15,6 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 {	
 	#region Constants/Definitions
 
-	// Degrees 
-	static readonly float FACING_ANGLE_SEGMENT_DEG = 45.0f/2.0f;
-
 	// Corresponds to eFace enum: Left, Right, Down, Up, DownLeft, DownRight, UpLeft, UpRight
 	public static readonly Vector2[] FACE_DIRECTIONS = { Vector2.left, Vector2.right, Vector2.down, Vector2.up, new Vector2(-1,-1).normalized, new Vector2(1,-1).normalized, new Vector2(-1,1).normalized, Vector2.one.normalized }; 
 
@@ -190,6 +187,7 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 	#region Partial functions for extending class
 
 	partial void ExOnSpawnInstance();
+	partial void ExOnActiveInventorySet(IInventory newInventory);
 
 	#endregion 
 	#region Properties
@@ -602,7 +600,11 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 	public IInventory ActiveInventory 
 	{ 
 		get { return PowerQuest.Get.GetInventory(m_activeInventory); } 
-		set	{ m_activeInventory = value == null ? null : value.ScriptName; } 
+		set	
+		{
+			m_activeInventory = value == null ? null : value.ScriptName; 
+			ExOnActiveInventorySet(value);
+		} 
 	}
 	public bool HasActiveInventory { get { return string.IsNullOrEmpty(m_activeInventory) == false; } }
 
@@ -1189,7 +1191,7 @@ public partial class Character : IQuestClickable, ICharacter, IQuestScriptable, 
 			return null;
 		}
 		int count = (int)eFace.UpRight+1;
-		float cosAngle = Mathf.Cos(Mathf.Deg2Rad * FACING_ANGLE_SEGMENT_DEG);
+		float cosAngle = Mathf.Cos(Mathf.Deg2Rad * PowerQuest.Get.FacingSegmentAngle*0.5f);
 		directionV2.Normalize();
 		//Debug.Log($"Angle: {directionV2.GetDirectionAngle()}");
 		for ( int i = 0; i < count; ++i )
