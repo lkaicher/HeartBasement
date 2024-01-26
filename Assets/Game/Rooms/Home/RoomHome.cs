@@ -67,7 +67,11 @@ public class RoomHome : RoomScript<RoomHome>
 		//C.Dave.MoveTo(Point("PumpPosition"));
 		//Temp
 		//LowerWaterShader(40, "CharacterDave");
+		Globals.gameStage = gameProgress.UsedBucket;
+		E.WaitForGui(G.ExplanationOld);
+		E.WaitForGui(G.Explanation);
 		
+		// End Temp
 		fountain = GameObject.Find("Fountain");
 		
 		fountain.SetActive(false);
