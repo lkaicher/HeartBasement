@@ -55,7 +55,7 @@ namespace PowerScript
 		public static IGui TitleMenu      { get { return PowerQuest.Get.GetGui("TitleMenu"); } }
 		public static IGui MenuButton     { get { return PowerQuest.Get.GetGui("MenuButton"); } }
 		public static IGui Explanation    { get { return PowerQuest.Get.GetGui("Explanation"); } }
-		public static IGui Slides         { get { return PowerQuest.Get.GetGui("Slides"); } }
+		public static IGui ExplanationOld         { get { return PowerQuest.Get.GetGui("ExplanationOld"); } }
 		// #GUI# - Do not edit this line, it's used by the system to insert rooms for easy access
 	}
 
