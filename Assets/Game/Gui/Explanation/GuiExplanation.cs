@@ -12,7 +12,7 @@ public class GuiExplanation : GuiScript<GuiExplanation>
 	{
 		G.Inventory.Hide();
 		
-		string image = "Slide" + (int) Globals.gameStage;
+		string image = "Slide" + ((int) Globals.gameStage);
 		Debug.Log(image);
 		
 		Image("SlideImage").Anim = image;

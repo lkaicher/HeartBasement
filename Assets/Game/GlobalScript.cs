@@ -74,7 +74,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		
 		// GUI
 		//G.Toolbar.Hide();
-		//G.Explanation.Show();
+		//yield return E.WaitForGui(G.Explanation);
 	
 		
 		// temporary

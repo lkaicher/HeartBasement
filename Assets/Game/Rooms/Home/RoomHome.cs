@@ -150,7 +150,7 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		//Globals.gameStage = gameProgress.UsedBucket;
 		
-		//G.Explanation.Show();
+		//yield return E.WaitForGui(G.Explanation);
 		
 		
 		// Put things here that happen when you enter a room
@@ -206,7 +206,7 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return E.WaitSkip();
 			yield return C.Dave.Say(" Not again!", 3);
 			yield return E.WaitSkip();
-		  G.Explanation.Show();
+		  yield return E.WaitForGui(G.Explanation);
 		  //Globals.gameStage++;
 		  //I.BilgePump.Add();
 		
@@ -265,7 +265,7 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		
 				yield return E.WaitSkip();
-				 G.Explanation.Show();
+				yield return E.WaitForGui(G.Explanation);
 				yield return E.WaitSkip();
 		
 				yield return C.Dave.Say("Oh man... this is going to take forever.", 44);
@@ -406,7 +406,7 @@ public class RoomHome : RoomScript<RoomHome>
 			Prop("Handle").Visible = true;
 			yield return C.Display(
 				"Congratulations! The water level has decreased. However, it is not enough...", 2);
-		   G.Explanation.Show();
+		   yield return E.WaitForGui(G.Explanation);
 		   yield return E.WaitSkip();
 			yield return C.Dave.Say(" This is too hard!", 4);
 			yield return C.Dave.Say("I'd better head back to the hardware store.", 15);
@@ -425,7 +425,7 @@ public class RoomHome : RoomScript<RoomHome>
 					Prop("Handle").Visible = true;
 					//Audio.Stop("Motor");
 					Globals.gameStage = gameProgress.FixedPump;
-					G.Explanation.Show();
+					yield return E.WaitForGui(G.Explanation);
 						yield return E.WaitSkip();
 					yield return C.Dave.Say(" Phew!", 115);
 					yield return E.WaitSkip();
@@ -512,7 +512,7 @@ public class RoomHome : RoomScript<RoomHome>
 				"You've chosen the correct parts for the pump and the water level has decreased.", 3);
 		
 		
-			G.Explanation.Show();
+			yield return E.WaitForGui(G.Explanation);
 			yield return E.WaitSkip();
 			yield return C.Dave.Say("Still not enough... I could use some extra hands.", 7);
 			// C.Dave.ChangeRoom(R.Cutscene);
@@ -706,7 +706,7 @@ public class RoomHome : RoomScript<RoomHome>
 		Prop("Handle").Visible = true;
 		
 		yield return C.Display(" The recruited muscle has helped bring the water level down.", 4);
-		G.Explanation.Show();
+		yield return E.WaitForGui(G.Explanation);
 		yield return E.WaitSkip();
 		yield return C.Tony.Say(" Phew... I'm wiped out. Got any grub?", 4);
 		}
@@ -903,7 +903,7 @@ public class RoomHome : RoomScript<RoomHome>
 		Prop("Pump").Visible = true;
 		Prop("Handle").Visible = true;
 		
-		 G.Explanation.Show();
+		 yield return E.WaitForGui(G.Explanation);
 		 yield return E.WaitSkip();
 		
 		}
@@ -1078,7 +1078,7 @@ public class RoomHome : RoomScript<RoomHome>
 		Audio.Stop("Motor");
 		Globals.gameStage = gameProgress.WonGame;
 		 yield return C.Dave.Say("Like a charm!", 40);
-		  G.Explanation.Show();
+		  yield return E.WaitForGui(G.Explanation);
 		
 		  E.Restart();
 			yield return E.WaitSkip();
@@ -1094,7 +1094,7 @@ public class RoomHome : RoomScript<RoomHome>
 		yield return UnfloodBasement();
 		Audio.Stop("Motor");
 		Globals.gameStage = gameProgress.BrokePump;
-		  G.Explanation.Show();
+		  yield return E.WaitForGui(G.Explanation);
 			yield return E.WaitSkip();
 		  yield return C.Dave.Say("Like a charm!", 40);
 		yield return E.FadeOut();
@@ -1113,7 +1113,7 @@ public class RoomHome : RoomScript<RoomHome>
 			  yield return UnfloodBasement();
 			  Audio.Stop("Motor");
 			  Globals.gameStage = gameProgress.FixedPump;
-			  G.Explanation.Show();
+			  yield return E.WaitForGui(G.Explanation);
 				yield return E.WaitSkip();
 			  yield return C.Dave.Say(" Phew!", 115);
 			  yield return E.WaitSkip();
