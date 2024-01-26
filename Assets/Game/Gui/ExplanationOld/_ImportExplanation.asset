@@ -19,7 +19,7 @@ MonoBehaviour:
   m_spriteMeshType: 1
   m_crunchedCompression: 0
   m_sourcePSD: 
-  m_sourceDirectory: 
+  m_sourceDirectory: /Users/lkaicher/Desktop
   m_deleteImportedPngs: 1
   m_spriteDirectory: Sprites
   m_gui: 0
@@ -30,3 +30,4 @@ MonoBehaviour:
   m_ignoreLayers:
   - Guide
   - Ignore
+  m_notes: 

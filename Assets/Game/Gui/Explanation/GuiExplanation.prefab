@@ -65,7 +65,17 @@ MonoBehaviour:
   m_animations:
   - {fileID: 7400000, guid: a5e4f154f931b403c9ce3f6bfd886ea0, type: 2}
   - {fileID: 7400000, guid: b1e587e0ab0854e4eabe98cb1b6e46d5, type: 2}
-  m_sprites: []
+  m_sprites:
+  - {fileID: 21300000, guid: 0dca9e3e6f56747deae849fd13c85330, type: 3}
+  - {fileID: 21300000, guid: 08accd8a8411840298c04e9b74b142d2, type: 3}
+  - {fileID: 21300000, guid: 648d4d6c9d10041779f581fcde9651e3, type: 3}
+  - {fileID: 21300000, guid: aa0766fd081dd44d29c3e7aa9ea16307, type: 3}
+  - {fileID: 21300000, guid: f33d813d4500d47e6907511ff5d91bf2, type: 3}
+  - {fileID: 21300000, guid: bd3331286f4ea4d27b524f67f0e4f34d, type: 3}
+  - {fileID: 21300000, guid: a017cc36441d34ec3b52fce28b298fc3, type: 3}
+  - {fileID: 21300000, guid: 1419410cac1b04c5ca5d4825005fddd0, type: 3}
+  - {fileID: 21300000, guid: 968abcae67187406d86d31fc8f4b8160, type: 3}
+  - {fileID: 21300000, guid: 560dd695c97f248b996cc4bacea04989, type: 3}
   m_controlComponents:
   - {fileID: 5305016385449435155}
   - {fileID: 6637122088873509574}
@@ -302,7 +312,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 503249183492397659, guid: 74607e6814f3be547bab0095e3b1fd0b, type: 3}
       propertyPath: m_SortingOrder
-      value: 128
+      value: 110
       objectReference: {fileID: 0}
     - target: {fileID: 503249183492397659, guid: 74607e6814f3be547bab0095e3b1fd0b, type: 3}
       propertyPath: m_SortingLayerID
@@ -322,7 +332,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6690161430560335701, guid: 74607e6814f3be547bab0095e3b1fd0b, type: 3}
       propertyPath: m_baseline
-      value: -34.9
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6962609219131122526, guid: 74607e6814f3be547bab0095e3b1fd0b, type: 3}
       propertyPath: m_Name
