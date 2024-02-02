@@ -396,6 +396,7 @@ MonoBehaviour:
     m_directions: 255
     m_width: 1
     m_color: {r: 0, g: 0, b: 0, a: 1}
+  m_typeSpeed: 0
   m_unlocalizedText: "Congratulations! \n\nYou have reached \nthe end of the \nHEART
     BASEMENT \nAlpha Build\n\nClick anywhere to restart"
   m_outlineMeshes:
@@ -832,6 +833,7 @@ MonoBehaviour:
     m_directions: 255
     m_width: 1
     m_color: {r: 0, g: 0, b: 0, a: 1}
+  m_typeSpeed: 0
   m_unlocalizedText: "Congratulations! \n\nYou have reached \nthe end of the \nHEART
     BASEMENT \nAlpha Build\n\nClick anywhere to restart"
   m_outlineMeshes:
