@@ -154,7 +154,9 @@ MonoBehaviour:
     m_shortName: NewHouse
     m_scriptClass: RoomNewHouse
     m_sceneName: SceneRoomNewHouse
-    m_points: []
+    m_points:
+    - m_name: spawnpoint
+      m_position: {x: 70, y: -281}
   m_debugStartFunction: 
   m_hotspotComponents: []
   m_propComponents:
@@ -163,8 +165,7 @@ MonoBehaviour:
   - {fileID: 1435481365216684429}
   m_walkableAreas:
   - {fileID: 4500947082533238219}
-  m_animations:
-  - {fileID: 7400000, guid: ee573a6c724d1425bacaffefa7f60c80, type: 2}
+  m_animations: []
   m_sprites:
   - {fileID: 21300000, guid: 8f17a3393d5484b56bcaa7ca5c166c20, type: 3}
 --- !u!1 &6613513375846957266
@@ -277,14 +278,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8838155655584201125}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 92, z: -9}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0.052335896, y: 0, z: 0, w: 0.9986295}
+  m_LocalPosition: {x: 0, y: 92, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4113779321976367597}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -6, y: 0, z: 0}
 --- !u!114 &5276685453190659173
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -385,7 +386,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -7014
+  m_SortingOrder: -7006
   m_Sprite: {fileID: 21300000, guid: 8f17a3393d5484b56bcaa7ca5c166c20, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
