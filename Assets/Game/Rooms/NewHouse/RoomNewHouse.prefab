@@ -26,7 +26,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2095845857537217082}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 34.8, z: -3.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -146,17 +146,17 @@ MonoBehaviour:
     m_verticalResolution: 0
     m_activeWalkableArea: 0
     m_bounds:
-      m_min: {x: 0, y: 0}
-      m_max: {x: 0, y: 0}
+      m_min: {x: -401, y: -270}
+      m_max: {x: 411, y: 409}
     m_scrollBounds:
-      m_min: {x: 0, y: 0}
-      m_max: {x: 0, y: 0}
+      m_min: {x: 56, y: 50}
+      m_max: {x: 57, y: 50}
     m_shortName: NewHouse
     m_scriptClass: RoomNewHouse
     m_sceneName: SceneRoomNewHouse
     m_points:
     - m_name: spawnpoint
-      m_position: {x: 70, y: -281}
+      m_position: {x: 70, y: -249}
   m_debugStartFunction: 
   m_hotspotComponents: []
   m_propComponents:
@@ -194,7 +194,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6613513375846957266}
   m_LocalRotation: {x: -0.049122106, y: 0, z: -0, w: 0.9987928}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 34, z: -3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -278,8 +278,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8838155655584201125}
-  m_LocalRotation: {x: -0.052335896, y: 0, z: 0, w: 0.9986295}
-  m_LocalPosition: {x: 0, y: 92, z: 0}
+  m_LocalRotation: {x: 0.05233605, y: 0, z: 0, w: -0.9986295}
+  m_LocalPosition: {x: 0, y: 128, z: -1}
   m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
