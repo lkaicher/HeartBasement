@@ -21,7 +21,7 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 			D.UsePhone.OptionOn(2);
 			}
 		
-		if (Globals.gameStage >= gameProgress.FixedPump) {
+		if (Globals.gameStage >= gameProgress.BoughtHouse) {
 			D.UsePhone.OptionOn(6);
 			}
 		
