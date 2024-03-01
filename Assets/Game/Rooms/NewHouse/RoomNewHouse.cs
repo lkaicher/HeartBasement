@@ -12,4 +12,10 @@ public class RoomNewHouse : RoomScript<RoomNewHouse>
 	{
 		C.Dave.SetPosition(Point("spawnpoint"));
 	}
+
+	IEnumerator OnEnterRegionScale( IRegion region, ICharacter character )
+	{
+
+		yield return E.Break;
+	}
 }
