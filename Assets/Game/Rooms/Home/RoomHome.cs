@@ -428,8 +428,8 @@ public class RoomHome : RoomScript<RoomHome>
 					Prop("Pump").Visible = true;
 					Prop("Handle").Visible = true;
 					//Audio.Stop("Motor");
-					Globals.gameStage = gameProgress.FixedPump;
 					yield return E.WaitForGui(G.Explanation);
+					Globals.gameStage = gameProgress.FixedPump;
 						yield return E.WaitSkip();
 					yield return C.Dave.Say(" Phew!", 115);
 					yield return E.WaitSkip();
@@ -450,6 +450,9 @@ public class RoomHome : RoomScript<RoomHome>
 					yield return C.Dave.Say("I bet that house up there on the hill has a basement dryer than a desert!");
 		
 					yield return C.Dave.Say(" I oughtta give that real estate agent a call.");
+
+					
+
 		
 				} else {
 						yield return E.WaitSkip(1.5f);
@@ -490,7 +493,7 @@ public class RoomHome : RoomScript<RoomHome>
 				beenSprayed = true;
 				yield return C.Dave.Say(" The valve is leaking, it looks like there's a rusty washer.", 56);
 				yield return C.Dave.Say(" I don't have the tools to replace it, I need to go to Doc's.", 57);
-				Globals.gameStage++;
+				Globals.gameStage = gameProgress.BrokePump;
 			} else {
 				yield return C.Dave.Say(" The valve is leaking, it looks like there's a rusty washer.", 58);
 				yield return C.Dave.Say(" I don't have the tools to replace it, I need to go to Doc's.", 59);
@@ -1078,14 +1081,15 @@ public class RoomHome : RoomScript<RoomHome>
 	{
 		if (Globals.gameStage == gameProgress.FixedPump){
 			Audio.Play("Motor");
-		yield return UnfloodBasement();
-		Audio.Stop("Motor");
-		Globals.gameStage = gameProgress.WonGame;
-		 yield return C.Dave.Say("Like a charm!", 40);
-		  yield return E.WaitForGui(G.Explanation);
-		
-		  E.Restart();
+			yield return UnfloodBasement();
+			Audio.Stop("Motor");
+		 	yield return C.Dave.Say("Like a charm!", 40);
+		  	yield return E.WaitForGui(G.Explanation);
+			Globals.gameStage = gameProgress.WonGame;
+
+		  // E.Restart();
 			yield return E.WaitSkip();
+			E.FadeOut(1, false);
 		
 		}
 		
@@ -1116,8 +1120,8 @@ public class RoomHome : RoomScript<RoomHome>
 			  Audio.Play("Motor");
 			  yield return UnfloodBasement();
 			  Audio.Stop("Motor");
-			  Globals.gameStage = gameProgress.FixedPump;
 			  yield return E.WaitForGui(G.Explanation);
+			  Globals.gameStage = gameProgress.FixedPump;
 				yield return E.WaitSkip();
 			  yield return C.Dave.Say(" Phew!", 115);
 			  yield return E.WaitSkip();
