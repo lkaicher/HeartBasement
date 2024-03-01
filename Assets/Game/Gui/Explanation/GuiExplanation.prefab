@@ -62,9 +62,7 @@ MonoBehaviour:
     m_position: {x: 0, y: 0}
     m_scriptName: Explanation
     m_scriptClass: GuiExplanation
-  m_animations:
-  - {fileID: 7400000, guid: a5e4f154f931b403c9ce3f6bfd886ea0, type: 2}
-  - {fileID: 7400000, guid: b1e587e0ab0854e4eabe98cb1b6e46d5, type: 2}
+  m_animations: []
   m_sprites:
   - {fileID: 21300000, guid: 0dca9e3e6f56747deae849fd13c85330, type: 3}
   - {fileID: 21300000, guid: 08accd8a8411840298c04e9b74b142d2, type: 3}

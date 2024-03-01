@@ -109,6 +109,7 @@ MonoBehaviour:
   - {fileID: 3733532514121063368, guid: 23fdac69010168444a76818029d7630a, type: 3}
   - {fileID: 707601457055817731, guid: 44651c51f21780a4ca86fbfaede30fb2, type: 3}
   - {fileID: 8215673016122429824, guid: 2ad501e2f7cb3974f8a56bdd98126f06, type: 3}
+  - {fileID: 3699241607957101491, guid: 6e72b51e6d5444f7fa986741e9182ef2, type: 3}
   m_characterPrefabs:
   - {fileID: 114953134120639602, guid: b4910caf4195aeb45895069ad277b9fd, type: 3}
   - {fileID: 6035720155002498351, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
@@ -239,5 +240,5 @@ MonoBehaviour:
   - {fileID: 4800000, guid: a2c3f6022054c654ea6aeb84a997cda4, type: 3}
   - {fileID: 4800000, guid: 553637da87459c4428e8af106c8e49fd, type: 3}
   - {fileID: -6465566751694194690, guid: af93590d30f80449dbed048703d58532, type: 3}
-  m_version: 17000
-  m_newVersion: 17000
+  m_version: 17003
+  m_newVersion: 17003
