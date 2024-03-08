@@ -30,8 +30,9 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		TonyPumped,
 		TonyAte,
 		SecondFlood,
-		BrokePump, 
 		FixedPump, 
+		BoughtHouse, 
+		UsedElectricPump,
 		WonGame
 	};
 	
@@ -61,7 +62,8 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 	public void OnGameStart()
 	{     
 		// GAME STAGE
-		Globals.gameStage = gameProgress.None;
+		Globals.gameStage = (gameProgress)0;
+		//G.Explanation.Show();
 		E.DeleteSave(1);
 		
 		
@@ -79,7 +81,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		
 		
 		// temporary
-		
+		I.RepairKit.Add();
 		
 		// I.BilgePump.Add();
 		 // C.Tony.Enable();

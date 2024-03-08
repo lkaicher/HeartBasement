@@ -20,10 +20,12 @@ public class RoomMap : RoomScript<RoomMap>
 		C.Dave.SetPosition(Point(string.Format("{0}Point",C.Dave.LastRoom.ScriptName)));
 		
 		
-		if (Globals.gameStage > gameProgress.SecondFlood) {
+		if (Globals.gameStage > gameProgress.BoughtHouse){
+			R.Map.ActiveWalkableArea = 1;
+			Prop("Back").Animation = "HeartBasementMapEnd";
+		}else if (Globals.gameStage > gameProgress.SecondFlood) {
 			R.Map.ActiveWalkableArea = 1;
 			Prop("Back").Animation = "HeartBasementMapFlooded";
-		
 		} else {
 			R.Map.ActiveWalkableArea = 0;
 			Prop("Back").Animation = "HeartBasementMapNew";
@@ -173,7 +175,7 @@ public class RoomMap : RoomScript<RoomMap>
 		if(!Globals.rained && (int)Globals.gameStage == 6){
 			yield return Thunderstorm();
 		}
-		if (firstExit && C.Dave.LastRoom == R.Home && Globals.gameStage == gameProgress.BrokePump){
+		if (firstExit && C.Dave.LastRoom == R.Home && Globals.gameStage == gameProgress.FixedPump){
 			yield return C.Dave.Say("The road is flooded!", 78);
 			yield return C.Dave.Say(" The only other way to Doc's is over that huge hill...", 80);
 			yield return C.Dave.Say("Better get moving.", 82);
@@ -197,6 +199,12 @@ public class RoomMap : RoomScript<RoomMap>
 		yield return C.Dave.WalkTo(Point("HardwarePoint"));
 		C.Dave.ChangeRoom(R.Hardware);
 		Region("Byhouse").Enabled = false;
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractPropNewHouse( IProp prop )
+	{
+		C.Dave.ChangeRoom(R.NewHouse);
 		yield return E.Break;
 	}
 }
