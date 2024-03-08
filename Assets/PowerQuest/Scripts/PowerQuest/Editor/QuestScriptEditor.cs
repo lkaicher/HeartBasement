@@ -56,7 +56,9 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 
 	//static readonly GUIStyle STYLE_TOOLBAR_TOGGLE = new GUIStyle(EditorStyles.toggle) { font = EditorStyles.miniLabel.font, fontSize = EditorStyles.miniLabel.fontSize, padding = new RectOffset(15,0,3,0) };
 
-	static readonly string REGEX_FUNCTION_START = @"\s*\(.+\n*.*\{.*\n\r?";
+	static readonly string REGEX_FUNCTION_START_PREFIX = @"\b(?<=\w+\s+)"; // Checks for word boundary with a string and space, like "void "
+	static readonly string REGEX_FUNCTION_START = @"\s*\(.+\n*.*\{.*\n\r?";	
+	
 	static readonly string REGEX_CLASS_START = @"public (?:partial )?class \w*.+\n*.*\{.*\n\r?";
 
 	static readonly string STR_TABS = "\t\t";
@@ -615,6 +617,12 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 
 	void OnEnable()
 	{
+		// If project template not set up yet, hide this window (to avoid errors)
+		if ( PowerQuestEditor.GetPowerQuestEditor() != null && PowerQuestEditor.GetPowerQuest() == null )
+		{
+			Close();
+			return;
+		}
 		
 		s_editors.RemoveAll(item=>item == null);
 		if ( s_editors.Exists(item=>item==this) == false )
@@ -1076,7 +1084,10 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 				
 			}
 			else 
+			{
 				Load(m_path, m_functionNames[currFunction],false, m_scriptClass,m_scriptType);
+			}
+			EditorGUILayout.EndHorizontal();
 			return;
 		}
 
@@ -1596,7 +1607,7 @@ public partial class QuestScriptEditor : EditorWindow, IHasCustomMenu
 		startIndex = -1;
 		endIndex = -1;
 
-		Regex regex = new Regex(@"\b"+functionName+REGEX_FUNCTION_START);//, RegexOptions.Compiled );
+		Regex regex = new Regex(REGEX_FUNCTION_START_PREFIX+functionName+REGEX_FUNCTION_START);//, RegexOptions.Compiled );
 		Match match = regex.Match(text);
 		if ( match.Index <= 0 )
 			return false;

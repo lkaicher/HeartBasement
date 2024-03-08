@@ -1,12 +1,8 @@
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEditorInternal;
 using System.Text.RegularExpressions;
 using System.IO;
-using PowerTools.Quest;
-using PowerTools;
 using System.Reflection;
 using System.Linq;
 using System;
@@ -26,7 +22,12 @@ public class SystemTextEditor : Editor
 	SystemText m_component = null;
 	List<string> m_processedFiles = new List<string>();
 	
-	public bool m_advancedFoldout = false;
+	
+	[SerializeField] bool m_foldoutSettings = false;
+	[SerializeField] bool m_foldoutProcess = false;
+	[SerializeField] bool m_foldoutScript = false;
+	[SerializeField] bool m_foldoutCSV = false;
+	[SerializeField] bool m_foldoutLipSync = false;
 		
 	enum eProcessTextMode
 	{
@@ -102,28 +103,60 @@ public class SystemTextEditor : Editor
 		.sceneheader  { font-weight: bold; text-transform:uppercase; }
 		.action { padding-right: 5%; }
 		.character {  margin-left: 40%; text-transform:uppercase;  }
-		.dialogue { margin-left: 25%; padding-right: 25%; }
+		.dialogue { margin-left: 25%; min-width: 320px; padding-right: 25%; }
 		.parenthetical { margin-left: 32%; padding-right: 30%; }
 		/* special case: dialogue followed by a parenthetical; the extra line needs to be suppressed */
 		.dialogue + .parenthetical { padding-bottom: 0; }
+		.dialogue.recorded { color:#aaa; }
 		.transition { padding-top: 3ex; margin-left: 65%; padding-bottom: 1.5ex; }
-		.id { float:left; padding-right: 0; color:#ccc; text-align: right; width: 23%; }
+		.id { float:left; padding-right: 0; color:#aaa; text-align: right; width: 23%; }
 		</style>"+"\n<body><code><ul>";
 	static readonly string SCRIPT_DIALOG_FILE_END = "</ul></code></body></html>";
 	static readonly string SCRIPT_DIALOG_CHARACTER = "\t\t\t<li class=\"character\"><b>{0}</b></li>\n";
+	static readonly string SCRIPT_DIALOG_CHARACTER_HIGHLIGHTED = "\t\t\t<li class=\"character\"><span style=\"background-color: #{0};\"><b>{1}</b></span></li>\n";
 	static readonly string SCRIPT_DIALOG_LINE = "\t\t\t<li class=\"id\">({0}{1})</li><li class=\"dialogue\">{2}</li>\n";
 	//static readonly string SCRIPT_DIALOG_LINE = "\t\t\t<li class=\"character\"><b>{0}</b> {1}</li><li class=\"dialogue\">{2}</li>\n";
+	static readonly string SCRIPT_DIALOG_RECORDED_LINE = "\t\t\t<li class=\"id\">({0}{1})</li><li class=\"dialogue recorded\">{2}</li>\n";
 	static readonly string SCRIPT_FILE_LINE = "\n\t<li class=\"sceneheader\">{0}</li>\n\n";
 	static readonly string SCRIPT_FUNCTION_LINE = "\n\t\t<li class=\"action\">{0}</li>\n\n";
 
-	[Tooltip("Enable this when you'd already recorded some dialog lines/translated some text, so it doesn't get muddled up")]
+	private static readonly Color[] HIGHLIGHT_COLOURS =
+	{
+		// colors from stabilo-boss highligher color chart :P
+		new Color(0.988f, 0.945f, 0.718f), //yellow
+		new Color(0.737f, 0.922f, 0.914f), // blue-green
+		new Color(0.969f, 0.843f, 0.886f),// pink-light
+		new Color(0.922f, 0.969f, 0.737f), //green
+		new Color(0.976f, 0.729f, 0.776f), // pink
+		new Color(0.996f, 0.812f, 0.749f), // orange
+		new Color(0.906f, 0.808f, 0.914f), // purple 
+		new Color(0.996f, 0.659f, 0.584f), // red
+		new Color(0.769f, 0.886f, 0.820f), // Green
+		new Color(0.867f, 0.902f, 0.973f), // Blue
+		// word highlight colors
+		new Color(1.0f, 0.95f, 0.33f, 1.0f),
+		new Color(1.0f, 0.26f, 0.26f, 1.0f),
+		new Color(0.6f, 0.3f, 1.0f, 1.0f),
+		new Color(1.0f, 0.3f, 1.0f, 1.0f),
+		new Color(0.96f, 0.53f, 0.18f, 1.0f),
+		new Color(0.3f, 0.5f, 0.9f, 1.0f),
+		new Color(0.3f, 1.0f, 1.0f, 1.0f),
+	};
+
+	// NB: tooltipes moved to GuiContent where in the editor code
+	//[Tooltip("Enable this when you'd already recorded some dialog lines/translated some text, so it doesn't get muddled up")]
 	[SerializeField] bool m_preserveIds = true;
-	[Tooltip("If enabled, only spoken dialog lines are processed. Disable if you're planning on translating all game text")]
+	//[Tooltip("If enabled, only spoken dialog lines are processed. Disable if you're planning on translating all game text")]
 	[SerializeField] bool m_processDialogOnly = true;
+	//[Tooltip("If enabled, when a section or function has been fully recorded, it will be omitted from the output script")]
+	[SerializeField] bool m_skipFullyRecordedSections = false;
+	//[Tooltip("Specify specific characters to export, comma seperated. Sections not including the character will be skipped. Specify 'Narr' for narrator.")]
 	[SerializeField] string[] m_exportCharacters = null;
-	[SerializeField] string[] m_exportRooms = null;
-	
-	[Tooltip("Comma separated list of language codes. Case sensitive, use the same case you put in Languages' codes")]
+	//[Tooltip("Highlight specified characters names in the script to make them easier to see.")]
+	[SerializeField] bool m_highlightCharacter = false;
+	//[Tooltip("Specify specific quest object names to export, comma seperated. Others will be skipped. eg 'Forest, GlobalScript, Barney', also note special cases: 'characters, guis, items'")]
+	[SerializeField] string[] m_exportScripts = null;	
+	//[Tooltip("Comma separated list of language codes. Case sensitive, use the same case you put in Languages' codes")]
 	[SerializeField] string[] m_exportLanguages = null;
 
 	enum eCsvEncoding
@@ -136,135 +169,212 @@ public class SystemTextEditor : Editor
 		Excel,
 		GoogleSheets
 	}
-	[SerializeField] eCsvEncoding m_csvEncoding = eCsvEncoding.Default;
+	[SerializeField] eCsvEncoding m_csvEncoding = eCsvEncoding.Excel;
 
 	string m_currSourceFile = null;
 
 	public override void OnInspectorGUI()
 	{
 		m_component = (SystemText)target;
+		
+		//EditorGUILayout.LabelField("Settings",EditorStyles.boldLabel);		
+		m_foldoutSettings = EditorGUILayout.Foldout(m_foldoutSettings,"Settings", true, m_foldoutSettings ? new GUIStyle(EditorStyles.foldout) { fontStyle = FontStyle.Bold }: EditorStyles.foldout);
+		if ( m_foldoutSettings )
+		{				
+			SerializedProperty defaultTextSourceProp =
+				serializedObject.FindProperty("m_defaultTextSource");
 
-		EditorGUILayout.LabelField("Process Game Text From Scripts",EditorStyles.boldLabel);
-
-		string helpText = string.Empty;
-		if ( m_preserveIds )
-			helpText = "Process Text reads through scripts and adds any text to this text system, assigning ids to each line of text.\n\nExisting dialog ids will not be changed.";
-		else 
-			helpText = "Process Text reads through scripts and adds any text to this text system, assigning ids to each line of text.\n\nDialog ids may be change.\nTick Preserve Ids if you've recorded dialog already.";
-
-		if ( m_processDialogOnly )
-			helpText += "\n\nOnly Spoken Dialog will be imported (for use in voice scripts)";
-		else 
-			helpText += "\n\nAll text will be imported (for voice scripts and translation)";
-		EditorGUILayout.HelpBox(helpText, MessageType.Info);
-
-		GUILayout.BeginHorizontal();
-		m_preserveIds = GUILayout.Toggle( m_preserveIds, "Preserve Ids" );
-		m_processDialogOnly = GUILayout.Toggle( m_processDialogOnly, "Dialog Only" );
-		GUILayout.EndHorizontal();
-
-		bool processText = GUILayout.Button("Process Text From Scripts");
-
-		GUILayout.Space(10);	
-
-		// Script generation
-		EditorGUILayout.LabelField("Export Game Text",EditorStyles.boldLabel);
-		// Characters
-		{
-			EditorGUI.BeginChangeCheck();
-			string inLabels = (m_exportCharacters != null && m_exportCharacters.Length > 0) ?  string.Join(LABEL_DELIMITER_READ, m_exportCharacters) : "";
-			string outLabels = EditorGUILayout.TextField("From Characters", inLabels);
-			if ( EditorGUI.EndChangeCheck() )
-			{					
-				//outLabels = outLabels.Replace(WHITESPACE,string.Empty);
-				outLabels = outLabels.ToLower();
-				m_exportCharacters = outLabels.Split(LABEL_DELIMITER_WRITE, System.StringSplitOptions.RemoveEmptyEntries);
-			}
-		}
-
-		// Rooms
-		{
-			EditorGUI.BeginChangeCheck();
-			string inLabels = (m_exportRooms != null && m_exportRooms.Length > 0) ?  string.Join(LABEL_DELIMITER_READ, m_exportRooms) : "";
-			string outLabels = EditorGUILayout.TextField("From Rooms", inLabels);
-			if ( EditorGUI.EndChangeCheck() )
-			{					
-				//outLabels = outLabels.Replace(WHITESPACE,string.Empty);
-				outLabels = outLabels.ToLower();
-				m_exportRooms = outLabels.Split(LABEL_DELIMITER_WRITE, System.StringSplitOptions.RemoveEmptyEntries);
-			}
-		}
-
-		// Languages
-		{
-			EditorGUI.BeginChangeCheck();
-			string inLabels = (m_exportLanguages != null && m_exportLanguages.Length > 0) ?  string.Join(LABEL_DELIMITER_READ, m_exportLanguages) : "";
-			string outLabels = EditorGUILayout.TextField("Languages", inLabels);
-			if ( EditorGUI.EndChangeCheck() )
+			if (defaultTextSourceProp != null)
 			{
-				m_exportLanguages = outLabels.Split(LABEL_DELIMITER_WRITE, System.StringSplitOptions.RemoveEmptyEntries).Distinct().ToArray<string>();
+				EditorGUILayout.PropertyField(defaultTextSourceProp);
 			}
+
+			SerializedProperty languagesProperty =
+				serializedObject.FindProperty(
+					"m_languages"
+				);
+
+			if (languagesProperty != null)
+			{
+				EditorGUILayout.PropertyField(languagesProperty);
+			}
+			GUILayout.Space(10);	
 		}
 
-		if ( GUILayout.Button("Generate Script") )
-		{
-			GenerateScript( m_component );
-		}
-		GUILayout.BeginHorizontal();
-		if ( GUILayout.Button("Export to CSV") )
-		{
-			ExportToCSV( m_component );
-		}
-		bool processUpdateGameTextFromImport = false;
+
+		bool processText = false;
 		bool processRemoveTextIds = false;
-		if ( GUILayout.Button("Import from CSV") )
+
+		//EditorGUILayout.LabelField("Process Game Text",EditorStyles.boldLabel);
+		
+		m_foldoutProcess = EditorGUILayout.Foldout(m_foldoutProcess,"Process Game Text", true, m_foldoutProcess ? new GUIStyle(EditorStyles.foldout) { fontStyle = FontStyle.Bold }: EditorStyles.foldout);
+		if ( m_foldoutProcess )
 		{
-			EditorUtility.DisplayProgressBar("Importing from CSV", "Importing text",0);
-			// Import
-			bool importSuccess = ImportFromCSV( m_component );
-			
-			EditorUtility.ClearProgressBar();
-			
-			// If import successful, ask about updating game text too.
-			if ( importSuccess && m_component.EditorGetShouldImportDefaultStringFromCSV() )
+			string helpText = string.Empty;
+			if ( m_preserveIds )
+				helpText = "Process Text reads through scripts and adds any text to this text system, assigning ids to each line of text.\n\nExisting dialog ids will not be changed.";
+			else 
+				helpText = "Process Text reads through scripts and adds any text to this text system, assigning ids to each line of text.\n\nDialog ids may be change.\nTick Preserve Ids if you've recorded dialog already.";
+
+			if ( m_processDialogOnly )
+				helpText += "\n\nOnly Spoken Dialog will be imported (for use in voice scripts)";
+			else 
+				helpText += "\n\nAll text will be imported (for voice scripts and translation)";
+			EditorGUILayout.HelpBox(helpText, MessageType.Info);
+
+			GUILayout.BeginHorizontal();
+			m_preserveIds = GUILayout.Toggle( m_preserveIds, new GUIContent("Preserve Ids", "Enable this when you'd already recorded some dialog lines/translated some text, so it doesn't get muddled up") );
+			m_processDialogOnly = GUILayout.Toggle( m_processDialogOnly, new GUIContent("Dialog Only","If enabled, only spoken dialog lines are processed. Disable if you're planning on translating all game text") );
+			GUILayout.EndHorizontal();
+		
+		
+			GUILayout.Space(5);
+			processText = GUILayout.Button("Process Text", GUILayout.Height(25));
+		
+			if ( GUILayout.Button("Remove Unused Text Ids") )
 			{
-				if ( EditorUtility.DisplayDialog("CSV Import Succeeded","Success!\n\nDo you also want to update the text in your game code/scripts and prefabs?\n\n(Backup highly recommended!)","Update Scripts and Prefabs","No thanks") )
-					processUpdateGameTextFromImport = true;
+				if ( EditorUtility.DisplayDialog("Really remove ids from test system?","This will remove text from the text system and ids from the game scripts. If audio exists for voice lines, they will not be removed\n\n(Backup highly recommended!)","Removed unused ids","Cancel") )
+					 processRemoveTextIds = true;
 			}
+			GUILayout.Space(10);
 		}	
 
-		GUILayout.EndHorizontal();	
+		// Script generation
+		//EditorGUILayout.LabelField("Export Script",EditorStyles.boldLabel);
+		
+		m_foldoutScript = EditorGUILayout.Foldout(m_foldoutScript,"Script Export", true, m_foldoutScript ? new GUIStyle(EditorStyles.foldout) { fontStyle = FontStyle.Bold }: EditorStyles.foldout);
+		if ( m_foldoutScript )
+		{
+			EditorGUILayout.HelpBox("Export processed text to an html script. \nOptionally specify specific characters or scripts to export.", MessageType.Info);
+			// Characters
+			{
+				EditorGUI.BeginChangeCheck();
+				string inLabels = (m_exportCharacters != null && m_exportCharacters.Length > 0) ?  string.Join(LABEL_DELIMITER_READ, m_exportCharacters) : "";
+				string outLabels = EditorGUILayout.TextField(
+					new GUIContent("From Characters","Specify specific characters to export, comma seperated. Sections not including the character will be skipped. Specify 'Narr' for narrator."), 
+					inLabels );
 
+				if ( EditorGUI.EndChangeCheck() )
+				{					
+					//outLabels = outLabels.Replace(WHITESPACE,string.Empty);
+					outLabels = outLabels.ToLower();
+					m_exportCharacters = outLabels.Split(LABEL_DELIMITER_WRITE, System.StringSplitOptions.RemoveEmptyEntries);
+				}
+
+				m_highlightCharacter = EditorGUILayout.Toggle(
+					new GUIContent("Highlight Character", "If enabled, it will highlight characters contained in the 'From Characters' set"),
+					m_highlightCharacter
+				);
+			}
+
+			// Scripts
+			{
+				EditorGUI.BeginChangeCheck();
+				string inLabels = (m_exportScripts != null && m_exportScripts.Length > 0) ?  string.Join(LABEL_DELIMITER_READ, m_exportScripts) : "";
+				string outLabels = EditorGUILayout.DelayedTextField(
+					new GUIContent("From Scripts", "Specify specific quest object names to export, comma seperated. Others will be skipped. eg 'Forest, GlobalScript, Barney', also note special cases: 'characters, guis, items'" )
+					, inLabels);
+				if ( EditorGUI.EndChangeCheck() )
+					m_exportScripts = outLabels.Split(LABEL_DELIMITER_WRITE, System.StringSplitOptions.RemoveEmptyEntries);
+			
+			}
+
+			// Languages
+			{
+				EditorGUI.BeginChangeCheck();
+				string inLabels = (m_exportLanguages != null && m_exportLanguages.Length > 0) ?  string.Join(LABEL_DELIMITER_READ, m_exportLanguages) : "";
+				string outLabels = EditorGUILayout.TextField(
+					new GUIContent("Languages", "Comma separated list of language codes. Case sensitive, use the same case you put in Languages' codes")
+					, inLabels);
+				if ( EditorGUI.EndChangeCheck() )
+				{
+					m_exportLanguages = outLabels.Split(LABEL_DELIMITER_WRITE, System.StringSplitOptions.RemoveEmptyEntries).Distinct().ToArray<string>();
+				}
+			}
+		
+			m_skipFullyRecordedSections = EditorGUILayout.Toggle(
+				new GUIContent("Skip Recorded Sections", "If this is enabled, sections where all the lines have been recorded will be omitted (recorded lines will not have their character names highlighted, if Highlight Character has been enabled), all lines except those that need to be recorded by the VA are greyed out"),
+				m_skipFullyRecordedSections
+			);
+		
+			GUILayout.Space(5);
+
+			if ( GUILayout.Button("Generate Script", GUILayout.Height(25)) )
+			{
+				GenerateScript( m_component );
+			}
+			GUILayout.Space(10);	
+		}
+
+		// Script generation
+		//EditorGUILayout.LabelField("Export/Import to CSV",EditorStyles.boldLabel);
+		
+		bool processUpdateGameTextFromImport = false;
+		m_foldoutCSV = EditorGUILayout.Foldout(m_foldoutCSV,"CSV Export/Import", true, m_foldoutCSV ? new GUIStyle(EditorStyles.foldout) { fontStyle = FontStyle.Bold }: EditorStyles.foldout);
+		if ( m_foldoutCSV )
+		{
+			EditorGUILayout.HelpBox("Export processed text to CSV for translation or external editing, then import again.", MessageType.Info);
+
+			m_csvEncoding =  (eCsvEncoding) EditorGUILayout.EnumPopup("Csv Encoding", (Enum)m_csvEncoding);
+
+			GUILayout.BeginHorizontal();
+			if ( GUILayout.Button("Export to CSV", GUILayout.Height(25)) )
+			{
+				ExportToCSV( m_component );
+			}
+			if ( GUILayout.Button("Import from CSV", GUILayout.Height(25)) )
+			{
+				EditorUtility.DisplayProgressBar("Importing from CSV", "Importing text",0);
+				// Import
+				bool importSuccess = ImportFromCSV( m_component );
+			
+				EditorUtility.ClearProgressBar();
+			
+				// If import successful, ask about updating game text too.
+				if ( importSuccess && m_component.EditorGetShouldImportDefaultStringFromCSV() )
+				{
+					if ( EditorUtility.DisplayDialog("CSV Import Succeeded","Success!\n\nDo you also want to update the text in your game code/scripts and prefabs?\n\n(Backup highly recommended!)","Update Scripts and Prefabs","No thanks") )
+						processUpdateGameTextFromImport = true;
+				}
+			}	
+
+			GUILayout.EndHorizontal();	
+			GUILayout.Space(10);	
+		}
+		/*
 		m_advancedFoldout = EditorGUILayout.Foldout(m_advancedFoldout,"Advanced", true);
 		if ( m_advancedFoldout )
 		{
 			if ( GUILayout.Button("Update scripts from imported text") )
 			{
-				if ( EditorUtility.DisplayDialog("CSV Import Succeeded","Success!\n\nDo you also want to update the text in your game code/scripts and prefabs?\n\n(Backup highly recommended!)","Update Scripts and Prefabs","Cancel") )
+				if ( EditorUtility.DisplayDialog("Update scripts?","Do you want to update the text in your game code/scripts and prefabs from imported text?\n\n(Backup highly recommended!)","Update Scripts and Prefabs","Cancel") )
 					processUpdateGameTextFromImport = true;
 			}
-			if ( GUILayout.Button("Remove unused ids") )
+			
+		}*/
+
+
+		//EditorGUILayout.LabelField("Lip Syncing",EditorStyles.boldLabel);		
+		m_foldoutLipSync = EditorGUILayout.Foldout(m_foldoutLipSync,"Lip Sync", true, m_foldoutLipSync ? new GUIStyle(EditorStyles.foldout) { fontStyle = FontStyle.Bold }: EditorStyles.foldout);
+		if ( m_foldoutLipSync )
+		{
+			EditorGUILayout.HelpBox("Generate lip sync data. Requires voice acting files to be present, and Rhubarb to be installed", MessageType.Info);
+		
+			SerializedProperty lipSyncingProperty =
+				serializedObject.FindProperty("m_lipSyncExtendedShapes");
+
+			if (lipSyncingProperty != null)
 			{
-				if ( EditorUtility.DisplayDialog("Really remove?","This will remove text from the text system and ids from the game scripts. If audio exists for voice lines, they will not be removed\n\n(Backup highly recommended!)","Removed unused ids","Cancel") )
-					processRemoveTextIds = true;
+				EditorGUILayout.PropertyField(lipSyncingProperty);
+			}
+		
+			if ( GUILayout.Button("Process Lip Sync Data") )
+			{
+				PowerQuestEditor.GetPowerQuestEditor().RunRhubarb();
 			}
 
-			m_csvEncoding =  (eCsvEncoding) EditorGUILayout.EnumPopup("Csv Encoding", (Enum)m_csvEncoding);
+			GUILayout.Space(10);
 		}
-
-		GUILayout.Space(10);	
-
-		EditorGUILayout.LabelField("Lip Syncing",EditorStyles.boldLabel);
-		EditorGUILayout.HelpBox("Generate lip sync data. Requires voice acting files to be present, and Rhubarb to be installed", MessageType.Info);
-		if ( GUILayout.Button("Process Lip Sync Data") )
-		{
-			PowerQuestEditor.GetPowerQuestEditor().RunRhubarb();
-		}
-
-		GUILayout.Space(10);	
-		EditorGUILayout.LabelField("Internal Data",EditorStyles.boldLabel);
-
-		DrawDefaultInspector();
 
 		if ( processText )
 		{
@@ -379,7 +489,7 @@ public class SystemTextEditor : Editor
 		if ( PowerQuestEditor.GetPowerQuestEditor().GetSmartCompileRequired() )
 		{
 			AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
-			EditorUtility.DisplayDialog("Asset database requires import", "The asset database requires updating first, wait a few seconds then try again ;)","Ok");
+			EditorUtility.DisplayDialog("Asset database requires import", "The asset database requires updating first, wait a few seconds then try again. If that doesn't work, try playing and stopping your game","Ok");
 			return;
 		}
 
@@ -407,14 +517,18 @@ public class SystemTextEditor : Editor
 				m_lastFunction = "Prop Description";
 				component.GetPropComponents().ForEach( item=> 
 					{
-						bool hasCollider = item.GetComponent<Collider2D>() != null;
-						if ( hasCollider )
-							item.GetData().Description = AddStringWithEmbeddedId( item.GetData().Description);
+						if ( item != null )
+						{
+							bool hasCollider = item.GetComponent<Collider2D>() != null;
+							if ( hasCollider )
+								item.GetData().Description = AddStringWithEmbeddedId( item.GetData().Description);
+						}
 					} );
 				m_lastFunction = "Hotspot Description";
 				component.GetHotspotComponents().ForEach( item=> 
 					{ 
-						item.GetData().Description = AddStringWithEmbeddedId( item.GetData().Description); 
+						if ( item != null )
+							item.GetData().Description = AddStringWithEmbeddedId( item.GetData().Description); 
 					} );
 				EditorUtility.SetDirty(component);
 			}
@@ -428,7 +542,7 @@ public class SystemTextEditor : Editor
 
 			if ( m_processDialogOnly == false )
 			{
-				m_lastFunction = "Description";
+				m_lastFunction = "Character Description";
 				component.GetData().Description = AddStringWithEmbeddedId( component.GetData().Description);
 				EditorUtility.SetDirty(component);
 			}
@@ -442,7 +556,7 @@ public class SystemTextEditor : Editor
 
 			if ( m_processDialogOnly == false )
 			{
-				m_lastFunction = "Description";
+				m_lastFunction = "Item Description";
 				component.GetData().Description = AddStringWithEmbeddedId(component.GetData().Description);
 				EditorUtility.SetDirty(component);
 			}
@@ -463,23 +577,18 @@ public class SystemTextEditor : Editor
 					} );	
 				EditorUtility.SetDirty(component);
 			}
-		}	
-
-		// Process Gui scripts
-		foreach ( GuiComponent component in powerQuest.GetGuiPrefabs() )
-		{
-			m_currSourceFile = "Gui- "+component.GetData().ScriptName;
-			ProcessFile( QuestEditorUtils.GetFullPath(component.gameObject, "Gui" + component.GetData().GetScriptName() +".cs") ); 
 		}		
 
 		// Process Game script
 		m_currSourceFile = "Global Script";
 		ProcessFile( PowerQuestEditor.PATH_GLOBAL_SCRIPT );
 
-		m_currSourceFile = "Guis";
-		// Process Gui descriptions
+		// Process Guis
 		foreach ( GuiComponent component in powerQuest.GetGuiPrefabs() )
-		{			
+		{					
+			m_currSourceFile = "Gui- "+component.GetData().ScriptName;
+			ProcessFile( QuestEditorUtils.GetFullPath(component.gameObject, "Gui" + component.GetData().GetScriptName() +".cs") ); 
+
 			if ( m_processDialogOnly == false )
 			{
 				m_lastFunction = "Gui Description";
@@ -487,6 +596,13 @@ public class SystemTextEditor : Editor
 				foreach ( GuiComponent item  in childComponents )
 				{
 					item.GetData().Description = AddStringWithEmbeddedId(item.GetData().Description);
+				}
+				
+				m_lastFunction = "Gui Control Description";
+				GuiControl[] childControlComponents = component.GetComponentsInChildren<GuiControl>(true);
+				foreach ( GuiControl item  in childControlComponents )
+				{
+					item.Description = AddStringWithEmbeddedId(item.Description);
 				}
 
 				// Look for [QuestLocalizable] attribute in guis. This attribute/function/system could be extended to more random components I guess.
@@ -722,6 +838,19 @@ public class SystemTextEditor : Editor
 		return Array.IndexOf(GetLanguageCodes(systemText), languageCode);
 	}
 
+	private bool HasRecording(TextData data)
+	{
+        string fullFileName = data.m_character + data.m_id.ToString();			
+        AudioClip clip = Resources.Load("Voice/" + fullFileName) as AudioClip;
+
+        if (clip == null)
+        {
+	        return false;
+        }
+
+        return true;
+	}
+
 	// Generates a screenplay style script for recording dialog
 	public void GenerateScript( SystemText systemText )
 	{
@@ -743,119 +872,370 @@ public class SystemTextEditor : Editor
 		}
 	}
 
-	private void GenerateScriptForLanguage( SystemText systemText, string languageCode = null )
+	private void GenerateScriptForLanguage(SystemText systemText, string languageCode = null)
 	{
 		// A lang code MUST be always specified or no script will be generated.
-		if (languageCode == null) {
+		if (languageCode == null)
+		{
 			Debug.LogWarning("Script generation invoked without language code. Exiting.");
 			return;
 		}
-		
+
 		int languageIndex = GetLanguageIndexByCode(systemText, languageCode);
-		if ( languageIndex < 0) {
+		if (languageIndex < 0)
+		{
 			Debug.LogWarning($"Language index not found for code {languageCode}. Exiting.");
 			return;
 		}
 
 		m_component = systemText;
 
-		string lastFile = null;
-		string lastFunction = null;
-		string lastCharacter = null; // TODO: use this to insert character when it's changed
+		Dictionary<string, Color> colourCache = new Dictionary<string, Color>();
 
 		System.Text.StringBuilder builder = new System.Text.StringBuilder();
 		List<TextData> list = systemText.EditorGetTextDataOrdered();
 		builder.Append(SCRIPT_DIALOG_FILE_START);
 		// builder.AppendFormat(SCRIPT_DIALOG_LINE, "fred", "23", "blah di blah di blah blah blah");
-		int index = -1;
-		foreach( TextData data in list )
+
+		DialogScript dialogScript = GatherDialog(list);
+
+		foreach (DialogSection section in dialogScript.Sections)
 		{
-			index++;				
+			// If scripts are specified, only export specified scripts
+			if (m_exportScripts != null && m_exportScripts.Length > 0)
+			{
+				bool includeGlobals = System.Array.Exists(m_exportScripts, item => item.EqualsIgnoreCase("globalscript"));
+				bool includeItems = System.Array.Exists(m_exportScripts, item => item.EqualsIgnoreCase("items"));
+				bool includeGuis = System.Array.Exists(m_exportScripts, item => item.EqualsIgnoreCase("guis"));
+				bool includeCharacters = System.Array.Exists(m_exportScripts, item => item.EqualsIgnoreCase("characters"));
 
-			// Only include character lines in script
-			if ( string.IsNullOrEmpty(data.m_character) )
-				continue;
+				string scriptName = section.Name;
+				bool found = false;
+				found |= includeGlobals && scriptName.StartsWithIgnoreCase("Global");
+				found |= includeItems && scriptName.StartsWithIgnoreCase("Item");
+				found |= includeGuis && scriptName.StartsWithIgnoreCase("Gui");
+				found |= includeCharacters && scriptName.StartsWithIgnoreCase("Character");
 
-			if (data.m_sourceFile != lastFile )
-			{				
-				// If Rooms are specified, only export specified rooms
-				if ( m_exportRooms != null && m_exportRooms.Length > 0 && data.m_sourceFile.StartsWith(STR_ROOM) )
+				if (found == false)
 				{
-					string roomName = data.m_sourceFile.Substring(STR_ROOM.Length);
-					if ( System.Array.Exists( m_exportRooms, item => item.Equals(roomName,System.StringComparison.OrdinalIgnoreCase) ) == false )				
-					{
+					// Ignore everything before the space- (eg: "Room- Forest" becomes "Forest");
+					int spaceIndex = scriptName.LastIndexOf(' ');
+					if (spaceIndex >= 0)
+						scriptName = scriptName.Substring(spaceIndex + 1);
+					if (System.Array.Exists(m_exportScripts, item => item.EqualsIgnoreCase(scriptName)) == false)
 						continue;
-					}
 				}
-					
-				lastFile = data.m_sourceFile;
-				builder.AppendFormat(SCRIPT_FILE_LINE, lastFile);
-				lastCharacter = null;
-				lastFunction = null;
 			}
 
-			if (data.m_sourceFunction != lastFunction )
+			if (section.IsEmpty(m_exportCharacters, m_skipFullyRecordedSections))
 			{
-				// If Characters are specified, only export specified characters
-				if ( m_exportCharacters != null && m_exportCharacters.Length > 0 )
+				 continue;
+			}
+
+			builder.AppendFormat(SCRIPT_FILE_LINE, section.Name);
+			
+			foreach (DialogSubsection subsection in section.Subsections)
+			{
+				if (subsection.IsEmpty(m_exportCharacters, m_skipFullyRecordedSections))
 				{
-					bool foundCharacter = false;
-					for ( int i = index; i < list.Count; ++i )
+					continue;
+				}
+
+				builder.AppendFormat(SCRIPT_FUNCTION_LINE, subsection.Name);
+
+				foreach (CharacterBlock block in subsection.CharacterBlocks)
+				{
+					if (m_highlightCharacter && block.SatisifiesFilter(m_exportCharacters) && (!m_skipFullyRecordedSections || block.HasUnrecordedLines))
 					{
-						TextData charCheckData = list[i];
-						if ( charCheckData.m_sourceFunction != data.m_sourceFunction )
-							break;
-						if ( string.IsNullOrEmpty(charCheckData.m_character) )
-							continue;
-						if ( System.Array.Exists(m_exportCharacters, item => item.Equals(charCheckData.m_character,System.StringComparison.OrdinalIgnoreCase) ) )
+						// For the character name to be highlighted,
+						// the Highlight Character checkbox must be set,
+						// But if "skip fully recorded sections" has been selected,
+						// then we only highlight the character name if the actor still
+						// has to record the line. They wouldn't be interested in
+						// it otherwise except for the purposes of getting context.
+
+						string lowerCaseChar = block.CharacterName.ToLower();
+
+						if (!colourCache.TryGetValue(lowerCaseChar, out Color highlightColour))
 						{
-							foundCharacter = true;
-							break;
+							for (int i = 0; i < m_exportCharacters.Length; ++i)
+							{
+								if (m_exportCharacters[i] == lowerCaseChar)
+								{
+									int colourIndex = i % HIGHLIGHT_COLOURS.Length;
+
+									if (!HIGHLIGHT_COLOURS.IsIndexValid(colourIndex))
+									{
+										Debug.LogError($"Computed invalid highlight colour index: {colourIndex}, array length: {HIGHLIGHT_COLOURS.Length}");
+
+										colourIndex = 0;
+									}
+
+									highlightColour = HIGHLIGHT_COLOURS[colourIndex];
+									colourCache.Add(lowerCaseChar, highlightColour);
+									break;
+								}
+							}
+						}
+
+						builder.AppendFormat(SCRIPT_DIALOG_CHARACTER_HIGHLIGHTED, ColorUtility.ToHtmlStringRGBA(highlightColour), block.CharacterName);
+					}
+					else
+					{
+						builder.AppendFormat(SCRIPT_DIALOG_CHARACTER, block.CharacterName);
+					}
+
+					bool blockIsPartiallyRecorded = block.HasBothRecordedAndUnrecordedLines;
+
+					foreach (CharacterDialogLine line in block.Lines)
+					{
+
+						bool recorded = line.IsRecorded;
+
+						// here we decide whether to grey out the dialog line,
+						string dialogFmt = blockIsPartiallyRecorded && recorded && block.SatisifiesFilter(m_exportCharacters) && m_skipFullyRecordedSections
+							? SCRIPT_DIALOG_RECORDED_LINE
+							: SCRIPT_DIALOG_LINE;
+
+						if (languageIndex > 0)
+						{
+							// index is greater than zero so we want one of the translations
+							// TODO: check if the index is never out of bound
+							builder.AppendFormat(dialogFmt, block.CharacterName, line.Id.ToString(), line.Translations[languageIndex - 1]); // can be an empty string
+						}
+						else
+						{
+							// index is 0 so we refer to the primary language
+							builder.AppendFormat(dialogFmt, block.CharacterName, line.Id.ToString(), line.DialogLine);
 						}
 					}
-
-					if ( foundCharacter == false )
-					{
-						// If we didn't find the character, skip this line. I should really skip the outer loop to the next function once this is hit, but it'll still work so whatever
-						continue;
-					}
 				}
-
-
-				lastFunction = data.m_sourceFunction;
-				builder.AppendFormat(SCRIPT_FUNCTION_LINE, lastFunction);
-				lastCharacter = null;
 			}
-
-			if ( lastCharacter != data.m_character )
-			{
-				builder.AppendFormat(SCRIPT_DIALOG_CHARACTER, data.m_character);
-				lastCharacter = data.m_character;
-			}
-
-			if (languageIndex > 0) 
-			{
-				// index is greater than zero so we want one of the translations
-				// TODO: check if the index is never out of bound
-				builder.AppendFormat(SCRIPT_DIALOG_LINE, data.m_character, data.m_id.ToString(), data.m_translations[languageIndex-1]); // can be an empty string
-			}
-			else 
-			{
-				// index is 0 so we refer to the primary language
-				builder.AppendFormat(SCRIPT_DIALOG_LINE, data.m_character, data.m_id.ToString(), data.m_string);
-			}
-			
 		}
+
 		builder.Append(SCRIPT_DIALOG_FILE_END);
 
 
-		string scriptPath = EditorUtility.SaveFilePanel("Save Script File", "", $"Script-{languageCode}.html","html");
-		if ( string.IsNullOrEmpty(scriptPath) == false )
+		string scriptPath = EditorUtility.SaveFilePanel("Save Script File", "", $"Script-{languageCode}.html", "html");
+		if (string.IsNullOrEmpty(scriptPath) == false)
 		{
 			File.WriteAllText(scriptPath, builder.ToString());
 			Application.OpenURL(scriptPath);
 		}
 
+	}
+
+	/// <summary>
+	/// Do a first pass and collate the dialog lines and group them together,
+	/// noting down the important information along the way...
+	/// </summary>
+	/// <param name="list">List of Text Data to parse</param>
+	/// <returns>The collated dialog data</returns>
+	private DialogScript GatherDialog(List<TextData> list)
+	{
+		DialogScript dialog = new DialogScript();
+
+		List<TextData> unprocessedTextData = new List<TextData>();
+		unprocessedTextData.AddRange(list);
+
+		while (TryGetDialogSection(unprocessedTextData, out DialogSection section))
+		{
+			dialog.Sections.Add(section);
+		}
+		
+		return dialog;
+	}
+
+	/// <summary>
+	/// Try and get a section (A section might correspond to a specific script file or something)
+	/// from <paramref name="unprocessedTextData"/> and return it in <paramref name="dialogSection"/> if one is found.
+	/// </summary>
+	/// <param name="unprocessedTextData">The list of <see cref="TextData"/> that has not yet been processed, elements will be removed from this if a Section has been successfully formed from them</param>
+	/// <param name="dialogSection">The Section that has been found, if one has been found, will be set to null otherwise.</param>
+	/// <returns>true if a section has been found, false otherwise (if for example <paramref name="unprocessedTextData"/> is empty).</returns>
+	private bool TryGetDialogSection(List<TextData> unprocessedTextData, out DialogSection dialogSection)
+	{
+		if (unprocessedTextData.Count == 0)
+		{
+			dialogSection = null;
+			return false;
+		}
+
+		dialogSection = new DialogSection(unprocessedTextData[0].m_sourceFile);
+
+		while (unprocessedTextData.Count > 0 && unprocessedTextData[0].m_sourceFile == dialogSection.Name)
+		{
+			if (TryGetDialogSubsection(unprocessedTextData, dialogSection.Name, out DialogSubsection subsection))
+			{
+				dialogSection.Subsections.Add(subsection);
+			}
+			else
+			{
+				if (unprocessedTextData == null || unprocessedTextData.Count == 0 || unprocessedTextData[0] == null)
+				{
+					Debug.LogError("Failed to extract a DialogSection.");
+				}
+				else
+				{
+					TextData textData = unprocessedTextData[0];
+					
+					Debug.LogError($"Failure occurred around {textData.m_sourceFile}:{textData.m_sourceFunction}");
+				}
+
+				dialogSection = null;
+
+				return false;
+			}
+		}
+		
+		return true;
+	}
+
+	/// <summary>
+	/// This will try and gather together a block of consecutive dialog lines from the same function within a file...
+	/// </summary>
+	/// <param name="unprocessedTextData">The TextData that has not been processed yet.</param>
+	/// <param name="sectionName">The name of the current section</param>
+	/// <param name="dialogSubsection">The sub section retrieved, set to null if nothing is found</param>
+	/// <returns>true if a subsection is found and false otherwise.</returns>
+	private bool TryGetDialogSubsection(List<TextData> unprocessedTextData, string sectionName, out DialogSubsection dialogSubsection)
+	{
+		if (unprocessedTextData == null || unprocessedTextData.Count == 0)
+		{
+			dialogSubsection = null;
+			return false;
+		}
+
+		dialogSubsection = new DialogSubsection(unprocessedTextData[0].m_sourceFunction);
+
+		while (unprocessedTextData.Count > 0 && unprocessedTextData[0].m_sourceFile == sectionName && unprocessedTextData[0].m_sourceFunction == dialogSubsection.Name)
+		{
+			if (TryGetCharacterBlock(unprocessedTextData, sectionName, dialogSubsection.Name, out CharacterBlock characterDialogBlock))
+			{
+				dialogSubsection.CharacterBlocks.Add(characterDialogBlock);
+			}
+			else
+			{
+				if (unprocessedTextData.Count == 0)
+				{
+					// Finished processing all text data and ran out of character dialog
+					// (the rest of the input was skipped because it doesnt belong in the
+					// script..).
+					return true;
+				}
+				
+				if (unprocessedTextData[0] == null)
+                {
+                	Debug.LogError("Failed to extract a DialogSubsection.");
+                }
+                else
+                {
+	                TextData textData = unprocessedTextData[0];
+
+	                if (textData.m_sourceFile != sectionName || textData.m_sourceFunction != dialogSubsection.Name)
+	                {
+		                // we just traversed into a new (sub)section, not a problem...
+		                return true;
+	                }
+                	Debug.LogError($"Failure occurred around {textData.m_sourceFile}:{textData.m_sourceFunction}");
+                }
+
+				dialogSubsection = null;
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/// <summary>
+	/// This will pick off the running sequence of dialog from the same character from the beginning of <paramref name="unprocessedTextData"/>
+	/// </summary>
+	/// <param name="unprocessedTextData">List of <see cref="TextData"/> that hasn't been processed yet, elements will be popped off from this list as they get processed.</param>
+	/// <param name="sectionName">The name of the current section</param>
+	/// <param name="subsectionName">The name of the current subsection</param>
+	/// <param name="characterBlock">If a <see cref="CharacterBlock"/> is found, this is where it will be returned</param>
+	/// <returns>true if a <see cref="CharacterBlock"/> was found, false otherwise.</returns>
+	private bool TryGetCharacterBlock(List<TextData> unprocessedTextData, string sectionName, string subsectionName, out CharacterBlock characterBlock)
+	{
+		// skip non-character lines
+		while (unprocessedTextData.Count > 0 && string.IsNullOrEmpty(unprocessedTextData[0].m_character))
+		{
+			unprocessedTextData.RemoveAt(0);
+		}
+		
+		if (unprocessedTextData.Count == 0)
+		{
+			characterBlock = null;
+			return false;
+		}
+
+		characterBlock = new CharacterBlock(unprocessedTextData[0].m_character);
+
+		while (unprocessedTextData.Count > 0 && unprocessedTextData[0] != null && !string.IsNullOrEmpty(unprocessedTextData[0].m_character) && unprocessedTextData[0].m_sourceFile == sectionName && unprocessedTextData[0].m_sourceFunction == subsectionName && unprocessedTextData[0].m_character == characterBlock.CharacterName)
+		{
+			if (TryGetCharacterLine(unprocessedTextData, out CharacterDialogLine line))
+			{
+				characterBlock.Lines.Add(line);
+
+				continue;
+			}
+
+			if (unprocessedTextData.Count == 0 || unprocessedTextData[0] == null)
+			{
+				Debug.LogError("Failed to extract a CharacterBlock.");
+			}
+			else
+			{
+				TextData textData = unprocessedTextData[0];
+
+				Debug.LogError($"Failure occurred around {textData.m_sourceFile}:{textData.m_sourceFunction}");
+			}
+
+			characterBlock = null;
+			return false;
+		}
+
+		if (characterBlock.Lines.Count == 0)
+		{
+			characterBlock = null;
+			return false;
+		}
+
+		return true;
+	}
+
+	/// <summary>
+	/// Try and get a single line of dialog from <paramref name="unprocessedTextData"/>, removing it from the list if so.
+	/// </summary>
+	/// <param name="unprocessedTextData">The list of <see cref="TextData"/>, if a line of dialog can be found here, it will be removed from the list</param>
+	/// <param name="line">If a line of dialog is found, this is where it will go...</param>
+	/// <returns>true if dialog was found, false otherwise...</returns>
+	private bool TryGetCharacterLine(List<TextData> unprocessedTextData, out CharacterDialogLine line)
+	{
+		if (unprocessedTextData.Count == 0)
+		{
+			Debug.LogError("Expected to find dialog line but ran out!");
+			line = null;
+			return false;
+		}
+
+		TextData data = unprocessedTextData[0];
+
+		line = new CharacterDialogLine(
+			data.m_id,
+			data.m_string,
+			data.m_translations
+		);
+
+		if (HasRecording(data))
+		{
+			line.MarkAsRecorded();
+		}
+		
+		unprocessedTextData.RemoveAt(0);
+
+		return true;
 	}
 
 	static readonly string CSV_HEADERS = "Character,ID,File,Context";
@@ -923,7 +1303,7 @@ public class SystemTextEditor : Editor
 			}
 			catch (System.Exception e)
 			{
-				EditorUtility.DisplayDialog("CSV Export Failed","Failed to export to CSV file.\nCheck it's not open elsewhere.\n\nError: "+e.Message,"ok");
+				EditorUtility.DisplayDialog("CSV Export Failed","Failed to export to CSV file.\nCheck it's not open elsewhere.\n\nError: "+e.Message,"Ok");
 			}
 
 
@@ -958,6 +1338,7 @@ public class SystemTextEditor : Editor
 		int numLanguages = systemText.GetNumLanguages();
 
 		// Using CSV-Reader https://github.com/tspence/csharp-csv-reader
+		// Using patched version found at https://github.com/domdere/csharp-csv-reader
 
 		FileStream stream = null;
 		StreamReader streamReader = null;
@@ -1031,12 +1412,12 @@ public class SystemTextEditor : Editor
 		catch (System.IO.IOException e )
 		{
 			result=false;
-			EditorUtility.DisplayDialog("CSV Import Failed","Failed to open CSV file. \nCheck it's not already open elsewhere.\n\nError: "+e.Message ,"ok");
+			EditorUtility.DisplayDialog("CSV Import Failed","Failed to open CSV file. \nCheck it's not already open elsewhere.\n\nError: "+e.Message ,"Ok");
 		}
 		catch (System.Exception e)
 		{
 			result=false;	
-			EditorUtility.DisplayDialog("CSV Import Failed","Failed to import CSV file.\n\nError: "+e.Message ,"ok");
+			EditorUtility.DisplayDialog("CSV Import Failed","Failed to import CSV file.\n\nError: "+e.Message ,"Ok");
 		}
 		finally
 		{

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0a16e9f9c6db14b418901a66d60f8d1b, type: 3}
-  m_Name: _ImportExplanation
+  m_Name: _ImportSlides
   m_EditorClassIdentifier: 
   m_animations: []
   m_pixelsPerUnit: 1
@@ -19,7 +19,7 @@ MonoBehaviour:
   m_spriteMeshType: 1
   m_crunchedCompression: 0
   m_sourcePSD: 
-  m_sourceDirectory: 
+  m_sourceDirectory: /Users/lkaicher/Desktop
   m_deleteImportedPngs: 1
   m_spriteDirectory: Sprites
   m_gui: 0
@@ -30,3 +30,4 @@ MonoBehaviour:
   m_ignoreLayers:
   - Guide
   - Ignore
+  m_notes: 

@@ -17,12 +17,18 @@ namespace PowerTools
 [RequireComponent(typeof(Animator))]
 [DisallowMultipleComponent]
 [AddComponentMenu("PowerTools/PowerSpriteAnimation")]
-public class SpriteAnim : SpriteAnimEventHandler 
+public partial class SpriteAnim : SpriteAnimEventHandler 
 {	
 	#region Definitions
 
 	static readonly int STATE_NAME_HASH = Animator.StringToHash("a");
 	static readonly string CONTROLLER_PATH = "SpriteAnimController";
+
+	// Partial functions for extentions
+	partial void ExAwake();
+	partial void ExPlayStart(AnimationClip clip, float speed);
+	partial void ExPlay(AnimationClip clip, float speed);
+	partial void ExStop();
 
 	#endregion
 	#region Vars: Editor
@@ -103,6 +109,8 @@ public class SpriteAnim : SpriteAnimEventHandler
 			Awake();
 		}
 
+		ExPlayStart(anim, speed);
+
 		// Reset animation nodes
 		if ( m_nodes != null )
 		    m_nodes.Reset();
@@ -127,6 +135,8 @@ public class SpriteAnim : SpriteAnimEventHandler
 		if (CallbackOnPlay != null )
 			CallbackOnPlay.Invoke();
 		m_animator.Update(0.0f); // Update so that normalized time is updated immediately
+		
+		ExPlay(anim, speed);
 	}		 	 
 
 	/// Stops the clip by disabling the animator
@@ -137,6 +147,7 @@ public class SpriteAnim : SpriteAnimEventHandler
 
 		if ( CallbackOnStop != null )
 			CallbackOnStop.Invoke();
+		ExStop();
 	}
 
 	/// Pauses the animation. Call Resume to start again
@@ -241,8 +252,10 @@ public class SpriteAnim : SpriteAnimEventHandler
 	#endregion
 	#region Funcs: Init
 
+
 	void Awake()
 	{
+
 		m_controller = new AnimatorOverrideController();
 
 		if ( m_sharedAnimatorController == null )
@@ -261,7 +274,10 @@ public class SpriteAnim : SpriteAnimEventHandler
 			m_clipPairArray = m_controller.clips;
 		#endif
 
+		ExAwake();
+
 		Play(m_defaultAnim);
+
 	}
 
 	// Called when component is first added. Used to add the sprite renderer

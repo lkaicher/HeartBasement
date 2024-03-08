@@ -44,35 +44,13 @@ SpriteAtlas:
     secondaryTextureSettings: {}
     variantMultiplier: 1
     packables:
-    - {fileID: 102900000, guid: 37eed582cc8da400289e89a548564199, type: 3}
+    - {fileID: 102900000, guid: 63de4ef258ed0485c9df1e8eaee8b616, type: 3}
     bindAsDefault: 1
     isAtlasV2: 0
     cachedData: {fileID: 0}
   m_MasterAtlas: {fileID: 0}
-  m_PackedSprites:
-  - {fileID: 21300000, guid: b5a0c2d0d95336b4287c3b4cf85cebed, type: 3}
-  - {fileID: 21300000, guid: 64c54701d5dd33a4a9778be6439e4efa, type: 3}
-  - {fileID: 21300000, guid: bb39f6522b8df8a4191bf060540c54b7, type: 3}
-  - {fileID: 21300000, guid: 42db0033422982848af4b30139d033b3, type: 3}
-  - {fileID: 21300000, guid: 77b6a1c547c2e844f99ed6f8313cddee, type: 3}
-  - {fileID: 21300000, guid: 51be641aaaac75a4d9a8164cefda4f08, type: 3}
-  - {fileID: 21300000, guid: b72bc28a4e63e944c8dc20123dae1b2b, type: 3}
-  - {fileID: 21300000, guid: d9c8a7eb1b9d0d048b23be875bfc729b, type: 3}
-  - {fileID: 21300000, guid: a996375d4b23946afb72f61f1c0515dd, type: 3}
-  - {fileID: 21300000, guid: f813da5d5a6d41941855662d14128ceb, type: 3}
-  - {fileID: 21300000, guid: f39e4e7e6e6b7df44a1d47e766adb38b, type: 3}
-  m_PackedSpriteNamesToIndex:
-  - Slide3
-  - Slide10
-  - Slide5
-  - Slide6
-  - Slide9
-  - Slide2
-  - Slide7
-  - Slide8
-  - chap2
-  - Slide1
-  - Slide4
+  m_PackedSprites: []
+  m_PackedSpriteNamesToIndex: []
   m_RenderDataMap: {}
-  m_Tag: GuiExplanationAtlas
+  m_Tag: GuiSlidesAtlas
   m_IsVariant: 0

@@ -101,11 +101,11 @@ public class QuestSaveManager
 
 	// Version and version requirement for the save manager. There's a seperate one used for the "game"
 	#if CACHE_SAVE_DATA
-		static readonly int VERSION_CURRENT = 3;
+		static readonly int VERSION_CURRENT = 4;
 	#else 
-		static readonly int VERSION_CURRENT = 2;
+		static readonly int VERSION_CURRENT = 4;
 	#endif
-	static readonly int VERSION_REQUIRED = 0;
+	static readonly int VERSION_REQUIRED = 4;
 	
 	#endregion
 	#region Variables

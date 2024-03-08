@@ -69,6 +69,7 @@ MonoBehaviour:
     m_directions: 68
     m_width: 1
     m_color: {r: 0.08088237, g: 0.08088237, b: 0.08088237, a: 1}
+  m_typeSpeed: 0
   m_unlocalizedText: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
     do eiusmod tempor incididunt ut labore et dolore magna aliqua
   m_outlineMeshes:
@@ -94,7 +95,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 703176b3361ccab4da6c9d4e7a52ad55, type: 3}
+  - {fileID: 2100000, guid: 46216681bde2086408a37f1624bc630f, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -124,14 +125,18 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 115000}
-  m_Text: 'Lorem ipsum dolor sit amet,
+  m_Text: 'Lorem ipsum dolor sit
 
-    consectetur adipiscing elit, sed do
+    amet, consectetur
 
-    eiusmod
-    tempor incididunt ut labore
+    adipiscing elit, sed
+    do
 
-    et dolore magna aliqua'
+    eiusmod tempor
+
+    incididunt ut labore et
+
+    dolore magna aliqua'
   m_OffsetZ: 0
   m_CharacterSize: 10
   m_LineSpacing: 0.9
@@ -141,7 +146,7 @@ TextMesh:
   m_FontSize: 10
   m_FontStyle: 0
   m_RichText: 1
-  m_Font: {fileID: 12800000, guid: 703176b3361ccab4da6c9d4e7a52ad55, type: 3}
+  m_Font: {fileID: 12800000, guid: 46216681bde2086408a37f1624bc630f, type: 3}
   m_Color:
     serializedVersion: 2
     rgba: 4292467161
@@ -173,8 +178,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6197054773694490337}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 18.490967, z: 50}
-  m_LocalScale: {x: 207, y: 50.981934, z: 1}
+  m_LocalPosition: {x: 0, y: 30.9375, z: 50}
+  m_LocalScale: {x: 200, y: 75.875, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 489318}
@@ -310,7 +315,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6688109909898519638}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 18.490967, z: 50}
+  m_LocalPosition: {x: 0, y: 30.9375, z: 50}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -380,7 +385,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 209, y: 52.981934}
+  m_Size: {x: 202, y: 77.875}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEditor;
@@ -11,6 +12,7 @@ using System.Text.RegularExpressions;
 using PowerTools.Quest;
 using PowerTools.QuestGui;
 using PowerTools;
+using Object = UnityEngine.Object;
 #if UNITY_2018_3_OR_NEWER
 using UnityEditor.Experimental.SceneManagement;
 #endif
@@ -58,6 +60,8 @@ public partial class PowerQuestEditor : EditorWindow
 	public static readonly string SCRIPT_PARAMS_ONCLICK_GUI = " IGuiControl control ";
 	public static readonly string SCRIPT_PARAMS_ONANYCLICK_GUI = " IGuiControl control ";
 	public static readonly string SCRIPT_PARAMS_ONDRAG_GUI = " IGuiControl control ";
+	
+	static readonly string STR_PQ_SEARCH = "PQSearch";
 
 	//struct ScriptFuncParamPair {string func, string param};
 	public static readonly Dictionary<string, string> SCRIPT_FUNC_PARAM_MAP = new Dictionary<string,string>() 
@@ -77,6 +81,8 @@ public partial class PowerQuestEditor : EditorWindow
 
 		{PowerQuest.SCRIPT_FUNCTION_ENTER_REGION,			SCRIPT_PARAMS_ENTER_REGION},
 		{PowerQuest.SCRIPT_FUNCTION_EXIT_REGION,			SCRIPT_PARAMS_EXIT_REGION},
+		{PowerQuest.SCRIPT_FUNCTION_ENTER_REGION_BG,		SCRIPT_PARAMS_ENTER_REGION},
+		{PowerQuest.SCRIPT_FUNCTION_EXIT_REGION_BG,			SCRIPT_PARAMS_EXIT_REGION},
 	};
 
 
@@ -159,6 +165,18 @@ public partial class PowerQuestEditor : EditorWindow
 
 
 	#endregion
+	
+	#region Private Classes
+
+	private class GroupedPrefabContext
+	{
+		public Dictionary<string, ReorderableList> GroupedCollection { get; } = new Dictionary<string, ReorderableList>();
+
+		public ReorderableList UngroupedList { get; set; } = null;
+	}
+	
+	#endregion
+	
 	#region Variables: Private
 
 	static PowerQuestEditor m_instance = null;
@@ -256,6 +274,10 @@ public partial class PowerQuestEditor : EditorWindow
 	{		
 		AssetDatabase.ExportPackage( new string[] {@"Assets\Audio", @"Assets\Fonts", @"Assets\Game"}, @"Assets\PowerQuest\Templates\9VerbGameTemplate.unitypackage", ExportPackageOptions.Recurse);
 	}
+	public static void ExportTemplatePackageHD()
+	{		
+		AssetDatabase.ExportPackage( new string[] {@"Assets\Audio", @"Assets\Fonts", @"Assets\Game"}, @"Assets\PowerQuest\Templates\HdGameTemplate.unitypackage", ExportPackageOptions.Recurse);
+	}
 
 	// Get/Set objects as "favorites", they just get highlighted for now
 	public static bool IsHighlighted(Object obj)
@@ -332,6 +354,7 @@ public partial class PowerQuestEditor : EditorWindow
 		
 		powerQuestEditor.CallbackOnCreateObject?.Invoke(eQuestObjectType.Inventory, path, name);
 		powerQuestEditor.RequestAssetRefresh();
+		powerQuestEditor.RefreshMainGuiLists();
 	}
 
 	#endregion
@@ -377,6 +400,7 @@ public partial class PowerQuestEditor : EditorWindow
 		
 		powerQuestEditor.CallbackOnCreateObject?.Invoke(eQuestObjectType.Dialog, path, name);
 		powerQuestEditor.RequestAssetRefresh();
+		powerQuestEditor.RefreshMainGuiLists();
 
 		
 		QuestScriptEditor.UpdateAutoComplete(QuestScriptEditor.eAutoCompleteContext.Dialogs);
@@ -446,6 +470,7 @@ public partial class PowerQuestEditor : EditorWindow
 		 
 		powerQuestEditor.CallbackOnCreateObject?.Invoke(eQuestObjectType.Gui, path, name);
 		powerQuestEditor.RequestAssetRefresh();
+		powerQuestEditor.RefreshMainGuiLists();
 		
 		QuestScriptEditor.UpdateAutoComplete(QuestScriptEditor.eAutoCompleteContext.Guis);
 	}
@@ -516,6 +541,7 @@ public partial class PowerQuestEditor : EditorWindow
 		QuestEditorUtils.InsertTextIntoFile(PATH_GAME_GLOBALS, "#C", "\n\t\tpublic static ICharacter "+name.PadRight(14)+" { get { return PowerQuest.Get.GetCharacter(\""+name+"\"); } }");
 		
 		powerQuestEditor.CallbackOnCreateObject?.Invoke(eQuestObjectType.Character, path, name);
+		powerQuestEditor.RefreshMainGuiLists();
 		powerQuestEditor.Repaint();
 		
 		powerQuestEditor.RequestAssetRefresh();
@@ -731,17 +757,19 @@ public partial class PowerQuestEditor : EditorWindow
 	#endregion
 	#region Functions: Delete Quest Objects
 	
-	void DeleteQuestObject( int index, string typeName, List<CharacterComponent> prefabs )
+	bool DeleteQuestObject( int index, string typeName, List<CharacterComponent> prefabs )
 	{
 		string scriptName = GetQuestObjectToDelete( prefabs, ref index )?.GetData()?.ScriptName ?? null;		
-		DeleteQuestObject( index, prefabs, typeName, scriptName );
+		return DeleteQuestObject( index, prefabs, typeName, scriptName );
 	}
-	void DeleteQuestObject( int index, string typeName, List<InventoryComponent> prefabs )
+	
+	bool DeleteQuestObject( int index, string typeName, List<InventoryComponent> prefabs )
 	{
 		string scriptName = GetQuestObjectToDelete( prefabs, ref index )?.GetData()?.ScriptName ?? null;
-		DeleteQuestObject( index, prefabs, typeName, scriptName );
+		return DeleteQuestObject( index, prefabs, typeName, scriptName );
 	}
-	void DeleteQuestObject( int index, string typeName, List<RoomComponent> prefabs )
+	
+	bool DeleteQuestObject( int index, string typeName, List<RoomComponent> prefabs)
 	{		
 		string scriptName = GetQuestObjectToDelete( prefabs, ref index )?.GetData()?.ScriptName ?? null;
 		string sceneName = GetQuestObjectToDelete( prefabs, ref index )?.GetData()?.GetSceneName() ?? null;
@@ -755,19 +783,24 @@ public partial class PowerQuestEditor : EditorWindow
 			string sceneFileEnd = sceneName+".unity";
 			List<EditorBuildSettingsScene> buildScenes = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
 			buildScenes.RemoveAll( buildScene=>string.IsNullOrEmpty(buildScene.path) || buildScene.path.EndsWith(sceneFileEnd));
-			EditorBuildSettings.scenes = buildScenes.ToArray();				
+			EditorBuildSettings.scenes = buildScenes.ToArray();
+
+			return true;
 		}
-		
+
+		return false;
 	}
-	void DeleteQuestObject( int index, string typeName, List<DialogTreeComponent> prefabs )
+	
+	bool DeleteQuestObject( int index, string typeName, List<DialogTreeComponent> prefabs )
 	{
 		string scriptName = GetQuestObjectToDelete( prefabs, ref index )?.GetData()?.ScriptName ?? null;
-		DeleteQuestObject( index, prefabs, typeName, scriptName );
+		return DeleteQuestObject( index, prefabs, typeName, scriptName );
 	}
-	void DeleteQuestObject( int index, string typeName, List<GuiComponent> prefabs )
+	
+	bool DeleteQuestObject( int index, string typeName, List<GuiComponent> prefabs )
 	{
 		string scriptName = GetQuestObjectToDelete( prefabs, ref index )?.GetData()?.ScriptName ?? null;
-		DeleteQuestObject( index, prefabs, typeName, scriptName );
+		return DeleteQuestObject( index, prefabs, typeName, scriptName );
 	}
 
 	// Helpers for deleting items
@@ -789,7 +822,7 @@ public partial class PowerQuestEditor : EditorWindow
 		return true;
 	}
 
-	bool DeleteQuestObject<T>( int index, List<T> components, string typename, string name ) where T : Component
+	bool DeleteQuestObject<T>( int index, List<T> components, string typename, string name) where T : Component
 	{
 		T component = components[index];
 		if ( component == null )
@@ -815,7 +848,7 @@ public partial class PowerQuestEditor : EditorWindow
 
 		if ( EditorUtility.DisplayDialog("Really Remove?", "Yo, you sure you wanna remove "+name+"?\n\nThis can't be undone.", "Yeah yeah", "Hmm, Nah") == false )
 			return false;
-
+		
 		// Undo.RecordObject(m_powerQuest, "Remove "+name); // Can't remove script changes, so don't undo
 
 		// Remove line from script
@@ -824,6 +857,7 @@ public partial class PowerQuestEditor : EditorWindow
 		components.RemoveAt(index);		
 					
 		EditorUtility.SetDirty(m_powerQuest);
+		
 
 		// Delete from script file
 		if ( EditorUtility.DisplayDialog("Delete files as well?", string.Format("Also delete all files for {0}?\n\nThis can't be undone either.",name), "Yes, delete them", "NO!") == false )
@@ -1493,14 +1527,28 @@ public partial class PowerQuestEditor : EditorWindow
 
 
 
-
 	#endregion
 	#region Tools
+
+
+
+	//
+	// Tool for instantly searching PQ window
+	//
+	[MenuItem("Edit/PowerQuest/Quick Search %Q")] // %ctrl #shift &alt
+	//[MenuItem("Edit/PowerQuest/Jump to (Search ")]
+	public static void FocusSearchBox()
+	{		
+		PowerQuestEditor.Get.m_selectedTab = eTab.Main;		
+		PowerQuestEditor.Get.m_focusSearch=true;
+		PowerQuestEditor.Get.Focus();				
+	}
 
 	//
 	// Tool for hot-loading scripts while running
 	//
-	[MenuItem("Edit/Hotload scripts %F7")]
+	
+	[MenuItem("Edit/PowerQuest/Hotload scripts %F7")]
 	public static void HotloadScriptsCmd()
 	{
 		PowerQuestEditor window = GetWindow<PowerQuestEditor>();
@@ -1603,7 +1651,7 @@ public partial class PowerQuestEditor : EditorWindow
 	// Tool for copying position to clipboard
 	//
 
-	[MenuItem("Edit/Copy Cursor Position To Clipboard %m")]
+	[MenuItem("Edit/PowerQuest/Copy Cursor Position To Clipboard %m")]
 	static void CopyPositionToClipboard()
 	{
 		Vector2 diff = m_mousePosPrev - m_mousePos;

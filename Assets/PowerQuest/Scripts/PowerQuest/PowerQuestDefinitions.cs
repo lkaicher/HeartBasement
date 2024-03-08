@@ -193,6 +193,8 @@ public partial class PowerQuest
 	public static readonly string SCRIPT_FUNCTION_USEINV_CHARACTER = SCRIPT_FUNCTION_USEINV+STR_CHARACTER;
 	public static readonly string SCRIPT_FUNCTION_ENTER_REGION = "OnEnterRegion";
 	public static readonly string SCRIPT_FUNCTION_EXIT_REGION = "OnExitRegion";
+	public static readonly string SCRIPT_FUNCTION_ENTER_REGION_BG = "OnEnterRegionBG";
+	public static readonly string SCRIPT_FUNCTION_EXIT_REGION_BG = "OnExitRegionBG";
 	public static readonly string SCRIPT_FUNCTION_GETCURSOR = "GetCursor";
 	public static readonly string SCRIPT_FUNCTION_ONMOUSECLICK= "OnMouseClick";
 	public static readonly string SCRIPT_FUNCTION_ONWALKTO = "OnWalkTo";

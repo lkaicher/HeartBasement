@@ -73,6 +73,7 @@ MonoBehaviour:
   m_stopWalkingToTalk: 1
   m_sayTextAutoAdvance: 1
   m_displayTextAutoAdvance: 0
+  m_textAutoAdvanceDelay: 0
   m_alwaysShowDisplayText: 1
   m_enableUse: 1
   m_enableLook: 1
@@ -86,6 +87,7 @@ MonoBehaviour:
     m_customFade: 0
   m_spawnablePrefabs:
   - {fileID: 198790, guid: e3cad009f08664a4098fd91ac4e9f76b, type: 3}
+  m_facingSegmentAngle: 45
   m_saveScreenshotHeight: 180
   m_saveVersion: 0
   m_saveVersionRequired: 0
@@ -94,6 +96,7 @@ MonoBehaviour:
   - m_tag: 
     m_offsetY: 0
     m_sprite: {fileID: 0}
+    m_platform: 
   m_systems:
   - {fileID: 477118, guid: f0b6ac7e109cb2543a538fce1bf8a997, type: 3}
   - {fileID: 492308, guid: b59d39960f6839f428bcacef5efccdbd, type: 3}
@@ -106,6 +109,7 @@ MonoBehaviour:
   - {fileID: 3733532514121063368, guid: 23fdac69010168444a76818029d7630a, type: 3}
   - {fileID: 707601457055817731, guid: 44651c51f21780a4ca86fbfaede30fb2, type: 3}
   - {fileID: 8215673016122429824, guid: 2ad501e2f7cb3974f8a56bdd98126f06, type: 3}
+  - {fileID: 3699241607957101491, guid: 6e72b51e6d5444f7fa986741e9182ef2, type: 3}
   m_characterPrefabs:
   - {fileID: 114953134120639602, guid: b4910caf4195aeb45895069ad277b9fd, type: 3}
   - {fileID: 6035720155002498351, guid: 6ac17c85ae667984dbc3db0053003a56, type: 3}
@@ -122,6 +126,7 @@ MonoBehaviour:
   - {fileID: 2352130863124800982, guid: 09b12e39d168bdf41b05dbc3a73c4ec9, type: 3}
   - {fileID: 6917939254628468773, guid: ee4ca9a030a8fb1429ec3aab2b38301f, type: 3}
   - {fileID: 8608667894250024884, guid: 2f4aa3f9ba456f34782aaea4044bddaf, type: 3}
+  - {fileID: 7275050243190929569, guid: 2ffe255f627d4490eb4594bdd77638b4, type: 3}
   - {fileID: 114536762978702078, guid: f8cb0265062cc8449b37f62e4d70646e, type: 3}
   - {fileID: 6021329301086262416, guid: f710fe9dfa840c44da0b21117e26196e, type: 3}
   - {fileID: 11497058, guid: bfa352f4be1700a43943c6d5f5820e2b, type: 3}
@@ -235,5 +240,5 @@ MonoBehaviour:
   - {fileID: 4800000, guid: a2c3f6022054c654ea6aeb84a997cda4, type: 3}
   - {fileID: 4800000, guid: 553637da87459c4428e8af106c8e49fd, type: 3}
   - {fileID: -6465566751694194690, guid: af93590d30f80449dbed048703d58532, type: 3}
-  m_version: 16012
-  m_newVersion: 16012
+  m_version: 17003
+  m_newVersion: 17003

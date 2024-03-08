@@ -836,7 +836,8 @@ public partial class SpriteAnimator : EditorWindow
 
 	#endregion
 	#region Funcs: Update
-
+	
+	partial void exOnUpdate();
 	public System.Action<AnimEventData> CallbackOnAnimEvent = null;
 
 	void Update()
@@ -845,6 +846,8 @@ public partial class SpriteAnimator : EditorWindow
 		{
 			// Update anim time if playing (and not scrubbing)
 			float delta = (float)(EditorApplication.timeSinceStartup - m_editorTimePrev);
+			if ( delta < 0.0083f) // cap framerate at 120fps
+				return;
 			float animTimePrev = m_animTime;
 			m_animTime += delta * m_previewSpeedScale;
 
@@ -881,6 +884,8 @@ public partial class SpriteAnimator : EditorWindow
 		{
 			Repaint();
 		}
+		
+		exOnUpdate();
 
 		// When going to Play, we need to clear the selection since references get broken.
 		if ( m_wasPlaying != EditorApplication.isPlayingOrWillChangePlaymode )
@@ -1049,7 +1054,7 @@ public partial class SpriteAnimator : EditorWindow
 								newEvent.m_paramObjectReference = animEvent.objectReferenceParameter;
 						}
 
-						if ( string.IsNullOrEmpty( newEvent.m_functionName ) ||  newEvent.m_paramObjectReference == null )
+						if ( string.IsNullOrEmpty( newEvent.m_functionName ) )
 						{
 							Debug.LogError("Failed to read animation event with object reference parameter");
 						}
@@ -1194,7 +1199,8 @@ public partial class SpriteAnimator : EditorWindow
 			events.Add(to);
 
 			// Events on time zero, or end frame get hit twice, so moved to slightly after/before. NB: Hackily avoiding floating point issues here, by decrementing by scaled value
-			to.time = Mathf.Clamp(from.m_time, Mathf.Epsilon, m_clip.length-(m_clip.length/100000.0f) ); 
+			float clampedTime = Mathf.Clamp(from.m_time, Mathf.Epsilon, m_clip.length-(m_clip.length/100000.0f) );
+			to.time = clampedTime;
 
 			to.messageOptions = from.m_messageOptions;
 
@@ -1236,7 +1242,7 @@ public partial class SpriteAnimator : EditorWindow
 
 						to = new AnimationEvent();
 						events.Add(to);
-						to.time = from.m_time;
+						to.time = clampedTime;
 						to.messageOptions = from.m_messageOptions;
 						to.functionName = SpriteAnimEventHandler.EventParser.MESSAGE_OBJECT_DATA;
 						to.objectReferenceParameter = from.m_paramObjectReference;

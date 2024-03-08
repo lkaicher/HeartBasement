@@ -62,6 +62,7 @@ MonoBehaviour:
   m_falloffPanStart: 0.5
   m_falloffPanEnd: 2
   m_noDuplicateTime: 0.05
+  m_narratorMixerGroup: {fileID: 0}
   m_autoAddCues: 1
   m_audioCues:
   - {fileID: 1756113369942525191, guid: c66e3f402860b68419cbac66d2a13f6a, type: 3}
@@ -79,5 +80,6 @@ MonoBehaviour:
   - {fileID: 114876034982820868, guid: a331fd6ee63de1b45b65eb729518a1b3, type: 3}
   - {fileID: 90607626693580130, guid: e5c3c04457bb6214e92cb7fa51927fa9, type: 3}
   - {fileID: 114876034982820868, guid: fd4eeaf456585d140bc1b823511656e9, type: 3}
+  - {fileID: 8267920969083731028, guid: f7a5c15cdf00d4673bec6ad19b11f764, type: 3}
   - {fileID: 11426600, guid: 85d471550f9b57d41bf2b7677dd6a3a0, type: 3}
-  - {fileID: 5867129655462114447, guid: e84b24cafaef345d59fd37f96b17f3f4, type: 3}
+  - {fileID: 5383005869833488682, guid: cfc74a2985262c541a6cbd7dc170c9ea, type: 3}

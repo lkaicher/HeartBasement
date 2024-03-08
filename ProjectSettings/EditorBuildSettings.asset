@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Game/Rooms/Hardware/SceneRoomHardware.unity
     guid: edfa9de17bb00e44699be4e1a1eac4ae
+  - enabled: 1
+    path: Assets/Game/Rooms/NewHouse/SceneRoomNewHouse.unity
+    guid: 840a98b50be6340bfbbe0dde990d4ffb
   m_configObjects: {}

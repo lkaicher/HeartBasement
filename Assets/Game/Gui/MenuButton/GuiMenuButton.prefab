@@ -103,7 +103,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 391928789686469833, guid: e9c95fe066d3fef45a012e8deb308df2, type: 3}
       propertyPath: m_Size.y
-      value: 23
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 391928789686469833, guid: e9c95fe066d3fef45a012e8deb308df2, type: 3}
       propertyPath: m_Offset.x
@@ -119,7 +119,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1268325468812323407, guid: e9c95fe066d3fef45a012e8deb308df2, type: 3}
       propertyPath: m_Size.y
-      value: 23
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 1268325468812323407, guid: e9c95fe066d3fef45a012e8deb308df2, type: 3}
       propertyPath: m_SortingOrder
@@ -135,15 +135,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3486361324765900567, guid: e9c95fe066d3fef45a012e8deb308df2, type: 3}
       propertyPath: m_Text
-      value: 'Menu
-
-'
+      value: Menu
       objectReference: {fileID: 0}
     - target: {fileID: 5375699406641876803, guid: e9c95fe066d3fef45a012e8deb308df2, type: 3}
       propertyPath: m_text
-      value: 'Menu
-
-'
+      value: Menu
       objectReference: {fileID: 0}
     - target: {fileID: 5375699406641876803, guid: e9c95fe066d3fef45a012e8deb308df2, type: 3}
       propertyPath: m_orderInLayer
@@ -151,9 +147,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5375699406641876803, guid: e9c95fe066d3fef45a012e8deb308df2, type: 3}
       propertyPath: m_unlocalizedText
-      value: 'Menu
-
-'
+      value: Menu
       objectReference: {fileID: 0}
     - target: {fileID: 5566757491112813032, guid: e9c95fe066d3fef45a012e8deb308df2, type: 3}
       propertyPath: m_SortingOrder

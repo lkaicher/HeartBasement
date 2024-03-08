@@ -67,7 +67,11 @@ public class RoomHome : RoomScript<RoomHome>
 		//C.Dave.MoveTo(Point("PumpPosition"));
 		//Temp
 		//LowerWaterShader(40, "CharacterDave");
+		//Globals.gameStage = gameProgress.UsedBucket;
+		//E.WaitForGui(G.ExplanationOld);
+		//E.WaitForGui(G.Explanation);
 		
+		// End Temp
 		fountain = GameObject.Find("Fountain");
 		
 		fountain.SetActive(false);
@@ -150,7 +154,7 @@ public class RoomHome : RoomScript<RoomHome>
 		
 		//Globals.gameStage = gameProgress.UsedBucket;
 		
-		//G.Explanation.Show();
+		//yield return E.WaitForGui(G.Explanation);
 		
 		
 		// Put things here that happen when you enter a room
@@ -204,9 +208,11 @@ public class RoomHome : RoomScript<RoomHome>
 			C.Dave.Position = Point("HomeDoorPosition");
 			C.Dave.Visible = true;
 			yield return E.WaitSkip();
+			yield return E.Wait(1f);
 			yield return C.Dave.Say(" Not again!", 3);
+			yield return E.Wait();
 			yield return E.WaitSkip();
-		  G.Explanation.Show();
+		  yield return E.WaitForGui(G.Explanation);
 		  //Globals.gameStage++;
 		  //I.BilgePump.Add();
 		
@@ -214,7 +220,7 @@ public class RoomHome : RoomScript<RoomHome>
 			yield return E.Break;
 		
 		
-		} else if (Globals.gameStage == gameProgress.BrokePump){
+		} else if (Globals.gameStage == gameProgress.FixedPump){
 			yield return ChangeWaterStage(2, false);
 		}
 		
@@ -249,6 +255,8 @@ public class RoomHome : RoomScript<RoomHome>
 		// NB: You need to check they used the correct item!
 		if (item == I.Bucket)
 		{
+			 //I.Active = null;
+			 Debug.Log(I.Active);
 			Prop("Water").Clickable = false;
 			if (Globals.tutorialStage== tutorialProgress.selectedBucket)
 			{
@@ -261,11 +269,11 @@ public class RoomHome : RoomScript<RoomHome>
 				yield return StageComplete();
 		
 		
-				I.Active = null;
+		
 				yield return E.WaitSkip();
-				 G.Explanation.Show();
+				yield return E.WaitForGui(G.Explanation);
 				yield return E.WaitSkip();
-				
+		
 				yield return C.Dave.Say("Oh man... this is going to take forever.", 44);
 		
 		
@@ -404,7 +412,7 @@ public class RoomHome : RoomScript<RoomHome>
 			Prop("Handle").Visible = true;
 			yield return C.Display(
 				"Congratulations! The water level has decreased. However, it is not enough...", 2);
-		   G.Explanation.Show();
+		   yield return E.WaitForGui(G.Explanation);
 		   yield return E.WaitSkip();
 			yield return C.Dave.Say(" This is too hard!", 4);
 			yield return C.Dave.Say("I'd better head back to the hardware store.", 15);
@@ -412,7 +420,7 @@ public class RoomHome : RoomScript<RoomHome>
 		}
 		else if (Globals.gameStage >= gameProgress.SecondFlood){
 		
-			if (Globals.gameStage == gameProgress.BrokePump){
+			if (Globals.gameStage == gameProgress.FixedPump){
 		
 				bool firstTime = true;
 				if (pumpRepairs == 3){
@@ -422,8 +430,8 @@ public class RoomHome : RoomScript<RoomHome>
 					Prop("Pump").Visible = true;
 					Prop("Handle").Visible = true;
 					//Audio.Stop("Motor");
-					Globals.gameStage = gameProgress.FixedPump;
-					G.Explanation.Show();
+					yield return E.WaitForGui(G.Explanation);
+					Globals.gameStage = gameProgress.BoughtHouse;
 						yield return E.WaitSkip();
 					yield return C.Dave.Say(" Phew!", 115);
 					yield return E.WaitSkip();
@@ -433,17 +441,20 @@ public class RoomHome : RoomScript<RoomHome>
 		
 					yield return FloodBasement();
 		
-					yield return C.Dave.Say(" Are you kidding me?!");
+					yield return C.Dave.Say(" Are you kidding me?!", 31);
 		
-					yield return C.Dave.Say("That's it.");
+					yield return C.Dave.Say("That's it.", 33);
 		
-					yield return C.Dave.Say(" I'm done.");
+					yield return C.Dave.Say(" I'm done.", 60);
 		
-					yield return C.Dave.Say(" I ain't puttin up with this dang basement any longer!");
+					yield return C.Dave.Say(" I ain't puttin up with this dang basement any longer!", 92);
 		
-					yield return C.Dave.Say("I bet that house up there on the hill has a basement dryer than a desert!");
+					yield return C.Dave.Say("I bet that house up there on the hill has a basement dryer than a desert!", 100);
 		
-					yield return C.Dave.Say(" I oughtta give that real estate agent a call.");
+					yield return C.Dave.Say(" I oughtta give that real estate agent a call.", 103);
+
+					
+
 		
 				} else {
 						yield return E.WaitSkip(1.5f);
@@ -484,7 +495,7 @@ public class RoomHome : RoomScript<RoomHome>
 				beenSprayed = true;
 				yield return C.Dave.Say(" The valve is leaking, it looks like there's a rusty washer.", 56);
 				yield return C.Dave.Say(" I don't have the tools to replace it, I need to go to Doc's.", 57);
-				Globals.gameStage++;
+				Globals.gameStage = gameProgress.FixedPump;
 			} else {
 				yield return C.Dave.Say(" The valve is leaking, it looks like there's a rusty washer.", 58);
 				yield return C.Dave.Say(" I don't have the tools to replace it, I need to go to Doc's.", 59);
@@ -510,7 +521,7 @@ public class RoomHome : RoomScript<RoomHome>
 				"You've chosen the correct parts for the pump and the water level has decreased.", 3);
 		
 		
-			G.Explanation.Show();
+			yield return E.WaitForGui(G.Explanation);
 			yield return E.WaitSkip();
 			yield return C.Dave.Say("Still not enough... I could use some extra hands.", 7);
 			// C.Dave.ChangeRoom(R.Cutscene);
@@ -567,7 +578,7 @@ public class RoomHome : RoomScript<RoomHome>
 		}
 
     IEnumerator OnUseInvPropPump(IProp prop, IInventory item) {
-		if(Globals.gameStage == gameProgress.BrokePump ) {
+		if(Globals.gameStage == gameProgress.FixedPump ) {
 			if (item == I.Wrench) {
 				if (pumpRepairs == 0) {
 					yield return C.Display(" Rusty washer removed.", 62);
@@ -704,7 +715,7 @@ public class RoomHome : RoomScript<RoomHome>
 		Prop("Handle").Visible = true;
 		
 		yield return C.Display(" The recruited muscle has helped bring the water level down.", 4);
-		G.Explanation.Show();
+		yield return E.WaitForGui(G.Explanation);
 		yield return E.WaitSkip();
 		yield return C.Tony.Say(" Phew... I'm wiped out. Got any grub?", 4);
 		}
@@ -901,7 +912,7 @@ public class RoomHome : RoomScript<RoomHome>
 		Prop("Pump").Visible = true;
 		Prop("Handle").Visible = true;
 		
-		 G.Explanation.Show();
+		 yield return E.WaitForGui(G.Explanation);
 		 yield return E.WaitSkip();
 		
 		}
@@ -1070,16 +1081,25 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnInteractPropElectricPump( IProp prop )
 	{
-		if (Globals.gameStage == gameProgress.FixedPump){
+		if (Globals.gameStage == gameProgress.BoughtHouse){
 			Audio.Play("Motor");
-		yield return UnfloodBasement();
-		Audio.Stop("Motor");
-		Globals.gameStage = gameProgress.WonGame;
-		 yield return C.Dave.Say("Like a charm!", 40);
-		  G.Explanation.Show();
+			yield return UnfloodBasement();
+			Audio.Stop("Motor");
+			 yield return C.Dave.Say("Like a charm!", 40);
+			Globals.gameStage = gameProgress.UsedElectricPump;
+			  yield return E.WaitForGui(G.Explanation);
 		
-		  E.Restart();
+		  // E.Restart();
 			yield return E.WaitSkip();
+			yield return E.FadeOut(1, false);
+			Audio.Stop("Rain", 1f);
+			yield return C.Display(" 3 months later", 65);
+			yield return E.FadeIn(1, false);
+			yield return E.Wait(1f);
+			Audio.Play("ring");
+			yield return C.Dave.Say("Hello?", 104);
+			yield return C.Display(" Hi Dave, your new home is ready!", 66);
+			yield return C.Dave.Say("Finally!", 131);
 		
 		}
 		
@@ -1091,8 +1111,8 @@ public class RoomHome : RoomScript<RoomHome>
 		Audio.Play("Motor");
 		yield return UnfloodBasement();
 		Audio.Stop("Motor");
-		Globals.gameStage = gameProgress.BrokePump;
-		  G.Explanation.Show();
+		Globals.gameStage = gameProgress.FixedPump;
+		  yield return E.WaitForGui(G.Explanation);
 			yield return E.WaitSkip();
 		  yield return C.Dave.Say("Like a charm!", 40);
 		yield return E.FadeOut();
@@ -1103,15 +1123,15 @@ public class RoomHome : RoomScript<RoomHome>
 		yield return E.WaitSkip();
 		yield return C.Dave.Say("Nothing my Pump-o-matic 5000 can't handle!", 114);
 		//LowerWater(4);
-		} else if (Globals.gameStage == gameProgress.BrokePump){
+		} else if (Globals.gameStage == gameProgress.FixedPump){
 		
 		  bool firstTime = true;
 		  if (pumpRepairs == 3){
 			  Audio.Play("Motor");
 			  yield return UnfloodBasement();
 			  Audio.Stop("Motor");
-			  Globals.gameStage = gameProgress.FixedPump;
-			  G.Explanation.Show();
+			  yield return E.WaitForGui(G.Explanation);
+			  Globals.gameStage = gameProgress.BoughtHouse;
 				yield return E.WaitSkip();
 			  yield return C.Dave.Say(" Phew!", 115);
 			  yield return E.WaitSkip();
@@ -1140,7 +1160,7 @@ public class RoomHome : RoomScript<RoomHome>
 
 	IEnumerator OnUseInvPropElectricPump( IProp prop, IInventory item )
 	{
-		if(Globals.gameStage == gameProgress.BrokePump ) {
+		if(Globals.gameStage == gameProgress.FixedPump ) {
 			if (item == I.Wrench) {
 				if (pumpRepairs == 0) {
 					yield return C.Display(" Rusty washer removed.", 62);

@@ -31,5 +31,5 @@ MonoBehaviour:
   m_scriptReplaceRegexes: []
   m_autoCompleteRegexes: []
   m_colorRegexes: []
-  m_regexFoldOut: 0
+  m_regexFoldOut: 1
   m_regexError: 

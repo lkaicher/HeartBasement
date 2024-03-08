@@ -21,7 +21,7 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 			D.UsePhone.OptionOn(2);
 			}
 		
-		if (Globals.gameStage >= gameProgress.FixedPump) {
+		if (Globals.gameStage >= gameProgress.BoughtHouse) {
 			D.UsePhone.OptionOn(6);
 			}
 		
@@ -202,23 +202,27 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 
 	IEnumerator Option6( IDialogOption option )
 	{
-		yield return C.Dave.Say(" Hello, I'm Dave, I'm interested in the property on 11 Hill Lane.");
-		yield return C.Dave.Say(" Is it still available?");
-		yield return C.Display(" Yes it is!");
-		yield return C.Display(" It's a beautiful hilltop property with a stunning view of the entire island, and-");
-		yield return C.Dave.Say(" Yeah yeah, got it, does the basement ever get flooded?");
-		yield return C.Display(" Never has, no.");
-		yield return C.Dave.Say(" I'll take it!");
-		yield return C.Display("Really? Don't you want to see it first? I can give a tour today.");
-		yield return C.Dave.Say(" Nope that's quite alright, I'm in, where do I sign?");
-		yield return C.Display(" Great! This is the easiest sale I've ever had!");
-		yield return C.Display(" The house will be ready for you in three months.");
-		yield return C.Dave.Say(" THREE MONTHS?!");
-		yield return C.Dave.Say(" I'm standing here in a water up to my neck, and no matter what I do, it keeps coming back!");
-		yield return C.Dave.Say(" What am I supposed to do for three months?!");
-		yield return C.Display(" Well Dave, since you have been such a wonderful client, I can set you up with an electric pump rental.");
-		yield return C.Display(" Free of charge!");
-		yield return C.Dave.Say(" Well alrighty then, but it better be quick!");
+		yield return C.Dave.Say(" Hello, I'm Dave, I'm interested in the property on 11 Hill Lane.", 140);
+		yield return C.Dave.Say(" Is it still available?", 141);
+		yield return C.Display(" Yes it is!", 67);
+		yield return C.Display(" It's a beautiful hilltop property with a stunning view of the entire island, and-", 68);
+		yield return C.Dave.Say(" Yeah yeah, got it, does the basement ever get flooded?", 142);
+		yield return C.Display(" Never has, no.", 69);
+		yield return C.Dave.Say(" I'll take it!", 143);
+		yield return C.Display("Really? Don't you want to see it first? I can give a tour today.", 70);
+		yield return C.Dave.Say(" Nope that's quite alright, I'm in, where do I sign?", 144);
+		yield return C.Display(" Great! This is the easiest sale I've ever had!", 71);
+		
+		yield return E.WaitForGui(G.Explanation);
+
+		yield return C.Display(" The house will be ready for you in three months.", 72);
+		yield return C.Dave.Say(" THREE MONTHS?!", 145);
+		yield return C.Dave.Say(" I'm standing here in a water up to my neck, and no matter what I do, it keeps coming back!", 146);
+		yield return C.Dave.Say(" What am I supposed to do for three months?!", 147);
+		yield return C.Display(" Well Dave, since you have been such a wonderful client...", 73);
+		yield return C.Display("How about I set you up with an electric pump rental?", 74);
+		yield return C.Display(" Free of charge!", 75);
+		yield return C.Dave.Say(" Well alrighty then, but it better be quick!", 148);
 		
 		D.UsePhone.OptionOff(6);
 		

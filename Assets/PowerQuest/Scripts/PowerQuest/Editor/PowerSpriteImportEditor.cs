@@ -300,7 +300,7 @@ public class PowerSpriteImportEditor : Editor
 		//
 		EditorGUILayout.LabelField("Source Image File", EditorStyles.boldLabel);
 		EditorGUILayout.BeginHorizontal();
-
+		
 		EditorGUI.BeginChangeCheck();
 		m_component.m_sourcePSD = EditorGUILayout.TextField(m_component.m_sourcePSD);
 		if (EditorGUI.EndChangeCheck() )
@@ -403,7 +403,6 @@ public class PowerSpriteImportEditor : Editor
 		}
 
 		//	EditorGUILayout.HelpBox("NB: If animation is shortened, the extra sprites won't be deleted automatically. Delete them manually.", MessageType.None);
-
 		EditorGUILayout.Space();
 		m_showSpriteImporterSettings = EditorGUILayout.Foldout(m_showSpriteImporterSettings, "Advanced Settings",true);
 		if ( m_showSpriteImporterSettings )
@@ -427,6 +426,10 @@ public class PowerSpriteImportEditor : Editor
 
 		GUILayout.Space(20);
 		
+		EditorGUILayout.LabelField("Notes:");
+		m_component.m_notes= EditorGUILayout.TextArea(m_component.m_notes);
+		GUILayout.Space(20);
+
 		if ( string.IsNullOrEmpty( m_console) == false )
 		{					
 			EditorGUILayout.LabelField("Result:", EditorStyles.boldLabel);
@@ -452,7 +455,7 @@ public class PowerSpriteImportEditor : Editor
 		}
 
 		GUILayout.Space(20);
-
+		
 
 		serializedObject.ApplyModifiedProperties();
 

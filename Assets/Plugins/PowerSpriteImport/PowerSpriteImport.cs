@@ -60,7 +60,8 @@ public partial class PowerSpriteImport : ScriptableObject
 	public string[] m_importLayers = null;
 	public string[] m_ignoreLayers = {"Guide","Ignore"};
 	
-
+	[Multiline]
+	public string m_notes = string.Empty;
 
 }
 }

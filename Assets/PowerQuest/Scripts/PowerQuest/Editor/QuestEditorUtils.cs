@@ -153,7 +153,7 @@ public class QuestEditorUtils
 			SpriteAtlasTextureSettings texSettings = atlas.GetTextureSettings();
 			texSettings.filterMode=FilterMode.Point;
 			atlas.SetTextureSettings(texSettings);
-			TextureImporterPlatformSettings platSettings = atlas.GetPlatformSettings("DefaultTexturePlatform");
+			TextureImporterPlatformSettings platSettings = atlas.GetPlatformSettings("DefaultTexturePlatform");			
 			platSettings.textureCompression = TextureImporterCompression.Uncompressed;
 			atlas.SetPlatformSettings(platSettings);
 
@@ -868,8 +868,10 @@ public class QuestEditorUtils
 
 #endregion
 #region Class: QuestClickableEditorUtils
-public class QuestClickableEditorUtils
+public partial class QuestClickableEditorUtils
 {
+	// Partial classes  for extentions
+	static partial void ExOnSceneGui(MonoBehaviour component, IQuestClickable clickable);
 
 	// Draws baseline, returns true if it changed. Offset is applied to the visuals but not the actual baseline
 	static public bool OnSceneGUIBaseline( MonoBehaviour component, IQuestClickable clickable, Vector2 offset )
@@ -960,10 +962,14 @@ public class QuestClickableEditorUtils
 			}
 			
 		}
+
+		ExOnSceneGui(component, clickable);
+
 	}
 
 
 }
+
 
 #endregion
 #region Classes: Quest Object Windows (create/rename)
@@ -1376,7 +1382,8 @@ public class LoopSectionDrawer : PropertyDrawer
 			// 2nd property
 			EditorGUI.PropertyField(layout,property4, new GUIContent(""));
 			
-			// Test button
+			// Test button			
+			EditorGUI.BeginDisabledGroup(Application.isPlaying == false);
 			if ( GUI.Button(layout,"Test") )
 			{
 				AudioCue cue = prop.serializedObject.targetObject as AudioCue;
@@ -1388,6 +1395,7 @@ public class LoopSectionDrawer : PropertyDrawer
 					SystemAudio.Play(cue,null,1,1, property2.floatValue-2); // Play from a couple seconds before looping
 				}
 			}
+			EditorGUI.EndDisabledGroup();
 		}
 
 	}

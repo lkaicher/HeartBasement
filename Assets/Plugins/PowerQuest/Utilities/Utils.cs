@@ -140,14 +140,14 @@ public class Utils
 		return start + ((end-start) * EaseCubic(ratio));
 	}
 	
-	public static float Interpolate(float from, float to, float min, float max, float val)
+	public static float Interpolate(float from, float to, float minVal, float maxVal, float val)
 	{
-		float denom = max-min;
+		float denom = maxVal-minVal;
 		if ( denom == 0 )
 			return from;
 		
 		return Mathf.Lerp( from, to, 
-				Mathf.Clamp01( (val-min)/ (denom) ) );
+				Mathf.Clamp01( (val-minVal)/ (denom) ) );
 	}
 		
 	public static float Loop( float val, float min, float max )
@@ -410,10 +410,16 @@ public class Utils
 		return new Vector2(r*Mathf.Cos(theta),r*Mathf.Sin(theta));
 	}
 
-	// More readable versions of string.IsNullOrEmpty
+	// More readable versions of string.IsNullOrEmpty. Also can us IsString.Empty(...), IsString.Valid(...)"
 	public static bool IsEmpty(string str) => string.IsNullOrEmpty(str);
 	public static bool IsNotEmpty(string str) => string.IsNullOrEmpty(str) == false;
 	public static bool HasText(string str) => string.IsNullOrEmpty(str) == false;
+
+	
+	// Returns a color from a hex string like '71EDF4', or '#aaa'
+	public static Color HexToColor(string hex = "abcdef") => ColorX.HexToRGB(hex);
+	// Returns a color from a hex string like '71EDF4', or '#aaa'
+	public static Color ColorFromHex(string hex = "abcdef") => ColorX.HexToRGB(hex);
 }
 
 // More readable versions of string.IsNullOrEmpty
@@ -437,6 +443,7 @@ public static class IsString
 			return first.EqualsIgnoreCase(second);
 		}
 	}
+
 }
 
 public static class ExtentionMethods
@@ -1847,11 +1854,25 @@ public class ColorX {
         return a + b + c + d + e + f;
     }
 
-    public static Color HexToRGB(string color) {
-        float red = (HexToInt(color[1]) + HexToInt(color[0]) * 16f) / 255f;
-        float green = (HexToInt(color[3]) + HexToInt(color[2]) * 16f) / 255f;
-        float blue = (HexToInt(color[5]) + HexToInt(color[4]) * 16f) / 255f;
-        Color finalColor = new Color { r = red, g = green, b = blue, a = 1 };
+    public static Color HexToRGB(string color) 
+	{
+		Color finalColor = Color.magenta;
+		if ( color.Length > 0 && color[0] == '#' )
+			color = color.Substring(1);
+		if ( color.Length == 3 )
+		{
+			float red = (HexToInt(color[0])) / 255f;
+			float green = (HexToInt(color[1])) / 255f;
+			float blue = (HexToInt(color[2])) / 255f;
+			finalColor = new Color { r = red, g = green, b = blue, a = 1 };
+		}
+		else if ( color.Length == 6 )
+		{
+			float red = (HexToInt(color[1]) + HexToInt(color[0]) * 16f) / 255f;
+			float green = (HexToInt(color[3]) + HexToInt(color[2]) * 16f) / 255f;
+			float blue = (HexToInt(color[5]) + HexToInt(color[4]) * 16f) / 255f;
+			finalColor = new Color { r = red, g = green, b = blue, a = 1 };
+		}
         return finalColor;
     }
 

@@ -68,6 +68,12 @@ public partial class SpriteAnimator
 	int m_resizeFrameId = 0;
 	float m_selectionMouseStart = 0;
 	float m_timelineEventBarHeight = TIMELINE_EVENT_HEIGHT;
+	
+	#endregion
+	#region Funcs: Partial Extention
+
+	partial void exOnDragDropTimeline( Event e, Rect rect );
+	partial void exOnDragDropEventsBar( Event e, Rect rect );
 
 	#endregion
 	#region Funcs: Init
@@ -521,7 +527,7 @@ public partial class SpriteAnimator
 			InsertEvent(GuiPosToAnimTime(rect,e.mousePosition.x), true);
 			e.Use();			
 		}
-
+		
 		GUI.BeginGroup(rect);
 
 		if ( m_events.Count == 0 )
@@ -530,6 +536,7 @@ public partial class SpriteAnimator
 		}
 
 		// Layout events. This is done in 4 stages so that selected items are drawn on top of (after) non-selected ones, but have their gui events handled first.
+				
 
 		// Calc some metadata about each event (start/end position on timeline, etc). This is stored in a temporary array, parallel to events
 		AnimEventLayoutData[] eventTimelineData = new AnimEventLayoutData[m_events.Count];
@@ -594,9 +601,11 @@ public partial class SpriteAnimator
 		{
 			LayoutEvent(rect, m_events[i], eventTimelineData[i], false );
 		}
+		
 
 		GUI.EndGroup();
-
+		
+		exOnDragDropEventsBar(e, rect);
 
 		// Draw selection rect
 		if ( m_dragState == eDragState.SelectEvent && Mathf.Abs(m_selectionMouseStart-e.mousePosition.x) > 1.0f  )
@@ -1208,7 +1217,7 @@ public partial class SpriteAnimator
 	{	
 		Event e = Event.current;
 		if ( (e.type == EventType.DragUpdated || e.type == EventType.DragPerform) && rect.Contains( e.mousePosition ) )
-		{			
+		{		
 			if ( System.Array.Exists( DragAndDrop.objectReferences, item => item is Sprite || item is Texture2D ) )
 			{
 
@@ -1266,6 +1275,10 @@ public partial class SpriteAnimator
 				}
 
 			}
+			else
+			{
+				exOnDragDropTimeline(e, rect);				
+			}
 		}
 
 		// The indicator won't update while drag/dropping becuse it's not active, so we hack it using this flag
@@ -1286,6 +1299,7 @@ public partial class SpriteAnimator
 			m_dragDropHovering = false;
 		}
 	}
+
 
 	// Draws line that shows where frames will be inserted
 	void LayoutInsertFramesLine( Rect rect, int frameId )

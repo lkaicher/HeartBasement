@@ -84,11 +84,24 @@ public static class AudioProjectWindowDetails
 		// Play button
 		if ( GUI.Button(layout,"Play",style))
 		{
+			StopAllClips();
 			PlayClip(clip,0,false);
 		}
 		return true;
 	
 	}
+
+	public static void StopAllClips()
+	{
+		Assembly unityEditorAssembly = typeof(AudioImporter).Assembly;
+		System.Type audioUtilClass = unityEditorAssembly.GetType("UnityEditor.AudioUtil");
+		MethodInfo method = audioUtilClass.GetMethod(
+			"StopAllPreviewClips",
+			BindingFlags.Static | BindingFlags.Public
+		);
+		method?.Invoke(null, null);
+	}
+
 	public static void PlayClip(AudioClip clip, int startSample, bool loop)
 	{
 		Assembly unityEditorAssembly = typeof(AudioImporter).Assembly;
@@ -129,15 +142,18 @@ public static class AudioProjectWindowDetails
 		{
 			if ( GUI.Button(rect,"Stop", style) )
 			{
-					if ( Application.isEditor && SystemAudio.GetValid() )
-							GameObject.DestroyImmediate( SystemAudio.Get.gameObject );
-					SystemAudio.Stop(gobj.name,0.1f);
+				StopAllClips();
+				if ( Application.isEditor && SystemAudio.GetValid() )
+						GameObject.DestroyImmediate( SystemAudio.Get.gameObject );
+				SystemAudio.Stop(gobj.name,0.1f);
 			}			
 		}
 		else if ( GUI.Button(rect,"Play", style) )
 		{			
 			if ( Application.isEditor && SystemAudio.GetValid() )
 					GameObject.DestroyImmediate( SystemAudio.Get.gameObject );
+					
+			StopAllClips();
 			SystemAudio.Play(cue);//(asset as GameObject).GetComponent<AudioCue>());
 		}
 		return true;

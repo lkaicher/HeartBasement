@@ -135,6 +135,7 @@ MonoBehaviour:
     m_directions: 128
     m_width: 1
     m_color: {r: 0.13333334, g: 0.13333334, b: 0.13333334, a: 1}
+  m_typeSpeed: 0
   m_unlocalizedText: Click Me
   m_outlineMeshes:
   - {fileID: 0}

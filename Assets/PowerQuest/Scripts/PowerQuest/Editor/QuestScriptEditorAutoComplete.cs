@@ -765,8 +765,16 @@ public partial class QuestScriptEditor
 
 			// Add items that match remaining expression to the list
 			m_acList.Clear();
+
 			// Add items if start with typed in text
 			m_acLists[(int)m_acContext].ForEach( item => { if ( item.StartsWith(m_acRemaining, System.StringComparison.OrdinalIgnoreCase) ) m_acList.Add(item); } );
+
+			// Special case for omitting quotes in autocomplete			
+			if ( m_acRemaining.Length > 0 && m_acRemaining[0] != '"' )
+			{ 
+				string withQuote = "\""+m_acRemaining;
+				m_acLists[(int)m_acContext].ForEach( item => { if ( item.StartsWith(withQuote, System.StringComparison.OrdinalIgnoreCase) ) m_acList.Add(item); } );
+			}
 
 			// Add items that don't start with, but contain what's being typed
 			if ( m_acRemaining.Length > 1 )
@@ -804,6 +812,7 @@ public partial class QuestScriptEditor
 					string[] enumNames = System.Enum.GetNames(scriptType);
 					// Add names if start with typed in text
 					System.Array.ForEach(enumNames, item => { if ( item.StartsWith(m_acRemaining, System.StringComparison.OrdinalIgnoreCase) ) m_acList.Add(item); } );
+					
 					// Add items that don't start with, but contain what's being typed
 					if ( m_acRemaining.Length > 1 )
 						System.Array.ForEach(enumNames, item => { if ( item.IndexOf(m_acRemaining, System.StringComparison.OrdinalIgnoreCase) != -1 && m_acList.Contains(item) == false ) m_acList.Add(item); } );
