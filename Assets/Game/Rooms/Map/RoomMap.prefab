@@ -245,6 +245,8 @@ MonoBehaviour:
       m_position: {x: -94, y: 98}
     - m_name: StartingPoint
       m_position: {x: 161, y: 44}
+    - m_name: NewHousePoint
+      m_position: {x: -35, y: -71}
   m_debugStartFunction: 
   m_hotspotComponents: []
   m_propComponents:
