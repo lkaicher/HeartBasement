@@ -1092,8 +1092,10 @@ public class RoomHome : RoomScript<RoomHome>
 		  // E.Restart();
 			yield return E.WaitSkip();
 			yield return E.FadeOut(1, false);
+			Audio.Stop("Rain", 1f);
 			yield return C.Display(" 3 months later", 65);
 			yield return E.FadeIn(1, false);
+			yield return E.Wait(1f);
 			Audio.Play("ring");
 			yield return C.Dave.Say("Hello?", 104);
 			yield return C.Display(" Hi Dave, your new home is ready!", 66);
