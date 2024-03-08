@@ -20,10 +20,12 @@ public class RoomMap : RoomScript<RoomMap>
 		C.Dave.SetPosition(Point(string.Format("{0}Point",C.Dave.LastRoom.ScriptName)));
 		
 		
-		if (Globals.gameStage > gameProgress.SecondFlood) {
+		if (Globals.gameStage > gameProgress.BoughtHouse){
+			R.Map.ActiveWalkableArea = 1;
+			Prop("Back").Animation = "HeartBasementMapEnd";
+		}else if (Globals.gameStage > gameProgress.SecondFlood) {
 			R.Map.ActiveWalkableArea = 1;
 			Prop("Back").Animation = "HeartBasementMapFlooded";
-		
 		} else {
 			R.Map.ActiveWalkableArea = 0;
 			Prop("Back").Animation = "HeartBasementMapNew";
@@ -197,6 +199,12 @@ public class RoomMap : RoomScript<RoomMap>
 		yield return C.Dave.WalkTo(Point("HardwarePoint"));
 		C.Dave.ChangeRoom(R.Hardware);
 		Region("Byhouse").Enabled = false;
+		yield return E.Break;
+	}
+
+	IEnumerator OnInteractPropNewHouse( IProp prop )
+	{
+		C.Dave.ChangeRoom(R.NewHouse);
 		yield return E.Break;
 	}
 }

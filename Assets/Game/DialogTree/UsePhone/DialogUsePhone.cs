@@ -212,11 +212,13 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 		yield return C.Display("Really? Don't you want to see it first? I can give a tour today.");
 		yield return C.Dave.Say(" Nope that's quite alright, I'm in, where do I sign?");
 		yield return C.Display(" Great! This is the easiest sale I've ever had!");
+		
 		yield return C.Display(" The house will be ready for you in three months.");
 		yield return C.Dave.Say(" THREE MONTHS?!");
 		yield return C.Dave.Say(" I'm standing here in a water up to my neck, and no matter what I do, it keeps coming back!");
 		yield return C.Dave.Say(" What am I supposed to do for three months?!");
-		yield return C.Display(" Well Dave, since you have been such a wonderful client, I can set you up with an electric pump rental.");
+		yield return C.Display(" Well Dave, since you have been such a wonderful client...");
+		yield return C.Display("How about I set you up with an electric pump rental?");
 		yield return C.Display(" Free of charge!");
 		yield return C.Dave.Say(" Well alrighty then, but it better be quick!");
 		

@@ -1083,13 +1083,19 @@ public class RoomHome : RoomScript<RoomHome>
 			Audio.Play("Motor");
 			yield return UnfloodBasement();
 			Audio.Stop("Motor");
-		 	yield return C.Dave.Say("Like a charm!", 40);
-		  	yield return E.WaitForGui(G.Explanation);
+			 yield return C.Dave.Say("Like a charm!", 40);
 			Globals.gameStage = gameProgress.UsedElectricPump;
-
+			  yield return E.WaitForGui(G.Explanation);
+		
 		  // E.Restart();
 			yield return E.WaitSkip();
-			E.FadeOut(1, false);
+			yield return E.FadeOut(1, false);
+			yield return C.Display(" 3 months later");
+			yield return E.FadeIn(1, false);
+			Audio.Play("ring");
+			yield return C.Dave.Say("Hello?");
+			yield return C.Display(" Hi Dave, your new home is ready!");
+			yield return C.Dave.Say("Finally!");
 		
 		}
 		
