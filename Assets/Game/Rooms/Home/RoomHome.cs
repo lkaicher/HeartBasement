@@ -208,7 +208,9 @@ public class RoomHome : RoomScript<RoomHome>
 			C.Dave.Position = Point("HomeDoorPosition");
 			C.Dave.Visible = true;
 			yield return E.WaitSkip();
+			yield return E.Wait(1f);
 			yield return C.Dave.Say(" Not again!", 3);
+			yield return E.Wait();
 			yield return E.WaitSkip();
 		  yield return E.WaitForGui(G.Explanation);
 		  //Globals.gameStage++;
@@ -439,17 +441,17 @@ public class RoomHome : RoomScript<RoomHome>
 		
 					yield return FloodBasement();
 		
-					yield return C.Dave.Say(" Are you kidding me?!");
+					yield return C.Dave.Say(" Are you kidding me?!", 31);
 		
-					yield return C.Dave.Say("That's it.");
+					yield return C.Dave.Say("That's it.", 33);
 		
-					yield return C.Dave.Say(" I'm done.");
+					yield return C.Dave.Say(" I'm done.", 60);
 		
-					yield return C.Dave.Say(" I ain't puttin up with this dang basement any longer!");
+					yield return C.Dave.Say(" I ain't puttin up with this dang basement any longer!", 92);
 		
-					yield return C.Dave.Say("I bet that house up there on the hill has a basement dryer than a desert!");
+					yield return C.Dave.Say("I bet that house up there on the hill has a basement dryer than a desert!", 100);
 		
-					yield return C.Dave.Say(" I oughtta give that real estate agent a call.");
+					yield return C.Dave.Say(" I oughtta give that real estate agent a call.", 103);
 
 					
 
@@ -1090,12 +1092,14 @@ public class RoomHome : RoomScript<RoomHome>
 		  // E.Restart();
 			yield return E.WaitSkip();
 			yield return E.FadeOut(1, false);
-			yield return C.Display(" 3 months later");
+			Audio.Stop("Rain", 1f);
+			yield return C.Display(" 3 months later", 65);
 			yield return E.FadeIn(1, false);
+			yield return E.Wait(1f);
 			Audio.Play("ring");
-			yield return C.Dave.Say("Hello?");
-			yield return C.Display(" Hi Dave, your new home is ready!");
-			yield return C.Dave.Say("Finally!");
+			yield return C.Dave.Say("Hello?", 104);
+			yield return C.Display(" Hi Dave, your new home is ready!", 66);
+			yield return C.Dave.Say("Finally!", 131);
 		
 		}
 		

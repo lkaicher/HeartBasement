@@ -23,6 +23,7 @@ public class RoomNewHouse : RoomScript<RoomNewHouse>
 	{
 		yield return C.Dave.WalkTo(Point("doorway"));
 		Globals.gameStage = gameProgress.WonGame;
+		yield return E.Wait();
 		yield return E.WaitForGui(G.Explanation);
 		E.Restart();
 		yield return E.Break;
