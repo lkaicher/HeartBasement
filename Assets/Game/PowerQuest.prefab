@@ -62,7 +62,7 @@ MonoBehaviour:
   m_snapToPixel: 1
   m_pixelCamEnabled: 1
   m_defaultPixelsPerUnit: 1
-  m_speechStyle: 0
+  m_speechStyle: 2
   m_speechPortraitLocation: 0
   m_dialogTextPrefab: {fileID: 11401660, guid: e602015b16ad0c041abca0abc9116b9d, type: 3}
   m_dialogTextOffset: {x: 0, y: 1}
