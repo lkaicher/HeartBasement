@@ -56,7 +56,7 @@ public class DialogDialogWithClerk : DialogTreeScript<DialogDialogWithClerk>
 		
 				I.BilgePump.Add();
 		
-				yield return C.Display("Pump added to you toolbox.", 12);
+				yield return C.Display("Pump added to your toolbox.", 12);
 		
 				Stop();
 		
