@@ -149,7 +149,7 @@ public class DialogUsePhone : DialogTreeScript<DialogUsePhone>
 
 	IEnumerator Option2( IDialogOption option )
 	{
-		yield return C.Dave.Say("Hi, I'd like to order a large cheese and pepporini pizza for delivery", 28);
+		yield return C.Dave.Say("Hi, I'd like to order a large cheese and pepperoni pizza for delivery", 28);
 		yield return C.Display(" Okay, anything else?", 18);
 		yield return C.Dave.Say("Yeah, a 6 pack of beer.", 105);
 		yield return C.Display("Got it, what is the address?", 50);
