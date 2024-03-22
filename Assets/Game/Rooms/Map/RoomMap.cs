@@ -209,8 +209,8 @@ public class RoomMap : RoomScript<RoomMap>
 			yield return C.Dave.WalkTo(Point("NewHousePoint"));
 			C.Dave.ChangeRoom(R.NewHouse);
 		} else {
-			yield return C.Dave.Say(" There's my new house");
-			yield return C.Dave.Say(" I can't wait to move in!");
+			yield return C.Dave.Say(" There's my new house", 132);
+			yield return C.Dave.Say(" I can't wait to move in!", 133);
 		}
 		yield return E.Break;
 	}
