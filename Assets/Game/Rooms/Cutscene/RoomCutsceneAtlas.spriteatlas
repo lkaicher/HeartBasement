@@ -50,20 +50,40 @@ SpriteAtlas:
     cachedData: {fileID: 0}
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
+  - {fileID: 21300000, guid: cbc3ed503c2e4d546a3782e4b33054fb, type: 3}
+  - {fileID: 21300000, guid: 7ccefdc0965b2a440b6dca34412ff895, type: 3}
   - {fileID: 21300000, guid: 080cfb73f7549084ea98f965d6dd66d0, type: 3}
   - {fileID: 21300000, guid: 04f39504b21eb254b80fb3974be30aee, type: 3}
   - {fileID: 21300000, guid: 0be59d45c96363c4d890bc207c0828b6, type: 3}
   - {fileID: 21300000, guid: e8b0c9168b6b8bd46b7b551385e5129d, type: 3}
+  - {fileID: 21300000, guid: 26bed227ae4caeb4ba846ba86c2c5925, type: 3}
+  - {fileID: 21300000, guid: 25507797f082ae94ba06ad8de2b739bf, type: 3}
+  - {fileID: 21300000, guid: e259b52885de16945b29095ded5f1c67, type: 3}
+  - {fileID: 21300000, guid: fc904e29baeb4b34981cb8157a90c01a, type: 3}
   - {fileID: 21300000, guid: 621cfa399d1a2410199c8439faef5006, type: 3}
+  - {fileID: 21300000, guid: d4436f59b3165994aa73460733acf439, type: 3}
   - {fileID: 21300000, guid: 2b280e6a246afca478d5ee13086707ba, type: 3}
+  - {fileID: 21300000, guid: 9a0101ba43e454c4abfbd49602a8c9cf, type: 3}
+  - {fileID: 21300000, guid: 930d688b869fa6e468b7e8fa6e0de81f, type: 3}
+  - {fileID: 21300000, guid: 9327b21c038055a4287199aece80c73f, type: 3}
   - {fileID: 21300000, guid: 3c47509f8f1c35a44ae0e59c70a34d3d, type: 3}
   m_PackedSpriteNamesToIndex:
+  - Slide9
+  - Slide7
   - stages_0002_stage-3
   - stages_0003_stage-2
   - stages_0001_stage-4
   - PngItem_1207753
+  - Slide3
+  - Slide4
+  - Slide8
+  - Slide5
   - HeartBasementBackground
+  - Slide1
   - stages_0000_stage-5
+  - Slide2
+  - Slide6
+  - Slide10
   - stages_0004_Stage-1
   m_RenderDataMap: {}
   m_Tag: RoomCutsceneAtlas
