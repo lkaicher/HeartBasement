@@ -25,7 +25,7 @@ if RUN_BARK:
 
 charMap={"Narr":"en_speaker_9","Dave":"en_speaker_6","Tony":"it_speaker_4",'HardwareClerk':"en_speaker_5"}
 phaseMap={"English":"","PhaseOne":"P1/", "PhaseTwo":"P2/"}
-input_file = csv.DictReader(open("CHFDialog2.csv"))
+input_file = csv.DictReader(open("CHFDialog.csv"))
 for row in input_file:
 	bias = ""
 	if (row["Character"] == "Narr"):
