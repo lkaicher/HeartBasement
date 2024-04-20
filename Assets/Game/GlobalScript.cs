@@ -81,7 +81,7 @@ public partial class GlobalScript : GlobalScriptBase<GlobalScript>
 		
 		
 		// temporary
-		I.RepairKit.Add();
+		// I.RepairKit.Add();
 		
 		// I.BilgePump.Add();
 		 // C.Tony.Enable();
